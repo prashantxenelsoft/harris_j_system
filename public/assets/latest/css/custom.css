@@ -1,0 +1,93 @@
+.bom-btn-group .add-consultancy-btn a,
+.bottom-address-form-row .address-form-btn-group ul li a,
+.list-bom-cards ul li ul li a,
+.bom-add-consultancy-screen .add-consultancy-btn-group ul li:not(:last-child) a,
+.bom-add-consultancy-screen .add-consultancy-btn-group ul li a
+{
+    text-decoration: none;
+}
+
+.bom-add-consultancy-screen .form-row-consultancy .consultancy-form-col input,
+.bom-add-consultancy-screen .form-row-consultancy .consultancy-form-col select,
+.address-single-col select,
+.address-form-popup select,
+.address-form-popup input
+{
+    color: black;
+}
+.bom-list-row-expand
+{
+    padding: unset;
+}
+
+.lookup-header-col .lookup-header-form-col .input-col-lookup input
+{
+    border: 1px solid #efefef;
+}
+#lookupForm
+{
+    display: contents;
+}
+.blocked-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: #fde8e8;
+    color: #d32f2f;
+    font-size: 12px;
+    /* font-weight: bold; */
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.blocked-badge::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background-color: #d32f2f; /* Red dot */
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 15px;
+}
+.disabled-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f0f0f0; /* Light gray background */
+    color: #757575; /* Dark gray text */
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.disabled-badge::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background-color: #757575; /* Gray dot */
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.deleted-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: #fbecec; /* Light red background */
+    color: #b71c1c; /* Dark red text */
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.deleted-badge::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background-color: #b71c1c; /* Dark red dot */
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 15px;
+}
