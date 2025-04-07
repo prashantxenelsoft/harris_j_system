@@ -28,7 +28,7 @@ class BomController extends Controller
         ->whereNull('lookup_header')
         ->orderBy('id', 'desc')
         ->get();
-        echo "<pre>";print_r($consultancies);die;
+       // echo "<pre>";print_r($consultancies);die;
         return view('bom.dashboard', compact('user', 'menus','consultancies','bom_static_settings','bom_static_settings_header_option'));
     }
 
