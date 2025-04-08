@@ -213,6 +213,15 @@ class ConsultancyController extends Controller
     public function destroy(string $id)
     {
         $consultancy = Consultancy::findOrFail($id);
+
+        $user = DB::table('users_type')->where('unique_id', $consultancy->consultancy_id)
+        ->join('users', 'users.id', '=', 'users_type.user_id')->select('users.*')->first();
+
+        if ($user) {
+            User::where('id', $user->id)->delete(); 
+            DB::table('users_type')->where('user_id', $user->id)->delete();
+        }
+
     
         if ($consultancy->consultancy_logo) {
 
