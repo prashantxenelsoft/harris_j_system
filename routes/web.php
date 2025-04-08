@@ -8,6 +8,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\BomController;
 use App\Http\Controllers\ConsultancyController;
+use App\Http\Controllers\ConsultantController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,6 +36,7 @@ Route::get('/run-artisan-commands', function () {
 Route::middleware('auth')->group(function () {
     Route::get('admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('bom/dashboard', [BomController::class, 'dashboard'])->name('bom.dashboard');
+    Route::get('consultant/dashboard', [ConsultantController::class, 'dashboard'])->name('consultant.dashboard');
     Route::post('admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
     Route::resource('admin/roles', RoleController::class);
     Route::resource('admin/users', UserController::class);

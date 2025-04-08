@@ -11,7 +11,7 @@ class ConsultantController extends Controller
      */
     public function index()
     {
-        //
+        echo "dashboard";die;
     }
 
     /**

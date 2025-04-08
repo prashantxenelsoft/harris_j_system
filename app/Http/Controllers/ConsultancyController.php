@@ -35,15 +35,26 @@ class ConsultancyController extends Controller
      */
     public function store(Request $request)
     {
-         // Consultancy ID unique hone ka manual check
         $existingConsultancy = Consultancy::where('consultancy_id', $request->consultancy_id)->first();
-
-        if ($existingConsultancy) {
+        $existingConsultancyAdminEmail = Consultancy::where('admin_email', $request->admin_email)->first();
+        
+        if ($existingConsultancy || $existingConsultancyAdminEmail) {
+            $message = '';
+        
+            if ($existingConsultancy && $existingConsultancyAdminEmail) {
+                $message = 'Consultancy ID and Admin Email already exist. Please use different values.';
+            } elseif ($existingConsultancy) {
+                $message = 'Consultancy ID already exists. Please use a different ID.';
+            } elseif ($existingConsultancyAdminEmail) {
+                $message = 'Consultancy Admin Email already exists. Please use a different email.';
+            }
+        
             return response()->json([
                 'status' => 'error',
-                'message' => 'Consultancy ID already exists. Please use a different ID.'
+                'message' => $message
             ], 400);
         }
+        
 
         $logoPath = null;
 
@@ -102,7 +113,7 @@ class ConsultancyController extends Controller
                 'url' => route('insert.password', ['id' => $insertedId]) // You can replace this with any dynamic URL
             ];
     
-            Mail::to('prashantxenelsoft@gmail.com')->send(new TestMail($data));
+            Mail::to($request->admin_email)->send(new TestMail($data));
         }
         return response()->json([
             'status' => 'success',
@@ -131,9 +142,18 @@ class ConsultancyController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if (Consultancy::where('consultancy_id', $request->consultancy_id)->where('id', '!=', $id)->exists()) {
-            return response()->json(['status' => 'error', 'message' => 'Consultancy ID already exists.'], 400);
+        
+        $checks = [
+            'consultancy_id' => 'Consultancy ID already exists.',
+            'admin_email' => 'Consultancy Admin Email already exists. Please use a different email.',
+        ];
+        
+        foreach ($checks as $field => $message) {
+            if (Consultancy::where($field, $request->$field)->where('id', '!=', $id)->exists()) {
+                return response()->json(['status' => 'error', 'message' => $message], 400);
+            }
         }
+        
     
         $consultancy = Consultancy::find($request->edit_id);
         if (!$consultancy) {
@@ -172,7 +192,7 @@ class ConsultancyController extends Controller
     
         // ✅ Optional mail
         if ($request->reset_password) {
-            Mail::to('prashantxenelsoft@gmail.com')->send(new TestMail([
+            Mail::to($request->admin_email)->send(new TestMail([
                 'name' => $request->consultancy_name,
                 'message' => 'Here is the important link you requested.',
                 'url' => route('insert.password', ['id' => $request->edit_id])
@@ -186,8 +206,6 @@ class ConsultancyController extends Controller
         ]);
     }
     
-    
-
     /**
      * Remove the specified resource from storage.
      */
