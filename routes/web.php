@@ -11,7 +11,8 @@ use App\Http\Controllers\ConsultancyController;
 use App\Http\Controllers\ConsultantController;
 
 Route::get('/', function () {
-    return view('welcome');
+    //return view('welcome');
+    return redirect()->route('login');
 });
 
 // Admin Login Routes

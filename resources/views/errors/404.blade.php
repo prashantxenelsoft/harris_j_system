@@ -54,7 +54,7 @@
 <body>
 
     <div class="error-container">
-        <img src="{{ asset('assets/latest/images/logo.png') }}" style="width: 120px; margin-bottom: 20px;" alt="Logo">
+        <img src="{{ asset('public/assets/latest/images/logo.png') }}" style="width: 120px; margin-bottom: 20px;" alt="Logo">
         <h1 class="error-code">404</h1>
         <p class="error-message">Oops! Page Not Found</p>
         <p class="error-description">The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>

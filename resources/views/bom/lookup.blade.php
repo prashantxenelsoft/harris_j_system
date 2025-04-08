@@ -11,7 +11,7 @@
       <div class="col-lg-3">
         <div class="static-setting-side-logo">
           <a href="#">
-            <img src="{{ asset('assets/latest/images/Bom_logo.png') }}" class="img-fluid" />
+            <img src="{{ asset('public/assets/latest/images/Bom_logo.png') }}" class="img-fluid" />
           </a>
 
           <div class="side-arrow">
@@ -47,7 +47,7 @@
         </div>
 
         <div class="static-setting-left-profile-wrap">
-          <img src="{{ asset('assets/latest/images/circle.png') }}" class="img-fluid" />
+          <img src="{{ asset('public/assets/latest/images/circle.png') }}" class="img-fluid" />
           <p>Jane Cooper</p>
         </div>
       </div>

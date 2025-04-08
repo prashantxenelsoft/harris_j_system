@@ -50,7 +50,7 @@
 </head>
 <body>
     <div class="password-card">
-        <img src="{{ asset('assets/latest/images/logo.png') }}" class="logo" style="width: 120px;" />
+        <img src="{{ asset('public/assets/latest/images/logo.png') }}" class="logo" style="width: 120px;" />
 
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>

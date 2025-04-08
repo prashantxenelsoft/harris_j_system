@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Harris J System</title>
 <!-- 
-    <link rel="icon" href="{{ asset('assets/latest/images/fav-icon.ico') }}">  -->
+    <link rel="icon" href="{{ asset('public/assets/latest/images/fav-icon.ico') }}">  -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" integrity="sha512-1cK78a1o+ht2JcaW6g8OXYwqpev9+6GqOkz9xmBN9iUUhIndKtxwILGWYOSibOKjLsEdjyjZvYDq/cZwNeak0w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -18,9 +18,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('assets/latest/css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/latest/css/responsive.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/latest/css/custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('public/assets/latest/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('public/assets/latest/css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ asset('public/assets/latest/css/custom.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/css/intlTelInput.css">
 </head>
 

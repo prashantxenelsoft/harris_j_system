@@ -6,14 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-  <link rel="icon" href="{{ asset('assets/images/favicon.svg') }}" type="image/x-icon">
+  <link rel="icon" href="{{ asset('public/assets/images/favicon.svg') }}" type="image/x-icon">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" id="main-font-link">
-<link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/fonts/feather.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/fonts/fontawesome.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/fonts/material.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link">
-<link rel="stylesheet" href="{{ asset('assets/css/style-preset.css') }}">
+<link rel="stylesheet" href="{{ asset('public/assets/fonts/tabler-icons.min.css') }}">
+<link rel="stylesheet" href="{{ asset('public/assets/fonts/feather.css') }}">
+<link rel="stylesheet" href="{{ asset('public/assets/fonts/fontawesome.css') }}">
+<link rel="stylesheet" href="{{ asset('public/assets/fonts/material.css') }}">
+<link rel="stylesheet" href="{{ asset('public/assets/css/style.css') }}" id="main-style-link">
+<link rel="stylesheet" href="{{ asset('public/assets/css/style-preset.css') }}">
 
 
 </head>
@@ -28,7 +28,7 @@
   <div class="navbar-wrapper">
     <div class="m-header" style="place-self: anchor-center;">
       <a href="{{ route('admin.dashboard') }}" class="b-brand text-primary" style="text-decoration: none; position: relative; display: inline-block;">
-        <img src="{{ asset('assets/latest/images/logo.png') }}" class="img-fluid login-logo" style="height:50px;">
+        <img src="{{ asset('public/assets/latest/images/logo.png') }}" class="img-fluid login-logo" style="height:50px;">
       </a>
     </div>
 
@@ -205,7 +205,7 @@
             <a class="list-group-item list-group-item-action">
               <div class="d-flex">
                 <div class="flex-shrink-0">
-                  <img src="{{ asset('assets/images/user/avatar-2.jpg') }}" alt="user-image" class="user-avtar">
+                  <img src="{{ asset('public/assets/images/user/avatar-2.jpg') }}" alt="user-image" class="user-avtar">
                 </div>
                 <div class="flex-grow-1 ms-1">
                   <span class="float-end text-muted">3:00 AM</span>
@@ -217,7 +217,7 @@
             <a class="list-group-item list-group-item-action">
               <div class="d-flex">
                 <div class="flex-shrink-0">
-                  <img src="{{ asset('assets/images/user/avatar-1.jpg') }}" alt="user-image" class="user-avtar">
+                  <img src="{{ asset('public/assets/images/user/avatar-1.jpg') }}" alt="user-image" class="user-avtar">
                 </div>
                 <div class="flex-grow-1 ms-1">
                   <span class="float-end text-muted">6:00 PM</span>
@@ -229,7 +229,7 @@
             <a class="list-group-item list-group-item-action">
               <div class="d-flex">
                 <div class="flex-shrink-0">
-                  <img src="{{ asset('assets/images/user/avatar-3.jpg') }}" alt="user-image" class="user-avtar">
+                  <img src="{{ asset('public/assets/images/user/avatar-3.jpg') }}" alt="user-image" class="user-avtar">
                 </div>
                 <div class="flex-grow-1 ms-1">
                   <span class="float-end text-muted">2:45 PM</span>
@@ -241,7 +241,7 @@
             <a class="list-group-item list-group-item-action">
               <div class="d-flex">
                 <div class="flex-shrink-0">
-                  <img src="{{ asset('assets/images/user/avatar-4.jpg') }}" alt="user-image" class="user-avtar">
+                  <img src="{{ asset('public/assets/images/user/avatar-4.jpg') }}" alt="user-image" class="user-avtar">
                 </div>
                 <div class="flex-grow-1 ms-1">
                   <span class="float-end text-muted">9:10 PM</span>
@@ -268,14 +268,14 @@
         data-bs-auto-close="outside"
         aria-expanded="false"
       >
-        <img src="{{ asset('assets/images/user/avatar-2.jpg') }}" alt="user-image" class="user-avtar">
+        <img src="{{ asset('public/assets/images/user/avatar-2.jpg') }}" alt="user-image" class="user-avtar">
         <span>{{ Auth::user()->name }}</span>
       </a>
       <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
         <div class="dropdown-header">
           <div class="d-flex mb-1">
             <div class="flex-shrink-0">
-              <img src="{{ asset('assets/images/user/avatar-2.jpg') }}" alt="user-image" class="user-avtar wid-35">
+              <img src="{{ asset('public/assets/images/user/avatar-2.jpg') }}" alt="user-image" class="user-avtar wid-35">
             </div>
             <!-- <div class="flex-grow-1 ms-3">
               <h6 class="mb-1">{{ Auth::user()->name }}</h6>
@@ -384,14 +384,14 @@
     </div>
   </footer> -->
 
-  <script src="{{ asset('assets/js/plugins/apexcharts.min.js') }}"></script>
-  <script src="{{ asset('assets/js/pages/dashboard-default.js') }}"></script>
-  <script src="{{ asset('assets/js/plugins/popper.min.js') }}"></script>
-  <script src="{{ asset('assets/js/plugins/simplebar.min.js') }}"></script>
-  <script src="{{ asset('assets/js/plugins/bootstrap.min.js') }}"></script>
-  <script src="{{ asset('assets/js/fonts/custom-font.js') }}"></script>
-  <script src="{{ asset('assets/js/pcoded.js') }}"></script>
-  <script src="{{ asset('assets/js/plugins/feather.min.js') }}"></script>
+  <script src="{{ asset('public/assets/js/plugins/apexcharts.min.js') }}"></script>
+  <script src="{{ asset('public/assets/js/pages/dashboard-default.js') }}"></script>
+  <script src="{{ asset('public/assets/js/plugins/popper.min.js') }}"></script>
+  <script src="{{ asset('public/assets/js/plugins/simplebar.min.js') }}"></script>
+  <script src="{{ asset('public/assets/js/plugins/bootstrap.min.js') }}"></script>
+  <script src="{{ asset('public/assets/js/fonts/custom-font.js') }}"></script>
+  <script src="{{ asset('public/assets/js/pcoded.js') }}"></script>
+  <script src="{{ asset('public/assets/js/plugins/feather.min.js') }}"></script>
 
 </body>
 </html>

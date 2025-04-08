@@ -54,7 +54,7 @@
 <body>
 
     <div class="error-container">
-        <img src="{{ asset('assets/latest/images/logo.png') }}" style="width: 120px; margin-bottom: 20px;" alt="Logo">
+        <img src="{{ asset('public/assets/latest/images/logo.png') }}" style="width: 120px; margin-bottom: 20px;" alt="Logo">
         <h1 class="error-code">403</h1>
         <p class="error-message">Access Forbidden</p>
         <p class="error-description">You do not have permission to access this page.</p>

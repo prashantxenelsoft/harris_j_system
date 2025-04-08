@@ -6,7 +6,7 @@
             <div class="row py-2">
                 <div class="col-lg-2">
                     <div class="header-logo">
-                        <img src="{{ asset('assets/latest/images/Bom_logo.png') }}" style="width: 120px;" />
+                        <img src="{{ asset('public/assets/latest/images/Bom_logo.png') }}" style="width: 120px;" />
                     </div>
                 </div>
 
@@ -61,7 +61,7 @@
                         </div>
 
                         <div class="bom-profile-col">
-                            <img src="{{ asset('assets/latest/images/profile.png ') }}" class="img-fluid" />
+                            <img src="{{ asset('public/assets/latest/images/profile.png ') }}" class="img-fluid" />
                         </div>
                     </div>
                 </div>
@@ -95,13 +95,13 @@
                                 <div class="bom-btn-group">
                                     <div class="add-consultancy-btn">
                                         <a href="#" class="show-consultancy-form">
-                                            <img src="{{ asset('assets/latest/images/circle-add-button.png ') }}" class="img-fluid" />
+                                            <img src="{{ asset('public/assets/latest/images/circle-add-button.png ') }}" class="img-fluid" />
                                             Add Consultancy
                                         </a>
                                     </div>
 
                                     <!-- <div class="data-access-btn-bom">
-                                        <img src="{{ asset('assets/latest/images/file-spreadsheet.png ') }}" class="img-fluid" />
+                                        <img src="{{ asset('public/assets/latest/images/file-spreadsheet.png ') }}" class="img-fluid" />
                                         <p>Data Access</p>
                                     </div> -->
                                 </div>
@@ -323,14 +323,14 @@
                                                 <ul>
                                                     <li>
                                                         <a href="javascript:void(0);" onclick="clearConsultancyForm();">
-                                                            <img src="{{ asset('assets/latest/images/clear-icon.png') }}" class="img-fluid" />
+                                                            <img src="{{ asset('public/assets/latest/images/clear-icon.png') }}" class="img-fluid" />
                                                             Clear
                                                         </a>
                                                     </li>
 
                                                     <li>
                                                         <a href="javascript:void(0);" onclick="validateConsultancyForm();">
-                                                            <img src="{{ asset('assets/latest/images/save-icon.png') }}" class="img-fluid" />
+                                                            <img src="{{ asset('public/assets/latest/images/save-icon.png') }}" class="img-fluid" />
                                                             Save
                                                         </a>
                                                     </li>
@@ -516,11 +516,11 @@
                                                     <div class="modal-content">
                                                         <div class="modal-header">
                                                             <h5 class="modal-title" id="staticBackdropLabel">
-                                                                <img src="{{ asset('assets/latest/images/location-icon.png') }}" class="img-fluid" />
+                                                                <img src="{{ asset('public/assets/latest/images/location-icon.png') }}" class="img-fluid" />
                                                                 Add Address
                                                             </h5>
                                                             <button aria-label="Close">
-                                                                <img src="{{ asset('assets/latest/images/close-btn-address-popup.png') }}" class="img-fluid" data-bs-dismiss="modal" />
+                                                                <img src="{{ asset('public/assets/latest/images/close-btn-address-popup.png') }}" class="img-fluid" data-bs-dismiss="modal" />
                                                             </button>
                                                         </div>
                                                         <div class="modal-body">
@@ -601,7 +601,7 @@
                                                                         <h4>Address</h4>
 
                                                                         <div class="blank-address-content">
-                                                                            <img src="{{ asset('assets/latest/images/no-data-2.png') }}" class="img-fluid" />
+                                                                            <img src="{{ asset('public/assets/latest/images/no-data-2.png') }}" class="img-fluid" />
                                                                             <h5>Add Address</h5>
                                                                         </div>
                                                                     </div>
@@ -824,9 +824,9 @@
                         plusCode
                             ? `
                     <div class="default-copy-address">
-                        <img src="{{ asset('assets/latest/images/icon-c.png') }}" class="img-fluid" />
+                        <img src="{{ asset('public/assets/latest/images/icon-c.png') }}" class="img-fluid" />
                         <h5>${plusCode}</h5>
-                        <img src="{{ asset('assets/latest/images/icon-c1.png') }}" class="img-fluid" />
+                        <img src="{{ asset('public/assets/latest/images/icon-c1.png') }}" class="img-fluid" />
                     </div>`
                             : ""
                     }
@@ -863,7 +863,7 @@
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="{{ asset('assets/latest/js/country-state-data.js') }}"></script>
+<script src="{{ asset('public/assets/latest/js/country-state-data.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     let iti1, iti2;
@@ -892,7 +892,7 @@
             form2.reset();
 
             const addressCol = document.querySelector(".address-popup-right-col");
-            addressCol.innerHTML = `<h4>Address</h4><div class="blank-address-content"><img src="{{ asset('assets/latest/images/no-data-2.png') }}" class="img-fluid" /><h5>Add Address</h5></div>`;
+            addressCol.innerHTML = `<h4>Address</h4><div class="blank-address-content"><img src="{{ asset('public/assets/latest/images/no-data-2.png') }}" class="img-fluid" /><h5>Add Address</h5></div>`;
             $("#state-select").empty().append('<option value="" selected disabled>Select State / Province *</option>');
 
             // Hide other sections
@@ -993,7 +993,7 @@
         form2.reset();
 
         const addressCol = document.querySelector(".address-popup-right-col");
-        addressCol.innerHTML = `<h4>Address</h4><div class="blank-address-content"><img src="{{ asset('assets/latest/images/no-data-2.png') }}" class="img-fluid" /><h5>Add Address</h5></div>`;
+        addressCol.innerHTML = `<h4>Address</h4><div class="blank-address-content"><img src="{{ asset('public/assets/latest/images/no-data-2.png') }}" class="img-fluid" /><h5>Add Address</h5></div>`;
         $("#state-select").empty().append('<option value="" selected disabled>Select State / Province *</option>');
         document.getElementById("consultancyForm").reset();
     }
@@ -1179,7 +1179,7 @@
         form2.reset();
 
         const addressCol = document.querySelector(".address-popup-right-col");
-        addressCol.innerHTML = `<h4>Address</h4><div class="blank-address-content"><img src="{{ asset('assets/latest/images/no-data-2.png') }}" class="img-fluid" /><h5>Add Address</h5></div>`;
+        addressCol.innerHTML = `<h4>Address</h4><div class="blank-address-content"><img src="{{ asset('public/assets/latest/images/no-data-2.png') }}" class="img-fluid" /><h5>Add Address</h5></div>`;
         $("#state-select").empty().append('<option value="" selected disabled>Select State / Province *</option>');
 
         form.querySelectorAll("input, select").forEach((field) => {
@@ -1259,7 +1259,7 @@
                 img.src = `https://flagsapi.com/${isoCode}/flat/32.png`;
                 img.alt = country;
             } else {
-                img.src = "{{ asset('assets/latest/images/default-flag.png') }}";
+                img.src = "{{ asset('public/assets/latest/images/default-flag.png') }}";
                 img.alt = "No Flag";
             }
         });
@@ -1277,9 +1277,12 @@
 
         if (rawPath) {
             const filename = rawPath.split('consultancy/')[1];
-            const imageUrl = '/storage/consultancy/' + filename;
-            // server
-           // const imageUrl = window.location.origin + '/storage/app/public/consultancy/' + filename;
+            const pathParts = window.location.pathname.split('/');
+            const basePath = pathParts.length > 1 ? '/' + pathParts[1] : '';
+            const baseUrl = window.location.origin + basePath;
+
+            const imageUrl = baseUrl + '/storage/app/public/consultancy/' + filename;
+
 
             $('#previewImage').attr('src', imageUrl);
             $('#previewText').show();
@@ -1426,9 +1429,9 @@
                     plusCode
                         ? `
                 <div class="default-copy-address">
-                    <img src="{{ asset('assets/latest/images/icon-c.png') }}" class="img-fluid" />
+                    <img src="{{ asset('public/assets/latest/images/icon-c.png') }}" class="img-fluid" />
                     <h5>${plusCode}</h5>
-                    <img src="{{ asset('assets/latest/images/icon-c1.png') }}" class="img-fluid" />
+                    <img src="{{ asset('public/assets/latest/images/icon-c1.png') }}" class="img-fluid" />
                 </div>`
                         : ""
                 }
