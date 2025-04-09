@@ -368,6 +368,96 @@
                                             </div>
                                         </div>
 
+                                        <div class="modal fade" id="leaveModal" tabindex="-1" aria-labelledby="leaveModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                                <div class="modal-content rounded-4 shadow">
+
+                                                <div class="modal-body">
+
+                                                    <!-- Left Section -->
+                                                    <div class="modal-left">
+
+                                                    <!-- Close Icon -->
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                                                    <!-- User Info -->
+                                                    <div class="d-flex align-items-center mb-4">
+                                                        <img src="https://randomuser.me/api/portraits/men/75.jpg" class="user-image me-3" alt="User">
+                                                        <div>
+                                                        <strong>Bruce Lee</strong><br>
+                                                        <small>Date: 19 / 08 / 2024 | Time On Duty: -- / 8.30</small>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Leave Type -->
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold mb-1">Leave type:</label>
+                                                        <span class="text-danger fw-bold">Medical Leave (ML)</span>
+                                                    </div>
+
+                                                    <!-- Leave Hours -->
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">ML leave hours:</label><br>
+                                                        <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="leaveHours" id="fullDay" checked>
+                                                        <label class="form-check-label" for="fullDay">Full Day</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="leaveHours" id="hd1">
+                                                        <label class="form-check-label" for="hd1">First Half (HD1)</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="leaveHours" id="hd2">
+                                                        <label class="form-check-label" for="hd2">Second Half (HD2)</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="leaveHours" id="custom">
+                                                        <label class="form-check-label" for="custom">Custom</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Select Date -->
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">Select date:</label>
+                                                        <input type="text" class="form-control" placeholder="19 / 08 / 2024 - 19 / 08 / 2024">
+                                                    </div>
+
+                                                    <!-- Leave Slot Slider -->
+                                                    <div class="mb-4">
+                                                        <label class="form-label fw-bold">Select Leave Slot:</label>
+                                                        <div class="slider-labels">
+                                                        <span>12 AM</span>
+                                                        <span>12 PM</span>
+                                                        <span>12 AM</span>
+                                                        </div>
+                                                        <input type="range" class="form-range" min="0" max="24" step="0.5" value="9">
+                                                    </div>
+
+                                                    <!-- Upload -->
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">Upload Medical Leave Certificate</label>
+                                                        <input type="file" class="form-control">
+                                                        <div class="form-text">* Allowed: PNG, JPG, PDF (Max 1MB)</div>
+                                                    </div>
+
+                                                    <!-- Action Buttons -->
+                                                    <div class="d-flex justify-content-end gap-2">
+                                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                                        <button class="btn btn-danger">Clock It</button>
+                                                    </div>
+
+                                                    </div>
+
+                                                    <!-- Right Section -->
+                                                    <div class="modal-right">
+                                                    <img src="https://cdn-icons-png.flaticon.com/512/7466/7466740.png" class="img-fluid" alt="Illustration" width="180">
+                                                    </div>
+
+                                                </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <script>
                                             const calendarDays = document.getElementById("calendarDays");
                                             const monthSelect = document.getElementById("monthSelect");
@@ -499,8 +589,13 @@
                                                     const opt = document.createElement("div");
                                                     opt.innerHTML = `<span style="margin-right: 8px;">${item.icon}</span>${item.label}`;
                                                     opt.onclick = () => {
-                                                        //console.log("check item",item);
+                                                        // console.log("check item",item);
                                                         applyTag(cell, item.label, "#007bff");
+                                                        if(item.label == "ML")
+                                                        {
+                                                            const leaveModal = new bootstrap.Modal(document.getElementById('leaveModal'));
+                                                            leaveModal.show();
+                                                        }
                                                         dropdown.remove();
                                                     }
                                                     suggestionBox.appendChild(opt);
