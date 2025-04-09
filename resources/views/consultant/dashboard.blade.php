@@ -67,10 +67,33 @@
                         </div>
 
                         <div class="bom-col-country-dropdown">
-                            <select>
-                                <option value="United States" data-image="singapore.png"><img src="{{ asset('public/assets/latest/images/singapore.png') }}" /> Singapore</option>
-                                <option value="Afghanistan" data-image="image1.jpg"><img src="{{ asset('public/assets/latest/images/china.png') }}" />China</option>
-                            </select>
+                        <select id="action-dropdown" onchange="handleDropdown(this)">
+                            <option selected disabled>{{ Auth::user()->name }}</option>
+                            <option data-url="#">Profile</option>
+                            <option data-url="logout">Logout</option>
+                        </select>
+
+                        <!-- Hidden logout form -->
+                        <form id="logout-form" method="POST" action="{{ route('admin.logout') }}" style="display: none;">
+                            @csrf
+                        </form>
+
+                        <script>
+                            function handleDropdown(select) {
+                                const selectedOption = select.options[select.selectedIndex];
+                                const action = selectedOption.getAttribute('data-url');
+
+                                if (action === 'logout') {
+                                    document.getElementById('logout-form').submit(); // submit logout form
+                                } else if (action && action !== '#') {
+                                    window.location.href = action; // for other links
+                                }
+
+                                // Reset dropdown to default
+                                select.selectedIndex = 0;
+                            }
+                        </script>
+
                         </div>
 
                         <div class="bom-profile-col">
