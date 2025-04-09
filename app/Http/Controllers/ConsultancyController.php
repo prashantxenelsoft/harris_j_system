@@ -110,7 +110,7 @@ class ConsultancyController extends Controller
             $data = [
                 'name' => $request->consultancy_name,
                 'message' => 'Here is the important link you requested.',
-                'url' => route('insert.password', ['id' => $insertedId]) // You can replace this with any dynamic URL
+                'url' => route('insert.password', ['id' => $userinsertedId]) // You can replace this with any dynamic URL
             ];
     
             Mail::to($request->admin_email)->send(new TestMail($data));
@@ -195,7 +195,7 @@ class ConsultancyController extends Controller
             Mail::to($request->admin_email)->send(new TestMail([
                 'name' => $request->consultancy_name,
                 'message' => 'Here is the important link you requested.',
-                'url' => route('insert.password', ['id' => $request->edit_id])
+                'url' => route('insert.password', ['id' => $user->id])
             ]));
         }
     
@@ -239,17 +239,7 @@ class ConsultancyController extends Controller
     public function insertPassword(Request $request, $id)
     {
         if ($request->isMethod('post')) {
-            $consultancy = Consultancy::find($id);
-    
-            if (!$consultancy) {
-                return back()->with('error', 'Consultancy not found');
-            }
-    
-            $user = DB::table('users_type')
-                ->where('unique_id', $consultancy->consultancy_id)
-                ->join('users', 'users.id', '=', 'users_type.user_id')
-                ->select('users.*')
-                ->first();
+            $user = User::find($id);
     
             if (!$user) {
                 return back()->with('error', 'User not found');
