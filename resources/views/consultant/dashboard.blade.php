@@ -339,168 +339,6 @@
                                         </div> -->
 
                                         <!-- <div class="calendar" id="calendar"></div> -->
-                                        <style>
-                                            .calendar {
-                                            width: 100%;
-                                            max-width: 1000px;
-                                            border-radius: 8px;
-                                            overflow: hidden;
-                                            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-                                            background-color: #fff;
-                                            border: 1px solid #e0e0e0;
-                                            }
-                                            .calendar-nav {
-                                            display: flex;
-                                            justify-content: space-between;
-                                            align-items: center;
-                                            padding: 10px 16px;
-                                            background-color: #f9f9f9;
-                                            border-bottom: 1px solid #e0e0e0;
-                                            }
-                                            .calendar-tools {
-                                            display: flex;
-                                            gap: 8px;
-                                            align-items: center;
-                                            }
-                                            .calendar-tools i {
-                                            background-color: #e9ecef;
-                                            color: #495057;
-                                            padding: 6px;
-                                            border-radius: 4px;
-                                            cursor: pointer;
-                                            font-style: normal;
-                                            font-size: 14px;
-                                            font-weight: normal;
-                                            display: flex;
-                                            align-items: center;
-                                            justify-content: center;
-                                            width: 24px;
-                                            height: 24px;
-                                            }
-                                            .month-controls {
-                                            display: flex;
-                                            gap: 8px;
-                                            align-items: center;
-                                            }
-                                            .month-controls button {
-                                            border: none;
-                                            background: none;
-                                            font-size: 16px;
-                                            cursor: pointer;
-                                            color: #495057;
-                                            }
-                                            .month-controls select {
-                                            padding: 6px 10px;
-                                            font-size: 14px;
-                                            border-radius: 4px;
-                                            border: 1px solid #ced4da;
-                                            color: #495057;
-                                            background-color: #fff;
-                                            }
-                                            .calendar-grid {
-                                            display: grid;
-                                            grid-template-columns: repeat(7, 1fr);
-                                            text-align: left;
-                                            border-bottom: 1px solid #e0e0e0;
-                                            }
-                                            .day-label {
-                                            font-weight: 500;
-                                            color: #495057;
-                                            padding: 10px 8px;
-                                            text-align: center;
-                                            border-bottom: 1px solid #e0e0e0;
-                                            }
-                                            .calendar-cell {
-                                            border-right: 1px solid #e0e0e0;
-                                            border-bottom: 1px solid #e0e0e0;
-                                            padding: 8px;
-                                            position: relative;
-                                            cursor: pointer;
-                                            display: flex;
-                                            flex-direction: column;
-                                            align-items: flex-start; /* Keep this for date positioning */
-                                            justify-content: center; /* Center content vertically */
-                                            border-radius: 0;
-                                            min-height: 60px;
-                                            text-align: center; /* Center text horizontally within the cell */
-                                            }
-                                            .calendar-cell:last-child {
-                                            border-right: none;
-                                            }
-                                            .calendar-grid > div:nth-child(7n) {
-                                            border-right: none;
-                                            }
-                                            .calendar-cell.disabled {
-                                            background-color: #f9f9f9;
-                                            color: #adb5bd;
-                                            pointer-events: none;
-                                            justify-content: flex-start; /* Reset justify for disabled cells */
-                                            text-align: left; /* Reset text align for disabled cells */
-                                            }
-                                            .dropdown {
-                                            position: absolute;
-                                            top: 24px;
-                                            background-color: #fff;
-                                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-                                            border-radius: 6px;
-                                            z-index: 10;
-                                            width: 180px;
-                                            padding: 8px 0;
-                                            display: flex;
-                                            flex-direction: column;
-                                            gap: 0;
-                                            border: 1px solid #ced4da;
-                                            }
-                                            .dropdown input {
-                                            padding: 8px 12px;
-                                            font-size: 14px;
-                                            border: none;
-                                            border-bottom: 1px solid #e0e0e0;
-                                            border-radius: 0;
-                                            outline: none;
-                                            }
-                                            .dropdown input:last-child {
-                                            border-bottom: none;
-                                            }
-                                            .suggestions {
-                                            display: flex;
-                                            flex-direction: column;
-                                            max-height: 150px;
-                                            overflow-y: auto;
-                                            }
-                                            .suggestions div {
-                                            padding: 8px 12px;
-                                            cursor: pointer;
-                                            display: flex;
-                                            align-items: center;
-                                            gap: 8px;
-                                            white-space: nowrap;
-                                            border-radius: 0;
-                                            font-size: 14px;
-                                            color: #212529;
-                                            }
-                                            .suggestions div:hover {
-                                            background-color: #f8f9fa;
-                                            }
-                                            .tag {
-                                            background-color: #007bff;
-                                            color: white;
-                                            font-size: 12px;
-                                            padding: 2px 8px;
-                                            border-radius: 10px;
-                                            display: inline-block; /* Important for centering */
-                                            }
-                                            .cell-date {
-                                            font-size: 14px;
-                                            color: #212529;
-                                            position: absolute; /* Position date at the top-left */
-                                            top: 8px;
-                                            left: 8px;
-                                            }
-                                            .calendar-cell.highlighted {
-                                            background-color: #ffe3bf;
-                                            }
-                                        </style>
 
                                         <div class="calendar">
                                             <div class="calendar-nav">
@@ -605,13 +443,32 @@
                                                 }
 
                                                 // Add example tags with blue color
-                                                if (i === 1) applyTag(cell, "PDO", "#007bff");
-                                                if (i === 2) applyTag(cell, "8", "#007bff");
-                                                if (i === 8) applyTag(cell, "8", "#007bff");
-                                                if (i === 9) applyTag(cell, "PH", "#007bff");
-                                                if (i === 15) applyTag(cell, "8", "#007bff");
-                                                if (i === 16) applyTag(cell, "A", "#007bff");
-                                                if (i === 25) applyTag(cell, "01", "#007bff");
+                                                const tagRules = {
+                                                "3-2025": [  // April 2025
+                                                    { index: 1, label: "PDO" },
+                                                    { index: 2, label: "8" },
+                                                    { index: 8, label: "5" },
+                                                    { index: 9, label: "PH" },
+                                                    { index: 15, label: "ML" },
+                                                    { index: 16, label: "AL" },
+                                                    { index: 25, label: "6" },
+                                                ],
+                                                "4-2025": [
+                                                    { index: 2, label: "PH" },
+                                                    { index: 20, label: "8" },
+                                                ]
+                                            };
+
+                                            // Example: current month = 4, year = 2025
+                                            const currentKey = `${month}-${year}`;
+                                            if (tagRules[currentKey]) {
+                                                tagRules[currentKey].forEach(rule => {
+                                                    if (i === rule.index) {
+                                                        applyTag(cell, rule.label, "#007bff");
+                                                    }
+                                                });
+                                            }
+
 
                                                 calendarDays.appendChild(cell);
                                                 }
@@ -642,6 +499,7 @@
                                                     const opt = document.createElement("div");
                                                     opt.innerHTML = `<span style="margin-right: 8px;">${item.icon}</span>${item.label}`;
                                                     opt.onclick = () => {
+                                                        //console.log("check item",item);
                                                         applyTag(cell, item.label, "#007bff");
                                                         dropdown.remove();
                                                     }
@@ -668,12 +526,22 @@
 
                                             function applyTag(cell, label, color = "#007bff") {
                                                 cell.querySelectorAll(".tag").forEach(t => t.remove());
-                                                const tag = document.createElement("div");
-                                                tag.classList.add("tag");
-                                                tag.innerText = label;
-                                                tag.style.backgroundColor = color;
-                                                cell.appendChild(tag); // Append tag (it will be centered due to CSS)
+
+                                                const tag = Object.assign(document.createElement("div"), {
+                                                    className: "tag",
+                                                    innerText: label
+                                                });
+
+                                                if (["PDO", "PH", "AL", "ML"].includes(label)) {
+                                                    tag.style.color = "blue";
+                                                } else if (!isNaN(label) && parseInt(label) < 8) {
+                                                    tag.style.color = "red";
+                                                }
+
+                                                cell.appendChild(tag);
                                             }
+
+
 
                                             function closeAllDropdowns() {
                                                 document.querySelectorAll(".dropdown").forEach(d => d.remove());
