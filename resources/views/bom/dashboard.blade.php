@@ -40,24 +40,33 @@
                         </div>
 
                         <div class="bom-col-country-dropdown">
-                            <div class="dropdown">
-                                <button class="btn custom-dropdown-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {{ Auth::user()->name }}
-                                </button>
+                            <select id="action-dropdown" onchange="handleDropdown(this)">
+                                <option selected disabled>{{ Auth::user()->name }}</option>
+                                <option data-url="#">Profile</option>
+                                <option data-url="logout">Logout</option>
+                            </select>
 
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                                    <li>
-                                        <form method="POST" action="{{ route('admin.logout') }}">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="ti ti-power"></i>
-                                                <span>Logout</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
+                            <!-- Hidden logout form -->
+                            <form id="logout-form" method="POST" action="{{ route('admin.logout') }}" style="display: none;">
+                                @csrf
+                            </form>
+
+                            <script>
+                                function handleDropdown(select) {
+                                    const selectedOption = select.options[select.selectedIndex];
+                                    const action = selectedOption.getAttribute('data-url');
+
+                                    if (action === 'logout') {
+                                        document.getElementById('logout-form').submit(); // submit logout form
+                                    } else if (action && action !== '#') {
+                                        window.location.href = action; // for other links
+                                    }
+
+                                    // Reset dropdown to default
+                                    select.selectedIndex = 0;
+                                }
+                            </script>
+
                         </div>
 
                         <div class="bom-profile-col">

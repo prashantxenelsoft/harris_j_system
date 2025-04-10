@@ -3011,10 +3011,11 @@ span.inactive-badge::before {
     position: relative;
     background: #fff;
     border-radius: 10px;
-    overflow-y: hidden;
+    overflow-y: auto;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin: 0px auto;
    padding: 10px;
+   height: 170px;
   }
 
   .work-summary button.nav-link {
@@ -3166,3 +3167,432 @@ span.inactive-badge::before {
   /* Timesheet Section End*/
 
 /* Login As Consultant End*/
+
+/* Gaurav Css start here*/
+
+    /* Css for medical leave pop up start */
+.calender-custom .modal .modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+}
+.calender-custom .modal .modal-header {
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+    padding: 10px 20px;
+}
+.modal-header .model_employee {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.model_employee .model_emp_img {
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+    border: 2px solid #000;
+    border-radius: 50%;
+}
+.model_emp_img img {
+    width: 100%;
+}
+.model_employee span {
+    font-weight: 500;
+    font-size: var(--Font18);
+    line-height: 22px;
+}
+.modal-header .ml-close-btn {
+    width: 20px;
+    height: 20px;
+    box-shadow: 0px 0px 4px 0px rgba(90, 130, 251, 0.53);
+    border-radius: 50%;
+    padding: 0;
+    background: unset;
+    opacity: 1;
+}
+.modal-header .ml-close-btn i{
+    color: #FF1901;
+}
+.calender-custom .modal-body {
+    background-color: #F1F4F6;
+    padding: 0;
+}
+.modal-body .modal_body_inner {
+    display: flex;
+}
+.modal-body .modal_body_inner .mb_left{
+max-width: 600px;
+width: 100%;
+background-color: #fff;
+}
+.modal_body_inner .mb_left .ml_date_box {
+    background-color: #F1F4F6;
+    padding: 9px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.modal_body_inner .mb_left .ml_date_box span {
+    color: #8D91A0;
+    font-size: var(--Font14px);
+    font-weight: 600;
+}
+.modal_body_inner .mb_left .ml_leave_detail {
+    padding: 15px 25px;
+}
+.ml_leave_detail span {
+    font-size: var(--Font14px);
+    font-weight: 600;
+    color: #000;
+}
+.ml_leave_detail .leave_type {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.ml_leave_detail .leave_type h2 {
+    font-size: var(--Font16px);
+    font-weight: 700;
+    color: #FF1901;
+    margin-left: 12px;
+}
+.ml_leave_hour input[type="radio"]:checked {
+    border-color: #1DC9A0;
+    background-color: #1DC9A0;
+  }
+.ml_leave_detail .ml_leave_hour {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.ml_leave_hour ul li {
+    display: flex;
+    align-items: center;
+}
+.ml_leave_hour ul li:not(:last-child) {
+    margin-bottom: 20px;
+}
+.ml_leave_hour img {
+    width: 20px;
+    margin: 0 10px;
+}
+.ml_leave_hour li input {
+    width: 20px;
+    height: 20px;
+}
+.ml_leave_hour li label {
+    font-size: 12px;
+    color: #2C2C2E;
+    font-weight: 600;
+}
+.ml_leave_detail .date_selector,.ml_leave_detail .leave_slot_selector {
+    margin-bottom: 16px;
+}
+.date_selector .select_date {
+    margin-top: 10px;
+    border: 1px solid #979797;
+    border-radius: 8px;
+    padding: 13px 20px;
+}
+.leave_slot_selector .day_and_night_selector {
+    margin-top: 11px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+}
+.leave_slot_selector .day_and_night_selector span {
+    font-weight: 500;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+.day_and_night_selector .day_night .mid_night_img {
+    width: 35px;
+    margin: 0 auto;
+}
+.leave_slot_selector .day_and_night_selector .day_night img {
+    width: 100%;
+}
+/* range css start */
+.range-slider {
+    width: 100%;
+    height: 10px;
+    position: relative;
+    background-color: #D1D1D6;
+    border-radius: 20px;
+  }
+  .range-selected {
+    position: absolute;
+    height: 100%;
+    background-color: #037EFF;
+    border-radius: 5px;
+    top: 0;
+    left: 31%;
+    right: 30%;
+  }
+  .range-input {
+    position: relative;
+  }
+  .range-input input {
+    position: absolute;
+    width: 100%;
+    height: 5px;
+    top: -10px;
+    background: none;
+    pointer-events: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+  /* .range-input input:first-child {
+    left: -8px;
+  }
+  .range-input input:nth-child(2) {
+    right: -1px;
+    top: -12px;
+} */
+  .range-input input::-webkit-slider-thumb {
+    height: 36px;
+    width: 30px;
+    background: url('../images/range-icon.png') no-repeat center center;
+    background-size: contain;
+    pointer-events: auto;
+    -webkit-appearance: none;
+  }
+  .range-input input::-moz-range-thumb {
+    height: 36px;
+    width: 30px;
+    background: url('../images/range-icon.png') no-repeat center center;
+    background-size: contain;
+    pointer-events: auto;
+    -moz-appearance: none;
+  }
+
+  .ml_leave_detail span.tooltips {
+    position: absolute;
+    top: -32px;
+    background-color: #1D212D;
+    color: white;
+    padding: 6px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    pointer-events: none;
+    transition: left 0.2s ease;
+    z-index: 1080;
+    left: calc(33% - 10px);
+    
+  }
+  .ml_leave_detail span.max-tooltip {
+    left: calc(72% - 10px);
+  }
+  .min-tooltip::after,
+  .max-tooltip::after {
+    content: "";
+    position: absolute;
+    bottom: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: #1D212D transparent transparent transparent;
+  }
+
+  .range-price {
+    margin: 30px 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .range-price label {
+    margin-right: 5px;
+  }
+  .range-price input {
+    width: 40px;
+    padding: 5px;
+  }
+  .range-price input:first-of-type {
+    margin-right: 15px;
+  }
+  .range_selector {
+    margin-bottom: 48px;
+  }
+  .range_selector .tick-label {
+    color: #D1D1D6;
+    text-align: center;
+    line-height: 20px;
+  }
+
+  /* range scale css start */
+  .range-scale {
+    position: relative;
+    width: 100%;
+    height: 30px;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 13px;
+    pointer-events: none;
+  }
+  
+  .tick {
+    position: relative;
+    width: 1px;
+    background-color:#D1D1D6;
+  }
+  
+  .tick-small {
+    height: 10px;
+    width: 1px;
+  }
+  
+  .tick-medium {
+    height: 13px;
+    width: 1px;
+  }
+  
+  .tick-large {
+    height: 20px;
+    width: 2px;
+  }
+  
+  .tick-label {
+    position: absolute;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    white-space: nowrap;
+    color: #666;
+  }
+  
+  
+  /* range scale css end */
+/* range css end */
+.ml_leave_detail .upload_certificate {
+    margin-bottom: 30px;
+    position: relative;
+    color: #798AA3;
+}
+.ml_leave_detail .upload_certificate .file_input{
+    border: 1px solid #A8B9CA;
+    border-radius: 8px;
+    padding: 11px 20px;
+    margin-bottom: 8px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;    
+}
+.ml_leave_detail .upload_certificate .file_input i {
+    margin-right: 21px;
+    font-size: 23px;
+    
+}
+.ml_leave_detail .upload_certificate .file_input p {
+    font-size: var(--Font14px);
+    font-weight: 500;
+    font-family: var(--Themefont2);
+}
+.ml_leave_detail .upload_certificate #uploadFile {
+    opacity: 0;
+    position: absolute;
+    z-index: 0; 
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 30%;
+    cursor: pointer;
+}
+.ml_leave_detail .upload_certificate p {
+    font-size: 12px;
+    font-weight: 500;
+    color: #798AA3;
+    font-family: var(--Themefont2);
+}
+.ml_leave_detail .upload_certificate p span {
+    color: #037EFF;
+}
+.ml_leave_detail .clock_it_btn {
+    text-align: end;
+}
+.ml_leave_detail .clock_it_btn button {
+    outline: none;
+    padding: 9px 26px;
+    border-radius: 10px;
+    margin-left: 35px;
+    background: none;
+    border: 1px solid #FF1901;
+    color: #FF1901;
+    font-size: var(--Font18);
+    font-weight: 500;
+}
+.ml_leave_detail .clock_it_btn .ml_clockit_btn {
+    background-color: #FF1901;
+    color: #fff;
+}
+.ml_leave_detail .clock_it_btn {
+    margin-bottom: 30px;
+}
+.mb-right {
+    width: 100%;
+    position: relative;
+} 
+.mb-right .mb_right_title {
+    margin: 9px 20px;
+    font-size: var(--Font14px);
+    font-weight: 600;
+    color: #1D212D;
+}
+.mb-right .ml_no_data {
+    max-width: 300px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.mb-right .ml_no_data img {
+    width: 100%;
+}
+.ml_leave_hour_title {
+    margin-bottom: 20px;
+}
+    /* Css for medical leave pop up start */
+
+    /* custom leave pop up start */
+.ml_leave_detail .leave_type_options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 10px;
+}
+.leave_type_options a {
+    background-color: #D1D1D6;
+    color: #000000;
+    padding: 8px 55px;
+    font-size: var(--Font16px);
+    font-weight: 600;
+    line-height: 24px;
+    border-radius: 12px;
+    display: inline-block;
+}
+.select_leave_hour {
+    margin-bottom: 20px;
+}
+.ml_leave_detail .add_remark {
+    margin-bottom: 35px;
+}
+.add_remark span {
+    display: block;
+    margin-bottom: 7px;
+}
+.add_remark textarea {
+    width: 100%;
+    border: 1px solid #A8B9CA;
+    border-radius: 8px;
+    font-size: var(--Font14px);
+    font-weight: 500;
+}
+    /* custom leave pop up start */

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Consultancy;
 use App\Models\User;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +20,15 @@ class ConsultancyController extends Controller
      */
     public function index()
     {
-       //
+        $userData = Session::get('user_data');
+
+        $consultancy = DB::table('users_type')
+        ->join('consultancy', 'users_type.unique_id', '=', 'consultancy.consultancy_id')
+        ->where('users_type.user_id', $userData['id'])
+        ->select('consultancy.*')
+        ->first();
+
+       return view('consultancy.dashboard',compact('consultancy'));
     }
 
     /**

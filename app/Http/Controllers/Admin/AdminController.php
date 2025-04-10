@@ -48,6 +48,8 @@ class AdminController extends Controller
                 return redirect()->intended(route('admin.dashboard'));
             } elseif ($user->role_id == 6) {
                 return redirect()->intended(route('bom.dashboard'));
+            } elseif ($user->role_id == 7) {
+                return redirect()->intended(route('consultancy.dashboard'));
             }  elseif ($user->role_id == 11) {
                 return redirect()->intended(route('consultant.dashboard'));
             } else {

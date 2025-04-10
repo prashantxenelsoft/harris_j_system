@@ -162,183 +162,7 @@
                                 </div>
                            
                                     <div class="calendar-container">
-                                        <!-- <div class="calender-top-steps-wrapper">
-                                            <div class="progress-steps-calender">
-                                                <ul>
-                                                    <li>
-                                                        <span>
-                                                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <g clip-path="url(#clip0_41157_9825)">
-                                                                    <circle cx="16" cy="16" r="15" fill="white" stroke="#A1AEBE" stroke-width="2" />
-                                                                </g>
-                                                                <g clip-path="url(#clip1_41157_9825)">
-                                                                    <path
-                                                                        d="M22.9094 22.0494L20.0687 17.4012C20.5837 17.105 21.0775 16.7594 21.5387 16.355C21.7981 16.1275 21.8237 15.7325 21.5962 15.4731C21.3675 15.2131 20.9737 15.1887 20.7137 15.4156C20.3075 15.7719 19.8719 16.075 19.4169 16.3344L17.5137 13.22C17.8169 12.8063 18.0012 12.3012 18.0012 11.7506C18.0012 10.5894 17.2019 9.61875 16.1262 9.33937V8.625C16.1262 8.28 15.8469 8 15.5012 8C15.1556 8 14.8762 8.28 14.8762 8.625V9.33875C13.8006 9.61812 13.0012 10.5887 13.0012 11.75C13.0012 12.3006 13.1856 12.8056 13.4887 13.2194L11.5856 16.3331C11.1306 16.0744 10.695 15.7712 10.2887 15.4144C10.0287 15.1869 9.635 15.2119 9.40625 15.4719C9.17875 15.7312 9.20437 16.1256 9.46375 16.3544C9.92437 16.7587 10.4181 17.105 10.9337 17.4006L8.09187 22.0494C7.91187 22.3444 8.00437 22.7288 8.29937 22.9088C8.40125 22.9713 8.51375 23 8.625 23C8.83562 23 9.04125 22.8937 9.15875 22.7006L12.0637 17.9469C13.1637 18.3906 14.3306 18.62 15.5 18.62C16.6694 18.62 17.8362 18.3906 18.9362 17.9469L21.8412 22.7006C21.9587 22.8937 22.165 23 22.375 23C22.4862 23 22.5981 22.9706 22.7006 22.9088C22.9956 22.7288 23.0881 22.3444 22.9081 22.0494H22.9094ZM15.5006 10.5C16.19 10.5 16.7506 11.0606 16.7506 11.75C16.7506 12.4394 16.19 13 15.5006 13C14.8112 13 14.2506 12.4394 14.2506 11.75C14.2506 11.0606 14.8112 10.5 15.5006 10.5ZM12.7225 16.8694L14.4644 14.0188C14.7806 14.1638 15.1294 14.25 15.5 14.25C15.8706 14.25 16.2194 14.1638 16.5356 14.0188L18.2781 16.87C16.4912 17.5369 14.5094 17.5369 12.7225 16.87V16.8694Z"
-                                                                        fill="black"
-                                                                    />
-                                                                </g>
-                                                                <defs>
-                                                                    <clipPath id="clip0_41157_9825">
-                                                                        <rect width="32" height="32" fill="white" />
-                                                                    </clipPath>
-                                                                    <clipPath id="clip1_41157_9825">
-                                                                        <rect width="15" height="15" fill="white" transform="translate(8 8)" />
-                                                                    </clipPath>
-                                                                </defs>
-                                                            </svg>
-                                                        </span>
-                                                    </li>
-
-                                                    <li>
-                                                        <span>
-                                                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <g clip-path="url(#clip0_41157_9825)">
-                                                                    <circle cx="16" cy="16" r="15" fill="white" stroke="#A1AEBE" stroke-width="2" />
-                                                                </g>
-                                                                <g clip-path="url(#clip1_41157_9825)">
-                                                                    <path
-                                                                        d="M22.9094 22.0494L20.0687 17.4012C20.5837 17.105 21.0775 16.7594 21.5387 16.355C21.7981 16.1275 21.8237 15.7325 21.5962 15.4731C21.3675 15.2131 20.9737 15.1887 20.7137 15.4156C20.3075 15.7719 19.8719 16.075 19.4169 16.3344L17.5137 13.22C17.8169 12.8063 18.0012 12.3012 18.0012 11.7506C18.0012 10.5894 17.2019 9.61875 16.1262 9.33937V8.625C16.1262 8.28 15.8469 8 15.5012 8C15.1556 8 14.8762 8.28 14.8762 8.625V9.33875C13.8006 9.61812 13.0012 10.5887 13.0012 11.75C13.0012 12.3006 13.1856 12.8056 13.4887 13.2194L11.5856 16.3331C11.1306 16.0744 10.695 15.7712 10.2887 15.4144C10.0287 15.1869 9.635 15.2119 9.40625 15.4719C9.17875 15.7312 9.20437 16.1256 9.46375 16.3544C9.92437 16.7587 10.4181 17.105 10.9337 17.4006L8.09187 22.0494C7.91187 22.3444 8.00437 22.7288 8.29937 22.9088C8.40125 22.9713 8.51375 23 8.625 23C8.83562 23 9.04125 22.8937 9.15875 22.7006L12.0637 17.9469C13.1637 18.3906 14.3306 18.62 15.5 18.62C16.6694 18.62 17.8362 18.3906 18.9362 17.9469L21.8412 22.7006C21.9587 22.8937 22.165 23 22.375 23C22.4862 23 22.5981 22.9706 22.7006 22.9088C22.9956 22.7288 23.0881 22.3444 22.9081 22.0494H22.9094ZM15.5006 10.5C16.19 10.5 16.7506 11.0606 16.7506 11.75C16.7506 12.4394 16.19 13 15.5006 13C14.8112 13 14.2506 12.4394 14.2506 11.75C14.2506 11.0606 14.8112 10.5 15.5006 10.5ZM12.7225 16.8694L14.4644 14.0188C14.7806 14.1638 15.1294 14.25 15.5 14.25C15.8706 14.25 16.2194 14.1638 16.5356 14.0188L18.2781 16.87C16.4912 17.5369 14.5094 17.5369 12.7225 16.87V16.8694Z"
-                                                                        fill="black"
-                                                                    />
-                                                                </g>
-                                                                <defs>
-                                                                    <clipPath id="clip0_41157_9825">
-                                                                        <rect width="32" height="32" fill="white" />
-                                                                    </clipPath>
-                                                                    <clipPath id="clip1_41157_9825">
-                                                                        <rect width="15" height="15" fill="white" transform="translate(8 8)" />
-                                                                    </clipPath>
-                                                                </defs>
-                                                            </svg>
-                                                        </span>
-                                                    </li>
-
-                                                    <li>
-                                                        <span>
-                                                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <g clip-path="url(#clip0_41157_9825)">
-                                                                    <circle cx="16" cy="16" r="15" fill="white" stroke="#A1AEBE" stroke-width="2" />
-                                                                </g>
-                                                                <g clip-path="url(#clip1_41157_9825)">
-                                                                    <path
-                                                                        d="M22.9094 22.0494L20.0687 17.4012C20.5837 17.105 21.0775 16.7594 21.5387 16.355C21.7981 16.1275 21.8237 15.7325 21.5962 15.4731C21.3675 15.2131 20.9737 15.1887 20.7137 15.4156C20.3075 15.7719 19.8719 16.075 19.4169 16.3344L17.5137 13.22C17.8169 12.8063 18.0012 12.3012 18.0012 11.7506C18.0012 10.5894 17.2019 9.61875 16.1262 9.33937V8.625C16.1262 8.28 15.8469 8 15.5012 8C15.1556 8 14.8762 8.28 14.8762 8.625V9.33875C13.8006 9.61812 13.0012 10.5887 13.0012 11.75C13.0012 12.3006 13.1856 12.8056 13.4887 13.2194L11.5856 16.3331C11.1306 16.0744 10.695 15.7712 10.2887 15.4144C10.0287 15.1869 9.635 15.2119 9.40625 15.4719C9.17875 15.7312 9.20437 16.1256 9.46375 16.3544C9.92437 16.7587 10.4181 17.105 10.9337 17.4006L8.09187 22.0494C7.91187 22.3444 8.00437 22.7288 8.29937 22.9088C8.40125 22.9713 8.51375 23 8.625 23C8.83562 23 9.04125 22.8937 9.15875 22.7006L12.0637 17.9469C13.1637 18.3906 14.3306 18.62 15.5 18.62C16.6694 18.62 17.8362 18.3906 18.9362 17.9469L21.8412 22.7006C21.9587 22.8937 22.165 23 22.375 23C22.4862 23 22.5981 22.9706 22.7006 22.9088C22.9956 22.7288 23.0881 22.3444 22.9081 22.0494H22.9094ZM15.5006 10.5C16.19 10.5 16.7506 11.0606 16.7506 11.75C16.7506 12.4394 16.19 13 15.5006 13C14.8112 13 14.2506 12.4394 14.2506 11.75C14.2506 11.0606 14.8112 10.5 15.5006 10.5ZM12.7225 16.8694L14.4644 14.0188C14.7806 14.1638 15.1294 14.25 15.5 14.25C15.8706 14.25 16.2194 14.1638 16.5356 14.0188L18.2781 16.87C16.4912 17.5369 14.5094 17.5369 12.7225 16.87V16.8694Z"
-                                                                        fill="black"
-                                                                    />
-                                                                </g>
-                                                                <defs>
-                                                                    <clipPath id="clip0_41157_9825">
-                                                                        <rect width="32" height="32" fill="white" />
-                                                                    </clipPath>
-                                                                    <clipPath id="clip1_41157_9825">
-                                                                        <rect width="15" height="15" fill="white" transform="translate(8 8)" />
-                                                                    </clipPath>
-                                                                </defs>
-                                                            </svg>
-                                                        </span>
-                                                    </li>
-
-                                                    <li>
-                                                        <span>
-                                                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <g clip-path="url(#clip0_41157_9825)">
-                                                                    <circle cx="16" cy="16" r="15" fill="white" stroke="#A1AEBE" stroke-width="2" />
-                                                                </g>
-                                                                <g clip-path="url(#clip1_41157_9825)">
-                                                                    <path
-                                                                        d="M22.9094 22.0494L20.0687 17.4012C20.5837 17.105 21.0775 16.7594 21.5387 16.355C21.7981 16.1275 21.8237 15.7325 21.5962 15.4731C21.3675 15.2131 20.9737 15.1887 20.7137 15.4156C20.3075 15.7719 19.8719 16.075 19.4169 16.3344L17.5137 13.22C17.8169 12.8063 18.0012 12.3012 18.0012 11.7506C18.0012 10.5894 17.2019 9.61875 16.1262 9.33937V8.625C16.1262 8.28 15.8469 8 15.5012 8C15.1556 8 14.8762 8.28 14.8762 8.625V9.33875C13.8006 9.61812 13.0012 10.5887 13.0012 11.75C13.0012 12.3006 13.1856 12.8056 13.4887 13.2194L11.5856 16.3331C11.1306 16.0744 10.695 15.7712 10.2887 15.4144C10.0287 15.1869 9.635 15.2119 9.40625 15.4719C9.17875 15.7312 9.20437 16.1256 9.46375 16.3544C9.92437 16.7587 10.4181 17.105 10.9337 17.4006L8.09187 22.0494C7.91187 22.3444 8.00437 22.7288 8.29937 22.9088C8.40125 22.9713 8.51375 23 8.625 23C8.83562 23 9.04125 22.8937 9.15875 22.7006L12.0637 17.9469C13.1637 18.3906 14.3306 18.62 15.5 18.62C16.6694 18.62 17.8362 18.3906 18.9362 17.9469L21.8412 22.7006C21.9587 22.8937 22.165 23 22.375 23C22.4862 23 22.5981 22.9706 22.7006 22.9088C22.9956 22.7288 23.0881 22.3444 22.9081 22.0494H22.9094ZM15.5006 10.5C16.19 10.5 16.7506 11.0606 16.7506 11.75C16.7506 12.4394 16.19 13 15.5006 13C14.8112 13 14.2506 12.4394 14.2506 11.75C14.2506 11.0606 14.8112 10.5 15.5006 10.5ZM12.7225 16.8694L14.4644 14.0188C14.7806 14.1638 15.1294 14.25 15.5 14.25C15.8706 14.25 16.2194 14.1638 16.5356 14.0188L18.2781 16.87C16.4912 17.5369 14.5094 17.5369 12.7225 16.87V16.8694Z"
-                                                                        fill="black"
-                                                                    />
-                                                                </g>
-                                                                <defs>
-                                                                    <clipPath id="clip0_41157_9825">
-                                                                        <rect width="32" height="32" fill="white" />
-                                                                    </clipPath>
-                                                                    <clipPath id="clip1_41157_9825">
-                                                                        <rect width="15" height="15" fill="white" transform="translate(8 8)" />
-                                                                    </clipPath>
-                                                                </defs>
-                                                            </svg>
-                                                        </span>
-                                                    </li>
-
-                                                    <li>
-                                                        <span>
-                                                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <g clip-path="url(#clip0_41157_9825)">
-                                                                    <circle cx="16" cy="16" r="15" fill="white" stroke="#A1AEBE" stroke-width="2" />
-                                                                </g>
-                                                                <g clip-path="url(#clip1_41157_9825)">
-                                                                    <path
-                                                                        d="M22.9094 22.0494L20.0687 17.4012C20.5837 17.105 21.0775 16.7594 21.5387 16.355C21.7981 16.1275 21.8237 15.7325 21.5962 15.4731C21.3675 15.2131 20.9737 15.1887 20.7137 15.4156C20.3075 15.7719 19.8719 16.075 19.4169 16.3344L17.5137 13.22C17.8169 12.8063 18.0012 12.3012 18.0012 11.7506C18.0012 10.5894 17.2019 9.61875 16.1262 9.33937V8.625C16.1262 8.28 15.8469 8 15.5012 8C15.1556 8 14.8762 8.28 14.8762 8.625V9.33875C13.8006 9.61812 13.0012 10.5887 13.0012 11.75C13.0012 12.3006 13.1856 12.8056 13.4887 13.2194L11.5856 16.3331C11.1306 16.0744 10.695 15.7712 10.2887 15.4144C10.0287 15.1869 9.635 15.2119 9.40625 15.4719C9.17875 15.7312 9.20437 16.1256 9.46375 16.3544C9.92437 16.7587 10.4181 17.105 10.9337 17.4006L8.09187 22.0494C7.91187 22.3444 8.00437 22.7288 8.29937 22.9088C8.40125 22.9713 8.51375 23 8.625 23C8.83562 23 9.04125 22.8937 9.15875 22.7006L12.0637 17.9469C13.1637 18.3906 14.3306 18.62 15.5 18.62C16.6694 18.62 17.8362 18.3906 18.9362 17.9469L21.8412 22.7006C21.9587 22.8937 22.165 23 22.375 23C22.4862 23 22.5981 22.9706 22.7006 22.9088C22.9956 22.7288 23.0881 22.3444 22.9081 22.0494H22.9094ZM15.5006 10.5C16.19 10.5 16.7506 11.0606 16.7506 11.75C16.7506 12.4394 16.19 13 15.5006 13C14.8112 13 14.2506 12.4394 14.2506 11.75C14.2506 11.0606 14.8112 10.5 15.5006 10.5ZM12.7225 16.8694L14.4644 14.0188C14.7806 14.1638 15.1294 14.25 15.5 14.25C15.8706 14.25 16.2194 14.1638 16.5356 14.0188L18.2781 16.87C16.4912 17.5369 14.5094 17.5369 12.7225 16.87V16.8694Z"
-                                                                        fill="black"
-                                                                    />
-                                                                </g>
-                                                                <defs>
-                                                                    <clipPath id="clip0_41157_9825">
-                                                                        <rect width="32" height="32" fill="white" />
-                                                                    </clipPath>
-                                                                    <clipPath id="clip1_41157_9825">
-                                                                        <rect width="15" height="15" fill="white" transform="translate(8 8)" />
-                                                                    </clipPath>
-                                                                </defs>
-                                                            </svg>
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <span>
-                                                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <g clip-path="url(#clip0_41157_9825)">
-                                                                    <circle cx="16" cy="16" r="15" fill="white" stroke="#A1AEBE" stroke-width="2" />
-                                                                </g>
-                                                                <g clip-path="url(#clip1_41157_9825)">
-                                                                    <path
-                                                                        d="M22.9094 22.0494L20.0687 17.4012C20.5837 17.105 21.0775 16.7594 21.5387 16.355C21.7981 16.1275 21.8237 15.7325 21.5962 15.4731C21.3675 15.2131 20.9737 15.1887 20.7137 15.4156C20.3075 15.7719 19.8719 16.075 19.4169 16.3344L17.5137 13.22C17.8169 12.8063 18.0012 12.3012 18.0012 11.7506C18.0012 10.5894 17.2019 9.61875 16.1262 9.33937V8.625C16.1262 8.28 15.8469 8 15.5012 8C15.1556 8 14.8762 8.28 14.8762 8.625V9.33875C13.8006 9.61812 13.0012 10.5887 13.0012 11.75C13.0012 12.3006 13.1856 12.8056 13.4887 13.2194L11.5856 16.3331C11.1306 16.0744 10.695 15.7712 10.2887 15.4144C10.0287 15.1869 9.635 15.2119 9.40625 15.4719C9.17875 15.7312 9.20437 16.1256 9.46375 16.3544C9.92437 16.7587 10.4181 17.105 10.9337 17.4006L8.09187 22.0494C7.91187 22.3444 8.00437 22.7288 8.29937 22.9088C8.40125 22.9713 8.51375 23 8.625 23C8.83562 23 9.04125 22.8937 9.15875 22.7006L12.0637 17.9469C13.1637 18.3906 14.3306 18.62 15.5 18.62C16.6694 18.62 17.8362 18.3906 18.9362 17.9469L21.8412 22.7006C21.9587 22.8937 22.165 23 22.375 23C22.4862 23 22.5981 22.9706 22.7006 22.9088C22.9956 22.7288 23.0881 22.3444 22.9081 22.0494H22.9094ZM15.5006 10.5C16.19 10.5 16.7506 11.0606 16.7506 11.75C16.7506 12.4394 16.19 13 15.5006 13C14.8112 13 14.2506 12.4394 14.2506 11.75C14.2506 11.0606 14.8112 10.5 15.5006 10.5ZM12.7225 16.8694L14.4644 14.0188C14.7806 14.1638 15.1294 14.25 15.5 14.25C15.8706 14.25 16.2194 14.1638 16.5356 14.0188L18.2781 16.87C16.4912 17.5369 14.5094 17.5369 12.7225 16.87V16.8694Z"
-                                                                        fill="black"
-                                                                    />
-                                                                </g>
-                                                                <defs>
-                                                                    <clipPath id="clip0_41157_9825">
-                                                                        <rect width="32" height="32" fill="white" />
-                                                                    </clipPath>
-                                                                    <clipPath id="clip1_41157_9825">
-                                                                        <rect width="15" height="15" fill="white" transform="translate(8 8)" />
-                                                                    </clipPath>
-                                                                </defs>
-                                                            </svg>
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <span>
-                                                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <g clip-path="url(#clip0_41157_9825)">
-                                                                    <circle cx="16" cy="16" r="15" fill="white" stroke="#A1AEBE" stroke-width="2" />
-                                                                </g>
-                                                                <g clip-path="url(#clip1_41157_9825)">
-                                                                    <path
-                                                                        d="M22.9094 22.0494L20.0687 17.4012C20.5837 17.105 21.0775 16.7594 21.5387 16.355C21.7981 16.1275 21.8237 15.7325 21.5962 15.4731C21.3675 15.2131 20.9737 15.1887 20.7137 15.4156C20.3075 15.7719 19.8719 16.075 19.4169 16.3344L17.5137 13.22C17.8169 12.8063 18.0012 12.3012 18.0012 11.7506C18.0012 10.5894 17.2019 9.61875 16.1262 9.33937V8.625C16.1262 8.28 15.8469 8 15.5012 8C15.1556 8 14.8762 8.28 14.8762 8.625V9.33875C13.8006 9.61812 13.0012 10.5887 13.0012 11.75C13.0012 12.3006 13.1856 12.8056 13.4887 13.2194L11.5856 16.3331C11.1306 16.0744 10.695 15.7712 10.2887 15.4144C10.0287 15.1869 9.635 15.2119 9.40625 15.4719C9.17875 15.7312 9.20437 16.1256 9.46375 16.3544C9.92437 16.7587 10.4181 17.105 10.9337 17.4006L8.09187 22.0494C7.91187 22.3444 8.00437 22.7288 8.29937 22.9088C8.40125 22.9713 8.51375 23 8.625 23C8.83562 23 9.04125 22.8937 9.15875 22.7006L12.0637 17.9469C13.1637 18.3906 14.3306 18.62 15.5 18.62C16.6694 18.62 17.8362 18.3906 18.9362 17.9469L21.8412 22.7006C21.9587 22.8937 22.165 23 22.375 23C22.4862 23 22.5981 22.9706 22.7006 22.9088C22.9956 22.7288 23.0881 22.3444 22.9081 22.0494H22.9094ZM15.5006 10.5C16.19 10.5 16.7506 11.0606 16.7506 11.75C16.7506 12.4394 16.19 13 15.5006 13C14.8112 13 14.2506 12.4394 14.2506 11.75C14.2506 11.0606 14.8112 10.5 15.5006 10.5ZM12.7225 16.8694L14.4644 14.0188C14.7806 14.1638 15.1294 14.25 15.5 14.25C15.8706 14.25 16.2194 14.1638 16.5356 14.0188L18.2781 16.87C16.4912 17.5369 14.5094 17.5369 12.7225 16.87V16.8694Z"
-                                                                        fill="black"
-                                                                    />
-                                                                </g>
-                                                                <defs>
-                                                                    <clipPath id="clip0_41157_9825">
-                                                                        <rect width="32" height="32" fill="white" />
-                                                                    </clipPath>
-                                                                    <clipPath id="clip1_41157_9825">
-                                                                        <rect width="15" height="15" fill="white" transform="translate(8 8)" />
-                                                                    </clipPath>
-                                                                </defs>
-                                                            </svg>
-                                                        </span>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <div class="calendar-header">
-                                                <select id="monthSelect"></select>
-                                                <select id="yearSelect"></select>
-                                            </div>
-                                        </div> -->
-
-                                        <!-- <div class="calendar" id="calendar"></div> -->
+                                       
 
                                         <div class="calendar">
                                             <div class="calendar-nav">
@@ -367,6 +191,331 @@
                                                 <div class="day-label">Saturday</div>
                                             </div>
                                         </div>
+                                        
+
+                                        <div class="modal fade" id="medicalLeave" tabindex="-1" aria-labelledby="medicalLeaveModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <div class="model_employee">
+                                                            <div class="model_emp_img">
+                                                                <img src="{{ asset('public/assets/latest/images/emp-icon1.png') }}" alt="">
+                                                            </div>
+                                                            <span class="model_emp_name">Bruce Lee</span>
+                                                        </div>
+                                                        <button type="button" class="btn-close ml-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                                                            <i class="fa-solid fa-xmark"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body p-0">
+                                                        <div class="modal_body_inner">
+                                                            <div class="mb_left">
+                                                                <div class="ml_date_box">
+                                                                    <div class="ml_date">
+                                                                        <span>Date: <span>19 / 08 / 2024</span></span>
+                                                                    </div>
+                                                                    <div class="ml_duty_time">
+                                                                        <span>Time On Duty : <span>  -- / 8.30</span></span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="ml_leave_detail">
+                                                                    <div class="leave_type">
+                                                                        <span>Leave type :</span>
+                                                                        <h2>Medical Leave (ML)</h2>
+                                                                    </div>
+                                                                    <div class="select_leave_hour">
+                                                                        <span>ML leave hours :</span>
+                                                                    </div>
+                                                                    <div class="ml_leave_hour">
+                                                                        <ul>
+                                                                            <li>
+                                                                                <input type="radio" name="Day" id="fullDay">
+                                                                                <img src="{{ asset('public/assets/latest/images/night-day.png') }}" alt="">
+                                                                                <label for="fullDay">Full Day</label>
+                                                                            </li>
+                                                                            <li>
+                                                                                <input type="radio" name="Day" id="sHalfDay">
+                                                                                <img src="{{ asset('public/assets/latest/images/night-day.png') }}" alt="">
+                                                                                <label for="sHalfDay">Second half workday (HD2)</label>
+                                                                            </li>
+                                                                        </ul>
+                                                                        <ul>
+                                                                            <li>
+                                                                                <input type="radio" name="Day" id="fHalfDay">
+                                                                                <img src="{{ asset('public/assets/latest/images/night-day.png') }}" alt="">
+                                                                                <label for="fHalfDay">First half workday (HD1)</label>
+                                                                            </li>
+                                                                            <li>
+                                                                                <input type="radio" name="Day" id="customDay">
+                                                                                <img src="{{ asset('public/assets/latest/images/custom-wheel.png') }}" alt="">
+                                                                                <label for="customDay">First half workday (HD1)</label>
+                                                                            </li>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="date_selector">
+                                                                        <span>Select date :</span>
+                                                                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+                                                                        <style>
+                                                                            #dateRange {
+                                                                                border-radius: 8px;
+                                                                                padding: 10px 12px;
+                                                                                border: 1px solid #ccc;
+                                                                                width: 100%;
+                                                                                font-size: 14px;
+                                                                                margin-top: 10px;
+                                                                            }
+                                                                        </style>
+                                                                        <input type="text" id="dateRange" placeholder="dd / mm / yyyy - dd / mm / yyyy">
+                                                                        <!-- Flatpickr JS -->
+                                                                        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+                                                                        <script>
+                                                                            flatpickr("#dateRange", {
+                                                                            mode: "range",
+                                                                            dateFormat: "d / m / Y"
+                                                                            });
+                                                                        </script>
+                                                                    </div>
+
+                                                                    
+
+
+                                                                    <div class="leave_slot_selector">
+                                                                        <span>Select Leave Slot :</span>
+                                                                        <div class="day_and_night_selector">
+                                                                            <div class="day_night">
+                                                                                <span>Mid - Night</span>
+                                                                                <div class="mid_night_img">
+                                                                                    <img src="{{ asset('public/assets/latest/images/moon.png') }}" alt="">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="day_night">
+                                                                                <span>Noon</span>
+                                                                                <div class="mid_night_img">
+                                                                                 <img src="{{ asset('public/assets/latest/images/sun.png') }}" alt="">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="day_night">
+                                                                                <span>Mid - Night</span>
+                                                                                <div class="mid_night_img">
+                                                                                <img src="{{ asset('public/assets/latest/images/moon.png') }}" alt="">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="range_selector">
+                                                                            <div class="range">
+                                                                                <div class="range-slider">
+                                                                                    <span class="range-selected"></span>
+                                                                                    <span class="tooltips min-tooltip">7:30 AM</span>
+                                                                                    <span class="tooltips max-tooltip">4:00 PM</span>
+                                                                                </div>
+                                                                                
+                                                                                <div class="range-input">
+                                                                                    <input type="range" class="min" min="0" max="47" value="15" step="1">
+                                                                                    <input type="range" class="max" min="0" max="47" value="32" step="1">
+                                                                                    </div>
+                                                                                
+                                                                                </div>
+                                                                                <div class="range-scale"><div class="tick tick-large"><span class="tick-label">12<br>AM</span></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-large"><span class="tick-label">4<br>AM</span></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-large"><span class="tick-label">8<br>AM</span></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-large"><span class="tick-label">12<br>PM</span></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-large"><span class="tick-label">4<br>PM</span></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-large"><span class="tick-label">8<br>PM</span></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-large"><span class="tick-label">12<br>AM</span></div></div> 
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="upload_certificate">
+                                                                        <div class="file_input">
+                                                                            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                                                                            <p>Upload Medical Leave Certificate</p>
+                                                                        </div>
+                                                                        <input type="file" name="" id="uploadFile">
+                                                                        <p>*Allow to upload file <span>PNG,JPG,PDF</span> (Max.file size: 1MB)</p>
+                                                                    </div>
+                                                                    <div class="clock_it_btn">
+                                                                        <button class="ml_cancel_btn">
+                                                                            Cancel   
+                                                                        </button>
+                                                                        <button class="ml_clockit_btn">
+                                                                            Clock It   
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="mb-right">
+                                                                <h3 class="mb_right_title">
+                                                                    Documents List
+                                                                </h3>
+                                                                <div class="ml_document_list">
+                                                                    <div class="ml_no_data">
+                                                                    <img src="{{ asset('public/assets/latest/images/no-file.png') }}" alt="">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Custom Leave Model -->
+                                        <div class="modal fade " id="customLeave" tabindex="-1" aria-labelledby="customLeaveModal" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <div class="model_employee">
+                                                            <div class="model_emp_img">
+                                                                <img src="{{ asset('public/assets/latest/images/emp-icon1.png') }}" alt="">
+                                                            </div>
+                                                            <span class="model_emp_name">Bruce Lee</span>
+                                                        </div>
+                                                        <button type="button" class="btn-close ml-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                                                            <i class="fa-solid fa-xmark"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body p-0">
+                                                        <div class="modal_body_inner">
+                                                            <div class="mb_left">
+                                                                <div class="ml_date_box">
+                                                                    <div class="ml_date">
+                                                                        <span>Date: <span>19 / 08 / 2024</span></span>
+                                                                    </div>
+                                                                    <div class="ml_duty_time">
+                                                                        <span>Time On Duty : <span>  -- / 8.30</span></span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="ml_leave_detail">
+                                                                <div class="leave_type">
+                                                                    <span>Select leave type :</span>
+                                                                </div>
+                                                                <div class="leave_type_options">
+                                                                    <div><a href="#">AL</a></div>
+                                                                    <div><a href="#">UL</a></div>
+                                                                    <div><a href="#">PDO</a></div>
+                                                                </div>
+                                                                <div class="select_leave_hour">
+                                                                    <span>Select  leave hours :</span>
+                                                                </div>
+                                                                    <div class="ml_leave_hour">
+                                                                        <ul>
+                                                                            <li>
+                                                                                <input type="radio" name="Day" id="fullDay">
+                                                                                <img src="{{ asset('public/assets/latest/images/night-day.png') }}" alt="">
+                                                                                <label for="fullDay">Full Day</label>
+                                                                            </li>
+                                                                            <li>
+                                                                                <input type="radio" name="Day" id="sHalfDay">
+                                                                                <img src="{{ asset('public/assets/latest/images/night-day.png') }}" alt="">
+                                                                                <label for="sHalfDay">Second half workday (HD2)</label>
+                                                                            </li>
+                                                                        </ul>
+                                                                        <ul>
+                                                                            <li>
+                                                                                <input type="radio" name="Day" id="fHalfDay">
+                                                                                <img src="{{ asset('public/assets/latest/images/night-day.png') }}" alt="">
+                                                                                <label for="fHalfDay">First half workday (HD1)</label>
+                                                                            </li>
+                                                                            <li>
+                                                                                <input type="radio" name="Day" id="customDay">
+                                                                                <img src="{{ asset('public/assets/latest/images/custom-wheel.png') }}" alt="">
+                                                                                <label for="customDay">First half workday (HD1)</label>
+                                                                            </li>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="date_selector">
+                                                                        <span>Select date :</span>
+                                                                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+                                                                        <style>
+                                                                            #dateRange {
+                                                                                border-radius: 8px;
+                                                                                padding: 10px 12px;
+                                                                                border: 1px solid #ccc;
+                                                                                width: 100%;
+                                                                                font-size: 14px;
+                                                                                margin-top: 10px;
+                                                                            }
+                                                                        </style>
+                                                                        <input type="text" id="dateRange" placeholder="dd / mm / yyyy - dd / mm / yyyy">
+                                                                        <!-- Flatpickr JS -->
+                                                                        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+                                                                        <script>
+                                                                            flatpickr("#dateRange", {
+                                                                            mode: "range",
+                                                                            dateFormat: "d / m / Y"
+                                                                            });
+                                                                        </script>
+                                                                    </div>
+
+                                                                    
+
+
+                                                                    <div class="leave_slot_selector">
+                                                                        <span>Select Leave Slot :</span>
+                                                                        <div class="day_and_night_selector">
+                                                                            <div class="day_night">
+                                                                                <span>Mid - Night</span>
+                                                                                <div class="mid_night_img">
+                                                                                    <img src="{{ asset('public/assets/latest/images/moon.png') }}" alt="">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="day_night">
+                                                                                <span>Noon</span>
+                                                                                <div class="mid_night_img">
+                                                                                 <img src="{{ asset('public/assets/latest/images/sun.png') }}" alt="">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="day_night">
+                                                                                <span>Mid - Night</span>
+                                                                                <div class="mid_night_img">
+                                                                                <img src="{{ asset('public/assets/latest/images/moon.png') }}" alt="">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="range_selector">
+                                                                            <div class="range">
+                                                                                <div class="range-slider">
+                                                                                    <span class="range-selected"></span>
+                                                                                    <span class="tooltips min-tooltip">7:30 AM</span>
+                                                                                    <span class="tooltips max-tooltip">4:00 PM</span>
+                                                                                </div>
+                                                                                
+                                                                                <div class="range-input">
+                                                                                    <input type="range" class="min" min="0" max="47" value="15" step="1">
+                                                                                    <input type="range" class="max" min="0" max="47" value="32" step="1">
+                                                                                    </div>
+                                                                                
+                                                                                </div>
+                                                                                <div class="range-scale"><div class="tick tick-large"><span class="tick-label">12<br>AM</span></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-large"><span class="tick-label">4<br>AM</span></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-large"><span class="tick-label">8<br>AM</span></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-large"><span class="tick-label">12<br>PM</span></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-large"><span class="tick-label">4<br>PM</span></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-large"><span class="tick-label">8<br>PM</span></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-medium"></div><div class="tick tick-small"></div><div class="tick tick-large"><span class="tick-label">12<br>AM</span></div></div> 
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="add_remark">
+                                                                        <span>Remarks</span>
+                                                                        <textarea name="remarks" id="customRemark" rows="6" placeholder="Write your remarks.."></textarea>
+                                                                    </div>
+                                                                    <div class="clock_it_btn">
+                                                                        <button class="ml_cancel_btn">
+                                                                            Cancel   
+                                                                        </button>
+                                                                        <button class="ml_clockit_btn">
+                                                                            Clock It   
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="mb-right">
+                                                                <h3 class="mb_right_title">
+                                                                    Documents List
+                                                                </h3>
+                                                                <div class="ml_document_list">
+                                                                    <div class="ml_no_data">
+                                                                    <img src="{{ asset('public/assets/latest/images/no-file.png') }}" alt="">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
 
                                         <script>
                                             const calendarDays = document.getElementById("calendarDays");
@@ -499,7 +648,15 @@
                                                     const opt = document.createElement("div");
                                                     opt.innerHTML = `<span style="margin-right: 8px;">${item.icon}</span>${item.label}`;
                                                     opt.onclick = () => {
-                                                        // console.log("check item",item);
+                                                       // console.log("check item",item);
+                                                        if (item.label === "ML") {
+                                                            const modal = new bootstrap.Modal(document.getElementById("medicalLeave"));
+                                                            modal.show();
+                                                        }
+                                                        if (item.label === "Custom") {
+                                                            const modalCustomLeave = new bootstrap.Modal(document.getElementById("customLeave"));
+                                                            modalCustomLeave.show();
+                                                        }
                                                         applyTag(cell, item.label, "#007bff");
                                                         dropdown.remove();
                                                     }
@@ -540,8 +697,6 @@
 
                                                 cell.appendChild(tag);
                                             }
-
-
 
                                             function closeAllDropdowns() {
                                                 document.querySelectorAll(".dropdown").forEach(d => d.remove());

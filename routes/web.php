@@ -20,6 +20,8 @@ Route::get('login', [AdminController::class, 'showLoginForm'])->name('login'); /
 Route::post('admin/login', [AdminController::class, 'login'])->name('admin.login.submit');
 Route::match(['get', 'post'], 'insert-password/{id}', [ConsultancyController::class, 'insertPassword'])->name('insert.password');
 // Route::get('/send-test-email', [ConsultancyController::class, 'sendTestEmail']);
+
+Route::get('/logout', [AdminController::class, 'logout']);
 Route::get('/linkstorage', function () {
     Artisan::call('storage:link');
     return "Commands executed!";
@@ -59,6 +61,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/lookup-option/store', [ConsultancyController::class, 'storelookup_option'])->name('lookup_option.store');
     Route::delete('/lookup-option/{id}', [ConsultancyController::class, 'destroylookupOption'])->name('lookup-option.destroy');
     Route::post('/update-lookup-option', [ConsultancyController::class, 'updateLookupOption'])->name('lookup-option.update');
-
+    Route::get('consultancy/dashboard', [ConsultancyController::class, 'index'])->name('consultancy.dashboard');
 
 });
