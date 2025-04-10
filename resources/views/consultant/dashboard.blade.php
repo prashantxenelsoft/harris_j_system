@@ -475,7 +475,7 @@
                                                                                     <span class="tooltips max-tooltip">4:00 PM</span>
                                                                                 </div>
                                                                                 
-                                                                                <div class="range-input">
+                                                                                <div class="range-input"> 
                                                                                     <input type="range" class="min" min="0" max="47" value="15" step="1">
                                                                                     <input type="range" class="max" min="0" max="47" value="32" step="1">
                                                                                     </div>
