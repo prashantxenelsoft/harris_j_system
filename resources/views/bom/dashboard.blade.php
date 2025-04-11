@@ -356,7 +356,7 @@
                                                 <h3>General & Contact Information</h3>
                                                 <div class="form-row-consultancy">
                                                     <div class="consultancy-form-col">
-                                                        <input type="text" name="consultancy_name" placeholder="Consultancy Name *" required />
+                                                        <input type="text" id="consultancy_name" name="consultancy_name" placeholder="Consultancy Name *" required />
                                                     </div>
                                                     <input type="hidden" name="edit_id" value="" />
 
@@ -1011,6 +1011,49 @@
         const form = document.getElementById("consultancyForm");
         let valid = true;
 
+        const consultancyInput = document.getElementById("consultancy_name");
+        const value = consultancyInput.value.trim();
+
+        const specialCharRegex = /[^a-zA-Z0-9 ]/; // Anything that's NOT a letter, number, or space
+
+        if (value.length < 2) {
+            const error = document.createElement("small");
+            error.className = "error-message";
+            error.style.marginTop = "50px";
+            error.style.position = "absolute";
+            error.style.color = "red";
+            error.style.fontSize = "10px";
+            error.textContent = "Minimum 2 characters required";
+
+            consultancyInput.parentNode.insertBefore(error, consultancyInput.nextSibling);
+            valid = false;
+
+        } else if (value.length > 60) {
+            const error = document.createElement("small");
+            error.className = "error-message";
+            error.style.marginTop = "50px";
+            error.style.position = "absolute";
+            error.style.color = "red";
+            error.style.fontSize = "10px";
+            error.textContent = "Maximum 60 characters allowed";
+
+            consultancyInput.parentNode.insertBefore(error, consultancyInput.nextSibling);
+            valid = false;
+
+        } else if (specialCharRegex.test(value)) {
+            const error = document.createElement("small");
+            error.className = "error-message";
+            error.style.marginTop = "50px";
+            error.style.position = "absolute";
+            error.style.color = "red";
+            error.style.fontSize = "10px";
+            error.textContent = "Special characters not allowed";
+
+            consultancyInput.parentNode.insertBefore(error, consultancyInput.nextSibling);
+            valid = false;
+        }
+
+
         // Remove previous styles and messages
         document.querySelectorAll(".mobile-error").forEach((el) => el.remove());
         document.querySelectorAll(".has-error").forEach((el) => el.classList.remove("has-error"));
@@ -1207,32 +1250,41 @@
             field.addEventListener("focus", function () {
                 field.style.borderColor = "";
 
-                if (field.id === "mobile_code") {
+                // For mobile_code fields
+                if (field.id === "mobile_code" || field.id === "mobile_code_2") {
                     const mobileParentDiv = field.closest(".telephone-form-col");
                     mobileParentDiv.querySelectorAll(".mobile-error").forEach((el) => el.remove());
                 }
 
-                if (field.id === "mobile_code_2") {
-                    const mobileParentDiv = field.closest(".telephone-form-col");
-                    mobileParentDiv.querySelectorAll(".mobile-error").forEach((el) => el.remove());
+                // For consultancy_name field
+                if (field.id === "consultancy_name") {
+                    const nextEl = field.nextElementSibling;
+                    if (nextEl && nextEl.classList.contains("error-message")) {
+                        nextEl.remove();
+                    }
                 }
             });
 
             field.addEventListener("input", function () {
                 field.style.borderColor = "";
 
-                if (field.id === "mobile_code") {
+                // For mobile_code fields
+                if (field.id === "mobile_code" || field.id === "mobile_code_2") {
                     const mobileParentDiv = field.closest(".telephone-form-col");
                     mobileParentDiv.querySelectorAll(".mobile-error").forEach((el) => el.remove());
                 }
 
-                if (field.id === "mobile_code_2") {
-                    const mobileParentDiv = field.closest(".telephone-form-col");
-                    mobileParentDiv.querySelectorAll(".mobile-error").forEach((el) => el.remove());
+                // For consultancy_name field
+                if (field.id === "consultancy_name") {
+                    const nextEl = field.nextElementSibling;
+                    if (nextEl && nextEl.classList.contains("error-message")) {
+                        nextEl.remove();
+                    }
                 }
             });
         });
     });
+
     // Populate all countries in country dropdown
     const countrySelect = document.getElementById("country-select");
     Object.keys(countryStateData).forEach((country) => {
