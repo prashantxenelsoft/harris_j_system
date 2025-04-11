@@ -1,4 +1,6 @@
-@extends('layouts.custom_layout') @section('content')
+@extends('layouts.custom_layout')
+@section('content')
+
 <section class="login-page-wrapper py-3 d-flex align-items-center">
     <div class="container">
         <div class="row">
@@ -17,12 +19,13 @@
                     <h2>“ Track Your Impact , Make Progress, Transform Lives “</h2>
                     <form id="loginForm" method="POST" action="{{ route('admin.login.submit') }}">
                         @csrf
+
                         <div class="login-row">
                             <input type="email" name="email" id="email" placeholder="Email Address" required />
                         </div>
 
                         <div class="login-row">
-                            <span class="text-white"><i class="fa-solid fa-eye-slash text-white"></i>Conceal</span>
+                            <span class="text-white"><i class="fa-solid fa-eye-slash text-white"></i> Conceal</span>
                             <input type="password" name="password" id="password" placeholder="Password" required />
                         </div>
 
@@ -35,26 +38,43 @@
                             </div>
 
                             <div class="password-assistance-wrap">
-                                <a href="#">
-                                    Password Assistance
-                                </a>
+                                <a href="#">Password Assistance</a>
                             </div>
                         </div>
 
                         <div class="login-form-plicy">
-                            <p>We truly protect your personal information registered in the system in accordance to <a href="#">privacy laws</a> laws and <a href="#"> our policy</a></p>
+                            <p>We truly protect your personal information registered in the system in accordance to <a href="#">privacy laws</a> laws and <a href="#">our policy</a></p>
                         </div>
 
                         <div class="login-row">
                             <input type="submit" value="GO !" />
                         </div>
                     </form>
+
+                    <!-- ✅ Full JavaScript below -->
                     <script>
-                        document.getElementById('email').addEventListener('input', function () {
-                            this.value = this.value.toLowerCase();
-                        });
                         document.addEventListener("DOMContentLoaded", function () {
+                            const emailInput = document.getElementById("email");
                             const passwordInput = document.getElementById("password");
+                            const rememberSwitch = document.getElementById("flexSwitchCheckChecked");
+
+                            // Email lowercase on input
+                            emailInput.addEventListener('input', function () {
+                                this.value = this.value.toLowerCase();
+                            });
+
+                            // Load saved values if rememberMe is true
+                            if (localStorage.getItem("rememberMe") === "true") {
+                                emailInput.value = localStorage.getItem("email") || "";
+                                passwordInput.value = localStorage.getItem("password") || "";
+                                rememberSwitch.checked = true;
+                            } else {
+                                rememberSwitch.checked = false;
+                                emailInput.value = "";
+                                passwordInput.value = "";
+                            }
+
+                            // Show/hide password
                             const toggleSpan = document.querySelector(".login-row span");
                             const toggleIcon = toggleSpan.querySelector("i");
 
@@ -72,31 +92,25 @@
                                 }
                             });
 
-                            // Remember Me logic
-                            const rememberSwitch = document.getElementById("flexSwitchCheckChecked");
-                            const emailInput = document.getElementById("email");
-
-                            if (localStorage.getItem("rememberMe") === "true") {
-                                emailInput.value = localStorage.getItem("email");
-                                rememberSwitch.checked = true;
-                            } else {
-                                rememberSwitch.checked = false; // default off
-                            }
-
+                            // Save or clear localStorage on form submit
                             document.getElementById("loginForm").addEventListener("submit", function () {
                                 if (rememberSwitch.checked) {
                                     localStorage.setItem("rememberMe", "true");
                                     localStorage.setItem("email", emailInput.value);
+                                    localStorage.setItem("password", passwordInput.value);
                                 } else {
                                     localStorage.removeItem("rememberMe");
                                     localStorage.removeItem("email");
+                                    localStorage.removeItem("password");
                                 }
                             });
                         });
                     </script>
+
                 </div>
             </div>
         </div>
     </div>
 </section>
+
 @endsection
