@@ -9,11 +9,13 @@
                     <div class="header-logo">
                     @php
                         use Illuminate\Support\Facades\Storage;
+                        $logo = optional($consultancy)->consultancy_logo;
                     @endphp
 
-                    @if($consultancy->consultancy_logo && Storage::disk('public')->exists($consultancy->consultancy_logo))
-                        <img src="{{ asset('storage/' . $consultancy->consultancy_logo) }}" alt="Consultancy Logo" width="60" />
+                    @if($logo && Storage::disk('public')->exists($logo))
+                        <img src="{{ asset('storage/' . $logo) }}" alt="Consultancy Logo" width="60" />
                     @endif
+
                     </div>
                 </div>
 
