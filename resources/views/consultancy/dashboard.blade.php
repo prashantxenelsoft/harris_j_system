@@ -7,7 +7,13 @@
             <div class="row py-2">
                 <div class="col-lg-2">
                     <div class="header-logo">
-                        <img src="{{ asset('/' . $consultancy->consultancy_logo) }}" alt="Consultancy Logo" width="60" />
+                    @php
+                        use Illuminate\Support\Facades\Storage;
+                    @endphp
+
+                    @if($consultancy->consultancy_logo && Storage::disk('public')->exists($consultancy->consultancy_logo))
+                        <img src="{{ asset('storage/' . $consultancy->consultancy_logo) }}" alt="Consultancy Logo" width="60" />
+                    @endif
                     </div>
                 </div>
 
