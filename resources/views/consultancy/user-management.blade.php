@@ -571,3 +571,12 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $(".show-add-user-form").on("click", function (e) {
+            $(".table-bom-list-section").hide();
+            $(".filter-section-consultancy").hide();
+            $(".add-user-form-section").show(); // use toggle() if you don’t want slide effect
+        });
+    });
+</script>

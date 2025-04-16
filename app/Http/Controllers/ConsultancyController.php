@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Consultancy;
 use App\Models\User;
+use App\Models\Client;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
@@ -28,7 +29,10 @@ class ConsultancyController extends Controller
         ->select('consultancy.*')
         ->first();
 
-       return view('consultancy.dashboard',compact('consultancy'));
+        $client = Client::where('user_id',  $userData['id'])->get();
+        //echo "<pre>";print_r($client);die;
+
+       return view('consultancy.dashboard',compact('consultancy','client'));
     }
 
     /**
@@ -38,6 +42,56 @@ class ConsultancyController extends Controller
     {
         //
     }
+
+    public function add_client(Request $request)
+    {
+        $client = Client::create([
+            'serving_client' => $request->serving_client,
+            'client_id' => $request->client_id,
+            'primary_contact' => $request->primary_contact,
+            'primary_mobile' => $request->primary_mobile,
+            'primary_email' => $request->primary_email,
+            'secondary_contact' => $request->secondary_contact,
+            'secondary_mobile' => $request->secondary_mobile,
+            'secondary_email' => $request->secondary_email,
+            'full_address' => $request->full_address,
+            'show_address_input' => $request->show_address_input,
+            'client_status' => $request->client_status,
+            'primary_mobile_country_code' => $request->primary_mobile_country_code,
+            'secondary_mobile_country_code' => $request->secondary_mobile_country_code,
+            'user_id'=>Session::get('user_data')['id'],
+            'reset_password' => $request->reset_password,
+        ]);
+        $insertedId = $client->id;
+        return true;
+    }
+
+    public function update_client(Request $request, $id)
+    {
+        $client = Client::findOrFail($id);
+    
+        $client->serving_client = $request->serving_client;
+        $client->client_id = $request->client_id;
+        $client->primary_contact = $request->primary_contact;
+        $client->primary_mobile = $request->primary_mobile;
+        $client->primary_email = $request->primary_email;
+        $client->secondary_contact = $request->secondary_contact;
+        $client->secondary_mobile = $request->secondary_mobile;
+        $client->secondary_email = $request->secondary_email;
+        $client->full_address = $request->full_address;
+        $client->show_address_input = $request->show_address_input;
+        $client->client_status = $request->client_status;
+        $client->primary_mobile_country_code = $request->primary_mobile_country_code;
+        $client->secondary_mobile_country_code = $request->secondary_mobile_country_code;
+        $client->reset_password = $request->reset_password;
+
+    
+        $client->save();
+    
+        return response()->json(['success' => true, 'message' => 'Client updated successfully.']);
+    }
+    
+
 
     /**
      * Store a newly created resource in storage.

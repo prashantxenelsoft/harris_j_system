@@ -55,6 +55,10 @@ Route::middleware('auth')->group(function () {
         //'show'    => 'consultancy.show', // optional, if you are using show route
     ]);
 
+    Route::post('/consultancies/add-client', [ConsultancyController::class, 'add_client'])->name('consultancy.add_client');
+    Route::put('/consultancies/update-client/{id}', [ConsultancyController::class, 'update_client'])->name('consultancy.update_client');
+
+
     Route::post('/lookup/store', [ConsultancyController::class, 'storeLookup'])->name('lookup.store');
     Route::post('/lookup/update', [ConsultancyController::class, 'updateLookup'])->name('lookup.update');
     Route::delete('/lookup-header/{id}', [ConsultancyController::class, 'destroylookupHeader'])->name('lookup-header.destroy');
