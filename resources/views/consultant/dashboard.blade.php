@@ -116,16 +116,18 @@
                             <div class="calender-wrap-parent">
                                 <div class="login-dashboard-top-bar mb-0">
                                     <div class="left-col-top-bar">
+                                    @if($consultant)
                                         <div class="employee-details-consultant">
                                             <ul>
                                                 <li>
                                                     <h6>Employee ID</h6>
-                                                    <p>:Emp14982</p>
+                                                    <p>: {{ $consultant->emp_code ?? 'N/A' }}</p>
                                                 </li>
                                                 <li>
                                                     <h6>Employee Name</h6>
-                                                    <p>: Bruce Lee</p>
+                                                    <p>: {{ $consultant->emp_name ?? 'N/A' }}</p>
                                                 </li>
+                                                
                                             </ul>
                                         </div>
 
@@ -133,14 +135,18 @@
                                             <ul>
                                                 <li>
                                                     <h6>Client Name</h6>
-                                                    <p>:Encore Films</p>
+                                                    <p>: {{ $consultant->client_name ?? 'N/A' }}</p>
                                                 </li>
                                                 <li>
                                                     <h6>Reporting Manager</h6>
-                                                    <p>:Miss.Tiana Calzoni (tiana@gmail.com)</p>
+                                                    <p>: {{ $consultant->designation ?? 'N/A' }}</p>
                                                 </li>
                                             </ul>
                                         </div>
+                                    @else
+                                        <p>No consultant data found.</p>
+                                    @endif
+
                                     </div>
 
                                     <div class="right-col-top-bar">
