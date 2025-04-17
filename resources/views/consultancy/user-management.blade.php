@@ -7,7 +7,7 @@
         <div class="active-status-select-bom">
             <select id="statusFilter">
                 <option value="">All</option>
-                <option value="active">Active</option>
+                <option value="Active">Active</option>
                 <option value="Disabled">Disabled</option>
                 <option value="Block">Block</option>
                 <option value="Deleted">Deleted</option>
@@ -15,11 +15,12 @@
         </div>
 
         <div class="active-status-select-bom consultancy-designation-filter">
-            <select id="statusFilter">
-                <option value="" selected disabled>Designation</option>
+            <select id="statusFilterDesignation">
+                <option value="">All Designations</option>
                 <option value="Finance">Finance</option>
                 <option value="HR">HR</option>
                 <option value="Operator">Operator</option>
+                <option value="Consultant">Consultant</option>
             </select>
         </div>
     </div>
@@ -41,7 +42,7 @@
     <div class="container p-0">
         <div class="col-md-12">
             
-            <table class="table table-condensed table-striped">
+            <table class="table table-condensed table-striped" id="myTable">
                 <thead>
                     <tr>
                         <th>S.No</th>
@@ -394,6 +395,7 @@
                                     <option value="Finance">Finance</option>
                                     <option value="HR">HR</option>
                                     <option value="Operator">Operator</option>
+                                    <option value="Consultant">Consultant</option>
                                 </select>
                             </div>
                         </div>
@@ -523,6 +525,52 @@
     </div>
 </div>
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("searchInput");
+        const statusFilter = document.getElementById("statusFilter");
+        const designationFilter = document.getElementById("statusFilterDesignation");
+        const table = document.getElementById("myTable");
+        const rows = table.querySelectorAll("tbody tr:nth-child(odd)");
+
+        function filterTable() {
+            const searchValue = searchInput.value.toLowerCase();
+            const selectedStatus = statusFilter.value.toLowerCase();
+            const selectedDesignation = designationFilter.value.toLowerCase();
+
+            rows.forEach((row) => {
+                const name = row.cells[2].textContent.toLowerCase();
+                const userId = row.cells[1].textContent.toLowerCase();
+                const designation = row.cells[3].textContent.trim().toLowerCase();
+                const status = row.cells[4].textContent.trim().toLowerCase();
+
+                const matchesSearch =
+                    name.includes(searchValue) || userId.includes(searchValue) || designation.includes(searchValue);
+
+                const matchesStatus = !selectedStatus || status === selectedStatus;
+                const matchesDesignation = !selectedDesignation || designation === selectedDesignation;
+
+                if (matchesSearch && matchesStatus && matchesDesignation) {
+                    row.style.display = "";
+                    const expandRow = row.nextElementSibling;
+                    if (expandRow && expandRow.classList.contains("hiddenRow")) {
+                        expandRow.style.display = "";
+                    }
+                } else {
+                    row.style.display = "none";
+                    const expandRow = row.nextElementSibling;
+                    if (expandRow && expandRow.classList.contains("hiddenRow")) {
+                        expandRow.style.display = "none";
+                    }
+                }
+            });
+        }
+
+        searchInput.addEventListener("input", filterTable);
+        statusFilter.addEventListener("change", filterTable);
+        designationFilter.addEventListener("change", filterTable);
+    });
+
+
      let iti1;
     $(document).ready(function () {
         iti1 = $("#mobile_number").intlTelInput({
@@ -536,6 +584,7 @@
             $(".filter-section-consultancy").hide();
             $(".add-user-form-section").show(); // use toggle() if you don’t want slide effect
         });
+
     });
 
     function clearUserManagementForm() {
