@@ -20,7 +20,7 @@
                 <option value="Finance">Finance</option>
                 <option value="HR">HR</option>
                 <option value="Operator">Operator</option>
-                <option value="Consultant">Consultant</option>
+                <!-- <option value="Consultant">Consultant</option> -->
             </select>
         </div>
     </div>
@@ -395,7 +395,7 @@
                                     <option value="Finance">Finance</option>
                                     <option value="HR">HR</option>
                                     <option value="Operator">Operator</option>
-                                    <option value="Consultant">Consultant</option>
+                                    <!-- <option value="Consultant">Consultant</option> -->
                                 </select>
                             </div>
                         </div>
