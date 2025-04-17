@@ -1104,27 +1104,7 @@
         }
 
 
-//         <span
-//     class="edit-user"
-//     data-id="{{ $user->id }}"
-//     data-emp_name="{{ $user->emp_name }}"
-//     data-emp_code="{{ $user->emp_code }}"
-//     data-sex="{{ $user->sex }}"
-//     data-dob="{{ $user->dob }}"
-//     data-mobile_number="{{ $user->mobile_number }}"
-//     data-email="{{ $user->email }}"
-//     data-receipt_file="{{ $user->receipt_file }}"
-//     data-full_address="{{ $user->full_address }}"
-//     data-show_address_input="{{ $user->show_address_input }}"
-//     data-joining_date="{{ $user->joining_date }}"
-//     data-resignation_date="{{ $user->resignation_date }}"
-//     data-status="{{ $user->status }}"
-//     data-designation="{{ $user->designation }}"
-//     data-login_email="{{ $user->login_email }}"
-//     data-reset_password="{{ $user->reset_password }}"
-// >
-//     <i class="fas fa-pen-nib"></i>
-// </span>
+
 
          $('input[name="show_address_input"]').val($(this).data("show_address_input"));
         // $('input[name="primary_contact"]').val($(this).data("primary_contact"));
