@@ -8,17 +8,19 @@
             <select id="statusFilter">
                 <option value="">All</option>
                 <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="Disabled">Disabled</option>
+                <option value="Block">Block</option>
+                <option value="Deleted">Deleted</option>
             </select>
         </div>
 
-        <div class="active-status-select-bom consultancy-designation-filter">
+        <!-- <div class="active-status-select-bom consultancy-designation-filter">
             <select id="statusFilter">
                 <option value="">Client Type</option>
                 <option value="active">Client Type 1</option>
                 <option value="inactive">Client Type 2</option>
             </select>
-        </div>
+        </div> -->
     </div>
 
     <div class="col-lg-6">
@@ -119,9 +121,98 @@
                                     <div class="bom-list-row-expand">
                                         <h5>Consultant Information</h5>
 
-                                        <div class="list-bom-cards">
-                                            <p>Date of Birth : 08 / 04 / 1997</p>
+                                        <div class="table-bom-list-section mt-5">
+                                            <div class="container p-0">
+                                                <div class="col-md-12">
+
+                                                    <table class="table table-condensed table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>S.No</th>
+                                                            <th>Consultant Name</th>
+                                                            <th>Email Address</th>
+                                                            <th>Contact No</th>
+                                                            <th>Join Date</th>
+                                                            <th>Designation</th>
+                                                            <th>Status</th>
+                                                            <th>Actions</th>
+                                                        </tr>
+                                                    </thead>
+
+
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>01</td>
+                                                            <td>
+                                                                <div class="d-flex align-items-center">
+                                                                    <!-- <img src="assets/images/user1.jpg" alt="Desirae" class="rounded-circle me-2" width="30" height="30"> -->
+                                                                    <span>Desirae Press</span>
+                                                                </div>
+                                                            </td>
+                                                            <td>desirae@gmail.com</td>
+                                                            <td>+65 7863 0063</td>
+                                                            <td>23 / 01 / 2024</td>
+                                                            <td>Associate Consultant</td>
+                                                            <td><span class="badge bg-success">● Active</span></td>
+                                                            <td>
+                                                                <div class="icon-group-listing">
+                                                                    <span><i class="fa-solid fa-angle-down"></i></span>
+                                                                    <span><i class="fas fa-pen-nib"></i></span>
+                                                                    <span><i class="fa fa-trash"></i></span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>02</td>
+                                                            <td>
+                                                                <div class="d-flex align-items-center">
+                                                                    <!-- <img src="assets/images/user2.jpg" alt="Maren" class="rounded-circle me-2" width="30" height="30"> -->
+                                                                    <span>Maren Carder</span>
+                                                                </div>
+                                                            </td>
+                                                            <td>maren89@gmail.com</td>
+                                                            <td>+65 9765 1234</td>
+                                                            <td>03 / 02 / 2024</td>
+                                                            <td>IT Support</td>
+                                                            <td><span class="badge bg-success">● Active</span></td>
+                                                            <td>
+                                                                <div class="icon-group-listing">
+                                                                    <span><i class="fa-solid fa-angle-down"></i></span>
+                                                                    <span><i class="fas fa-pen-nib"></i></span>
+                                                                    <span><i class="fa fa-trash"></i></span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>03</td>
+                                                            <td>
+                                                                <div class="d-flex align-items-center">
+                                                                    <!-- <img src="assets/images/user3.jpg" alt="Jaxson" class="rounded-circle me-2" width="30" height="30"> -->
+                                                                    <span>Jaxson Saris</span>
+                                                                </div>
+                                                            </td>
+                                                            <td>jaxson@gmail.com</td>
+                                                            <td>+65 6376 4321</td>
+                                                            <td>07 / 03 / 2024</td>
+                                                            <td>Senior Consultant</td>
+                                                            <td><span class="badge bg-danger">● Inactive</span></td>
+                                                            <td>
+                                                                <div class="icon-group-listing">
+                                                                    <span><i class="fa-solid fa-angle-down"></i></span>
+                                                                    <span><i class="fas fa-pen-nib"></i></span>
+                                                                    <span><i class="fa fa-trash"></i></span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+
+                                                    </table>
+
+                                                </div>
+                                            </div>
                                         </div>
+
+                                        
                                     </div>
                                 </div>
                             </td>
@@ -140,7 +231,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 d-flex align-items-center">
-                    <h2 id="consultancy_form_heading">Add User</h2>
+                    <h2 id="consultancy_form_heading">Add Client</h2>
                 </div>
 
                 <div class="col-lg-8">
@@ -379,6 +470,37 @@
             // e.preventDefault();
             $(".add-clinet-form-section").show(); // use toggle() if you don’t want slide effect
         });
+
+        
+        function filterTable() {
+            var searchText = $("#searchInput").val().toLowerCase().trim();
+            var selectedStatus = $("#statusFilter").val().toLowerCase();
+
+            $("table tbody tr").each(function () {
+                // Only main data rows (not expandable rows)
+                if ($(this).find("td").length > 1) {
+                    var rowText = $(this).text().toLowerCase();
+
+                    // Find status text specifically from span class
+                    var statusSpan = $(this).find("span.active-badge, span.inactive-badge");
+                    var statusText = statusSpan.length > 0 ? statusSpan.text().toLowerCase().trim() : "";
+
+                    var searchMatch = searchText === "" || rowText.includes(searchText);
+                    var statusMatch = selectedStatus === "" || statusText === selectedStatus;
+
+                    if (searchMatch && statusMatch) {
+                        $(this).show();
+                        $(this).next("tr").show(); // expandable row
+                    } else {
+                        $(this).hide();
+                        $(this).next("tr").hide(); // expandable row
+                    }
+                }
+            });
+        }
+
+        $("#searchInput").on("keyup", filterTable);
+        $("#statusFilter").on("change", filterTable);
     });
 
     const countrySelect = document.getElementById("country-select");

@@ -9,9 +9,9 @@
                 <div class="row py-2">
                     <div class="col-lg-2">
                         <div class="header-logo">
-                            @php use Illuminate\Support\Facades\Storage; $logo = optional($consultancy)->consultancy_logo; @endphp @if($logo && Storage::disk('public')->exists($logo))
-                            <img src="{{ asset('storage/' . $logo) }}" alt="Consultancy Logo" width="60" />
-                            @endif
+                            
+                            <img src="{{ asset('/' . $consultancy->consultancy_logo) }}" alt="Consultancy Logo" width="60" />
+                           
                         </div>
                     </div>
 
@@ -90,11 +90,13 @@
                     <div class="tab-content">
                         @if ($activeTab == 'home')
                         <p>Dashboard Section</p>
-                        @elseif ($activeTab == 'user-management') @include('consultancy.user-management') @elseif ($activeTab == 'clients') @include('consultancy.client') @elseif ($activeTab == 'reports')
+                        @elseif ($activeTab == 'user-management') @include('consultancy.user-management')
+                        @elseif ($activeTab == 'clients') @include('consultancy.client')
+                        @elseif ($activeTab == 'reports') 
                         <p>Reports Section</p>
                         @elseif ($activeTab == 'static-settings')
-                        <p>Static settings Section</p>
-                        @else @include('consultancy.user-management') @endif
+                        @include('consultancy.static-settings')
+                        @endif
                     </div>
                 </div>
             </div>
