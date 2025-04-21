@@ -20,7 +20,7 @@
                                 <a class="nav-link {{ $activeTab == 'home' ? 'active' : '' }}" href="?tab=home">Home</a>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <a class="nav-link {{ $activeTab == 'timesheet' ? 'active' : '' }}" href="?tab=timesheet">User Management</a>
+                                <a class="nav-link {{ $activeTab == 'timesheet' ? 'active' : '' }}" href="?tab=timesheet">Timesheet</a>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <a class="nav-link {{ $activeTab == 'claims' ? 'active' : '' }}" href="?tab=claims">Claims</a>

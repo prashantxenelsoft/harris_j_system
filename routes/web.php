@@ -9,6 +9,11 @@ use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\BomController;
 use App\Http\Controllers\ConsultancyController;
 use App\Http\Controllers\ConsultantController;
+use App\Http\Controllers\Api\AuthController;
+
+Route::post('api/auth/login', [AuthController::class, 'apiLogin']);
+
+
 
 Route::get('/', function () {
     //return view('welcome');
