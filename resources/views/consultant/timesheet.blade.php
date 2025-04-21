@@ -141,7 +141,7 @@
                                                                 <li>
                                                                     <input type="radio" name="Day" id="customDay" />
                                                                     <img src="{{ asset('public/assets/latest/images/custom-wheel.png') }}" alt="" />
-                                                                    <label for="customDay">First half workday (HD1)</label>
+                                                                    <label for="customDay">Custom</label>
                                                                 </li>
                                                             </ul>
                                                         </div>
@@ -638,7 +638,7 @@
                                         if (day === 0 || day === 6) {
                                             cell.classList.add("disabled");
                                         } else {
-                                            cell.addEventListener("click", (e) => showInputDropdown(e, cell));
+                                            cell.addEventListener("click", (e) => showInputDropdown(e, cell,date));
                                         }
 
                                         // Add example tags with blue color
@@ -673,9 +673,10 @@
                                     }
                                 }
 
-                                function showInputDropdown(event, cell) {
+                                function showInputDropdown(event, cell,date) {
                                     closeAllDropdowns();
-
+                                   
+                                    
                                     const dropdown = document.createElement("div");
                                     dropdown.classList.add("dropdown");
 
@@ -691,6 +692,7 @@
                                     suggestionBox.className = "suggestions";
 
                                     function updateSuggestions(val) {
+                                       
                                         suggestionBox.innerHTML = "";
                                         dropdownSuggestions
                                             .filter((s) => s.label.toLowerCase().includes(val.toLowerCase()))
@@ -698,8 +700,9 @@
                                                 const opt = document.createElement("div");
                                                 opt.innerHTML = `<span style="margin-right: 8px;">${item.icon}</span>${item.label}`;
                                                 opt.onclick = () => {
-                                                    // console.log("check item",item);
+                                                     //console.log("check item",item);
                                                     if (item.label === "ML") {
+                                                        console.log(date);
                                                         const modal = new bootstrap.Modal(document.getElementById("medicalLeave"));
                                                         modal.show();
                                                     }
