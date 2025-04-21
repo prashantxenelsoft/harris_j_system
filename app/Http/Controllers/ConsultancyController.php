@@ -33,9 +33,13 @@ class ConsultancyController extends Controller
 
         $client = Client::where('user_id',  $userData['id'])->get();
         $users = UserManagment::where('user_id',  $userData['id'])->get();
-        //echo "<pre>";print_r($user);die;
+        $dataConsultancy = Consultancy::join('users', 'consultancy.admin_email', '=', 'users.email')
+        ->where('consultancy.admin_email', Session::get('user_data')['email'])
+        ->select('consultancy.*', 'users.name as user_name', 'users.email as user_email','users.password as user_password') // select desired fields
+        ->first();
+        //echo "<pre>";print_r($dataConsultancy);die;
 
-       return view('consultancy.dashboard',compact('consultancy','client','users'));
+       return view('consultancy.dashboard',compact('consultancy','client','users','dataConsultancy'));
     }
 
     /**
