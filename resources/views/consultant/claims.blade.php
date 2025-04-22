@@ -373,11 +373,6 @@
                                             </div>
                                         </div>
 
-                                       
-
-                                        
-
-
                                         <script>
                                             const calendarDays = document.getElementById("calendarDays");
                                             const monthSelect = document.getElementById("monthSelect");

@@ -201,9 +201,9 @@
     top: 24px;
     background-color: #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    border-radius: 6px;
+    /* border-radius: 6px; */
     z-index: 10;
-    width: 180px;
+    width: 114px;
     padding: 8px 0;
     display: flex;
     flex-direction: column;
@@ -277,4 +277,25 @@
     
     .system-properties-screens-parent .bom-add-consultancy-screen .form-row-consultancy .consultancy-form-col {
         width: 30%;
+    }
+    ul.calendar-claims li {
+        background: aqua;
+        height: 100%;
+        width: 50%;
+    }
+    
+    ul.calendar-claims {
+        height: 100%;
+        position: absolute;
+        width: 100%;
+        z-index: 2;
+        top: 0;
+        left: 0;
+        min-height: 60px;
+        opacity: 0.2;
+        display: flex;
+    }
+
+    ul.calendar-claims li:nth-child(2){
+               background-color: #d32f2f;
     }

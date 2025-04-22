@@ -1,3 +1,4 @@
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <div class="tab-content" id="pills-tabContent">
     <div class="tab-pane fade" id="homeconsultant" role="tabpanel" aria-labelledby="pills-home-tab">...</div>
 
@@ -105,7 +106,7 @@
                                                 <div class="mb_left">
                                                     <div class="ml_date_box">
                                                         <div class="ml_date">
-                                                            <span>Date: <span>19 / 08 / 2024</span></span>
+                                                            <span>Date: <span id="medicalLeaveDateDisplay"></span></span>
                                                         </div>
                                                         <div class="ml_duty_time">
                                                             <span>Time On Duty : <span> -- / 8.30</span></span>
@@ -159,14 +160,6 @@
                                                                 }
                                                             </style>
                                                             <input type="text" id="dateRange" placeholder="dd / mm / yyyy - dd / mm / yyyy" />
-                                                            <!-- Flatpickr JS -->
-                                                            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-                                                            <script>
-                                                                flatpickr("#dateRange", {
-                                                                    mode: "range",
-                                                                    dateFormat: "d / m / Y",
-                                                                });
-                                                            </script>
                                                         </div>
 
                                                         <div class="leave_slot_selector">
@@ -204,92 +197,8 @@
                                                                         <input type="range" class="max" min="0" max="47" value="32" step="1" />
                                                                     </div>
                                                                 </div>
-                                                                <div class="range-scale">
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            12<br />
-                                                                            AM
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            4<br />
-                                                                            AM
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            8<br />
-                                                                            AM
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            12<br />
-                                                                            PM
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            4<br />
-                                                                            PM
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            8<br />
-                                                                            PM
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            12<br />
-                                                                            AM
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
+
+                                                                @include('consultant.range-scale')
                                                             </div>
                                                         </div>
                                                         <div class="upload_certificate">
@@ -326,6 +235,227 @@
                                 </div>
                             </div>
 
+                            <script>
+                            (function () {
+                                const modal = document.querySelector("#medicalLeave");
+                                if (!modal) return;
+
+                                const rangeInput = modal.querySelectorAll(".range-input input");
+                                const range = modal.querySelector(".range-selected");
+                                const minTooltip = modal.querySelector(".min-tooltip");
+                                const maxTooltip = modal.querySelector(".max-tooltip");
+                                const dateRange = modal.querySelector("#dateRange");
+                                const clockItBtn = modal.querySelector(".ml_clockit_btn");
+                                const fileInput = modal.querySelector("#uploadFile");
+
+                                let editingBlock = null;
+
+                                const timeLabels = Array.from({ length: 48 }, (_, i) => {
+                                    const hours = Math.floor(i / 2);
+                                    const minutes = i % 2 === 0 ? "00" : "30";
+                                    const suffix = hours >= 12 ? "PM" : "AM";
+                                    const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+                                    return `${displayHours}:${minutes} ${suffix}`;
+                                });
+
+                                function updateSlider() {
+                                    let minVal = parseInt(rangeInput[0].value);
+                                    let maxVal = parseInt(rangeInput[1].value);
+                                    if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
+
+                                    const percent1 = (minVal / 47) * 100;
+                                    const percent2 = (maxVal / 47) * 100;
+
+                                    range.style.left = percent1 + "%";
+                                    range.style.width = percent2 - percent1 + "%";
+                                    minTooltip.style.left = percent1 + "%";
+                                    minTooltip.textContent = timeLabels[minVal];
+                                    maxTooltip.style.left = percent2 + "%";
+                                    maxTooltip.textContent = timeLabels[maxVal];
+                                }
+
+                                rangeInput.forEach(input => input.disabled = true);
+                                range.style.backgroundColor = "transparent";
+                                rangeInput.forEach(input => input.addEventListener("input", updateSlider));
+                                updateSlider();
+
+                                if (dateRange) {
+                                    flatpickr(dateRange, {
+                                        mode: "range",
+                                        dateFormat: "d / m / Y",
+                                        onClose: function (_, dateStr) {
+                                            const disable = dateStr.includes("to");
+                                            rangeInput.forEach(input => input.disabled = disable);
+                                            range.style.backgroundColor = disable ? "transparent" : "#037EFF";
+                                        }
+                                    });
+                                }
+
+                                if (clockItBtn) {
+                                    clockItBtn.addEventListener("click", function () {
+                                        // Validation: Date range
+                                        if (!dateRange.value.trim()) {
+                                            alert("Please select a date range before proceeding.");
+                                            dateRange.focus();
+                                            return;
+                                        }
+
+                                        // Validation: ML leave hours
+                                        const selectedRadio = modal.querySelector('input[name="Day"]:checked');
+                                        if (!selectedRadio) {
+                                            alert("Please select ML leave hours before proceeding.");
+                                            return;
+                                        }
+
+                                        const docList = modal.querySelector(".ml_document_list");
+                                        const noDataImg = docList.querySelector(".ml_no_data");
+                                        if (noDataImg) noDataImg.remove();
+
+                                        const selectedDate = dateRange.value.includes("to") ? dateRange.value : dateRange.value.trim();
+                                        const leaveHourText = modal.querySelector(`label[for="${selectedRadio.id}"]`)?.textContent.trim();
+                                        const selectedRadioId = selectedRadio.id;
+                                        const rangeMin = rangeInput[0].value;
+                                        const rangeMax = rangeInput[1].value;
+
+                                        const blockHTML = `
+                                            <div class="ml_card" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; font-size: 14px; gap: 8px;">
+                                                <div style="display: flex; align-items: center; gap: 8px;">
+                                                    <i class="fa-solid fa-calendar-days"></i>
+                                                    <span><strong>${selectedDate}</strong></span>
+                                                </div>
+                                                <div style="text-align: right;">
+                                                    <p style="margin: 0;"><strong>Leave Type :</strong> Medical Leave (ML)</p>
+                                                    <p style="margin: 0;"><strong>ML leave hours :</strong> ${leaveHourText}</p>
+                                                </div>
+                                                <div style="margin-left: auto; margin-top: 10px; display: flex; gap: 10px;">
+                                                    <button title="Preview" class="preview-btn" style="border: none; background: none; cursor: pointer;">
+                                                        <i class="fa-solid fa-paperclip" style="color: #ff6f00;"></i>
+                                                    </button>
+                                                    <button title="Edit" class="edit-btn" style="border: none; background: none; cursor: pointer;">
+                                                        <i class="fa-solid fa-pen-to-square" style="color: #ff6f00;"></i>
+                                                    </button>
+                                                    <button title="Delete" class="close-expense" style="border: none; background: none; cursor: pointer;">
+                                                        <i class="fa-solid fa-trash" style="color: red;"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        `;
+
+                                        let expenseBlock = editingBlock || document.createElement("div");
+                                        expenseBlock.classList.add("expense-block");
+                                        expenseBlock.style.cssText = `
+                                            background: white;
+                                            border-radius: 10px;
+                                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                                            padding: 15px;
+                                            margin-top: 15px;
+                                            position: relative;
+                                        `;
+
+                                        expenseBlock.innerHTML = blockHTML;
+                                        expenseBlock.dataset.leaveDate = selectedDate;
+                                        expenseBlock.dataset.leaveHourId = selectedRadioId;
+                                        expenseBlock.dataset.rangeMin = rangeMin;
+                                        expenseBlock.dataset.rangeMax = rangeMax;
+
+                                        if (!editingBlock) {
+                                            docList.appendChild(expenseBlock);
+                                        }
+
+                                        editingBlock = null;
+                                        modal.classList.remove("editing-mode");
+
+                                        const previewBtn = expenseBlock.querySelector(".preview-btn");
+                                        const file = fileInput.files[0];
+                                        if (file && file.type.startsWith("image/")) {
+                                            const reader = new FileReader();
+                                            reader.onload = function (e) {
+                                                previewBtn.addEventListener("click", function () {
+                                                    let modal = document.querySelector("#imagePreviewModal");
+                                                    if (!modal) {
+                                                        const modalHTML = `
+                                                            <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title">Preview Image</h5>
+                                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                                                                <i class="fa-solid fa-xmark"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body text-center">
+                                                                            <img id="previewModalImg" src="" alt="Preview" style="max-width: 100%; max-height: 70vh;" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        `;
+                                                        const tempDiv = document.createElement("div");
+                                                        tempDiv.innerHTML = modalHTML.trim();
+                                                        document.body.appendChild(tempDiv.firstChild);
+                                                        modal = document.querySelector("#imagePreviewModal");
+                                                    }
+
+                                                    const img = modal.querySelector("#previewModalImg");
+                                                    img.src = e.target.result;
+                                                    const bsModal = new bootstrap.Modal(modal);
+                                                    bsModal.show();
+                                                });
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+
+                                        expenseBlock.querySelector(".edit-btn").addEventListener("click", function () {
+                                            editingBlock = expenseBlock;
+                                            dateRange._flatpickr.setDate(expenseBlock.dataset.leaveDate.split(" to "), true, "d / m / Y");
+
+                                            const radio = modal.querySelector(`input[id="${expenseBlock.dataset.leaveHourId}"]`);
+                                            if (radio) radio.checked = true;
+
+                                            rangeInput[0].value = expenseBlock.dataset.rangeMin;
+                                            rangeInput[1].value = expenseBlock.dataset.rangeMax;
+                                            updateSlider();
+
+                                            modal.classList.add("editing-mode");
+                                            modal.scrollIntoView({ behavior: "smooth" });
+                                        });
+
+                                        expenseBlock.querySelector(".close-expense").addEventListener("click", function () {
+                                            expenseBlock.remove();
+                                            if (!modal.querySelector(".ml_document_list .expense-block")) {
+                                                const img = document.createElement("img");
+                                                img.src = "{{ asset('public/assets/latest/images/no-file.png') }}";
+                                                img.alt = "";
+                                                img.classList.add("ml_no_data");
+                                                modal.querySelector(".ml_document_list").appendChild(img);
+                                            }
+                                        });
+                                    });
+                                }
+
+                                modal.addEventListener("hidden.bs.modal", function () {
+                                    if (dateRange._flatpickr) dateRange._flatpickr.clear();
+                                    modal.querySelectorAll('input[name="Day"]').forEach(input => input.checked = false);
+                                    rangeInput[0].value = 15;
+                                    rangeInput[1].value = 32;
+                                    updateSlider();
+                                    fileInput.value = "";
+                                    editingBlock = null;
+                                    modal.classList.remove("editing-mode");
+                                });
+
+                                const style = document.createElement("style");
+                                style.innerHTML = `
+                                    #medicalLeave.editing-mode .modal-content {
+                                        outline: 2px dashed #ffc107;
+                                        outline-offset: -6px;
+                                        box-shadow: 0 0 0 3px rgba(255,193,7,0.25);
+                                    }
+                                `;
+                                document.head.appendChild(style);
+                            })();
+                            </script>
+
                             <!-- Custom Leave Model -->
                             <div class="modal fade" id="customLeave" tabindex="-1" aria-labelledby="customLeaveModal" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -346,7 +476,7 @@
                                                 <div class="mb_left">
                                                     <div class="ml_date_box">
                                                         <div class="ml_date">
-                                                            <span>Date: <span>19 / 08 / 2024</span></span>
+                                                            <span>Date: <span id="customLeaveDisplay"></span></span>
                                                         </div>
                                                         <div class="ml_duty_time">
                                                             <span>Time On Duty : <span> -- / 8.30</span></span>
@@ -357,10 +487,12 @@
                                                             <span>Select leave type :</span>
                                                         </div>
                                                         <div class="leave_type_options">
-                                                            <div><a href="#">AL</a></div>
-                                                            <div><a href="#">UL</a></div>
-                                                            <div><a href="#">PDO</a></div>
+                                                            <div><a href="#" data-type="AL">AL</a></div>
+                                                            <div><a href="#" data-type="UL">UL</a></div>
+                                                            <div><a href="#" data-type="PDO">PDO</a></div>
                                                         </div>
+                                                        <input type="hidden" id="selectedLeaveType" />
+
                                                         <div class="select_leave_hour">
                                                             <span>Select leave hours :</span>
                                                         </div>
@@ -386,7 +518,7 @@
                                                                 <li>
                                                                     <input type="radio" name="Day" id="customDay" />
                                                                     <img src="{{ asset('public/assets/latest/images/custom-wheel.png') }}" alt="" />
-                                                                    <label for="customDay">First half workday (HD1)</label>
+                                                                    <label for="customDay">Custom</label>
                                                                 </li>
                                                             </ul>
                                                         </div>
@@ -404,14 +536,8 @@
                                                                 }
                                                             </style>
                                                             <input type="text" id="dateRange" placeholder="dd / mm / yyyy - dd / mm / yyyy" />
-                                                            <!-- Flatpickr JS -->
-                                                            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-                                                            <script>
-                                                                flatpickr("#dateRange", {
-                                                                    mode: "range",
-                                                                    dateFormat: "d / m / Y",
-                                                                });
-                                                            </script>
+                                                           
+                                                          
                                                         </div>
 
                                                         <div class="leave_slot_selector">
@@ -449,92 +575,7 @@
                                                                         <input type="range" class="max" min="0" max="47" value="32" step="1" />
                                                                     </div>
                                                                 </div>
-                                                                <div class="range-scale">
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            12<br />
-                                                                            AM
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            4<br />
-                                                                            AM
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            8<br />
-                                                                            AM
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            12<br />
-                                                                            PM
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            4<br />
-                                                                            PM
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            8<br />
-                                                                            PM
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-medium"></div>
-                                                                    <div class="tick tick-small"></div>
-                                                                    <div class="tick tick-large">
-                                                                        <span class="tick-label">
-                                                                            12<br />
-                                                                            AM
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
+                                                                @include('consultant.range-scale')
                                                             </div>
                                                         </div>
                                                         <div class="add_remark">
@@ -565,7 +606,219 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> 
+
+                            <script>
+                            (function () {
+                                const modal = document.querySelector("#customLeave");
+                                if (!modal) return;
+
+                                const rangeInput = modal.querySelectorAll(".range-input input");
+                                const range = modal.querySelector(".range-selected");
+                                const minTooltip = modal.querySelector(".min-tooltip");
+                                const maxTooltip = modal.querySelector(".max-tooltip");
+                                const dateRange = modal.querySelector("#dateRange");
+                                const remarkInput = modal.querySelector("#customRemark");
+                                const clockItBtn = modal.querySelector(".ml_clockit_btn");
+                                const leaveTypeBtns = modal.querySelectorAll(".leave_type_options a");
+                                const selectedTypeInput = modal.querySelector("#selectedLeaveType");
+
+                                let editingBlock = null;
+
+                                const timeLabels = Array.from({ length: 48 }, (_, i) => {
+                                    const hours = Math.floor(i / 2);
+                                    const minutes = i % 2 === 0 ? "00" : "30";
+                                    const suffix = hours >= 12 ? "PM" : "AM";
+                                    const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+                                    return `${displayHours}:${minutes} ${suffix}`;
+                                });
+
+                                function updateSlider() {
+                                    let minVal = parseInt(rangeInput[0].value);
+                                    let maxVal = parseInt(rangeInput[1].value);
+                                    if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
+                                    const percent1 = (minVal / 47) * 100;
+                                    const percent2 = (maxVal / 47) * 100;
+                                    range.style.left = percent1 + "%";
+                                    range.style.width = percent2 - percent1 + "%";
+                                    minTooltip.style.left = percent1 + "%";
+                                    minTooltip.textContent = timeLabels[minVal];
+                                    maxTooltip.style.left = percent2 + "%";
+                                    maxTooltip.textContent = timeLabels[maxVal];
+                                }
+
+                                rangeInput.forEach(input => input.disabled = true);
+                                range.style.backgroundColor = "transparent";
+                                rangeInput.forEach(input => input.addEventListener("input", updateSlider));
+                                updateSlider();
+
+                                if (dateRange) {
+                                    flatpickr(dateRange, {
+                                        mode: "range",
+                                        dateFormat: "d / m / Y",
+                                        onClose: function (_, dateStr) {
+                                            const disable = dateStr.includes("to");
+                                            rangeInput.forEach(input => input.disabled = disable);
+                                            range.style.backgroundColor = disable ? "transparent" : "#037EFF";
+                                        }
+                                    });
+                                }
+
+                                leaveTypeBtns.forEach(btn => {
+                                    btn.addEventListener("click", function (e) {
+                                        e.preventDefault();
+                                        leaveTypeBtns.forEach(b => b.classList.remove("active"));
+                                        this.classList.add("active");
+                                        selectedTypeInput.value = this.dataset.type;
+                                    });
+                                });
+
+                                if (clockItBtn) {
+                                    clockItBtn.addEventListener("click", function () {
+                                        const docList = modal.querySelector(".ml_document_list");
+                                        const noDataImg = docList.querySelector(".ml_no_data");
+                                        if (noDataImg) noDataImg.remove();
+
+                                        const selectedDate = dateRange.value.trim();
+                                        const selectedRadio = modal.querySelector('input[name="Day"]:checked');
+                                        const leaveHourText = selectedRadio ? modal.querySelector(`label[for="${selectedRadio.id}"]`)?.textContent.trim() : "";
+                                        const selectedRadioId = selectedRadio?.id || "";
+                                        const leaveType = selectedTypeInput.value;
+                                        const remark = remarkInput.value.trim();
+                                        const rangeMin = rangeInput[0].value;
+                                        const rangeMax = rangeInput[1].value;
+
+                                        if (!selectedRadio) {
+                                            alert("Please select leave hours.");
+                                            return;
+                                        }
+                                        if (!leaveType) {
+                                            alert("Please select a leave type.");
+                                            return;
+                                        }
+
+                                        const blockHTML = `
+                                            <div class="ml_card" style="display: flex; flex-direction: column; font-size: 14px; gap: 5px;">
+                                                <div style="display: flex; align-items: center; gap: 8px;">
+                                                    <i class="fa-solid fa-calendar-days"></i>
+                                                    <span><strong>${selectedDate}</strong></span>
+                                                </div>
+                                                <div><strong>Leave Type:</strong> ${leaveType}</div>
+                                                <div><strong>ML leave hours:</strong> ${leaveHourText}</div>
+                                                <div style="margin-left: auto; margin-top: 8px; display: flex; gap: 10px;">
+                                                    <button title="Edit" class="edit-btn" style="border: none; background: none; cursor: pointer;">
+                                                        <i class="fa-solid fa-pen-to-square" style="color: #ff6f00;"></i>
+                                                    </button>
+                                                    <button title="Delete" class="close-expense" style="border: none; background: none; cursor: pointer;">
+                                                        <i class="fa-solid fa-trash" style="color: red;"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        `;
+
+                                        let expenseBlock = editingBlock || document.createElement("div");
+                                        expenseBlock.classList.add("expense-block");
+                                        expenseBlock.style.cssText = `
+                                            background: white;
+                                            border-radius: 10px;
+                                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                                            padding: 15px;
+                                            margin-top: 12px;
+                                            position: relative;
+                                        `;
+                                        expenseBlock.innerHTML = blockHTML;
+
+                                        expenseBlock.dataset.leaveDate = selectedDate;
+                                        expenseBlock.dataset.leaveHourId = selectedRadioId;
+                                        expenseBlock.dataset.leaveType = leaveType;
+                                        expenseBlock.dataset.rangeMin = rangeMin;
+                                        expenseBlock.dataset.rangeMax = rangeMax;
+                                        expenseBlock.dataset.remark = remark;
+
+                                        if (!editingBlock) {
+                                            docList.appendChild(expenseBlock);
+                                        }
+
+                                        editingBlock = null;
+                                        modal.classList.remove("editing-mode");
+
+                                        expenseBlock.querySelector(".edit-btn").addEventListener("click", function () {
+                                            editingBlock = expenseBlock;
+                                            dateRange._flatpickr.setDate(expenseBlock.dataset.leaveDate.split(" to "), true, "d / m / Y");
+
+                                            const radio = modal.querySelector(`input[id="${expenseBlock.dataset.leaveHourId}"]`);
+                                            if (radio) radio.checked = true;
+
+                                            const disable = expenseBlock.dataset.leaveDate.includes("to");
+                                            rangeInput.forEach(input => input.disabled = disable);
+                                            range.style.backgroundColor = disable ? "transparent" : "#037EFF";
+                                            if (expenseBlock.dataset.rangeMin && expenseBlock.dataset.rangeMax) {
+                                                rangeInput[0].value = expenseBlock.dataset.rangeMin;
+                                                rangeInput[1].value = expenseBlock.dataset.rangeMax;
+                                                updateSlider();
+                                            }
+
+                                            leaveTypeBtns.forEach(b => {
+                                                b.classList.toggle("active", b.dataset.type === expenseBlock.dataset.leaveType);
+                                            });
+                                            selectedTypeInput.value = expenseBlock.dataset.leaveType;
+                                            remarkInput.value = expenseBlock.dataset.remark || "";
+
+                                            modal.classList.add("editing-mode");
+                                            modal.scrollIntoView({ behavior: "smooth" });
+                                        });
+
+                                        expenseBlock.querySelector(".close-expense").addEventListener("click", function () {
+                                            expenseBlock.remove();
+                                            if (!docList.querySelector(".expense-block")) {
+                                                const img = document.createElement("img");
+                                                img.src = "{{ asset('public/assets/latest/images/no-file.png') }}";
+                                                img.alt = "";
+                                                img.classList.add("ml_no_data");
+                                                docList.appendChild(img);
+                                            }
+                                        });
+                                    });
+                                }
+
+                                modal.addEventListener("hidden.bs.modal", function () {
+                                    if (dateRange._flatpickr) {
+                                        dateRange._flatpickr.clear();
+                                    }
+                                    modal.querySelectorAll('input[name="Day"]').forEach(input => input.checked = false);
+                                    rangeInput[0].value = 15;
+                                    rangeInput[1].value = 32;
+                                    updateSlider();
+                                    leaveTypeBtns.forEach(btn => btn.classList.remove("active"));
+                                    selectedTypeInput.value = "";
+                                    remarkInput.value = "";
+                                    modal.classList.remove("editing-mode");
+                                    editingBlock = null;
+                                });
+
+                                const style = document.createElement("style");
+                                style.innerHTML = `
+                                    #customLeave.editing-mode .modal-content {
+                                        outline: 2px dashed #ffc107;
+                                        outline-offset: -6px;
+                                        box-shadow: 0 0 0 3px rgba(255,193,7,0.25);
+                                    }
+                                    .leave_type_options a.active {
+                                        background-color: #037eff;
+                                        color: white;
+                                        padding: 10px 20px;
+                                        border-radius: 12px;
+                                        display: inline-block;
+                                    }
+                                `;
+                                document.head.appendChild(style);
+                            })();
+                            </script>
+
+
+
+
+                            
 
                             <script>
                                 const calendarDays = document.getElementById("calendarDays");
@@ -638,7 +891,7 @@
                                         if (day === 0 || day === 6) {
                                             cell.classList.add("disabled");
                                         } else {
-                                            cell.addEventListener("click", (e) => showInputDropdown(e, cell,date));
+                                            cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
                                         }
 
                                         // Add example tags with blue color
@@ -673,16 +926,15 @@
                                     }
                                 }
 
-                                function showInputDropdown(event, cell,date) {
+                                function showInputDropdown(event, cell, date) {
                                     closeAllDropdowns();
-                                   
-                                    
+
                                     const dropdown = document.createElement("div");
                                     dropdown.classList.add("dropdown");
 
                                     const cellRect = cell.getBoundingClientRect();
                                     const dropdownWidth = 180;
-                                    const leftPosition = (cellRect.width - dropdownWidth) / 2;
+                                    const leftPosition = -0.3958;
                                     dropdown.style.left = `${leftPosition}px`;
 
                                     const input = document.createElement("input");
@@ -692,7 +944,6 @@
                                     suggestionBox.className = "suggestions";
 
                                     function updateSuggestions(val) {
-                                       
                                         suggestionBox.innerHTML = "";
                                         dropdownSuggestions
                                             .filter((s) => s.label.toLowerCase().includes(val.toLowerCase()))
@@ -700,13 +951,19 @@
                                                 const opt = document.createElement("div");
                                                 opt.innerHTML = `<span style="margin-right: 8px;">${item.icon}</span>${item.label}`;
                                                 opt.onclick = () => {
-                                                     //console.log("check item",item);
+                                                    const formattedDate = new Date(date);
+                                                    const day = String(formattedDate.getDate()).padStart(2, "0");
+                                                    const month = String(formattedDate.getMonth() + 1).padStart(2, "0"); // 0-based index
+                                                    const year = formattedDate.getFullYear();
+                                                    const finalDate = `${day} / ${month} / ${year}`;
+                                                    //console.log("check item",item);
                                                     if (item.label === "ML") {
-                                                        console.log(date);
+                                                        document.getElementById("medicalLeaveDateDisplay").innerText = finalDate;
                                                         const modal = new bootstrap.Modal(document.getElementById("medicalLeave"));
                                                         modal.show();
                                                     }
                                                     if (item.label === "Custom") {
+                                                        document.getElementById("customLeaveDisplay").innerText = finalDate;
                                                         const modalCustomLeave = new bootstrap.Modal(document.getElementById("customLeave"));
                                                         modalCustomLeave.show();
                                                     }
