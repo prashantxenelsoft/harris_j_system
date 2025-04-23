@@ -546,7 +546,7 @@
 
                                                 const formData = new FormData();
                                                 formData.append("type", "timesheet");
-                                                formData.append("consultant_id", "{{ $userData['id'] ?? '' }}");
+                                                formData.append("user_id", "{{ $userData['id'] ?? '' }}");
                                                 formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
                                                 formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
 
@@ -941,7 +941,7 @@
 
                                             const formData = new FormData();
                                                 formData.append("type", "timesheet");
-                                                formData.append("consultant_id", "{{ $userData['id'] ?? '' }}");
+                                                formData.append("user_id", "{{ $userData['id'] ?? '' }}");
                                                 formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
                                                 formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
 
@@ -1231,7 +1231,7 @@
 
                                                             const formData = new FormData();
                                                             formData.append("type", "timesheet");
-                                                            formData.append("consultant_id", "{{ $userData['id'] ?? '' }}");
+                                                            formData.append("user_id", "{{ $userData['id'] ?? '' }}");
                                                             formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
                                                             formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
 

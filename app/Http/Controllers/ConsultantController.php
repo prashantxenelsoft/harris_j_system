@@ -21,12 +21,12 @@ class ConsultantController extends Controller
         if($userData['role_id'] == 11)
         {
             $dataTimesheet = DB::table('consultant_dashboard')
-            ->where('consultant_id', $userId)
+            ->where('user_id', $userId)
             ->where('type', 'timesheet')
             ->get();
 
             $dataClaims = DB::table('consultant_dashboard')
-            ->where('consultant_id', $userId)
+            ->where('user_id', $userId)
             ->where('type', 'claims')
             ->get();
            // echo "<pre>";print_r($dataTimesheet);die;
@@ -67,7 +67,7 @@ class ConsultantController extends Controller
                 // Fetch all matching timesheet records for this consultant
                 $existingRecords = DB::table('consultant_dashboard')
                     ->where('type', 'timesheet')
-                    ->where('consultant_id', $request->consultant_id)
+                    ->where('user_id', $request->user_id)
                     ->get();
             
                 $match = null;
@@ -95,7 +95,7 @@ class ConsultantController extends Controller
                     DB::table('consultant_dashboard')->insert([
                         'type' => $request->type,
                         'record' => json_encode($recordData),
-                        'consultant_id' => $request->consultant_id,
+                        'user_id' => $request->user_id,
                         'client_id' => $request->client_id,
                         'client_name' => $request->client_name,
                         'created_at' => now(),
@@ -110,7 +110,7 @@ class ConsultantController extends Controller
                 // Fetch all matching timesheet records for this consultant
                 $existingRecords = DB::table('consultant_dashboard')
                     ->where('type', 'claims')
-                    ->where('consultant_id', $request->consultant_id)
+                    ->where('user_id', $request->user_id)
                     ->get();
             
                 $match = null;
@@ -138,7 +138,7 @@ class ConsultantController extends Controller
                     DB::table('consultant_dashboard')->insert([
                         'type' => $request->type,
                         'record' => json_encode($recordData),
-                        'consultant_id' => $request->consultant_id,
+                        'user_id' => $request->user_id,
                         'client_id' => $request->client_id,
                         'client_name' => $request->client_name,
                         'created_at' => now(),
