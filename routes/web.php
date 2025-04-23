@@ -10,9 +10,11 @@ use App\Http\Controllers\BomController;
 use App\Http\Controllers\ConsultancyController;
 use App\Http\Controllers\ConsultantController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ConsultancyApiController;
 
 Route::group(['prefix' => 'api'], function () {
     Route::post('auth/login', [AuthController::class, 'apiLogin']);
+    Route::get('getConsultancy', [ConsultancyApiController::class, 'getConsultancy']);
 });
 
 Route::get('/', function () {
@@ -74,5 +76,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/lookup-option/{id}', [ConsultancyController::class, 'destroylookupOption'])->name('lookup-option.destroy');
     Route::post('/update-lookup-option', [ConsultancyController::class, 'updateLookupOption'])->name('lookup-option.update');
     Route::get('consultancy/dashboard', [ConsultancyController::class, 'index'])->name('consultancy.dashboard');
+
+    Route::post('/save-consultant-data', [ConsultantController::class, 'addConsultantData'])->name('consultant.data.save');
+
 
 });

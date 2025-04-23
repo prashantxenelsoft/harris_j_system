@@ -263,149 +263,7 @@
                                     </div>
                                 </div>
 
-                                <div class="modal fade common_modal" id="textModal" tabindex="-1" aria-labelledby="cExpenseModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered modal-xl">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <div class="model_employee">
-                                                    <div class="model_emp_img">
-                                                        <img src="assets/images/emp-icon1.png" alt="" />
-                                                    </div>
-                                                    <span class="model_emp_name">Bruce Lee</span>
-                                                </div>
-                                                <button type="button" class="btn-close ml-close-btn" data-bs-dismiss="modal" aria-label="Close">
-                                                    <i class="fa-solid fa-xmark"></i>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="modal_body_inner">
-                                                    <div class="mb_left">
-                                                        <div class="ml_date_box">
-                                                            <div class="ml_date">
-                                                                <span>Date: <span>19 / 08 / 2024</span></span>
-                                                            </div>
-                                                            <div class="ml_duty_time">
-                                                                <span>Claim Form # : <span> CF0982</span></span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="ml_leave_detail">
-                                                            <div class="leave_type">
-                                                                <span>Select Expense Type :</span>
-                                                                <h2>Taxi</h2>
-                                                            </div>
-                                                            <form action="">
-                                                                <div class="e_form_fields">
-                                                                    <div class="container-fluid p-0">
-                                                                        <div class="row">
-                                                                            <div class="col-md-6 mb-4">
-                                                                                <label for="date" class="form-label">Date</label>
-                                                                                <input type="date" class="form-control" id="eDate" placeholder="Sunday, 5th Aug, 2024 " />
-                                                                            </div>
-                                                                            <div class="col-md-6 mb-4">
-                                                                                <label for="expenseType " class="form-label">Expense Type </label>
-                                                                                <select name="expenseType" id="expenseType">
-                                                                                    <option value="Taxi">Taxi</option>
-                                                                                    <option value="Dining">Dining</option>
-                                                                                    <option value="Others">Others</option>
-                                                                                </select>
-                                                                            </div>
-                                                                            <div class="col-md-12 mb-4">
-                                                                                <label for="otherExpense" class="form-label">Write Your Expense</label>
-                                                                                <div class="other_exp_field">
-                                                                                    <input type="text" class="form-control" id="otherExpense" />
-                                                                                    <i
-                                                                                        class="fa-solid fa-circle-info"
-                                                                                        data-bs-toggle="tooltip"
-                                                                                        data-bs-placement="bottom"
-                                                                                        title="Define Eligible Expense Types like Settling, Relocation, Project Release, Logistics, Visa/Legal/Travel. For any queries, please contact HR before submitting."
-                                                                                    ></i>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="col-md-6 mb-4">
-                                                                                <label for="particulars" class="form-label">Particulars</label>
-                                                                                <input type="text" class="form-control" id="eParticulars" placeholder="Invoice no." />
-                                                                            </div>
-                                                                            <div class="col-md-6 mb-4">
-                                                                                <label for="amount" class="form-label">Amount $</label>
-                                                                                <input type="number" class="form-control" id="eAmount" placeholder="00 . 00" />
-                                                                            </div>
-                                                                            <div class="col-md-6 mb-4">
-                                                                                <label for="locationFrom" class="form-label">Location From</label>
-                                                                                <input type="text" class="form-control" id="eLocationFrom" />
-                                                                            </div>
-                                                                            <div class="col-md-6 mb-4">
-                                                                                <label for="locationTo" class="form-label">Location To</label>
-                                                                                <input type="text" class="form-control" id="eLocationTo" />
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="add_remark">
-                                                                    <span>Remarks *</span>
-                                                                    <textarea name="remarks" id="customRemark" rows="4" placeholder="Max 200 words are allowed"></textarea>
-                                                                </div>
-                                                                <div class="upload_certificate">
-                                                                    <div class="file_input">
-                                                                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
-                                                                        <p>Upload Invoice / Receipt</p>
-                                                                    </div>
-                                                                    <input type="file" name="" id="uploadFile" />
-                                                                    <p>*Allow to upload file <span>PNG,JPG,PDF</span> (Max.file size: 1MB)</p>
-                                                                </div>
-                                                                <div class="clock_it_btn">
-                                                                    <button>
-                                                                        Close
-                                                                    </button>
-                                                                    <button>
-                                                                        Save
-                                                                    </button>
-                                                                    <button>
-                                                                        Save & Add
-                                                                    </button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-right">
-                                                        <h3 class="mb_right_title">
-                                                            Individual Claims List
-                                                        </h3>
-                                                        <div class="tab_type_list">
-                                                            <div class="tab_lists">
-                                                                <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
-                                                                    <span class="list_date">
-                                                                        <i class="fa-solid fa-calendar-days me-2"></i>
-                                                                        12/08/2024
-                                                                    </span>
-                                                                    <span class="list_e_type">Expenses Type : Taxi</span>
-                                                                </div>
-                                                                <div class="flex-wrap d-flex align-items-center justify-content-between mb-2">
-                                                                    <span class="list_particulars">
-                                                                        Particulars : PA082073NU978
-                                                                    </span>
-                                                                    <span class="list_e_amount">Amount : $ 250.00</span>
-                                                                </div>
-                                                                <div class="d-flex align-items-center justify-content-end">
-                                                                    <span class="list_icons">
-                                                                        <a href="#" class="badge_icon">
-                                                                            <i class="fa-solid fa-paperclip"></i>
-                                                                        </a>
-                                                                        <a href="#" class="badge_icon">
-                                                                            <i class="fa-solid fa-pen-nib"></i>
-                                                                        </a>
-                                                                        <a href="#" class="badge_icon">
-                                                                            <i class="fa-solid fa-trash-can"></i>
-                                                                        </a>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                
 
                                 <div class="modal fade common_modal" id="otherModal" tabindex="-1" aria-labelledby="cExpenseModalLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -413,9 +271,9 @@
                                             <div class="modal-header">
                                                 <div class="model_employee">
                                                     <div class="model_emp_img">
-                                                        <img src="assets/images/emp-icon1.png" alt="" />
+                                                        <!-- <img src="assets/images/emp-icon1.png" alt="" /> -->
                                                     </div>
-                                                    <span class="model_emp_name">Bruce Lee</span>
+                                                    <span class="model_emp_name">{{ $consultant->emp_name ?? 'N/A' }}</span>
                                                 </div>
                                                 <button type="button" class="btn-close ml-close-btn" data-bs-dismiss="modal" aria-label="Close">
                                                     <i class="fa-solid fa-xmark"></i>
@@ -426,88 +284,85 @@
                                                     <div class="mb_left">
                                                         <div class="ml_date_box">
                                                             <div class="ml_date">
-                                                                <span>Date: <span>19 / 08 / 2024</span></span>
+                                                                <span>Date: <span id="showCellDate"></span></span>
                                                             </div>
                                                             <div class="ml_duty_time">
-                                                                <span>Claim Form # : <span> CF0982</span></span>
+                                                            <span>Claim Form # : <span> </span></span>
                                                             </div>
                                                         </div>
                                                         <div class="ml_leave_detail">
                                                             <div class="leave_type">
                                                                 <span>Select Expense Type :</span>
-                                                                <h2>Taxi</h2>
+                                                                <h2 id="showClaimName">Texi</h2>
                                                             </div>
-                                                            <form action="">
+                                                            <form id="claimForm">
                                                                 <div class="e_form_fields">
                                                                     <div class="container-fluid p-0">
                                                                         <div class="row">
                                                                             <div class="col-md-6 mb-4">
-                                                                                <label for="date" class="form-label">Date</label>
-                                                                                <input type="date" class="form-control" id="eDate" placeholder="Sunday, 5th Aug, 2024 " />
+                                                                                <label for="eDate" class="form-label">Date</label>
+                                                                                <input type="date" class="form-control" id="eDate" />
                                                                             </div>
+
                                                                             <div class="col-md-6 mb-4">
-                                                                                <label for="expenseType " class="form-label">Expense Type </label>
-                                                                                <select name="expenseType" id="expenseType">
-                                                                                    <option value="Taxi">Taxi</option>
+                                                                                <label for="expenseType" class="form-label">Expense Type</label>
+                                                                                <select name="expenseType" id="expenseType" class="form-control">
+                                                                                    <option value="Texi">Texi</option>
                                                                                     <option value="Dining">Dining</option>
                                                                                     <option value="Others">Others</option>
                                                                                 </select>
                                                                             </div>
-                                                                            <div class="col-md-12 mb-4">
+
+                                                                            <div class="col-md-12 mb-4" id="otherExpenseWrapper" style="display: none;">
                                                                                 <label for="otherExpense" class="form-label">Write Your Expense</label>
                                                                                 <div class="other_exp_field">
                                                                                     <input type="text" class="form-control" id="otherExpense" />
-                                                                                    <i
-                                                                                        class="fa-solid fa-circle-info"
-                                                                                        data-bs-toggle="tooltip"
+                                                                                    <i class="fa-solid fa-circle-info" data-bs-toggle="tooltip"
                                                                                         data-bs-placement="bottom"
-                                                                                        title="Define Eligible Expense Types like Settling, Relocation, Project Release, Logistics, Visa/Legal/Travel. For any queries, please contact HR before submitting."
-                                                                                    ></i>
+                                                                                        title="Define Eligible Expense Types..."></i>
                                                                                 </div>
                                                                             </div>
+
                                                                             <div class="col-md-6 mb-4">
-                                                                                <label for="particulars" class="form-label">Particulars</label>
-                                                                                <input type="text" class="form-control" id="eParticulars" placeholder="Invoice no." />
+                                                                                <label for="eParticulars" class="form-label">Particulars</label>
+                                                                                <input type="text" class="form-control" id="eParticulars" />
                                                                             </div>
                                                                             <div class="col-md-6 mb-4">
-                                                                                <label for="amount" class="form-label">Amount $</label>
-                                                                                <input type="number" class="form-control" id="eAmount" placeholder="00 . 00" />
+                                                                                <label for="eAmount" class="form-label">Amount $</label>
+                                                                                <input type="number" class="form-control" id="eAmount" />
                                                                             </div>
-                                                                            <div class="col-md-6 mb-4">
-                                                                                <label for="locationFrom" class="form-label">Location From</label>
+                                                                            <div class="col-md-6 mb-4" id="location1">
+                                                                                <label for="eLocationFrom" class="form-label">Location From</label>
                                                                                 <input type="text" class="form-control" id="eLocationFrom" />
                                                                             </div>
-                                                                            <div class="col-md-6 mb-4">
-                                                                                <label for="locationTo" class="form-label">Location To</label>
+                                                                            <div class="col-md-6 mb-4" id="location2">
+                                                                                <label for="eLocationTo" class="form-label">Location To</label>
                                                                                 <input type="text" class="form-control" id="eLocationTo" />
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
+
                                                                 <div class="add_remark">
                                                                     <span>Remarks *</span>
                                                                     <textarea name="remarks" id="customRemark" rows="4" placeholder="Max 200 words are allowed"></textarea>
                                                                 </div>
+
                                                                 <div class="upload_certificate">
                                                                     <div class="file_input">
                                                                         <i class="fa-solid fa-arrow-up-from-bracket"></i>
                                                                         <p>Upload Invoice / Receipt</p>
                                                                     </div>
-                                                                    <input type="file" name="" id="uploadFile" />
-                                                                    <p>*Allow to upload file <span>PNG,JPG,PDF</span> (Max.file size: 1MB)</p>
+                                                                    <input type="file" id="uploadFile" />
+                                                                    <p>*Allow to upload file <span>PNG, JPG, PDF</span> (Max.file size: 1MB)</p>
                                                                 </div>
+
                                                                 <div class="clock_it_btn">
-                                                                    <button>
-                                                                        Close
-                                                                    </button>
-                                                                    <button>
-                                                                        Save
-                                                                    </button>
-                                                                    <button>
-                                                                        Save & Add
-                                                                    </button>
+                                                                    <button type="button" id="closeBtn">Close</button>
+                                                                    <button type="submit" id="saveBtn">Save</button>
                                                                 </div>
                                                             </form>
+
                                                         </div>
                                                     </div>
                                                     <div class="mb-right">
@@ -515,34 +370,7 @@
                                                             Individual Claims List
                                                         </h3>
                                                         <div class="tab_type_list">
-                                                            <div class="tab_lists">
-                                                                <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
-                                                                    <span class="list_date">
-                                                                        <i class="fa-solid fa-calendar-days me-2"></i>
-                                                                        12/08/2024
-                                                                    </span>
-                                                                    <span class="list_e_type">Expenses Type : Taxi</span>
-                                                                </div>
-                                                                <div class="flex-wrap d-flex align-items-center justify-content-between mb-2">
-                                                                    <span class="list_particulars">
-                                                                        Particulars : PA082073NU978
-                                                                    </span>
-                                                                    <span class="list_e_amount">Amount : $ 250.00</span>
-                                                                </div>
-                                                                <div class="d-flex align-items-center justify-content-end">
-                                                                    <span class="list_icons">
-                                                                        <a href="#" class="badge_icon">
-                                                                            <i class="fa-solid fa-paperclip"></i>
-                                                                        </a>
-                                                                        <a href="#" class="badge_icon">
-                                                                            <i class="fa-solid fa-pen-nib"></i>
-                                                                        </a>
-                                                                        <a href="#" class="badge_icon">
-                                                                            <i class="fa-solid fa-trash-can"></i>
-                                                                        </a>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
+                                                           
                                                         </div>
                                                     </div>
                                                 </div>
@@ -552,16 +380,211 @@
                                 </div>
 
                                 <script>
+                                    let editMode = false;
+                                    let editTarget = null;
+                                    let uploadedFileURL = null;
+                                    let uploadedFile = null;
+
+                                    // Toggle dynamic fields
+                                    document.getElementById("expenseType").addEventListener("change", function () {
+                                        const selected = this.value;
+                                        document.getElementById("otherExpenseWrapper").style.display = selected === "Others" ? "block" : "none";
+                                        document.getElementById("location1").style.display = selected === "Others" ? "block" : "none";
+                                        document.getElementById("location2").style.display = selected === "Others" ? "block" : "none";
+                                    });
+
+                                    // Handle file upload preview and storage
+                                    document.getElementById("uploadFile").addEventListener("change", function () {
+                                        uploadedFile = this.files[0];
+                                        if (uploadedFile) {
+                                            uploadedFileURL = URL.createObjectURL(uploadedFile);
+                                        }
+                                    });
+
+                                    // Inject modal only once
+                                    function ensurePreviewModalExists() {
+                                        if (!document.getElementById("imagePreviewModal")) {
+                                            const modal = document.createElement("div");
+                                            modal.id = "imagePreviewModal";
+                                            modal.style.cssText = `
+                                                display: none; position: fixed; z-index: 9999; top: 0; left: 0;
+                                                width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6);
+                                                justify-content: center; align-items: center;
+                                            `;
+                                            modal.innerHTML = `
+                                                <div id="previewContent" style="
+                                                    background: white; padding: 20px; border-radius: 10px; position: relative;
+                                                    animation: fadeIn 0.3s ease-in-out; max-width: 90%; max-height: 90%;">
+                                                    <span id="closePreview" style="
+                                                        position: absolute; top: 5px; right: 10px;
+                                                        font-size: 24px; cursor: pointer;">&times;</span>
+                                                    <img id="previewImgTag" src="" style="max-width: 100%; max-height: 80vh; border-radius: 8px;" />
+                                                </div>
+                                            `;
+                                            document.body.appendChild(modal);
+                                            document.getElementById("closePreview").onclick = () => {
+                                                modal.style.display = "none";
+                                                document.getElementById("previewImgTag").src = "";
+                                            };
+                                        }
+                                    }
+
+                                    document.getElementById("claimForm").addEventListener("submit", function (e) {
+                                        e.preventDefault();
+
+                                        const date = document.getElementById("eDate").value;
+                                        const type = document.getElementById("expenseType").value;
+                                        const particulars = document.getElementById("eParticulars").value;
+                                        const amount = document.getElementById("eAmount").value;
+                                        const remarks = document.getElementById("customRemark").value;
+                                        const locationFrom = document.getElementById("eLocationFrom")?.value || "";
+                                        const locationTo = document.getElementById("eLocationTo")?.value || "";
+                                        const otherExpense = document.getElementById("otherExpense")?.value || "";
+
+                                        if (!amount) return alert("Please enter a valid amount!");
+
+                                        // Append visual card to right panel
+                                        const claimHTML = `
+                                            <div class="tab_lists">
+                                                <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
+                                                    <span class="list_date"><i class="fa-solid fa-calendar-days me-2"></i>${date}</span>
+                                                    <span class="list_e_type">Expenses Type : ${type}</span>
+                                                </div>
+                                                <div class="flex-wrap d-flex align-items-center justify-content-between mb-2">
+                                                    <span class="list_particulars">Particulars : ${particulars}</span>
+                                                    <span class="list_e_amount">Amount : $ ${parseFloat(amount).toFixed(2)}</span>
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-end">
+                                                    <span class="list_icons">
+                                                        <a href="#" class="badge_icon preview-attach" data-img="${uploadedFileURL || ""}"><i class="fa-solid fa-paperclip"></i></a>
+                                                        <a href="#" class="badge_icon edit-claim"
+                                                            data-date="${date}" data-type="${type}" data-particulars="${particulars}"
+                                                            data-amount="${amount}" data-remarks="${remarks}"><i class="fa-solid fa-pen-nib"></i></a>
+                                                        <a href="#" class="badge_icon delete-claim"><i class="fa-solid fa-trash-can"></i></a>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        `;
+
+                                        if (editMode && editTarget) {
+                                            editTarget.outerHTML = claimHTML;
+                                            editMode = false;
+                                            editTarget = null;
+                                            document.getElementById("claimForm").style.boxShadow = "";
+                                            document.getElementById("claimForm").style.border = "";
+                                        } else {
+                                            document.querySelector(".tab_type_list").insertAdjacentHTML("beforeend", claimHTML);
+                                        }
+                                        const claim_no = document.querySelector("#otherModal .ml_duty_time span span")?.textContent.trim() || "";
+
+
+                                        // Save to DB
+                                        const formData = new FormData();
+                                        formData.append("type", "claims");
+                                        formData.append("consultant_id", "{{ $userData['id'] ?? '' }}");
+                                        formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+                                        formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+
+                                        const recordData = {
+                                            date,
+                                            expenseType: type,
+                                            claim_no: claim_no,
+                                            applyOnCell: document.getElementById("showCellDate").innerText.trim(),
+                                            particulars,
+                                            amount: parseFloat(amount).toFixed(2),
+                                            remarks,
+                                            locationFrom,
+                                            locationTo,
+                                            otherExpense
+                                        };
+
+                                        formData.append("record", JSON.stringify(recordData));
+                                        if (uploadedFile) {
+                                            formData.append("certificate", uploadedFile);
+                                        }
+
+                                        console.log("Submitting via FormData:");
+                                        for (let pair of formData.entries()) {
+                                            console.log(pair[0]+ ':', pair[1]);
+                                        }
+
+
+                                        fetch("{{ route('consultant.data.save') }}", {
+                                            method: "POST",
+                                            headers: {
+                                                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                            },
+                                            body: formData
+                                        })
+                                        .then(res => {
+                                            if (!res.ok) throw new Error("Server error " + res.status);
+                                            return res.json();
+                                        })
+                                        .then(data => {
+                                            console.log("Saved successfully:", data);
+                                            uploadedFileURL = null;
+                                            uploadedFile = null;
+                                            applyTag(lastClickedCell, document.getElementById("expenseType").value, "#007bff");
+                                        })
+                                        .catch(error => {
+                                            console.error("Save failed:", error);
+                                        });
+                                    });
+
+                                    // Handle icon actions (delete, edit, preview)
+                                    document.querySelector(".tab_type_list").addEventListener("click", function (e) {
+                                        if (e.target.closest(".delete-claim")) {
+                                            e.preventDefault();
+                                            e.target.closest(".tab_lists").remove();
+                                        }
+
+                                        if (e.target.closest(".edit-claim")) {
+                                            e.preventDefault();
+                                            const btn = e.target.closest(".edit-claim");
+                                            document.getElementById("eDate").value = btn.dataset.date;
+                                            document.getElementById("expenseType").value = btn.dataset.type;
+                                            document.getElementById("eParticulars").value = btn.dataset.particulars;
+                                            document.getElementById("eAmount").value = btn.dataset.amount;
+                                            document.getElementById("customRemark").value = btn.dataset.remarks;
+                                            document.getElementById("expenseType").dispatchEvent(new Event("change"));
+
+                                            editMode = true;
+                                            editTarget = btn.closest(".tab_lists");
+
+                                            const form = document.getElementById("claimForm");
+                                            form.style.boxShadow = "0 0 10px #ff7f50";
+                                            form.style.border = "2px solid #ff7f50";
+                                        }
+
+                                        if (e.target.closest(".preview-attach")) {
+                                            e.preventDefault();
+                                            ensurePreviewModalExists();
+                                            const url = e.target.closest(".preview-attach").dataset.img;
+                                            if (url) {
+                                                const modal = document.getElementById("imagePreviewModal");
+                                                document.getElementById("previewImgTag").src = url;
+                                                modal.style.display = "flex";
+                                            } else {
+                                                alert("No file attached!");
+                                            }
+                                        }
+                                    });
+                                </script>
+
+
+
+
+                                <script>
                                     const calendarDays = document.getElementById("calendarDays");
                                     const monthSelect = document.getElementById("monthSelect");
                                     const yearSelect = document.getElementById("yearSelect");
                                     const dropdownSuggestions = [
                                         { label: "Dining", icon: "&#128170;" },
                                         { label: "Texi", icon: "&#128154;" },
-                                        { label: "VISA/legal", icon: "&#128100;&#8205;&#9794;️" },
-                                        { label: "Other", icon: "&#128295;" },
-                                        { label: "Relocation", icon: "&#128295;" },
-                                        { label: "Logistics", icon: "&#128295;" },
+                                        // { label: "VISA/legal", icon: "&#128100;&#8205;&#9794;️" },
+                                        { label: "Others", icon: "&#128295;" },
+                                        // { label: "Relocation", icon: "&#128295;" },
+                                        // { label: "Logistics", icon: "&#128295;" },
                                     ];
 
                                     let currentDate = new Date();
@@ -623,41 +646,54 @@
                                             if (day === 0 || day === 6) {
                                                 cell.classList.add("disabled");
                                             } else {
-                                                cell.addEventListener("click", (e) => showInputDropdown(e, cell));
+                                                cell.addEventListener("click", (e) => showInputDropdown(e, cell,date));
                                             }
 
                                             // Add example tags with blue color
-                                            //     const tagRules = {
-                                            //     "3-2025": [  // April 2025
-                                            //         { index: 1, label: "PDO" },
-                                            //         { index: 2, label: "8" },
-                                            //         { index: 8, label: "5" },
-                                            //         { index: 9, label: "PH" },
-                                            //         { index: 15, label: "ML" },
-                                            //         { index: 16, label: "AL" },
-                                            //         { index: 25, label: "6" },
-                                            //     ],
-                                            //     "4-2025": [
-                                            //         { index: 2, label: "PH" },
-                                            //         { index: 20, label: "8" },
-                                            //     ]
-                                            // };
+                                            const tagRules = {};
 
-                                            // // Example: current month = 4, year = 2025
-                                            // const currentKey = `${month}-${year}`;
-                                            // if (tagRules[currentKey]) {
-                                            //     tagRules[currentKey].forEach(rule => {
-                                            //         if (i === rule.index) {
-                                            //             applyTag(cell, rule.label, "#007bff");
-                                            //         }
-                                            //     });
-                                            // }
+                                            @foreach ($dataClaims as $item)
+                                                @php
+                                                    $record = json_decode($item->record ?? '{}', true);
+                                                    $applyDate = $record['applyOnCell'] ?? null;
+                                                    $rawLabel = $record['expenseType'] ?? null;
+
+                                                    // Normalize label: if it starts with "Custom", only use "Custom"
+                                                    $label = Str::startsWith($rawLabel, 'Custom') ? 'Custom' : $rawLabel;
+
+                                                    if ($applyDate && $label) {
+                                                        try {
+                                                            $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $applyDate);
+                                                            $monthYear = ($dt->month - 1) . '-' . $dt->year; // Zero-based month
+                                                            $index = $dt->day;
+                                                        } catch (Exception $e) {
+                                                            $monthYear = null;
+                                                            $index = null;
+                                                        }
+                                                    }
+                                                @endphp
+
+                                                @if (isset($monthYear) && isset($index))
+                                                    if (!tagRules["{{ $monthYear }}"]) tagRules["{{ $monthYear }}"] = [];
+                                                    tagRules["{{ $monthYear }}"].push({ index: {{ $index }}, label: "{{ $label }}" });
+                                                @endif
+                                            @endforeach
+
+                                            // Example: current month = 4, year = 2025
+                                            const currentKey = `${month}-${year}`;
+                                            if (tagRules[currentKey]) {
+                                                tagRules[currentKey].forEach(rule => {
+                                                    if (i === rule.index) {
+                                                        applyTag(cell, rule.label, "#007bff");
+                                                    }
+                                                });
+                                            }
 
                                             calendarDays.appendChild(cell);
                                         }
                                     }
 
-                                    function showInputDropdown(event, cell) {
+                                    function showInputDropdown(event, cell,date) {
                                         closeAllDropdowns();
 
                                         const dropdown = document.createElement("div");
@@ -665,7 +701,7 @@
 
                                         const cellRect = cell.getBoundingClientRect();
                                         const dropdownWidth = 180;
-                                        const leftPosition = (cellRect.width - dropdownWidth) / 2;
+                                        const leftPosition = -0.3958;
                                         dropdown.style.left = `${leftPosition}px`;
 
                                         const input = document.createElement("input");
@@ -683,15 +719,45 @@
                                                     opt.innerHTML = `<span style="margin-right: 8px;">${item.icon}</span>${item.label}`;
                                                     opt.onclick = () => {
                                                         // console.log("check item",item);
-                                                        if (item.label === "Texi") {
-                                                            const modal = new bootstrap.Modal(document.getElementById("textModal"));
-                                                            modal.show();
-                                                        }
-                                                        if (item.label === "Other") {
+                                                            const formattedDate = new Date(date);
+                                                            const day = String(formattedDate.getDate()).padStart(2, "0");
+                                                            const month = String(formattedDate.getMonth() + 1).padStart(2, "0"); // 0-based index
+                                                            const year = formattedDate.getFullYear();
+                                                            const finalDate = `${day} / ${month} / ${year}`;
+                                                            document.getElementById("showClaimName").innerText = item.label;
+                                                            document.getElementById("showCellDate").innerText = finalDate;
+                                                            document.getElementById("expenseType").value = item.label;
+                                                            const otherField = document.getElementById("otherExpenseWrapper");
+                                                            const location1 = document.getElementById("location1");
+                                                            const location2 = document.getElementById("location2");
+
+                                                            if(item.label == "Others")
+                                                            {  
+                                                                otherField.style.display = "block";
+                                                                location1.style.display = "block";
+                                                                location2.style.display = "block";
+                                                            }
+                                                            else
+                                                            {
+                                                                otherField.style.display = "none";
+                                                                location1.style.display = "none";
+                                                                location2.style.display = "none";
+                                                            }
+
                                                             const modalCustomLeave = new bootstrap.Modal(document.getElementById("otherModal"));
+
+                                                            // Generate a new claim number every time
+                                                            const claimNum = "CF" + Math.floor(1000 + Math.random() * 9000);
+                                                            const claimSpan = document.querySelector("#otherModal .ml_duty_time span span");
+                                                            if (claimSpan) {
+                                                                claimSpan.textContent = " " + claimNum;
+                                                            }
+
                                                             modalCustomLeave.show();
-                                                        }
-                                                        applyTag(cell, item.label, "#007bff");
+
+                                                            window.lastClickedCell = cell;
+                                                            window.lastClickedItemLabel = item.label;
+                                                       // applyTag(cell, item.label, "#007bff");
                                                         dropdown.remove();
                                                     };
                                                     suggestionBox.appendChild(opt);
@@ -1005,10 +1071,10 @@
                                             <div class="model_employee">
                                                 <div class="model_emp_img">
                                                     <!-- <img src="assets/images/emp-icon1.png" alt=""> -->
-                                                    <img src="{{ asset('public/assets/latest/images/emp-icon1.png') }}" />
+                                                    <!-- <img src="{{ asset('public/assets/latest/images/emp-icon1.png') }}" /> -->
                                                 </div>
                                                 <div class="name_n_id">
-                                                    <span class="model_emp_name">Bruce Lee</span>
+                                                    <span class="model_emp_name">{{ $consultant->emp_name ?? 'N/A' }}</span>
                                                     <span class="model_emp_id">Employee Id : Emp14982 </span>
                                                 </div>
                                             </div>
@@ -1207,7 +1273,7 @@
                                                             </div>
                                                             <div class="e_n_t">
                                                                 <span class="fw-bold">Expense Type </span>
-                                                                <span>Taxi</span>
+                                                                <span>Texi</span>
                                                             </div>
                                                             <div class="e_amt">
                                                                 <span class="fw-bold">Amount</span>
@@ -1265,7 +1331,7 @@
                                                             </div>
                                                             <div class="e_n_t">
                                                                 <span class="fw-bold">Expense Type </span>
-                                                                <span>Taxi</span>
+                                                                <span>Texi</span>
                                                             </div>
                                                             <div class="e_amt">
                                                                 <span class="fw-bold">Amount</span>
@@ -1323,7 +1389,7 @@
                                                             </div>
                                                             <div class="e_n_t">
                                                                 <span class="fw-bold">Expense Type </span>
-                                                                <span>Taxi</span>
+                                                                <span>Texi</span>
                                                             </div>
                                                             <div class="e_amt">
                                                                 <span class="fw-bold">Amount</span>

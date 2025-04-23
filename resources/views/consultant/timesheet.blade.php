@@ -414,226 +414,243 @@
                                 </div>
 
                                 <script>
-                                (function () {
-                                    const modal = document.querySelector("#medicalLeave");
-                                    if (!modal) return;
+                                    (function () {
+                                        const modal = document.querySelector("#medicalLeave");
+                                        if (!modal) return;
 
-                                    const rangeInput = modal.querySelectorAll(".range-input input");
-                                    const range = modal.querySelector(".range-selected");
-                                    const minTooltip = modal.querySelector(".min-tooltip");
-                                    const maxTooltip = modal.querySelector(".max-tooltip");
-                                    const dateRange = modal.querySelector("#dateRange");
-                                    const clockItBtn = modal.querySelector(".ml_clockit_btn");
-                                    const fileInput = modal.querySelector("#uploadFile");
+                                        const rangeInput = modal.querySelectorAll(".range-input input");
+                                        const range = modal.querySelector(".range-selected");
+                                        const minTooltip = modal.querySelector(".min-tooltip");
+                                        const maxTooltip = modal.querySelector(".max-tooltip");
+                                        const dateRange = modal.querySelector("#dateRange");
+                                        const clockItBtn = modal.querySelector(".ml_clockit_btn");
+                                        const fileInput = modal.querySelector("#uploadFile");
 
-                                    let editingBlock = null;
+                                        let editingBlock = null;
 
-                                    const timeLabels = Array.from({ length: 48 }, (_, i) => {
-                                        const hours = Math.floor(i / 2);
-                                        const minutes = i % 2 === 0 ? "00" : "30";
-                                        const suffix = hours >= 12 ? "PM" : "AM";
-                                        const displayHours = hours % 12 === 0 ? 12 : hours % 12;
-                                        return `${displayHours}:${minutes} ${suffix}`;
-                                    });
-
-                                    function updateSlider() {
-                                        let minVal = parseInt(rangeInput[0].value);
-                                        let maxVal = parseInt(rangeInput[1].value);
-                                        if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
-
-                                        const percent1 = (minVal / 47) * 100;
-                                        const percent2 = (maxVal / 47) * 100;
-
-                                        range.style.left = percent1 + "%";
-                                        range.style.width = percent2 - percent1 + "%";
-                                        minTooltip.style.left = percent1 + "%";
-                                        minTooltip.textContent = timeLabels[minVal];
-                                        maxTooltip.style.left = percent2 + "%";
-                                        maxTooltip.textContent = timeLabels[maxVal];
-                                    }
-
-                                    rangeInput.forEach(input => input.disabled = true);
-                                    range.style.backgroundColor = "transparent";
-                                    rangeInput.forEach(input => input.addEventListener("input", updateSlider));
-                                    updateSlider();
-
-                                    if (dateRange) {
-                                        flatpickr(dateRange, {
-                                            mode: "range",
-                                            dateFormat: "d / m / Y",
-                                            onClose: function (_, dateStr) {
-                                                const disable = dateStr.includes("to");
-                                                rangeInput.forEach(input => input.disabled = disable);
-                                                range.style.backgroundColor = disable ? "transparent" : "#037EFF";
-                                            }
+                                        const timeLabels = Array.from({ length: 48 }, (_, i) => {
+                                            const hours = Math.floor(i / 2);
+                                            const minutes = i % 2 === 0 ? "00" : "30";
+                                            const suffix = hours >= 12 ? "PM" : "AM";
+                                            const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+                                            return `${displayHours}:${minutes} ${suffix}`;
                                         });
-                                    }
 
-                                    if (clockItBtn) {
-                                        clockItBtn.addEventListener("click", function () {
-                                            // Validation: Date range
-                                            if (!dateRange.value.trim()) {
-                                                alert("Please select a date range before proceeding.");
-                                                dateRange.focus();
-                                                return;
-                                            }
+                                        function updateSlider() {
+                                            let minVal = parseInt(rangeInput[0].value);
+                                            let maxVal = parseInt(rangeInput[1].value);
+                                            if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
 
-                                            // Validation: ML leave hours
-                                            const selectedRadio = modal.querySelector('input[name="Day"]:checked');
-                                            if (!selectedRadio) {
-                                                alert("Please select ML leave hours before proceeding.");
-                                                return;
-                                            }
+                                            const percent1 = (minVal / 47) * 100;
+                                            const percent2 = (maxVal / 47) * 100;
 
-                                            const docList = modal.querySelector(".ml_document_list");
-                                            const noDataImg = docList.querySelector(".ml_no_data");
-                                            if (noDataImg) noDataImg.remove();
+                                            range.style.left = percent1 + "%";
+                                            range.style.width = percent2 - percent1 + "%";
+                                            minTooltip.style.left = percent1 + "%";
+                                            minTooltip.textContent = timeLabels[minVal];
+                                            maxTooltip.style.left = percent2 + "%";
+                                            maxTooltip.textContent = timeLabels[maxVal];
+                                        }
 
-                                            const selectedDate = dateRange.value.includes("to") ? dateRange.value : dateRange.value.trim();
-                                            const leaveHourText = modal.querySelector(`label[for="${selectedRadio.id}"]`)?.textContent.trim();
-                                            const selectedRadioId = selectedRadio.id;
-                                            const rangeMin = rangeInput[0].value;
-                                            const rangeMax = rangeInput[1].value;
+                                        rangeInput.forEach(input => input.disabled = true);
+                                        range.style.backgroundColor = "transparent";
+                                        rangeInput.forEach(input => input.addEventListener("input", updateSlider));
+                                        updateSlider();
 
-                                            const blockHTML = `
-                                                <div class="ml_card" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; font-size: 10px;">
-                                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                                        <i class="fa-solid fa-calendar-days"></i>
-                                                        <span><strong>${selectedDate}</strong></span>
-                                                    </div>
-                                                    <div style="text-align: right;">
-                                                        <p style="margin: 0;"><strong>Leave Type :</strong> Medical Leave (ML)</p>
-                                                        <p style="margin: 0;"><strong>ML leave hours :</strong> ${leaveHourText}</p>
-                                                    </div>
-                                                    <div style="margin-left: auto; margin-top: 10px; display: flex; gap: 10px;">
-                                                        <button title="Preview" class="preview-btn" style="border: none; background: none; cursor: pointer;">
-                                                            <i class="fa-solid fa-paperclip" style="color: #ff6f00;"></i>
-                                                        </button>
-                                                        <button title="Edit" class="edit-btn" style="border: none; background: none; cursor: pointer;">
-                                                            <i class="fa-solid fa-pen-to-square" style="color: #ff6f00;"></i>
-                                                        </button>
-                                                        <button title="Delete" class="close-expense" style="border: none; background: none; cursor: pointer;">
-                                                            <i class="fa-solid fa-trash" style="color: red;"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            `;
-
-                                            let expenseBlock = editingBlock || document.createElement("div");
-                                            expenseBlock.classList.add("expense-block");
-                                            expenseBlock.style.cssText = `
-                                                background: white;
-                                                border-radius: 10px;
-                                                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                                                padding: 15px;
-                                                margin: 12px;
-                                                margin-top: 15px;
-                                                position: relative;
-                                            `;
-
-                                            expenseBlock.innerHTML = blockHTML;
-                                            expenseBlock.dataset.leaveDate = selectedDate;
-                                            expenseBlock.dataset.leaveHourId = selectedRadioId;
-                                            expenseBlock.dataset.rangeMin = rangeMin;
-                                            expenseBlock.dataset.rangeMax = rangeMax;
-
-                                            if (!editingBlock) {
-                                                docList.appendChild(expenseBlock);
-                                            }
-
-                                            editingBlock = null;
-                                            modal.classList.remove("editing-mode");
-
-                                            const previewBtn = expenseBlock.querySelector(".preview-btn");
-                                            const file = fileInput.files[0];
-                                            if (file && file.type.startsWith("image/")) {
-                                                const reader = new FileReader();
-                                                reader.onload = function (e) {
-                                                    previewBtn.addEventListener("click", function () {
-                                                        let modal = document.querySelector("#imagePreviewModal");
-                                                        if (!modal) {
-                                                            const modalHTML = `
-                                                                <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
-                                                                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                                                                        <div class="modal-content">
-                                                                            <div class="modal-header">
-                                                                                <h5 class="modal-title">Preview Image</h5>
-                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                                                                                    <i class="fa-solid fa-xmark"></i>
-                                                                                </button>
-                                                                            </div>
-                                                                            <div class="modal-body text-center">
-                                                                                <img id="previewModalImg" src="" alt="Preview" style="max-width: 100%; max-height: 70vh;" />
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            `;
-                                                            const tempDiv = document.createElement("div");
-                                                            tempDiv.innerHTML = modalHTML.trim();
-                                                            document.body.appendChild(tempDiv.firstChild);
-                                                            modal = document.querySelector("#imagePreviewModal");
-                                                        }
-
-                                                        const img = modal.querySelector("#previewModalImg");
-                                                        img.src = e.target.result;
-                                                        const bsModal = new bootstrap.Modal(modal);
-                                                        bsModal.show();
-                                                    });
-                                                };
-                                                reader.readAsDataURL(file);
-                                            }
-
-                                            expenseBlock.querySelector(".edit-btn").addEventListener("click", function () {
-                                                editingBlock = expenseBlock;
-                                                dateRange._flatpickr.setDate(expenseBlock.dataset.leaveDate.split(" to "), true, "d / m / Y");
-
-                                                const radio = modal.querySelector(`input[id="${expenseBlock.dataset.leaveHourId}"]`);
-                                                if (radio) radio.checked = true;
-
-                                                rangeInput[0].value = expenseBlock.dataset.rangeMin;
-                                                rangeInput[1].value = expenseBlock.dataset.rangeMax;
-                                                updateSlider();
-
-                                                modal.classList.add("editing-mode");
-                                                modal.scrollIntoView({ behavior: "smooth" });
-                                            });
-
-                                            expenseBlock.querySelector(".close-expense").addEventListener("click", function () {
-                                                expenseBlock.remove();
-                                                if (!modal.querySelector(".ml_document_list .expense-block")) {
-                                                    const img = document.createElement("img");
-                                                    img.src = "{{ asset('public/assets/latest/images/no-file.png') }}";
-                                                    img.alt = "";
-                                                    img.classList.add("ml_no_data");
-                                                    modal.querySelector(".ml_document_list").appendChild(img);
+                                        if (dateRange) {
+                                            flatpickr(dateRange, {
+                                                mode: "range",
+                                                dateFormat: "d / m / Y",
+                                                onClose: function (_, dateStr) {
+                                                    const disable = dateStr.includes("to");
+                                                    rangeInput.forEach(input => input.disabled = disable);
+                                                    range.style.backgroundColor = disable ? "transparent" : "#037EFF";
                                                 }
                                             });
-                                        });
-                                    }
-
-                                    modal.addEventListener("hidden.bs.modal", function () {
-                                        if (dateRange._flatpickr) dateRange._flatpickr.clear();
-                                        modal.querySelectorAll('input[name="Day"]').forEach(input => input.checked = false);
-                                        rangeInput[0].value = 15;
-                                        rangeInput[1].value = 32;
-                                        updateSlider();
-                                        fileInput.value = "";
-                                        editingBlock = null;
-                                        modal.classList.remove("editing-mode");
-                                    });
-
-                                    const style = document.createElement("style");
-                                    style.innerHTML = `
-                                        #medicalLeave.editing-mode .modal-content {
-                                            outline: 2px dashed #ffc107;
-                                            outline-offset: -6px;
-                                            box-shadow: 0 0 0 3px rgba(255,193,7,0.25);
                                         }
-                                    `;
-                                    document.head.appendChild(style);
-                                })();
+
+                                        if (clockItBtn) {
+                                            clockItBtn.addEventListener("click", function () {
+                                                if (!dateRange.value.trim()) {
+                                                    alert("Please select a date range before proceeding.");
+                                                    dateRange.focus();
+                                                    return;
+                                                }
+
+                                                const selectedRadio = modal.querySelector('input[name="Day"]:checked');
+                                                if (!selectedRadio) {
+                                                    alert("Please select ML leave hours before proceeding.");
+                                                    return;
+                                                }
+
+                                                const docList = modal.querySelector(".ml_document_list");
+                                                const noDataImg = docList.querySelector(".ml_no_data");
+                                                if (noDataImg) noDataImg.remove();
+
+                                                const selectedDate = dateRange.value.includes("to") ? dateRange.value : dateRange.value.trim();
+                                                const leaveHourText = modal.querySelector(`label[for="${selectedRadio.id}"]`)?.textContent.trim();
+                                                const selectedRadioId = selectedRadio.id;
+                                                const rangeMin = parseInt(rangeInput[0].value);
+                                                const rangeMax = parseInt(rangeInput[1].value);
+                                                const formattedRangeMin = timeLabels[rangeMin];
+                                                const formattedRangeMax = timeLabels[rangeMax];
+                                                const file = fileInput.files[0];
+
+                                                const blockHTML = `
+                                                    <div class="ml_card" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; font-size: 10px;">
+                                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                                            <i class="fa-solid fa-calendar-days"></i>
+                                                            <span><strong>${selectedDate}</strong></span>
+                                                        </div>
+                                                        <div style="text-align: right;">
+                                                            <p style="margin: 0;"><strong>Leave Type :</strong> Medical Leave (ML)</p>
+                                                            <p style="margin: 0;"><strong>ML leave hours :</strong> ${leaveHourText}</p>
+                                                        </div>
+                                                        <div style="margin-left: auto; margin-top: 10px; display: flex; gap: 10px;">
+                                                            <button title="Preview" class="preview-btn" style="border: none; background: none; cursor: pointer;">
+                                                                <i class="fa-solid fa-paperclip" style="color: #ff6f00;"></i>
+                                                            </button>
+                                                            <button title="Edit" class="edit-btn" style="border: none; background: none; cursor: pointer;">
+                                                                <i class="fa-solid fa-pen-to-square" style="color: #ff6f00;"></i>
+                                                            </button>
+                                                            <button title="Delete" class="close-expense" style="border: none; background: none; cursor: pointer;">
+                                                                <i class="fa-solid fa-trash" style="color: red;"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                `;
+
+                                                let expenseBlock = editingBlock || document.createElement("div");
+                                                expenseBlock.classList.add("expense-block");
+                                                expenseBlock.style.cssText = `
+                                                    background: white;
+                                                    border-radius: 10px;
+                                                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                                                    padding: 15px;
+                                                    margin: 12px;
+                                                    margin-top: 15px;
+                                                    position: relative;
+                                                `;
+                                                expenseBlock.innerHTML = blockHTML;
+                                                expenseBlock.dataset.leaveDate = selectedDate;
+                                                expenseBlock.dataset.leaveHourId = selectedRadioId;
+                                                expenseBlock.dataset.rangeMin = rangeMin;
+                                                expenseBlock.dataset.rangeMax = rangeMax;
+
+                                                if (!editingBlock) {
+                                                    docList.appendChild(expenseBlock);
+                                                }
+
+                                                editingBlock = null;
+                                                modal.classList.remove("editing-mode");
+
+                                                const formData = new FormData();
+                                                formData.append("type", "timesheet");
+                                                formData.append("consultant_id", "{{ $userData['id'] ?? '' }}");
+                                                formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+                                                formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+
+                                                const recordData = {
+                                                    date: selectedDate,
+                                                    leaveType: "ML",
+                                                    leaveHour: leaveHourText,
+                                                    leaveHourId: selectedRadioId,
+                                                    applyOnCell: document.getElementById("medicalLeaveDateDisplay").innerText.trim()
+                                                };
+
+                                                if (!selectedDate.includes("to")) {
+                                                    recordData.rangeMin = formattedRangeMin;
+                                                    recordData.rangeMax = formattedRangeMax;
+                                                }
+
+                                                formData.append("record", JSON.stringify(recordData));
+                                                if (file) {
+                                                    formData.append("certificate", file);
+                                                }
+
+                                                console.log("Submitting via FormData:");
+                                                for (let pair of formData.entries()) {
+                                                    console.log(pair[0]+ ':', pair[1]);
+                                                }
+
+                                                fetch("{{ route('consultant.data.save') }}", {
+                                                    method: "POST",
+                                                    headers: {
+                                                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                                    },
+                                                    body: formData
+                                                })
+                                                .then(res => {
+                                                    if (!res.ok) throw new Error("Server error " + res.status);
+                                                    return res.json();
+                                                })
+                                                .then(data => {
+                                                    console.log("Saved successfully:", data);
+                                                    //bootstrap.Modal.getInstance(document.getElementById("medicalLeave")).hide();
+
+                                                    // Now call applyTag
+                                                    applyTag(lastClickedCell, "ML", "#007bff");
+                                                })
+                                                .catch(error => {
+                                                    console.error("Fetch error:", error);
+                                                });
+
+
+                                                expenseBlock.querySelector(".edit-btn").addEventListener("click", function () {
+                                                    editingBlock = expenseBlock;
+                                                    dateRange._flatpickr.setDate(expenseBlock.dataset.leaveDate.split(" to "), true, "d / m / Y");
+                                                    const radio = modal.querySelector(`input[id="${expenseBlock.dataset.leaveHourId}"]`);
+                                                    if (radio) radio.checked = true;
+                                                    rangeInput[0].value = expenseBlock.dataset.rangeMin;
+                                                    rangeInput[1].value = expenseBlock.dataset.rangeMax;
+
+                                                    const disable = !expenseBlock.dataset.leaveDate.includes("to") ? false : true;
+                                                    rangeInput.forEach(input => input.disabled = disable);
+                                                    range.style.backgroundColor = disable ? "transparent" : "#037EFF";
+
+                                                    updateSlider();
+                                                    modal.classList.add("editing-mode");
+                                                    modal.scrollIntoView({ behavior: "smooth" });
+                                                });
+
+                                                expenseBlock.querySelector(".close-expense").addEventListener("click", function () {
+                                                    expenseBlock.remove();
+                                                    if (!modal.querySelector(".ml_document_list .expense-block")) {
+                                                        const img = document.createElement("img");
+                                                        img.src = "{{ asset('public/assets/latest/images/no-file.png') }}";
+                                                        img.alt = "";
+                                                        img.classList.add("ml_no_data");
+                                                        modal.querySelector(".ml_document_list").appendChild(img);
+                                                    }
+                                                });
+                                            });
+                                        }
+
+                                        modal.addEventListener("hidden.bs.modal", function () {
+                                            if (dateRange._flatpickr) dateRange._flatpickr.clear();
+                                            modal.querySelectorAll('input[name="Day"]').forEach(input => input.checked = false);
+                                            rangeInput[0].value = 15;
+                                            rangeInput[1].value = 32;
+                                            updateSlider();
+                                            fileInput.value = "";
+                                            editingBlock = null;
+                                            modal.classList.remove("editing-mode");
+                                        });
+
+                                        const style = document.createElement("style");
+                                        style.textContent = `
+                                            #medicalLeave.editing-mode .modal-content {
+                                                outline: 2px dashed #ffc107;
+                                                outline-offset: -6px;
+                                                box-shadow: 0 0 0 3px rgba(255,193,7,0.25);
+                                            }
+                                        `;
+                                        document.head.appendChild(style);
+                                    })();
+
                                 </script>
+
+
 
                                 <!-- Custom Leave Model -->
                                 <div class="modal fade" id="customLeave" tabindex="-1" aria-labelledby="customLeaveModal" aria-hidden="true">
@@ -922,6 +939,51 @@
                                             editingBlock = null;
                                             modal.classList.remove("editing-mode");
 
+                                            const formData = new FormData();
+                                                formData.append("type", "timesheet");
+                                                formData.append("consultant_id", "{{ $userData['id'] ?? '' }}");
+                                                formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+                                                formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+
+                                                const recordData = {
+                                                    date: selectedDate,
+                                                    leaveType: `Custom ${leaveType}`,
+                                                    leaveHour: leaveHourText,
+                                                    leaveHourId: selectedRadioId,
+                                                    applyOnCell: document.getElementById("customLeaveDisplay").innerText.trim()
+                                                };
+
+
+                                                if (!selectedDate.includes("to")) {
+                                                    recordData.rangeMin = rangeMin;
+                                                    recordData.rangeMax = rangeMax;
+                                                }
+
+                                                formData.append("record", JSON.stringify(recordData));
+                                              
+
+                                                fetch("{{ route('consultant.data.save') }}", {
+                                                    method: "POST",
+                                                    headers: {
+                                                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                                    },
+                                                    body: formData
+                                                })
+                                                .then(res => {
+                                                    if (!res.ok) throw new Error("Server error " + res.status);
+                                                    return res.json();
+                                                })
+                                                .then(data => {
+                                                    console.log("Saved successfully:", data);
+                                                    //bootstrap.Modal.getInstance(document.getElementById("medicalLeave")).hide();
+
+                                                    // Now call applyTag
+                                                    applyTag(lastClickedCell, "Custom", "#007bff");
+                                                })
+                                                .catch(error => {
+                                                    console.error("Fetch error:", error);
+                                                });
+
                                             expenseBlock.querySelector(".edit-btn").addEventListener("click", function () {
                                                 editingBlock = expenseBlock;
                                                 dateRange._flatpickr.setDate(expenseBlock.dataset.leaveDate.split(" to "), true, "d / m / Y");
@@ -1071,22 +1133,38 @@
                                             }
 
                                             // Add example tags with blue color
-                                            const tagRules = {
-                                                "3-2025": [
-                                                    // April 2025
-                                                    { index: 1, label: "PDO" },
-                                                    { index: 2, label: "8" },
-                                                    { index: 8, label: "5" },
-                                                    { index: 9, label: "PH" },
-                                                    { index: 15, label: "ML" },
-                                                    { index: 16, label: "AL" },
-                                                    { index: 25, label: "6" },
-                                                ],
-                                                "4-2025": [
-                                                    { index: 2, label: "PH" },
-                                                    { index: 20, label: "8" },
-                                                ],
-                                            };
+                                            const tagRules = {};
+
+                                            @foreach ($dataTimesheet as $item)
+                                                @php
+                                                    $record = json_decode($item->record ?? '{}', true);
+                                                    $applyDate = $record['applyOnCell'] ?? null;
+                                                    $rawLabel = $record['leaveType'] ?? null;
+
+                                                    // Normalize label: if it starts with "Custom", only use "Custom"
+                                                    $label = Str::startsWith($rawLabel, 'Custom') ? 'Custom' : $rawLabel;
+
+                                                    if ($applyDate && $label) {
+                                                        try {
+                                                            $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $applyDate);
+                                                            $monthYear = ($dt->month - 1) . '-' . $dt->year; // Zero-based month
+                                                            $index = $dt->day;
+                                                        } catch (Exception $e) {
+                                                            $monthYear = null;
+                                                            $index = null;
+                                                        }
+                                                    }
+                                                @endphp
+
+                                                @if (isset($monthYear) && isset($index))
+                                                    if (!tagRules["{{ $monthYear }}"]) tagRules["{{ $monthYear }}"] = [];
+                                                    tagRules["{{ $monthYear }}"].push({ index: {{ $index }}, label: "{{ $label }}" });
+                                                @endif
+                                            @endforeach
+
+
+                                           
+                                            
 
                                             // Example: current month = 4, year = 2025
                                             const currentKey = `${month}-${year}`;
@@ -1135,15 +1213,62 @@
                                                         //console.log("check item",item);
                                                         if (item.label === "ML") {
                                                             document.getElementById("medicalLeaveDateDisplay").innerText = finalDate;
+                                                            window.lastClickedCell = cell;
+                                                            window.lastClickedItemLabel = item.label;
+
                                                             const modal = new bootstrap.Modal(document.getElementById("medicalLeave"));
                                                             modal.show();
                                                         }
                                                         if (item.label === "Custom") {
                                                             document.getElementById("customLeaveDisplay").innerText = finalDate;
+                                                            window.lastClickedCell = cell;
+                                                            window.lastClickedItemLabel = item.label;
+
                                                             const modalCustomLeave = new bootstrap.Modal(document.getElementById("customLeave"));
                                                             modalCustomLeave.show();
                                                         }
-                                                        applyTag(cell, item.label, "#007bff");
+                                                        if (item.label === "PH" || item.label === "AL" || item.label === "PDO") {
+
+                                                            const formData = new FormData();
+                                                            formData.append("type", "timesheet");
+                                                            formData.append("consultant_id", "{{ $userData['id'] ?? '' }}");
+                                                            formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+                                                            formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+
+                                                            const recordData = {
+                                                                date: '',
+                                                                leaveType: item.label,
+                                                                applyOnCell: finalDate
+                                                            };
+                                                         
+                                                            formData.append("record", JSON.stringify(recordData));
+                                                            
+
+                                                            fetch("{{ route('consultant.data.save') }}", {
+                                                                method: "POST",
+                                                                headers: {
+                                                                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                                                },
+                                                                body: formData
+                                                            })
+                                                            .then(res => {
+                                                                if (!res.ok) throw new Error("Server error " + res.status);
+                                                                return res.json();
+                                                            })
+                                                            .then(data => {
+                                                                console.log("Saved successfully:", data);
+                                                                bootstrap.Modal.getInstance(document.getElementById("medicalLeave")).hide();
+
+                                                                // Now call applyTag
+                                                                applyTag(lastClickedCell, "ML", "#007bff");
+                                                            })
+                                                            .catch(error => {
+                                                                console.error("Fetch error:", error);
+                                                            });
+
+
+                                                            applyTag(cell, item.label, "#007bff");
+                                                        }
                                                         dropdown.remove();
                                                     };
                                                     suggestionBox.appendChild(opt);
