@@ -293,7 +293,7 @@
                                                         <div class="ml_leave_detail">
                                                             <div class="leave_type">
                                                                 <span>Select Expense Type :</span>
-                                                                <h2 id="showClaimName">Texi</h2>
+                                                                <h2 id="showClaimName">Taxi</h2>
                                                             </div>
                                                             <form id="claimForm">
                                                                 <div class="e_form_fields">
@@ -311,7 +311,7 @@
                                                                             <div class="col-md-6 mb-4">
                                                                                 <label for="expenseType" class="form-label">Expense Type</label>
                                                                                 <select name="expenseType" id="expenseType" class="form-control">
-                                                                                    <option value="Texi">Texi</option>
+                                                                                    <option value="Taxi">Taxi</option>
                                                                                     <option value="Dining">Dining</option>
                                                                                     <option value="Others">Others</option>
                                                                                 </select>
@@ -657,14 +657,14 @@ const monthSelect = document.getElementById("monthSelect");
 const yearSelect = document.getElementById("yearSelect");
 const dropdownSuggestions = [
     { label: "Dining", icon: "🍽️" },
-    { label: "Texi", icon: "🚕" },
+    { label: "Taxi", icon: "🚕" },
     { label: "Others", icon: "🔧" },
 ];
 
 const labelColors = {
     "Dining": "#FBE7E8",
     "Medical": "#FF961B",
-    "Texi": "#EBF9F1",
+    "Taxi": "#EBF9F1",
     "Others": "#FF9F2D",
     "Custom": "#FF9F2D",
     "VISA/legal": "#D3F3FF",
@@ -1318,7 +1318,7 @@ renderCalendar();
                                                             </div>
                                                             <div class="e_n_t">
                                                                 <span class="fw-bold">Expense Type </span>
-                                                                <span>Texi</span>
+                                                                <span>Taxi</span>
                                                             </div>
                                                             <div class="e_amt">
                                                                 <span class="fw-bold">Amount</span>
@@ -1376,7 +1376,7 @@ renderCalendar();
                                                             </div>
                                                             <div class="e_n_t">
                                                                 <span class="fw-bold">Expense Type </span>
-                                                                <span>Texi</span>
+                                                                <span>Taxi</span>
                                                             </div>
                                                             <div class="e_amt">
                                                                 <span class="fw-bold">Amount</span>
@@ -1434,7 +1434,7 @@ renderCalendar();
                                                             </div>
                                                             <div class="e_n_t">
                                                                 <span class="fw-bold">Expense Type </span>
-                                                                <span>Texi</span>
+                                                                <span>Taxi</span>
                                                             </div>
                                                             <div class="e_amt">
                                                                 <span class="fw-bold">Amount</span>
