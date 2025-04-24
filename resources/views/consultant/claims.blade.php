@@ -651,261 +651,215 @@ document.querySelector(".tab_type_list").addEventListener("click", function (e) 
 
 
                                 <script>
-                                    const calendarDays = document.getElementById("calendarDays");
-                                    const monthSelect = document.getElementById("monthSelect");
-                                    const yearSelect = document.getElementById("yearSelect");
-                                    const dropdownSuggestions = [
-                                        { label: "Dining", icon: "&#128170;" },
-                                        { label: "Texi", icon: "&#128154;" },
-                                        // { label: "VISA/legal", icon: "&#128100;&#8205;&#9794;️" },
-                                        { label: "Others", icon: "&#128295;" },
-                                        // { label: "Relocation", icon: "&#128295;" },
-                                        // { label: "Logistics", icon: "&#128295;" },
-                                    ];
 
-                                    let currentDate = new Date();
-                                    let highlightedCell = null;
+const calendarDays = document.getElementById("calendarDays");
+const monthSelect = document.getElementById("monthSelect");
+const yearSelect = document.getElementById("yearSelect");
+const dropdownSuggestions = [
+    { label: "Dining", icon: "🍽️" },
+    { label: "Texi", icon: "🚕" },
+    { label: "Others", icon: "🔧" },
+];
 
-                                    function populateMonthYearSelectors() {
-                                        const months = Array.from({ length: 12 }, (_, i) => new Date(0, i).toLocaleString("default", { month: "long" }));
-                                        months.forEach((m, i) => {
-                                            const opt = new Option(m, i);
-                                            if (i === currentDate.getMonth()) opt.selected = true;
-                                            monthSelect.appendChild(opt);
-                                        });
+const labelColors = {
+    "Dining": "#FBE7E8",
+    "Medical": "#FF961B",
+    "Texi": "#EBF9F1",
+    "Others": "#FF9F2D",
+    "Custom": "#FF9F2D",
+    "VISA/legal": "#D3F3FF",
+    "Relocation": "#0085FF",
+    "Logistics": "#F9EAFF"
+};
 
-                                        for (let y = 1970; y <= 2100; y++) {
-                                            const opt = new Option(y, y);
-                                            if (y === currentDate.getFullYear()) opt.selected = true;
-                                            yearSelect.appendChild(opt);
-                                        }
-                                    }
+let currentDate = new Date();
+let highlightedCell = null;
 
-                                    monthSelect.addEventListener("change", () => {
-                                        currentDate.setMonth(+monthSelect.value);
-                                        renderCalendar();
-                                    });
+function populateMonthYearSelectors() {
+    const months = Array.from({ length: 12 }, (_, i) => new Date(0, i).toLocaleString("default", { month: "long" }));
+    months.forEach((m, i) => {
+        const opt = new Option(m, i);
+        if (i === currentDate.getMonth()) opt.selected = true;
+        monthSelect.appendChild(opt);
+    });
 
-                                    yearSelect.addEventListener("change", () => {
-                                        currentDate.setFullYear(+yearSelect.value);
-                                        renderCalendar();
-                                    });
+    for (let y = 1970; y <= 2100; y++) {
+        const opt = new Option(y, y);
+        if (y === currentDate.getFullYear()) opt.selected = true;
+        yearSelect.appendChild(opt);
+    }
+}
 
-                                    function renderCalendar() {
-                                        const year = currentDate.getFullYear();
-                                        const month = currentDate.getMonth();
+monthSelect.addEventListener("change", () => {
+    currentDate.setMonth(+monthSelect.value);
+    renderCalendar();
+});
 
-                                        calendarDays.querySelectorAll(".calendar-cell").forEach((e) => e.remove());
+yearSelect.addEventListener("change", () => {
+    currentDate.setFullYear(+yearSelect.value);
+    renderCalendar();
+});
 
-                                        const firstDay = new Date(year, month, 1).getDay();
-                                        const daysInMonth = new Date(year, month + 1, 0).getDate();
+function renderCalendar() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    calendarDays.innerHTML = "";
 
-                                        for (let i = 0; i < firstDay; i++) {
-                                            calendarDays.innerHTML += `<div class="calendar-cell disabled"></div>`;
-                                        }
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-                                        for (let i = 1; i <= daysInMonth; i++) {
-                                            const date = new Date(year, month, i);
-                                            const cell = document.createElement("div");
-                                            cell.classList.add("calendar-cell");
-                                            if (i === 16 && month === 7 && year === 2024) {
-                                                cell.classList.add("highlighted");
-                                                highlightedCell = cell;
-                                            }
+    for (let i = 0; i < firstDay; i++) {
+        calendarDays.innerHTML += `<div class="calendar-cell disabled"></div>`;
+    }
 
-                                            const dateLabel = document.createElement("div");
-                                            dateLabel.classList.add("cell-date");
-                                            dateLabel.innerText = i;
-                                            cell.appendChild(dateLabel);
+    const tagRules = {};
+    @foreach ($dataClaims as $item)
+        @php
+            $record = json_decode($item->record ?? '{}', true);
+            $applyDate = $record['applyOnCell'] ?? null;
+            $rawLabel = $record['expenseType'] ?? null;
+            $label = Str::startsWith($rawLabel, 'Custom') ? 'Custom' : $rawLabel;
 
-                                            const day = date.getDay();
-                                            if (day === 0 || day === 6) {
-                                                cell.classList.add("disabled");
-                                            } else {
-                                                cell.addEventListener("click", (e) => showInputDropdown(e, cell,date));
-                                            }
+            if ($applyDate && $label) {
+                try {
+                    $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $applyDate);
+                    $monthYear = ($dt->month - 1) . '-' . $dt->year;
+                    $index = $dt->day;
+                } catch (Exception $e) {
+                    $monthYear = null;
+                    $index = null;
+                }
+            }
+        @endphp
+        @if (isset($monthYear) && isset($index))
+            if (!tagRules["{{ $monthYear }}"]) tagRules["{{ $monthYear }}"] = [];
+            tagRules["{{ $monthYear }}"].push({ index: {{ $index }}, label: "{{ $label }}" });
+        @endif
+    @endforeach
 
-                                            // Add example tags with blue color
-                                            const tagRules = {};
+    for (let i = 1; i <= daysInMonth; i++) {
+        const date = new Date(year, month, i);
+        const cell = document.createElement("div");
+        cell.classList.add("calendar-cell");
 
-                                            @foreach ($dataClaims as $item)
-                                                @php
-                                                    $record = json_decode($item->record ?? '{}', true);
-                                                    $applyDate = $record['applyOnCell'] ?? null;
-                                                    $rawLabel = $record['expenseType'] ?? null;
+        const currentKey = `${month}-${year}`;
+        if (tagRules[currentKey]) {
+            const tagsForDay = tagRules[currentKey].filter(rule => rule.index === i);
+            const uniqueLabels = [...new Set(tagsForDay.map(t => t.label))];
 
-                                                    // Normalize label: if it starts with "Custom", only use "Custom"
-                                                    $label = Str::startsWith($rawLabel, 'Custom') ? 'Custom' : $rawLabel;
+            if (uniqueLabels.length > 0) {
+                const gradient = uniqueLabels.map(label => labelColors[label] || "#ccc").join(", ");
+                cell.style.background = uniqueLabels.length > 1 ? `linear-gradient(to right, ${gradient})` : gradient;
+            }
+        }
 
-                                                    if ($applyDate && $label) {
-                                                        try {
-                                                            $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $applyDate);
-                                                            $monthYear = ($dt->month - 1) . '-' . $dt->year; // Zero-based month
-                                                            $index = $dt->day;
-                                                        } catch (Exception $e) {
-                                                            $monthYear = null;
-                                                            $index = null;
-                                                        }
-                                                    }
-                                                @endphp
+        const dateLabel = document.createElement("div");
+        dateLabel.classList.add("cell-date");
+        dateLabel.innerText = i;
+        cell.appendChild(dateLabel);
 
-                                                @if (isset($monthYear) && isset($index))
-                                                    if (!tagRules["{{ $monthYear }}"]) tagRules["{{ $monthYear }}"] = [];
-                                                    tagRules["{{ $monthYear }}"].push({ index: {{ $index }}, label: "{{ $label }}" });
-                                                @endif
-                                            @endforeach
+        if (date.getDay() === 0 || date.getDay() === 6) {
+            cell.classList.add("disabled");
+        } else {
+            cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
+        }
 
-                                            // Example: current month = 4, year = 2025
-                                            const currentKey = `${month}-${year}`;
-                                            if (tagRules[currentKey]) {
-                                                tagRules[currentKey].forEach(rule => {
-                                                    if (i === rule.index) {
-                                                        applyTag(cell, rule.label, "#007bff");
-                                                    }
-                                                });
-                                            }
+        calendarDays.appendChild(cell);
+    }
+}
 
-                                            calendarDays.appendChild(cell);
-                                        }
-                                    }
+function showInputDropdown(event, cell, date) {
+    closeAllDropdowns();
 
-                                    function showInputDropdown(event, cell,date) {
-                                        closeAllDropdowns();
+    const dropdown = document.createElement("div");
+    dropdown.classList.add("dropdown");
+    const input = document.createElement("input");
+    input.placeholder = "Type label...";
+    const suggestionBox = document.createElement("div");
+    suggestionBox.className = "suggestions";
 
-                                        const dropdown = document.createElement("div");
-                                        dropdown.classList.add("dropdown");
+    function updateSuggestions(val) {
+        suggestionBox.innerHTML = "";
+        dropdownSuggestions.filter(s => s.label.toLowerCase().includes(val.toLowerCase())).forEach(item => {
+            const opt = document.createElement("div");
+            opt.innerHTML = `<span style="margin-right: 8px;">${item.icon}</span>${item.label}`;
+            opt.onclick = () => {
+                const formattedDate = new Date(date);
+                const day = String(formattedDate.getDate()).padStart(2, "0");
+                const month = String(formattedDate.getMonth() + 1).padStart(2, "0");
+                const year = formattedDate.getFullYear();
+                const finalDate = `${day} / ${month} / ${year}`;
 
-                                        const cellRect = cell.getBoundingClientRect();
-                                        const dropdownWidth = 180;
-                                        const leftPosition = -0.3958;
-                                        dropdown.style.left = `${leftPosition}px`;
+                document.getElementById("showClaimName").innerText = item.label;
+                document.getElementById("showCellDate").innerText = finalDate;
+                document.getElementById("expenseType").value = item.label;
 
-                                        const input = document.createElement("input");
-                                        input.placeholder = "Type label...";
+                const show = (item.label === "Others");
+                document.getElementById("otherExpenseWrapper").style.display = show ? "block" : "none";
+                document.getElementById("location1").style.display = show ? "block" : "none";
+                document.getElementById("location2").style.display = show ? "block" : "none";
 
-                                        const suggestionBox = document.createElement("div");
-                                        suggestionBox.className = "suggestions";
+                const modalCustomLeave = new bootstrap.Modal(document.getElementById("otherModal"));
+                modalCustomLeave.show();
 
-                                        function updateSuggestions(val) {
-                                            suggestionBox.innerHTML = "";
-                                            dropdownSuggestions
-                                                .filter((s) => s.label.toLowerCase().includes(val.toLowerCase()))
-                                                .forEach((item) => {
-                                                    const opt = document.createElement("div");
-                                                    opt.innerHTML = `<span style="margin-right: 8px;">${item.icon}</span>${item.label}`;
-                                                    opt.onclick = () => {
-                                                        // console.log("check item",item);
-                                                            const formattedDate = new Date(date);
-                                                            const day = String(formattedDate.getDate()).padStart(2, "0");
-                                                            const month = String(formattedDate.getMonth() + 1).padStart(2, "0"); // 0-based index
-                                                            const year = formattedDate.getFullYear();
-                                                            const finalDate = `${day} / ${month} / ${year}`;
-                                                            document.getElementById("showClaimName").innerText = item.label;
-                                                            document.getElementById("showCellDate").innerText = finalDate;
-                                                            document.getElementById("expenseType").value = item.label;
-                                                            const otherField = document.getElementById("otherExpenseWrapper");
-                                                            const location1 = document.getElementById("location1");
-                                                            const location2 = document.getElementById("location2");
+                const claimNum = "CF" + Math.floor(1000 + Math.random() * 9000);
+                const claimSpan = document.querySelector("#otherModal .ml_duty_time span span");
+                if (claimSpan) claimSpan.textContent = " " + claimNum;
 
-                                                            if(item.label == "Others")
-                                                            {  
-                                                                otherField.style.display = "block";
-                                                                location1.style.display = "block";
-                                                                location2.style.display = "block";
-                                                            }
-                                                            else
-                                                            {
-                                                                otherField.style.display = "none";
-                                                                location1.style.display = "none";
-                                                                location2.style.display = "none";
-                                                            }
+                const selectedApplyOnCell = document.getElementById("showCellDate").innerText.trim();
+                const allClaims = document.querySelectorAll("#otherModal .tab_type_list .tab_lists");
+                allClaims.forEach(card => {
+                    const cardCell = card.getAttribute("data-applyoncell")?.trim();
+                    card.style.display = (cardCell === selectedApplyOnCell) ? "block" : "none";
+                });
 
-                                                            const modalCustomLeave = new bootstrap.Modal(document.getElementById("otherModal"));
-                                                            modalCustomLeave.show();
+                window.lastClickedCell = cell;
+                window.lastClickedItemLabel = item.label;
+                dropdown.remove();
+            };
+            suggestionBox.appendChild(opt);
+        });
+    }
 
-                                                            // Generate claim number
-                                                            const claimNum = "CF" + Math.floor(1000 + Math.random() * 9000);
-                                                            const claimSpan = document.querySelector("#otherModal .ml_duty_time span span");
-                                                            if (claimSpan) {
-                                                                claimSpan.textContent = " " + claimNum;
-                                                            }
+    input.addEventListener("input", () => updateSuggestions(input.value));
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && input.value.trim() !== "") {
+            applyTag(cell, input.value.trim());
+            dropdown.remove();
+        }
+    });
 
-                                                            // Get selected applyOnCell value
-                                                            const selectedApplyOnCell = document.getElementById("showCellDate").innerText.trim();
+    dropdown.appendChild(input);
+    dropdown.appendChild(suggestionBox);
+    cell.appendChild(dropdown);
+    input.focus();
+    updateSuggestions("");
+}
 
-                                                            // Filter list based on applyOnCell
-                                                            const allClaims = document.querySelectorAll("#otherModal .tab_type_list .tab_lists");
+function applyTag(cell, label) {
+    cell.style.background = labelColors[label] || "#007bff";
+}
 
-                                                            allClaims.forEach(card => {
-                                                                const cardCell = card.getAttribute("data-applyoncell")?.trim();
-                                                                if (cardCell === selectedApplyOnCell) {
-                                                                    card.style.display = "block"; // show if matched
-                                                                } else {
-                                                                    card.style.display = "none";  // hide if not matched
-                                                                }
-                                                            });
+function closeAllDropdowns() {
+    document.querySelectorAll(".dropdown").forEach((d) => d.remove());
+}
 
+function changeMonth(delta) {
+    currentDate.setMonth(currentDate.getMonth() + delta);
+    monthSelect.value = currentDate.getMonth();
+    yearSelect.value = currentDate.getFullYear();
+    renderCalendar();
+}
 
-                                                            window.lastClickedCell = cell;
-                                                            window.lastClickedItemLabel = item.label;
-                                                       // applyTag(cell, item.label, "#007bff");
-                                                        dropdown.remove();
-                                                    };
-                                                    suggestionBox.appendChild(opt);
-                                                });
-                                        }
+document.addEventListener("click", function (e) {
+    if (!e.target.closest(".calendar-cell")) closeAllDropdowns();
+});
 
-                                        input.addEventListener("input", () => updateSuggestions(input.value));
-                                        input.addEventListener("keydown", (e) => {
-                                            if (e.key === "Enter") {
-                                                if (input.value.trim() !== "") {
-                                                    applyTag(cell, input.value.trim(), "#007bff");
-                                                    dropdown.remove();
-                                                }
-                                            }
-                                        });
+populateMonthYearSelectors();
+renderCalendar();
 
-                                        dropdown.appendChild(input);
-                                        dropdown.appendChild(suggestionBox);
-                                        cell.appendChild(dropdown);
-                                        input.focus();
-                                        updateSuggestions("");
-                                    }
+                                 
 
-                                    function applyTag(cell, label, color = "#007bff") {
-                                        cell.querySelectorAll(".tag").forEach((t) => t.remove());
-
-                                        const tag = Object.assign(document.createElement("div"), {
-                                            className: "tag",
-                                            innerText: label,
-                                        });
-
-                                        if (["PDO", "PH", "AL", "ML"].includes(label)) {
-                                            tag.style.color = "blue";
-                                        } else if (!isNaN(label) && parseInt(label) < 8) {
-                                            tag.style.color = "red";
-                                        }
-
-                                        cell.appendChild(tag);
-                                    }
-
-                                    function closeAllDropdowns() {
-                                        document.querySelectorAll(".dropdown").forEach((d) => d.remove());
-                                    }
-
-                                    function changeMonth(delta) {
-                                        currentDate.setMonth(currentDate.getMonth() + delta);
-                                        monthSelect.value = currentDate.getMonth();
-                                        yearSelect.value = currentDate.getFullYear();
-                                        renderCalendar();
-                                    }
-
-                                    document.addEventListener("click", function (e) {
-                                        if (!e.target.closest(".calendar-cell")) closeAllDropdowns();
-                                    });
-
-                                    populateMonthYearSelectors();
-                                    renderCalendar();
                                 </script>
                             </div>
                         </div>
