@@ -452,286 +452,298 @@
                                     </div>
                                 </div>
 
+                                
+
                                 <script>
-                                    (function () {
-                                        const modal = document.querySelector("#medicalLeave");
-                                        if (!modal) return;
+                                (function () {
+                                    const modal = document.querySelector("#medicalLeave");
+                                    if (!modal) return;
 
-                                        const rangeInput = modal.querySelectorAll(".range-input input");
-                                        const range = modal.querySelector(".range-selected");
-                                        const minTooltip = modal.querySelector(".min-tooltip");
-                                        const maxTooltip = modal.querySelector(".max-tooltip");
-                                        const dateRange = modal.querySelector("#dateRange");
-                                        const clockItBtn = modal.querySelector(".ml_clockit_btn");
-                                        const fileInput = modal.querySelector("#uploadFile");
+                                    const rangeInput = modal.querySelectorAll(".range-input input");
+                                    const range = modal.querySelector(".range-selected");
+                                    const minTooltip = modal.querySelector(".min-tooltip");
+                                    const maxTooltip = modal.querySelector(".max-tooltip");
+                                    const dateRange = modal.querySelector("#dateRange");
+                                    const clockItBtn = modal.querySelector(".ml_clockit_btn");
+                                    const fileInput = modal.querySelector("#uploadFile");
 
-                                        let editingBlock = null;
+                                    let editingBlock = null;
 
-                                        const timeLabels = Array.from({ length: 48 }, (_, i) => {
-                                            const hours = Math.floor(i / 2);
-                                            const minutes = i % 2 === 0 ? "00" : "30";
-                                            const suffix = hours >= 12 ? "PM" : "AM";
-                                            const displayHours = hours % 12 === 0 ? 12 : hours % 12;
-                                            return `${displayHours}:${minutes} ${suffix}`;
-                                        });
+                                    const timeLabels = Array.from({ length: 48 }, (_, i) => {
+                                        const hours = Math.floor(i / 2);
+                                        const minutes = i % 2 === 0 ? "00" : "30";
+                                        const suffix = hours >= 12 ? "PM" : "AM";
+                                        const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+                                        return `${displayHours}:${minutes} ${suffix}`;
+                                    });
 
-                                        let dateRangeInstance = null; // ✅ Make this global
+                                    let dateRangeInstance = null;
 
-                                            document.addEventListener('DOMContentLoaded', function () {
-                                               
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        modal.addEventListener('shown.bs.modal', function () {
+                                            if (dateRangeInstance) {
+                                                dateRangeInstance.destroy();
+                                            }
 
-                                                modal.addEventListener('shown.bs.modal', function () {
-                                                    if (dateRangeInstance) {
-                                                        dateRangeInstance.destroy();
-                                                    }
+                                            const dateText = document.getElementById("medicalLeaveDateDisplay").innerText.trim();
+                                            let defaultDate = new Date();
+                                            if (dateText && dateText.includes("/")) {
+                                                const [day, month, year] = dateText.split(" / ").map(Number);
+                                                defaultDate = new Date(year, month - 1, day);
+                                            }
 
-                                                    // ✅ Get selected date from #medicalLeaveDateDisplay
-                                                    const dateText = document.getElementById("medicalLeaveDateDisplay").innerText.trim();
-                                                    let defaultDate = new Date(); // fallback: today
-
-                                                    if (dateText && dateText.includes("/")) {
-                                                        const [day, month, year] = dateText.split(" / ").map(Number);
-                                                        defaultDate = new Date(year, month - 1, day);
-                                                    }
-
-                                                    dateRangeInstance = flatpickr(dateRange, {
-                                                        mode: "range",
-                                                        dateFormat: "d / m / Y",
-                                                        minDate: "today",
-                                                        defaultDate: [defaultDate], // ✅ auto-set to clicked calendar cell
-                                                        disable: [
-                                                            function (date) {
-                                                                return (date.getDay() === 0 || date.getDay() === 6); // Sunday/Saturday
-                                                            }
-                                                        ],
-                                                        onReady: function (selectedDates, dateStr, instance) {
-                                                            const isRange = dateStr.includes("to");
-                                                            rangeInput.forEach(input => input.disabled = isRange);
-                                                            range.style.backgroundColor = isRange ? "transparent" : "#037EFF";
-                                                        },
-                                                        onClose: function (_, dateStr) {
-                                                            const isRange = dateStr.includes("to");
-                                                            rangeInput.forEach(input => input.disabled = isRange);
-                                                            range.style.backgroundColor = isRange ? "transparent" : "#037EFF";
-                                                        }
-                                                    });
-                                                });
-                                            });
-
-
-
-                                        function updateSlider() {
-                                            let minVal = parseInt(rangeInput[0].value);
-                                            let maxVal = parseInt(rangeInput[1].value);
-                                            if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
-
-                                            const percent1 = (minVal / 47) * 100;
-                                            const percent2 = (maxVal / 47) * 100;
-
-                                            range.style.left = percent1 + "%";
-                                            range.style.width = percent2 - percent1 + "%";
-                                            minTooltip.style.left = percent1 + "%";
-                                            minTooltip.textContent = timeLabels[minVal];
-                                            maxTooltip.style.left = percent2 + "%";
-                                            maxTooltip.textContent = timeLabels[maxVal];
-                                        }
-
-                                        rangeInput.forEach(input => input.disabled = true);
-                                        range.style.backgroundColor = "transparent";
-                                        rangeInput.forEach(input => input.addEventListener("input", updateSlider));
-                                        updateSlider();
-
-                                        if (dateRange) {
-                                            flatpickr(dateRange, {
+                                            dateRangeInstance = flatpickr(dateRange, {
                                                 mode: "range",
                                                 dateFormat: "d / m / Y",
+                                                minDate: "today",
+                                                defaultDate: [defaultDate],
+                                                disable: [date => date.getDay() === 0 || date.getDay() === 6],
+                                                onReady: function (_, dateStr) {
+                                                    const isRange = dateStr.includes("to");
+                                                    rangeInput.forEach(input => input.disabled = isRange);
+                                                    range.style.backgroundColor = isRange ? "transparent" : "#037EFF";
+                                                },
                                                 onClose: function (_, dateStr) {
-                                                    const disable = dateStr.includes("to");
-                                                    rangeInput.forEach(input => input.disabled = disable);
-                                                    range.style.backgroundColor = disable ? "transparent" : "#037EFF";
+                                                    const isRange = dateStr.includes("to");
+                                                    rangeInput.forEach(input => input.disabled = isRange);
+                                                    range.style.backgroundColor = isRange ? "transparent" : "#037EFF";
                                                 }
                                             });
-                                        }
+                                        });
+                                    });
 
-                                        if (clockItBtn) {
-                                            clockItBtn.addEventListener("click", function () {
-                                                if (!dateRange.value.trim()) {
-                                                    alert("Please select a date range before proceeding.");
-                                                    dateRange.focus();
-                                                    return;
-                                                }
+                                    function updateSlider() {
+                                        let minVal = parseInt(rangeInput[0].value);
+                                        let maxVal = parseInt(rangeInput[1].value);
+                                        if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
 
-                                                const selectedRadio = modal.querySelector('input[name="Day"]:checked');
-                                                if (!selectedRadio) {
-                                                    alert("Please select ML leave hours before proceeding.");
-                                                    return;
-                                                }
+                                        const percent1 = (minVal / 47) * 100;
+                                        const percent2 = (maxVal / 47) * 100;
 
-                                                const docList = modal.querySelector(".ml_document_list");
-                                                const noDataImg = docList.querySelector(".ml_no_data");
-                                                if (noDataImg) noDataImg.remove();
+                                        range.style.left = percent1 + "%";
+                                        range.style.width = percent2 - percent1 + "%";
+                                        minTooltip.style.left = percent1 + "%";
+                                        minTooltip.textContent = timeLabels[minVal];
+                                        maxTooltip.style.left = percent2 + "%";
+                                        maxTooltip.textContent = timeLabels[maxVal];
+                                    }
 
-                                                const selectedDate = dateRange.value.includes("to") ? dateRange.value : dateRange.value.trim();
-                                                const leaveHourText = modal.querySelector(`label[for="${selectedRadio.id}"]`)?.textContent.trim();
-                                                const selectedRadioId = selectedRadio.id;
-                                                const rangeMin = parseInt(rangeInput[0].value);
-                                                const rangeMax = parseInt(rangeInput[1].value);
-                                                const formattedRangeMin = timeLabels[rangeMin];
-                                                const formattedRangeMax = timeLabels[rangeMax];
-                                                const file = fileInput.files[0];
+                                    rangeInput.forEach(input => input.disabled = true);
+                                    range.style.backgroundColor = "transparent";
+                                    rangeInput.forEach(input => input.addEventListener("input", updateSlider));
+                                    updateSlider();
 
-                                                const blockHTML = `
-                                                    <div class="ml_card" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; font-size: 10px;">
-                                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                                            <i class="fa-solid fa-calendar-days"></i>
-                                                            <span><strong>${selectedDate}</strong></span>
-                                                        </div>
-                                                        <div style="text-align: right;">
-                                                            <p style="margin: 0;"><strong>Leave Type :</strong> Medical Leave (ML)</p>
-                                                            <p style="margin: 0;"><strong>ML leave hours :</strong> ${leaveHourText}</p>
-                                                        </div>
-                                                        <div style="margin-left: auto; margin-top: 10px; display: flex; gap: 10px;">
-                                                            <button title="Preview" class="preview-btn" style="border: none; background: none; cursor: pointer;">
-                                                                <i class="fa-solid fa-paperclip" style="color: #ff6f00;"></i>
-                                                            </button>
-                                                            <button title="Edit" class="edit-btn" style="border: none; background: none; cursor: pointer;">
-                                                                <i class="fa-solid fa-pen-to-square" style="color: #ff6f00;"></i>
-                                                            </button>
-                                                            <button title="Delete" class="close-expense" style="border: none; background: none; cursor: pointer;">
-                                                                <i class="fa-solid fa-trash" style="color: red;"></i>
-                                                            </button>
-                                                        </div>
+                                    if (clockItBtn) {
+                                        clockItBtn.addEventListener("click", function () {
+                                            if (!dateRange.value.trim()) {
+                                                alert("Please select a date range before proceeding.");
+                                                dateRange.focus();
+                                                return;
+                                            }
+
+                                            const selectedRadio = modal.querySelector('input[name="Day"]:checked');
+                                            if (!selectedRadio) {
+                                                alert("Please select ML leave hours before proceeding.");
+                                                return;
+                                            }
+
+                                            const docList = modal.querySelector(".ml_document_list");
+                                            const noDataImg = docList.querySelector(".ml_no_data");
+                                            if (noDataImg) noDataImg.remove();
+
+                                            const selectedDate = dateRange.value.includes("to") ? dateRange.value : dateRange.value.trim();
+                                            const leaveHourText = modal.querySelector(`label[for="${selectedRadio.id}"]`)?.textContent.trim();
+                                            const selectedRadioId = selectedRadio.id;
+                                            const rangeMin = parseInt(rangeInput[0].value);
+                                            const rangeMax = parseInt(rangeInput[1].value);
+                                            const formattedRangeMin = timeLabels[rangeMin];
+                                            const formattedRangeMax = timeLabels[rangeMax];
+                                            const file = fileInput.files[0];
+
+                                            const blockHTML = `
+                                                <div class="ml_card" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; font-size: 10px;">
+                                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                                        <i class="fa-solid fa-calendar-days"></i>
+                                                        <span><strong>${selectedDate}</strong></span>
                                                     </div>
-                                                `;
+                                                    <div style="text-align: right;">
+                                                        <p style="margin: 0;"><strong>Leave Type :</strong> Medical Leave (ML)</p>
+                                                        <p style="margin: 0;"><strong>ML leave hours :</strong> ${leaveHourText}</p>
+                                                    </div>
+                                                    <div style="margin-left: auto; margin-top: 10px; display: flex; gap: 10px;">
+                                                        <button title="Preview" class="preview-btn" style="border: none; background: none; cursor: pointer;">
+                                                            <i class="fa-solid fa-paperclip" style="color: #ff6f00;"></i>
+                                                        </button>
+                                                        <button title="Edit" class="edit-btn" style="border: none; background: none; cursor: pointer;">
+                                                            <i class="fa-solid fa-pen-to-square" style="color: #ff6f00;"></i>
+                                                        </button>
+                                                        <button title="Delete" class="close-expense" style="border: none; background: none; cursor: pointer;">
+                                                            <i class="fa-solid fa-trash" style="color: red;"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            `;
 
-                                                let expenseBlock = editingBlock || document.createElement("div");
-                                                expenseBlock.classList.add("expense-block");
-                                                expenseBlock.style.cssText = `
-                                                    background: white;
-                                                    border-radius: 10px;
-                                                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                                                    padding: 15px;
-                                                    margin: 12px;
-                                                    margin-top: 15px;
-                                                    position: relative;
-                                                `;
-                                                expenseBlock.innerHTML = blockHTML;
-                                                expenseBlock.dataset.leaveDate = selectedDate;
-                                                expenseBlock.dataset.leaveHourId = selectedRadioId;
-                                                expenseBlock.dataset.rangeMin = rangeMin;
-                                                expenseBlock.dataset.rangeMax = rangeMax;
+                                            let expenseBlock = editingBlock || document.createElement("div");
+                                            expenseBlock.classList.add("expense-block");
+                                            expenseBlock.style.cssText = `
+                                                background: white;
+                                                border-radius: 10px;
+                                                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                                                padding: 15px;
+                                                margin: 12px;
+                                                margin-top: 15px;
+                                                position: relative;
+                                            `;
+                                            expenseBlock.innerHTML = blockHTML;
+                                            expenseBlock.dataset.leaveDate = selectedDate;
+                                            expenseBlock.dataset.leaveHourId = selectedRadioId;
+                                            expenseBlock.dataset.rangeMin = rangeMin;
+                                            expenseBlock.dataset.rangeMax = rangeMax;
 
-                                                if (!editingBlock) {
-                                                    docList.appendChild(expenseBlock);
-                                                }
+                                            if (!editingBlock) {
+                                                docList.appendChild(expenseBlock);
+                                            }
 
-                                                editingBlock = null;
-                                                modal.classList.remove("editing-mode");
-
-                                                const formData = new FormData();
-                                                formData.append("type", "timesheet");
-                                                formData.append("user_id", "{{ $userData['id'] ?? '' }}");
-                                                formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
-                                                formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
-
-                                                const recordData = {
-                                                    date: selectedDate,
-                                                    leaveType: "ML",
-                                                    leaveHour: leaveHourText,
-                                                    leaveHourId: selectedRadioId,
-                                                    applyOnCell: document.getElementById("medicalLeaveDateDisplay").innerText.trim()
-                                                };
-
-                                                if (!selectedDate.includes("to")) {
-                                                    recordData.rangeMin = formattedRangeMin;
-                                                    recordData.rangeMax = formattedRangeMax;
-                                                }
-
-                                                formData.append("record", JSON.stringify(recordData));
-                                                if (file) {
-                                                    formData.append("certificate", file);
-                                                }
-
-                                                console.log("Submitting via FormData:");
-                                                for (let pair of formData.entries()) {
-                                                    console.log(pair[0]+ ':', pair[1]);
-                                                }
-
-                                                fetch("{{ route('consultant.data.save') }}", {
-                                                    method: "POST",
-                                                    headers: {
-                                                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-                                                    },
-                                                    body: formData
-                                                })
-                                                .then(res => {
-                                                    if (!res.ok) throw new Error("Server error " + res.status);
-                                                    return res.json();
-                                                })
-                                                .then(data => {
-                                                    console.log("Saved successfully:", data);
-                                                    //bootstrap.Modal.getInstance(document.getElementById("medicalLeave")).hide();
-
-                                                    // Now call applyTag
-                                                    applyTag(lastClickedCell, "ML", "#007bff");
-                                                })
-                                                .catch(error => {
-                                                    console.error("Fetch error:", error);
-                                                });
-
-
-                                                expenseBlock.querySelector(".edit-btn").addEventListener("click", function () {
-                                                    editingBlock = expenseBlock;
-                                                    dateRange._flatpickr.setDate(expenseBlock.dataset.leaveDate.split(" to "), true, "d / m / Y");
-                                                    const radio = modal.querySelector(`input[id="${expenseBlock.dataset.leaveHourId}"]`);
-                                                    if (radio) radio.checked = true;
-                                                    rangeInput[0].value = expenseBlock.dataset.rangeMin;
-                                                    rangeInput[1].value = expenseBlock.dataset.rangeMax;
-
-                                                    const disable = !expenseBlock.dataset.leaveDate.includes("to") ? false : true;
-                                                    rangeInput.forEach(input => input.disabled = disable);
-                                                    range.style.backgroundColor = disable ? "transparent" : "#037EFF";
-
-                                                    updateSlider();
-                                                    modal.classList.add("editing-mode");
-                                                    modal.scrollIntoView({ behavior: "smooth" });
-                                                });
-
-                                                expenseBlock.querySelector(".close-expense").addEventListener("click", function () {
-                                                    expenseBlock.remove();
-                                                    if (!modal.querySelector(".ml_document_list .expense-block")) {
-                                                        const img = document.createElement("img");
-                                                        img.src = "{{ asset('public/assets/latest/images/no-file.png') }}";
-                                                        img.alt = "";
-                                                        img.classList.add("ml_no_data");
-                                                        modal.querySelector(".ml_document_list").appendChild(img);
-                                                    }
-                                                });
-                                            });
-                                        }
-
-                                        modal.addEventListener("hidden.bs.modal", function () {
-                                            if (dateRange._flatpickr) dateRange._flatpickr.clear();
-                                            modal.querySelectorAll('input[name="Day"]').forEach(input => input.checked = false);
-                                            rangeInput[0].value = 15;
-                                            rangeInput[1].value = 32;
-                                            updateSlider();
-                                            fileInput.value = "";
                                             editingBlock = null;
                                             modal.classList.remove("editing-mode");
-                                        });
 
-                                        const style = document.createElement("style");
-                                        style.textContent = `
-                                            #medicalLeave.editing-mode .modal-content {
-                                                outline: 2px dashed #ffc107;
-                                                outline-offset: -6px;
-                                                box-shadow: 0 0 0 3px rgba(255,193,7,0.25);
+                                            const formData = new FormData();
+                                            formData.append("type", "timesheet");
+                                            formData.append("user_id", "{{ $userData['id'] ?? '' }}");
+                                            formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+                                            formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+
+                                            const recordData = {
+                                                date: selectedDate,
+                                                leaveType: "ML",
+                                                leaveHour: leaveHourText,
+                                                leaveHourId: selectedRadioId,
+                                                applyOnCell: document.getElementById("medicalLeaveDateDisplay").innerText.trim()
+                                            };
+
+                                            if (!selectedDate.includes("to")) {
+                                                recordData.rangeMin = formattedRangeMin;
+                                                recordData.rangeMax = formattedRangeMax;
                                             }
-                                        `;
-                                        document.head.appendChild(style);
-                                    })();
 
+                                            formData.append("record", JSON.stringify(recordData));
+                                            if (file) {
+                                                formData.append("certificate", file);
+                                            }
+
+                                            fetch("{{ route('consultant.data.save') }}", {
+                                                method: "POST",
+                                                headers: {
+                                                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                                },
+                                                body: formData
+                                            })
+                                            .then(res => {
+                                                if (!res.ok) throw new Error("Server error " + res.status);
+                                                return res.json();
+                                            })
+                                            .then(data => {
+                                                console.log("Saved successfully:", data);
+                                                applyTag(lastClickedCell, "ML", "#007bff");
+                                            })
+                                            .catch(error => {
+                                                console.error("Fetch error:", error);
+                                            });
+
+                                            // ✅ Add image preview functionality
+                                            expenseBlock.querySelector(".preview-btn").addEventListener("click", function () {
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onload = function (e) {
+                                                        // Create modal if it doesn't exist
+                                                        let modalContainer = document.getElementById("imagePreviewModal");
+                                                        if (!modalContainer) {
+                                                            modalContainer = document.createElement("div");
+                                                            modalContainer.innerHTML = `
+                                                                <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered modal-md">
+                                                                    <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title">Image Preview</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body text-center">
+                                                                        <img id="previewImageInModal" src="" alt="Preview" style="max-width: 100%; border-radius: 10px;" />
+                                                                    </div>
+                                                                    </div>
+                                                                </div>
+                                                                </div>
+                                                            `;
+                                                            document.body.appendChild(modalContainer);
+                                                        }
+
+                                                        // Set image and show modal
+                                                        const imgEl = document.getElementById("previewImageInModal");
+                                                        if (imgEl) {
+                                                            imgEl.src = e.target.result;
+                                                            const previewModal = new bootstrap.Modal(document.getElementById("imagePreviewModal"));
+                                                            previewModal.show();
+                                                        }
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                } else {
+                                                    alert("No file attached to preview.");
+                                                }
+                                            });
+
+
+                                            expenseBlock.querySelector(".edit-btn").addEventListener("click", function () {
+                                                editingBlock = expenseBlock;
+                                                dateRange._flatpickr.setDate(expenseBlock.dataset.leaveDate.split(" to "), true, "d / m / Y");
+                                                const radio = modal.querySelector(`input[id="${expenseBlock.dataset.leaveHourId}"]`);
+                                                if (radio) radio.checked = true;
+                                                rangeInput[0].value = expenseBlock.dataset.rangeMin;
+                                                rangeInput[1].value = expenseBlock.dataset.rangeMax;
+
+                                                const disable = !expenseBlock.dataset.leaveDate.includes("to") ? false : true;
+                                                rangeInput.forEach(input => input.disabled = disable);
+                                                range.style.backgroundColor = disable ? "transparent" : "#037EFF";
+
+                                                updateSlider();
+                                                modal.classList.add("editing-mode");
+                                                modal.scrollIntoView({ behavior: "smooth" });
+                                            });
+
+                                            expenseBlock.querySelector(".close-expense").addEventListener("click", function () {
+                                                expenseBlock.remove();
+                                                if (!modal.querySelector(".ml_document_list .expense-block")) {
+                                                    const img = document.createElement("img");
+                                                    img.src = "{{ asset('public/assets/latest/images/no-file.png') }}";
+                                                    img.alt = "";
+                                                    img.classList.add("ml_no_data");
+                                                    modal.querySelector(".ml_document_list").appendChild(img);
+                                                }
+                                            });
+                                        });
+                                    }
+
+                                    modal.addEventListener("hidden.bs.modal", function () {
+                                        if (dateRange._flatpickr) dateRange._flatpickr.clear();
+                                        modal.querySelectorAll('input[name="Day"]').forEach(input => input.checked = false);
+                                        rangeInput[0].value = 15;
+                                        rangeInput[1].value = 32;
+                                        updateSlider();
+                                        fileInput.value = "";
+                                        editingBlock = null;
+                                        modal.classList.remove("editing-mode");
+                                    });
+
+                                    const style = document.createElement("style");
+                                    style.textContent = `
+                                        #medicalLeave.editing-mode .modal-content {
+                                            outline: 2px dashed #ffc107;
+                                            outline-offset: -6px;
+                                            box-shadow: 0 0 0 3px rgba(255,193,7,0.25);
+                                        }
+                                    `;
+                                    document.head.appendChild(style);
+                                })();
                                 </script>
 
 
