@@ -748,9 +748,18 @@ function renderCalendar() {
             const uniqueLabels = [...new Set(tagsForDay.map(t => t.label))];
 
             if (uniqueLabels.length > 0) {
-                const gradient = uniqueLabels.map(label => labelColors[label] || "#ccc").join(", ");
-                cell.style.background = uniqueLabels.length > 1 ? `linear-gradient(to right, ${gradient})` : gradient;
+                const total = uniqueLabels.length;
+                const step = 100 / total;
+                let gradientParts = [];
+                uniqueLabels.forEach((label, i) => {
+                    const color = labelColors[label] || "#ccc";
+                    const start = (i * step).toFixed(2);
+                    const end = ((i + 1) * step).toFixed(2);
+                    gradientParts.push(`${color} ${start}%`, `${color} ${end}%`);
+                });
+                cell.style.background = `linear-gradient(90deg, ${gradientParts.join(", ")})`;
             }
+
         }
 
         const dateLabel = document.createElement("div");
