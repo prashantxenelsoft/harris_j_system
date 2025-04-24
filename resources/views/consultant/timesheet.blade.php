@@ -402,10 +402,49 @@
                                                             Documents List
                                                         </h3>
                                                         <div class="ml_document_list">
-                                                            <div class="ml_no_data">
-                                                                <img src="{{ asset('public/assets/latest/images/no-file.png') }}" alt="" />
-                                                            </div>
+                                                            @forelse($dataTimesheet as $item)
+                                                                @php
+                                                                    $record = json_decode($item->record);
+                                                                @endphp
+                                                                @if($record->leaveType === "ML")
+                                                                <div 
+                                                                    class="expense-block"
+                                                                    data-leave-date="{{ $record->date }}"
+                                                                    data-leave-hour-id="{{ $record->leaveHourId }}"
+                                                                    data-range-min="{{ $record->rangeMin ?? '' }}"
+                                                                    data-range-max="{{ $record->rangeMax ?? '' }}"
+                                                                    style="background:white;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,0.1);padding:15px;margin:12px;margin-top:15px;position:relative;"
+                                                                >
+                                                                    <div class="ml_card" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;font-size:10px;">
+                                                                        <div style="display:flex;align-items:center;gap:8px;">
+                                                                            <i class="fa-solid fa-calendar-days"></i>
+                                                                            <span><strong>{{ $record->date }}</strong></span>
+                                                                        </div>
+                                                                        <div style="text-align:right;">
+                                                                            <p style="margin:0;"><strong>Leave Type :</strong> Medical Leave (ML)</p>
+                                                                            <p style="margin:0;"><strong>ML leave hours :</strong> {{ $record->leaveHour }}</p>
+                                                                        </div>
+                                                                        <div style="margin-left:auto;margin-top:10px;display:flex;gap:10px;">
+                                                                            <button title="Preview" class="preview-btn" style="border:none;background:none;cursor:pointer;">
+                                                                                <i class="fa-solid fa-paperclip" style="color:#ff6f00;"></i>
+                                                                            </button>
+                                                                            <button title="Edit" class="edit-btn" style="border:none;background:none;cursor:pointer;">
+                                                                                <i class="fa-solid fa-pen-to-square" style="color:#ff6f00;"></i>
+                                                                            </button>
+                                                                            <button title="Delete" class="close-expense" style="border:none;background:none;cursor:pointer;">
+                                                                                <i class="fa-solid fa-trash" style="color:red;"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                @endif
+                                                            @empty
+                                                                <div class="ml_no_data">
+                                                                    <img src="{{ asset('public/assets/latest/images/no-file.png') }}" alt="" />
+                                                                </div>
+                                                            @endforelse
                                                         </div>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -435,6 +474,51 @@
                                             const displayHours = hours % 12 === 0 ? 12 : hours % 12;
                                             return `${displayHours}:${minutes} ${suffix}`;
                                         });
+
+                                        let dateRangeInstance = null; // ✅ Make this global
+
+                                            document.addEventListener('DOMContentLoaded', function () {
+                                               
+
+                                                modal.addEventListener('shown.bs.modal', function () {
+                                                    if (dateRangeInstance) {
+                                                        dateRangeInstance.destroy();
+                                                    }
+
+                                                    // ✅ Get selected date from #medicalLeaveDateDisplay
+                                                    const dateText = document.getElementById("medicalLeaveDateDisplay").innerText.trim();
+                                                    let defaultDate = new Date(); // fallback: today
+
+                                                    if (dateText && dateText.includes("/")) {
+                                                        const [day, month, year] = dateText.split(" / ").map(Number);
+                                                        defaultDate = new Date(year, month - 1, day);
+                                                    }
+
+                                                    dateRangeInstance = flatpickr(dateRange, {
+                                                        mode: "range",
+                                                        dateFormat: "d / m / Y",
+                                                        minDate: "today",
+                                                        defaultDate: [defaultDate], // ✅ auto-set to clicked calendar cell
+                                                        disable: [
+                                                            function (date) {
+                                                                return (date.getDay() === 0 || date.getDay() === 6); // Sunday/Saturday
+                                                            }
+                                                        ],
+                                                        onReady: function (selectedDates, dateStr, instance) {
+                                                            const isRange = dateStr.includes("to");
+                                                            rangeInput.forEach(input => input.disabled = isRange);
+                                                            range.style.backgroundColor = isRange ? "transparent" : "#037EFF";
+                                                        },
+                                                        onClose: function (_, dateStr) {
+                                                            const isRange = dateStr.includes("to");
+                                                            rangeInput.forEach(input => input.disabled = isRange);
+                                                            range.style.backgroundColor = isRange ? "transparent" : "#037EFF";
+                                                        }
+                                                    });
+                                                });
+                                            });
+
+
 
                                         function updateSlider() {
                                             let minVal = parseInt(rangeInput[0].value);
@@ -829,6 +913,49 @@
                                         return `${displayHours}:${minutes} ${suffix}`;
                                     });
 
+                                    let dateRangeInstance = null; // ✅ Make this global
+
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                    
+
+                                        modal.addEventListener('shown.bs.modal', function () {
+                                            if (dateRangeInstance) {
+                                                dateRangeInstance.destroy();
+                                            }
+
+                                            // ✅ Get selected date from #customLeaveDisplay
+                                            const dateText = document.getElementById("customLeaveDisplay").innerText.trim();
+                                            let defaultDate = new Date(); // fallback: today
+
+                                            if (dateText && dateText.includes("/")) {
+                                                const [day, month, year] = dateText.split(" / ").map(Number);
+                                                defaultDate = new Date(year, month - 1, day);
+                                            }
+
+                                            dateRangeInstance = flatpickr(dateRange, {
+                                                mode: "range",
+                                                dateFormat: "d / m / Y",
+                                                minDate: "today",
+                                                defaultDate: [defaultDate], // ✅ auto-set to clicked calendar cell
+                                                disable: [
+                                                    function (date) {
+                                                        return (date.getDay() === 0 || date.getDay() === 6); // Sunday/Saturday
+                                                    }
+                                                ],
+                                                onReady: function (selectedDates, dateStr, instance) {
+                                                    const isRange = dateStr.includes("to");
+                                                    rangeInput.forEach(input => input.disabled = isRange);
+                                                    range.style.backgroundColor = isRange ? "transparent" : "#037EFF";
+                                                },
+                                                onClose: function (_, dateStr) {
+                                                    const isRange = dateStr.includes("to");
+                                                    rangeInput.forEach(input => input.disabled = isRange);
+                                                    range.style.backgroundColor = isRange ? "transparent" : "#037EFF";
+                                                }
+                                            });
+                                        });
+                                    });
+
                                     function updateSlider() {
                                         let minVal = parseInt(rangeInput[0].value);
                                         let maxVal = parseInt(rangeInput[1].value);
@@ -1126,11 +1253,15 @@
                                             cell.appendChild(dateLabel);
 
                                             const day = date.getDay();
-                                            if (day === 0 || day === 6) {
-                                                cell.classList.add("disabled");
-                                            } else {
-                                                cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
-                                            }
+                                            const today = new Date();
+                                                today.setHours(0, 0, 0, 0); // Normalize time
+
+                                                if (day === 0 || day === 6 || date < today) {
+                                                    cell.classList.add("disabled");
+                                                } else {
+                                                    cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
+                                                }
+
 
                                             // Add example tags with blue color
                                             const tagRules = {};
@@ -1156,9 +1287,27 @@
                                                     }
                                                 @endphp
 
-                                                @if (isset($monthYear) && isset($index))
-                                                    if (!tagRules["{{ $monthYear }}"]) tagRules["{{ $monthYear }}"] = [];
-                                                    tagRules["{{ $monthYear }}"].push({ index: {{ $index }}, label: "{{ $label }}" });
+                                                @php
+                                                    $rangeParts = explode(' to ', $record['date'] ?? '');
+                                                @endphp
+
+                                                @if (count($rangeParts) === 2)
+                                                    @php
+                                                        try {
+                                                            $start = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[0]));
+                                                            $end = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[1]));
+                                                            for ($day = $start->copy(); $day->lte($end); $day->addDay()) {
+                                                                $monthYear = ($day->month - 1) . '-' . $day->year;
+                                                                $index = $day->day;
+                                                                $clickable = $day->equalTo($start); // only start date clickable
+                                                                echo "if (!tagRules['$monthYear']) tagRules['$monthYear'] = [];";
+                                                                echo "tagRules['$monthYear'].push({ index: $index, label: '$label', clickable: " . ($clickable ? 'true' : 'false') . " });";
+                                                            }
+                                                        } catch (\Exception $e) {}
+                                                    @endphp
+                                                @elseif (isset($monthYear) && isset($index))
+                                                    tagRules["{{ $monthYear }}"] = tagRules["{{ $monthYear }}"] || [];
+                                                    tagRules["{{ $monthYear }}"].push({ index: {{ $index }}, label: "{{ $label }}", clickable: true });
                                                 @endif
                                             @endforeach
 
@@ -1172,9 +1321,15 @@
                                                 tagRules[currentKey].forEach((rule) => {
                                                     if (i === rule.index) {
                                                         applyTag(cell, rule.label, "#007bff");
+
+                                                        // if rule is not clickable, disable the cell
+                                                        if (!rule.clickable) {
+                                                            cell.classList.add("disabled");
+                                                        }
                                                     }
                                                 });
                                             }
+
 
                                             calendarDays.appendChild(cell);
                                         }
@@ -1293,21 +1448,48 @@
                                     }
 
                                     function applyTag(cell, label, color = "#007bff") {
+                                        // Remove any existing tags
                                         cell.querySelectorAll(".tag").forEach((t) => t.remove());
 
-                                        const tag = Object.assign(document.createElement("div"), {
-                                            className: "tag",
-                                            innerText: label,
-                                        });
+                                        // Make cell flex-centered
+                                        cell.style.display = "flex";
+                                        cell.style.flexDirection = "column";
+                                        cell.style.justifyContent = "center";
+                                        cell.style.alignItems = "center";
+                                        cell.style.textAlign = "center";
+                                        cell.style.position = "relative";
 
+                                        // Adjust the date (top text)
+                                        const dateLabel = cell.querySelector(".cell-date");
+                                        if (dateLabel) {
+                                            dateLabel.style.marginBottom = "4px";
+                                            dateLabel.style.fontSize = "12px";
+                                        }
+
+                                        // Create the tag
+                                        const tag = document.createElement("div");
+                                        tag.className = "tag";
+                                        tag.innerText = label;
+
+                                        // Style the tag
+                                        tag.style.fontSize = "15px";
+                                        tag.style.margin = "0";
+                                        tag.style.padding = "0";
+                                        tag.style.lineHeight = "1";
+
+                                        // Set color logic
                                         if (["PDO", "PH", "AL", "ML"].includes(label)) {
                                             tag.style.color = "blue";
                                         } else if (!isNaN(label) && parseInt(label) < 8) {
                                             tag.style.color = "red";
+                                        } else {
+                                            tag.style.color = color; // fallback
                                         }
 
+                                        // Append the tag
                                         cell.appendChild(tag);
                                     }
+
 
                                     function closeAllDropdowns() {
                                         document.querySelectorAll(".dropdown").forEach((d) => d.remove());

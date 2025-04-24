@@ -767,11 +767,21 @@ function renderCalendar() {
         dateLabel.innerText = i;
         cell.appendChild(dateLabel);
 
-        if (date.getDay() === 0 || date.getDay() === 6) {
-            cell.classList.add("disabled");
-        } else {
-            cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
-        }
+        // if (date.getDay() === 0 || date.getDay() === 6) {
+        //     cell.classList.add("disabled");
+        // } else {
+        //     cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
+        // }
+
+        const day = date.getDay();
+        const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize time
+
+            if (day === 0 || day === 6 || date < today) {
+                cell.classList.add("disabled");
+            } else {
+                cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
+            }
 
         calendarDays.appendChild(cell);
     }
