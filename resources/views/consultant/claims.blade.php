@@ -302,6 +302,10 @@
                                                                             <div class="col-md-6 mb-4">
                                                                                 <label for="eDate" class="form-label">Date</label>
                                                                                 <input type="date" class="form-control" id="eDate" />
+                                                                                <script>
+                                                                                    const today = new Date().toISOString().split('T')[0];
+                                                                                    document.getElementById("eDate").setAttribute("min", today);
+                                                                                </script>
                                                                             </div>
 
                                                                             <div class="col-md-6 mb-4">
@@ -370,206 +374,278 @@
                                                             Individual Claims List
                                                         </h3>
                                                         <div class="tab_type_list">
-                                                           
+                                                            @foreach($dataClaims as $claim)
+                                                                @php
+                                                                    $record = json_decode($claim->record, true);
+                                                                @endphp
+                                                                <div class="tab_lists"
+                                                                    data-db-id="{{ $claim->id }}"
+                                                                    data-type="{{ $record['expenseType'] ?? '' }}"
+                                                                    data-applyoncell="{{ $record['applyOnCell'] ?? '' }}">
+                                                                    <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
+                                                                        <span class="list_date"><i class="fa-solid fa-calendar-days me-2"></i>{{ $record['date'] ?? '' }}</span>
+                                                                        <span class="list_e_type">Expenses Type : {{ $record['expenseType'] ?? '' }}</span>
+                                                                    </div>
+                                                                    <div class="flex-wrap d-flex align-items-center justify-content-between mb-2">
+                                                                        <span class="list_particulars">Particulars : {{ $record['particulars'] ?? '' }}</span>
+                                                                        <span class="list_e_amount">Amount : $ {{ number_format($record['amount'] ?? 0, 2) }}</span>
+                                                                    </div>
+                                                                    <div class="d-flex align-items-center justify-content-end">
+                                                                        <span class="list_icons">
+                                                                            <a href="#" class="badge_icon preview-attach" data-img="{{ asset($record['certificate_path'] ?? '') }}"><i class="fa-solid fa-paperclip"></i></a>
+                                                                            <a href="#" class="badge_icon edit-claim"
+                                                                                data-id="{{ $claim->id }}"
+                                                                                data-date="{{ $record['date'] ?? '' }}"
+                                                                                data-type="{{ $record['expenseType'] ?? '' }}"
+                                                                                data-particulars="{{ $record['particulars'] ?? '' }}"
+                                                                                data-amount="{{ $record['amount'] ?? '' }}"
+                                                                                data-remarks="{{ $record['remarks'] ?? '' }}"
+                                                                                data-locationfrom="{{ $record['locationFrom'] ?? '' }}"
+                                                                                data-locationto="{{ $record['locationTo'] ?? '' }}"
+                                                                                data-otherexpense="{{ $record['otherExpense'] ?? '' }}">
+                                                                                <i class="fa-solid fa-pen-nib"></i>
+                                                                            </a>
+                                                                            <a href="#" class="badge_icon delete-claim" data-id="{{ $claim->id }}"><i class="fa-solid fa-trash-can"></i></a>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
                                                         </div>
+
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
                                 <script>
-                                    let editMode = false;
-                                    let editTarget = null;
-                                    let uploadedFileURL = null;
-                                    let uploadedFile = null;
+                                        document.addEventListener("DOMContentLoaded", function () {
+                                            document.querySelector(".tab_type_list").addEventListener("click", function (e) {
+                                                const deleteBtn = e.target.closest(".delete-claim");
+                                                if (deleteBtn) {
+                                                    e.preventDefault();
 
-                                    // Toggle dynamic fields
-                                    document.getElementById("expenseType").addEventListener("change", function () {
-                                        const selected = this.value;
-                                        document.getElementById("otherExpenseWrapper").style.display = selected === "Others" ? "block" : "none";
-                                        document.getElementById("location1").style.display = selected === "Others" ? "block" : "none";
-                                        document.getElementById("location2").style.display = selected === "Others" ? "block" : "none";
-                                    });
+                                                    const card = deleteBtn.closest(".tab_lists");
+                                                    const id = deleteBtn.dataset.id;
 
-                                    // Handle file upload preview and storage
-                                    document.getElementById("uploadFile").addEventListener("change", function () {
-                                        uploadedFile = this.files[0];
-                                        if (uploadedFile) {
-                                            uploadedFileURL = URL.createObjectURL(uploadedFile);
-                                        }
-                                    });
-
-                                    // Inject modal only once
-                                    function ensurePreviewModalExists() {
-                                        if (!document.getElementById("imagePreviewModal")) {
-                                            const modal = document.createElement("div");
-                                            modal.id = "imagePreviewModal";
-                                            modal.style.cssText = `
-                                                display: none; position: fixed; z-index: 9999; top: 0; left: 0;
-                                                width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6);
-                                                justify-content: center; align-items: center;
-                                            `;
-                                            modal.innerHTML = `
-                                                <div id="previewContent" style="
-                                                    background: white; padding: 20px; border-radius: 10px; position: relative;
-                                                    animation: fadeIn 0.3s ease-in-out; max-width: 90%; max-height: 90%;">
-                                                    <span id="closePreview" style="
-                                                        position: absolute; top: 5px; right: 10px;
-                                                        font-size: 24px; cursor: pointer;">&times;</span>
-                                                    <img id="previewImgTag" src="" style="max-width: 100%; max-height: 80vh; border-radius: 8px;" />
-                                                </div>
-                                            `;
-                                            document.body.appendChild(modal);
-                                            document.getElementById("closePreview").onclick = () => {
-                                                modal.style.display = "none";
-                                                document.getElementById("previewImgTag").src = "";
-                                            };
-                                        }
-                                    }
-
-                                    document.getElementById("claimForm").addEventListener("submit", function (e) {
-                                        e.preventDefault();
-
-                                        const date = document.getElementById("eDate").value;
-                                        const type = document.getElementById("expenseType").value;
-                                        const particulars = document.getElementById("eParticulars").value;
-                                        const amount = document.getElementById("eAmount").value;
-                                        const remarks = document.getElementById("customRemark").value;
-                                        const locationFrom = document.getElementById("eLocationFrom")?.value || "";
-                                        const locationTo = document.getElementById("eLocationTo")?.value || "";
-                                        const otherExpense = document.getElementById("otherExpense")?.value || "";
-
-                                        if (!amount) return alert("Please enter a valid amount!");
-
-                                        // Append visual card to right panel
-                                        const claimHTML = `
-                                            <div class="tab_lists">
-                                                <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
-                                                    <span class="list_date"><i class="fa-solid fa-calendar-days me-2"></i>${date}</span>
-                                                    <span class="list_e_type">Expenses Type : ${type}</span>
-                                                </div>
-                                                <div class="flex-wrap d-flex align-items-center justify-content-between mb-2">
-                                                    <span class="list_particulars">Particulars : ${particulars}</span>
-                                                    <span class="list_e_amount">Amount : $ ${parseFloat(amount).toFixed(2)}</span>
-                                                </div>
-                                                <div class="d-flex align-items-center justify-content-end">
-                                                    <span class="list_icons">
-                                                        <a href="#" class="badge_icon preview-attach" data-img="${uploadedFileURL || ""}"><i class="fa-solid fa-paperclip"></i></a>
-                                                        <a href="#" class="badge_icon edit-claim"
-                                                            data-date="${date}" data-type="${type}" data-particulars="${particulars}"
-                                                            data-amount="${amount}" data-remarks="${remarks}"><i class="fa-solid fa-pen-nib"></i></a>
-                                                        <a href="#" class="badge_icon delete-claim"><i class="fa-solid fa-trash-can"></i></a>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        `;
-
-                                        if (editMode && editTarget) {
-                                            editTarget.outerHTML = claimHTML;
-                                            editMode = false;
-                                            editTarget = null;
-                                            document.getElementById("claimForm").style.boxShadow = "";
-                                            document.getElementById("claimForm").style.border = "";
-                                        } else {
-                                            document.querySelector(".tab_type_list").insertAdjacentHTML("beforeend", claimHTML);
-                                        }
-                                        const claim_no = document.querySelector("#otherModal .ml_duty_time span span")?.textContent.trim() || "";
-
-
-                                        // Save to DB
-                                        const formData = new FormData();
-                                        formData.append("type", "claims");
-                                        formData.append("consultant_id", "{{ $userData['id'] ?? '' }}");
-                                        formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
-                                        formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
-
-                                        const recordData = {
-                                            date,
-                                            expenseType: type,
-                                            claim_no: claim_no,
-                                            applyOnCell: document.getElementById("showCellDate").innerText.trim(),
-                                            particulars,
-                                            amount: parseFloat(amount).toFixed(2),
-                                            remarks,
-                                            locationFrom,
-                                            locationTo,
-                                            otherExpense
-                                        };
-
-                                        formData.append("record", JSON.stringify(recordData));
-                                        if (uploadedFile) {
-                                            formData.append("certificate", uploadedFile);
-                                        }
-
-                                        console.log("Submitting via FormData:");
-                                        for (let pair of formData.entries()) {
-                                            console.log(pair[0]+ ':', pair[1]);
-                                        }
-
-
-                                        fetch("{{ route('consultant.data.save') }}", {
-                                            method: "POST",
-                                            headers: {
-                                                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-                                            },
-                                            body: formData
-                                        })
-                                        .then(res => {
-                                            if (!res.ok) throw new Error("Server error " + res.status);
-                                            return res.json();
-                                        })
-                                        .then(data => {
-                                            console.log("Saved successfully:", data);
-                                            uploadedFileURL = null;
-                                            uploadedFile = null;
-                                            applyTag(lastClickedCell, document.getElementById("expenseType").value, "#007bff");
-                                        })
-                                        .catch(error => {
-                                            console.error("Save failed:", error);
+                                                    if (confirm("Are you sure you want to delete this claim?")) {
+                                                        fetch("{{ route('consultant.claim.delete') }}", {
+                                                            method: "POST",
+                                                            headers: {
+                                                                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                                                                "Content-Type": "application/json"
+                                                            },
+                                                            body: JSON.stringify({ id: id })
+                                                        })
+                                                        .then(res => res.json())
+                                                        .then(data => {
+                                                            if (data.success) {
+                                                                card.remove();
+                                                                console.log("Deleted successfully.");
+                                                            } else {
+                                                                alert("Failed to delete the claim.");
+                                                            }
+                                                        })
+                                                        .catch(err => {
+                                                            console.error("Delete error:", err);
+                                                            alert("An error occurred while deleting.");
+                                                        });
+                                                    }
+                                                }
+                                            });
                                         });
-                                    });
+                                    </script>
 
-                                    // Handle icon actions (delete, edit, preview)
-                                    document.querySelector(".tab_type_list").addEventListener("click", function (e) {
-                                        if (e.target.closest(".delete-claim")) {
-                                            e.preventDefault();
-                                            e.target.closest(".tab_lists").remove();
-                                        }
 
-                                        if (e.target.closest(".edit-claim")) {
-                                            e.preventDefault();
-                                            const btn = e.target.closest(".edit-claim");
-                                            document.getElementById("eDate").value = btn.dataset.date;
-                                            document.getElementById("expenseType").value = btn.dataset.type;
-                                            document.getElementById("eParticulars").value = btn.dataset.particulars;
-                                            document.getElementById("eAmount").value = btn.dataset.amount;
-                                            document.getElementById("customRemark").value = btn.dataset.remarks;
-                                            document.getElementById("expenseType").dispatchEvent(new Event("change"));
+<script>
+let editMode = false;
+let editTarget = null;
+let uploadedFileURL = null;
+let uploadedFile = null;
 
-                                            editMode = true;
-                                            editTarget = btn.closest(".tab_lists");
+// Toggle fields if "Others"
+document.getElementById("expenseType").addEventListener("change", function () {
+    const selected = this.value;
+    document.getElementById("otherExpenseWrapper").style.display = selected === "Others" ? "block" : "none";
+    document.getElementById("location1").style.display = selected === "Others" ? "block" : "none";
+    document.getElementById("location2").style.display = selected === "Others" ? "block" : "none";
+});
 
-                                            const form = document.getElementById("claimForm");
-                                            form.style.boxShadow = "0 0 10px #ff7f50";
-                                            form.style.border = "2px solid #ff7f50";
-                                        }
+// File upload preview
+document.getElementById("uploadFile").addEventListener("change", function () {
+    uploadedFile = this.files[0];
+    if (uploadedFile) {
+        uploadedFileURL = URL.createObjectURL(uploadedFile);
+    }
+});
 
-                                        if (e.target.closest(".preview-attach")) {
-                                            e.preventDefault();
-                                            ensurePreviewModalExists();
-                                            const url = e.target.closest(".preview-attach").dataset.img;
-                                            if (url) {
-                                                const modal = document.getElementById("imagePreviewModal");
-                                                document.getElementById("previewImgTag").src = url;
-                                                modal.style.display = "flex";
-                                            } else {
-                                                alert("No file attached!");
-                                            }
-                                        }
-                                    });
-                                </script>
+// Preview modal
+function ensurePreviewModalExists() {
+    if (!document.getElementById("imagePreviewModal")) {
+        const modal = document.createElement("div");
+        modal.id = "imagePreviewModal";
+        modal.style.cssText = `
+            display: none; position: fixed; z-index: 9999; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6);
+            justify-content: center; align-items: center;
+        `;
+        modal.innerHTML = `
+            <div id="previewContent" style="
+                background: white; padding: 20px; border-radius: 10px; position: relative;
+                animation: fadeIn 0.3s ease-in-out; max-width: 90%; max-height: 90%;">
+                <span id="closePreview" style="position: absolute; top: 5px; right: 10px; font-size: 24px; cursor: pointer;">&times;</span>
+                <img id="previewImgTag" src="" style="max-width: 100%; max-height: 80vh; border-radius: 8px;" />
+            </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById("closePreview").onclick = () => {
+            modal.style.display = "none";
+            document.getElementById("previewImgTag").src = "";
+        };
+    }
+}
+
+// Form submit
+document.getElementById("claimForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const date = document.getElementById("eDate").value;
+    const type = document.getElementById("expenseType").value;
+    const particulars = document.getElementById("eParticulars").value;
+    const amount = document.getElementById("eAmount").value;
+    const remarks = document.getElementById("customRemark").value;
+    const locationFrom = document.getElementById("eLocationFrom")?.value || "";
+    const locationTo = document.getElementById("eLocationTo")?.value || "";
+    const otherExpense = document.getElementById("otherExpense")?.value || "";
+    const applyOnCell = document.getElementById("showCellDate").innerText.trim();
+
+    if (!amount) return alert("Please enter a valid amount!");
+
+    const claimHTML = `
+        <div class="tab_lists" data-type="${type}" data-applyoncell="${applyOnCell}">
+            <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
+                <span class="list_date"><i class="fa-solid fa-calendar-days me-2"></i>${date}</span>
+                <span class="list_e_type">Expenses Type : ${type}</span>
+            </div>
+            <div class="flex-wrap d-flex align-items-center justify-content-between mb-2">
+                <span class="list_particulars">Particulars : ${particulars}</span>
+                <span class="list_e_amount">Amount : $ ${parseFloat(amount).toFixed(2)}</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-end">
+                <span class="list_icons">
+                    <a href="#" class="badge_icon preview-attach" data-img="${uploadedFileURL || ""}">
+                        <i class="fa-solid fa-paperclip"></i>
+                    </a>
+                    <a href="#" class="badge_icon edit-claim"
+                        data-date="${date}" data-type="${type}" data-particulars="${particulars}"
+                        data-amount="${amount}" data-remarks="${remarks}"
+                        data-locationfrom="${locationFrom}" data-locationto="${locationTo}" data-otherexpense="${otherExpense}">
+                        <i class="fa-solid fa-pen-nib"></i>
+                    </a>
+                    <a href="#" class="badge_icon delete-claim"><i class="fa-solid fa-trash-can"></i></a>
+                </span>
+            </div>
+        </div>
+    `;
+
+    const listContainer = document.querySelector(".tab_type_list");
+    const existingCard = listContainer.querySelector(`.tab_lists[data-type="${type}"][data-applyoncell="${applyOnCell}"]`);
+
+    if (existingCard) {
+        existingCard.outerHTML = claimHTML;
+    } else {
+        listContainer.insertAdjacentHTML("beforeend", claimHTML);
+    }
+
+    const claim_no = document.querySelector("#otherModal .ml_duty_time span span")?.textContent.trim() || "";
+    const formData = new FormData();
+    formData.append("type", "claims");
+    formData.append("user_id", "{{ $userData['id'] ?? '' }}");
+    formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+    formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+
+    const recordData = {
+        date,
+        expenseType: type,
+        claim_no,
+        applyOnCell,
+        particulars,
+        amount: parseFloat(amount).toFixed(2),
+        remarks,
+        locationFrom,
+        locationTo,
+        otherExpense
+    };
+
+    formData.append("record", JSON.stringify(recordData));
+    if (uploadedFile) {
+        formData.append("certificate", uploadedFile);
+    }
+
+    fetch("{{ route('consultant.data.save') }}", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Saved:", data);
+        uploadedFile = null;
+        uploadedFileURL = null;
+        applyTag(lastClickedCell, type, "#007bff");
+    })
+    .catch(err => console.error("Error:", err));
+
+    editMode = false;
+    editTarget = null;
+    document.getElementById("claimForm").style.boxShadow = "";
+    document.getElementById("claimForm").style.border = "";
+});
+
+// Handle edit, delete, preview
+document.querySelector(".tab_type_list").addEventListener("click", function (e) {
+    if (e.target.closest(".delete-claim")) {
+        e.preventDefault();
+        e.target.closest(".tab_lists").remove();
+    }
+
+    if (e.target.closest(".edit-claim")) {
+        e.preventDefault();
+        const btn = e.target.closest(".edit-claim");
+
+        document.getElementById("eDate").value = btn.dataset.date;
+        document.getElementById("expenseType").value = btn.dataset.type;
+        document.getElementById("eParticulars").value = btn.dataset.particulars;
+        document.getElementById("eAmount").value = btn.dataset.amount;
+        document.getElementById("customRemark").value = btn.dataset.remarks;
+        document.getElementById("eLocationFrom").value = btn.dataset.locationfrom || "";
+        document.getElementById("eLocationTo").value = btn.dataset.locationto || "";
+        document.getElementById("otherExpense").value = btn.dataset.otherexpense || "";
+        document.getElementById("expenseType").dispatchEvent(new Event("change"));
+
+        editMode = true;
+        editTarget = btn.closest(".tab_lists");
+
+        const form = document.getElementById("claimForm");
+        form.style.boxShadow = "0 0 10px #ff7f50";
+        form.style.border = "2px solid #ff7f50";
+    }
+
+    if (e.target.closest(".preview-attach")) {
+        e.preventDefault();
+        ensurePreviewModalExists();
+        const url = e.target.closest(".preview-attach").dataset.img;
+        if (url) {
+            document.getElementById("previewImgTag").src = url;
+            document.getElementById("imagePreviewModal").style.display = "flex";
+        } else {
+            alert("No file attached!");
+        }
+    }
+});
+</script>
 
 
 
@@ -745,15 +821,30 @@
                                                             }
 
                                                             const modalCustomLeave = new bootstrap.Modal(document.getElementById("otherModal"));
+                                                            modalCustomLeave.show();
 
-                                                            // Generate a new claim number every time
+                                                            // Generate claim number
                                                             const claimNum = "CF" + Math.floor(1000 + Math.random() * 9000);
                                                             const claimSpan = document.querySelector("#otherModal .ml_duty_time span span");
                                                             if (claimSpan) {
                                                                 claimSpan.textContent = " " + claimNum;
                                                             }
 
-                                                            modalCustomLeave.show();
+                                                            // Get selected applyOnCell value
+                                                            const selectedApplyOnCell = document.getElementById("showCellDate").innerText.trim();
+
+                                                            // Filter list based on applyOnCell
+                                                            const allClaims = document.querySelectorAll("#otherModal .tab_type_list .tab_lists");
+
+                                                            allClaims.forEach(card => {
+                                                                const cardCell = card.getAttribute("data-applyoncell")?.trim();
+                                                                if (cardCell === selectedApplyOnCell) {
+                                                                    card.style.display = "block"; // show if matched
+                                                                } else {
+                                                                    card.style.display = "none";  // hide if not matched
+                                                                }
+                                                            });
+
 
                                                             window.lastClickedCell = cell;
                                                             window.lastClickedItemLabel = item.label;

@@ -78,6 +78,8 @@ Route::middleware('auth')->group(function () {
     Route::get('consultancy/dashboard', [ConsultancyController::class, 'index'])->name('consultancy.dashboard');
 
     Route::post('/save-consultant-data', [ConsultantController::class, 'addConsultantData'])->name('consultant.data.save');
+    Route::post('/delete-consultant-claim', [ConsultantController::class, 'deleteClaim'])->name('consultant.claim.delete');
+
 
 
 });

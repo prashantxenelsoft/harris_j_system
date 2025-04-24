@@ -49,108 +49,115 @@ class ConsultantController extends Controller
 
     public function addConsultantData(Request $request)
     {
-        
         $recordData = json_decode($request->record, true);
-    
-        // Image upload logic
-        if ($request->hasFile('certificate')) {
-            $image = $request->file('certificate');
-            $fileName = time() . '_' . $image->getClientOriginalName();
-            $image->storeAs('consultant', $fileName);
-            $logoPath = 'storage/app/public/consultant/' . $fileName;
-            $recordData['certificate_path'] = $logoPath; // Include image path in record
-        }
         $applyOnCell = $recordData['applyOnCell'] ?? null;
-        if($request->type == "timesheet")
-        {
-            if ($applyOnCell) {
-                // Fetch all matching timesheet records for this consultant
-                $existingRecords = DB::table('consultant_dashboard')
-                    ->where('type', 'timesheet')
-                    ->where('user_id', $request->user_id)
-                    ->get();
-            
-                $match = null;
-            
-                foreach ($existingRecords as $row) {
-                    $decoded = json_decode($row->record, true);
-                    if (!empty($decoded['applyOnCell']) && $decoded['applyOnCell'] === $applyOnCell) {
-                        $match = $row;
-                        break;
-                    }
-                }
-            
-                if ($match) {
-                    // Update existing record
-                    DB::table('consultant_dashboard')
-                        ->where('id', $match->id)
-                        ->update([
-                            'record' => json_encode($recordData),
-                            'client_id' => $request->client_id,
-                            'client_name' => $request->client_name,
-                            'updated_at' => now()
-                        ]);
-                } else {
-                    // Insert new record
-                    DB::table('consultant_dashboard')->insert([
-                        'type' => $request->type,
-                        'record' => json_encode($recordData),
-                        'user_id' => $request->user_id,
-                        'client_id' => $request->client_id,
-                        'client_name' => $request->client_name,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ]);
-                }
+        $incomingExpenseType = $recordData['expenseType'] ?? null;
+        $type = $request->type;
+
+        $match = null;
+
+        // Fetch records for matching
+        $existingRecords = DB::table('consultant_dashboard')
+            ->where('type', $type)
+            ->where('user_id', $request->user_id)
+            ->get();
+
+        foreach ($existingRecords as $row) {
+            $decoded = json_decode($row->record, true);
+            if (
+                ($type === 'timesheet' && !empty($decoded['applyOnCell']) && $decoded['applyOnCell'] === $applyOnCell) ||
+                ($type === 'claims' &&
+                !empty($decoded['expenseType']) && $decoded['expenseType'] === $incomingExpenseType &&
+                !empty($decoded['applyOnCell']) && $decoded['applyOnCell'] === $applyOnCell)
+
+            ) {
+                $match = $row;
+                break;
             }
         }
-        else
-        {
-            if ($applyOnCell) {
-                // Fetch all matching timesheet records for this consultant
-                $existingRecords = DB::table('consultant_dashboard')
-                    ->where('type', 'claims')
-                    ->where('user_id', $request->user_id)
-                    ->get();
-            
-                $match = null;
-            
-                foreach ($existingRecords as $row) {
-                    $decoded = json_decode($row->record, true);
-                    if (!empty($decoded['applyOnCell']) && $decoded['applyOnCell'] === $applyOnCell) {
-                        $match = $row;
-                        break;
-                    }
-                }
-            
-                if ($match) {
-                    // Update existing record
-                    DB::table('consultant_dashboard')
-                        ->where('id', $match->id)
-                        ->update([
-                            'record' => json_encode($recordData),
-                            'client_id' => $request->client_id,
-                            'client_name' => $request->client_name,
-                            'updated_at' => now()
-                        ]);
-                } else {
-                    // Insert new record
-                    DB::table('consultant_dashboard')->insert([
-                        'type' => $request->type,
-                        'record' => json_encode($recordData),
-                        'user_id' => $request->user_id,
-                        'client_id' => $request->client_id,
-                        'client_name' => $request->client_name,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ]);
+
+        // Handle image replacement
+        $oldImagePath = $match ? (json_decode($match->record, true)['certificate_path'] ?? null) : null;
+
+        if ($request->hasFile('certificate')) {
+            // ✅ Remove old image if it exists
+            if ($oldImagePath && file_exists(base_path($oldImagePath))) {
+                unlink(base_path($oldImagePath));
+            }
+
+            // ✅ Store new image in the same folder as your original logic
+            $image = $request->file('certificate');
+            $fileName = time() . '_' . $image->getClientOriginalName();
+            $image->storeAs('consultant', $fileName); // This stores to storage/app/consultant
+            $recordData['certificate_path'] = 'storage/app/public/consultant/' . $fileName; // You wanted this exact format
+        } elseif (!$request->hasFile('certificate') && !$match) {
+            $recordData['certificate_path'] = null;
+        } elseif (!$request->hasFile('certificate') && $match) {
+            $recordData['certificate_path'] = $oldImagePath;
+        }
+
+        // ✅ Insert or update record
+        if ($match) {
+            DB::table('consultant_dashboard')
+                ->where('id', $match->id)
+                ->update([
+                    'record' => json_encode($recordData),
+                    'client_id' => $request->client_id,
+                    'client_name' => $request->client_name,
+                    'updated_at' => now()
+                ]);
+        } else {
+            DB::table('consultant_dashboard')->insert([
+                'type' => $type,
+                'record' => json_encode($recordData),
+                'user_id' => $request->user_id,
+                'client_id' => $request->client_id,
+                'client_name' => $request->client_name,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Data saved successfully!']);
+    }
+    
+    public function deleteClaim(Request $request)
+    {
+        $id = $request->id;
+
+        // Fetch the record to get the image path
+        $record = DB::table('consultant_dashboard')->where('id', $id)->first();
+
+        if ($record) {
+            $decoded = json_decode($record->record, true);
+            $imagePath = $decoded['certificate_path'] ?? null;
+
+            // Remove image from filesystem if it exists
+            if ($imagePath) {
+                $fullPath = base_path($imagePath); // Use base_path to match how you stored it
+                if (file_exists($fullPath)) {
+                    @unlink($fullPath); // suppress error in case file already gone
                 }
             }
 
+            // Delete the record from the database
+            $deleted = DB::table('consultant_dashboard')->where('id', $id)->delete();
+
+            return response()->json([
+                'success' => $deleted > 0,
+                'message' => 'Claim deleted successfully (image removed if existed).'
+            ]);
         }
-    
-        return response()->json(['success' => true, 'message' => 'Timesheet saved successfully!']);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Claim not found.'
+        ]);
     }
+
+    
+
+   
 
     /**
      * Store a newly created resource in storage.
