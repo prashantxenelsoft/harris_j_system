@@ -13,39 +13,33 @@ class ConsultancyApiController extends Controller
     public function getConsultancy(Request $request)
     {
         $consultancies = Consultancy::orderBy('id', 'desc')->get();
-
-        $countryMap = [
-            'Austria' => 'at',
-            'Afghanistan' => 'af',
-            // Add more countries as needed
-        ];
-
-        $formatted = $consultancies->map(function ($item) use ($countryMap) {
+    
+        $formatted = $consultancies->map(function ($item) {
             $country = null;
             $flag = null;
-
-            if (preg_match('/country:\s*([^,]+)/', $item->full_address, $matches)) {
+    
+            if (preg_match('/country:\s*([^,]+)/i', $item->full_address, $matches)) {
                 $country = trim($matches[1]);
-
-                $code = $countryMap[$country] ?? null;
-
-                if ($code) {
-                    $flag = "https://flagcdn.com/w80/{$code}.png"; // 80px width flag
-                }
+                $countryCode = strtolower($country); // e.g., 'Austria' => 'austria'
+    
+                // Use only first 2 letters (ISO might not match exactly, but this is your instruction)
+                $code = substr($countryCode, 0, 2);
+    
+                // Optional: fallback logic if the code is not valid can be added
+                $flag = "https://flagcdn.com/w80/{$code}.png";
             }
-
+    
             $item->country = $country;
             $item->flag = $flag;
-
+    
             return $item;
         });
-
+    
         return response()->json([
             'status' => true,
             'message' => 'Consultancies fetched successfully',
             'data' => $formatted
         ], 200);
-    }
-
+    }  
 
 }
