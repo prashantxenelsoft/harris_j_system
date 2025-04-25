@@ -77,6 +77,15 @@ class ConsultancyController extends Controller
     {
         $data = $request->all();
 
+        // Check if login email already exists in User table
+        $existingUser = User::where('email', $data['login_email'])->first();
+        if ($existingUser) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User Credentials already exist'
+            ], 409);
+        }
+
         // Handle file upload
         if ($request->hasFile('receipt_file')) {
             $image = $request->file('receipt_file');
@@ -84,9 +93,10 @@ class ConsultancyController extends Controller
             $image->storeAs('user_management', $fileName); 
             $logoPath = 'storage/app/public/user_management/' . $fileName;
             $data['receipt_file'] = $logoPath;
-        }    
+        }
 
-        $user = UserManagment::create([
+        // Create UserManagment entry
+        $userMgmt = UserManagment::create([
             'emp_name'             => $data['emp_name'],
             'emp_code'             => $data['emp_code'],
             'sex'                  => $data['sex'],
@@ -102,11 +112,13 @@ class ConsultancyController extends Controller
             'designation'          => $data['designation'],
             'login_email'          => $data['login_email'],
             'reset_password'       => $data['reset_password'],
-            'user_id'              => Session::get('user_data')['id'], // or manually set if needed
+            'user_id'              => Session::get('user_data')['id'],
         ]);
 
+        // Create entry in User table
         $role = DB::table('roles')->where('name', $data['designation'])->first();
         $roleId = $role ? $role->id : null;
+
         $user = User::create([
             'name'     => $data['emp_name'],
             'email'    => $data['login_email'],
@@ -114,12 +126,15 @@ class ConsultancyController extends Controller
             'status'   => $data['status'],
             'created_by_user_id' => Session::get('user_data')['id'],
         ]);
-    return response()->json(['success' => true, 'message' => 'User created successfully', 'user' => $user]);
 
+        return response()->json([
+            'success' => true,
+            'message' => 'User created successfully',
+            'user'    => $user
+        ]);
     }
-    
-   
 
+    
     public function update_user(Request $request, $id)
     {
         

@@ -722,10 +722,9 @@
                 Swal.close();
 
                 let errorMessage = "Something went wrong while submitting the form.";
-                if (xhr.status === 400) {
+                if (xhr.status === 400 || xhr.status === 409) {
                     errorMessage = xhr.responseJSON.message;
                 }
-
                 Swal.fire({
                     icon: "error",
                     title: "Oops!",
@@ -1117,21 +1116,21 @@
 
         let receiptPath = $(this).data("receipt_file");
 
-if (receiptPath) {
-    const pathParts = window.location.pathname.split('/');
-    const basePath = pathParts.length > 1 ? '/' + pathParts[1] : '';
-    const baseUrl = window.location.origin + basePath;
+        if (receiptPath) {
+            const pathParts = window.location.pathname.split('/');
+            const basePath = pathParts.length > 1 ? '/' + pathParts[1] : '';
+            const baseUrl = window.location.origin + basePath;
 
-    let imageUrl = baseUrl + '/' + receiptPath;
+            let imageUrl = baseUrl + '/' + receiptPath;
 
-    uploadedImgSrc = imageUrl;
-    previewBox.innerHTML = '<p style="cursor: pointer; color: green;">Click here to preview</p>'; // Show text only
-    previewHint.style.display = 'none'; // Hide any additional hints
-} else {
-    uploadedImgSrc = "";
-    previewBox.innerHTML = ""; // No text if no image
-    previewHint.style.display = 'none';
-}
+            uploadedImgSrc = imageUrl;
+            previewBox.innerHTML = '<p style="cursor: pointer; color: green;">Click here to preview</p>'; // Show text only
+            previewHint.style.display = 'none'; // Hide any additional hints
+        } else {
+            uploadedImgSrc = "";
+            previewBox.innerHTML = ""; // No text if no image
+            previewHint.style.display = 'none';
+        }
 
         $('input[name="login_email"]').val($(this).data("login_email"));
         $('input[name="email"]').val($(this).data("email"));
