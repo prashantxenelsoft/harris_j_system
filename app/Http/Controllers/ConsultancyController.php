@@ -112,6 +112,7 @@ class ConsultancyController extends Controller
             'email'    => $data['login_email'],
             'role_id'  => $roleId,
             'status'   => $data['status'],
+            'created_by_user_id' => Session::get('user_data')['id'],
         ]);
     return response()->json(['success' => true, 'message' => 'User created successfully', 'user' => $user]);
 
@@ -266,6 +267,7 @@ class ConsultancyController extends Controller
             'email' => $request->admin_email,
             'role_id' => 7,
             'status' => $request->consultancy_status,
+            'created_by_user_id' => Session::get('user_data')['id'],
         ]);
         $userinsertedId = $user->id;
         DB::table('users_type')->insert([
