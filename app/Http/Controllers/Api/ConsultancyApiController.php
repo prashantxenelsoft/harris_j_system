@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Consultancy;
 use App\Models\User;
@@ -53,6 +54,7 @@ class ConsultancyApiController extends Controller
 
     public function add_consultancy(Request $request)
     {
+        //echo "<pre>";print_r($request->all());die;
         $existingConsultancy = Consultancy::where('consultancy_id', $request->consultancy_id)->first();
         $existingConsultancyAdminEmail = Consultancy::where('admin_email', $request->admin_email)->first();
         $existingUserEmail = User::where('email', $request->admin_email)->first();

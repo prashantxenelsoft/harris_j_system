@@ -299,3 +299,9 @@
     ul.calendar-claims li:nth-child(2){
                background-color: #d32f2f;
     }
+
+    .modal-body .modal_body_inner .mb_left {
+        max-width: 100%;
+        width: 100%;
+        background-color: #fff;
+    }
