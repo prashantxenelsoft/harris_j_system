@@ -41,13 +41,12 @@
                      <div class="right-col-top-bar">
                         <div class="calendar-top-header-btn-group">
                            <a href="#" class="edit-icon" id="edit_icon">
-                              <i class="fa fa-pen"></i>
+                           <i class="fa fa-pen"></i>
                            </a>
                            <a href="#" class="save-btn" id="save_icon">
-                              <img src="{{ asset('public/assets/latest/images/save-icon-circle.png') }}" class="img-fluid" />
-                              Save
+                           <img src="{{ asset('public/assets/latest/images/save-icon-circle.png') }}" class="img-fluid" />
+                           Save
                            </a>
-
                            <a href="#" class="submit-btn" id="submit_icon">
                            Submit
                            </a>
@@ -661,7 +660,7 @@
                                            alert("Please select ML leave hours before proceeding.");
                                            return;
                                        }
-
+                           
                                        // Image Upload Validation
                                        const fileInput = modal.querySelector('input[type="file"]'); // ✅ Your file input inside modal
                                        if (fileInput && fileInput.files.length === 0) {
@@ -1103,6 +1102,7 @@
                         </script>
                         <script>
                            const calendarDays = document.getElementById("calendarDays");
+                           let calendarEditable = false;
                            const monthSelect = document.getElementById("monthSelect");
                            const yearSelect = document.getElementById("yearSelect");
                            const dropdownSuggestions = [
@@ -1171,83 +1171,84 @@
                                    const day = date.getDay();
                                    const today = new Date();
                                     today.setHours(0, 0, 0, 0);
-
+                           
                                     const cellDate = new Date(date);
                                     cellDate.setHours(0, 0, 0, 0);
-
+                           
                                     const dayOfWeek = cellDate.getDay(); // 0=Sunday, 6=Saturday
-
+                           
                                     // 👉 1. Past working days par "8" daalna
                                     if (cellDate < today && dayOfWeek !== 0 && dayOfWeek !== 6) {
                                        applyTag(cell, "8", "#000000"); // Tumhara apna applyTag function
                                     }
-
+                           
                                     // 👉 2. Ab click active/inactive karna
-                                    if (dayOfWeek === 0 || dayOfWeek === 6) {
-                                       cell.classList.add("disabled"); // Sat-Sun disable
+                                    if (dayOfWeek === 0 || dayOfWeek === 6 || !calendarEditable) {
+                                       cell.classList.add("disabled");
                                     } else {
                                        cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
                                     }
 
                            
                            
+                           
                                    // Add example tags with blue color
                                    const tagRules = {};
-
-@foreach ($dataTimesheet as $item)
-    @php
-        $record = json_decode($item->record ?? '{}', true);
-        $applyDate = $record['applyOnCell'] ?? null;
-        $leaveLabel = $record['leaveType'] ?? null;
-        $workingLabel = $record['workingHours'] ?? null;
-       // $label = $leaveLabel ? (Str::startsWith($leaveLabel, 'Custom') ? 'Custom' : $leaveLabel) : $workingLabel;
-            if ($leaveLabel) {
-            $label = \Illuminate\Support\Str::startsWith($leaveLabel, 'Custom') ? 'Custom' : $leaveLabel;
-         } else {
-            $label = $workingLabel;
-         }
-        $rangeDate = $record['date'] ?? '';
-    @endphp
-
-    @php $rangeParts = explode(' to ', $rangeDate); @endphp
-
-    @if (count($rangeParts) === 2 && $label)
-        @php
-            try {
-                $start = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[0]));
-                $end = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[1]));
-                $first = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[0]));
-
-                while ($start->lte($end)) {
-                    $monthYear = ($start->month - 1) . '-' . $start->year;
-                    $index = $start->day;
-                    $clickable = $start->equalTo($first);
-                    $labelJson = json_encode($label);
-
-                    echo "if (!tagRules[\"$monthYear\"]) tagRules[\"$monthYear\"] = [];\n";
-                    echo "tagRules[\"$monthYear\"].push({ index: $index, label: $labelJson, clickable: " . ($clickable ? 'true' : 'false') . " });\n";
-
-                    $start->addDay();
-                }
-            } catch (\Exception $e) {}
-        @endphp
-
-    @elseif ($applyDate && $label)
-        @php
-            try {
-                $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $applyDate);
-                $monthYear = ($dt->month - 1) . '-' . $dt->year;
-                $index = $dt->day;
-                $labelJson = json_encode($label);
-
-                echo "if (!tagRules[\"$monthYear\"]) tagRules[\"$monthYear\"] = [];\n";
-                echo "tagRules[\"$monthYear\"].push({ index: $index, label: $labelJson, clickable: true });\n";
-            } catch (\Exception $e) {}
-        @endphp
-    @endif
-@endforeach
-
-
+                           
+                           @foreach ($dataTimesheet as $item)
+                           @php
+                           $record = json_decode($item->record ?? '{}', true);
+                           $applyDate = $record['applyOnCell'] ?? null;
+                           $leaveLabel = $record['leaveType'] ?? null;
+                           $workingLabel = $record['workingHours'] ?? null;
+                           // $label = $leaveLabel ? (Str::startsWith($leaveLabel, 'Custom') ? 'Custom' : $leaveLabel) : $workingLabel;
+                           if ($leaveLabel) {
+                           $label = \Illuminate\Support\Str::startsWith($leaveLabel, 'Custom') ? 'Custom' : $leaveLabel;
+                           } else {
+                           $label = $workingLabel;
+                           }
+                           $rangeDate = $record['date'] ?? '';
+                           @endphp
+                           
+                           @php $rangeParts = explode(' to ', $rangeDate); @endphp
+                           
+                           @if (count($rangeParts) === 2 && $label)
+                           @php
+                           try {
+                           $start = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[0]));
+                           $end = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[1]));
+                           $first = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[0]));
+                           
+                           while ($start->lte($end)) {
+                           $monthYear = ($start->month - 1) . '-' . $start->year;
+                           $index = $start->day;
+                           $clickable = $start->equalTo($first);
+                           $labelJson = json_encode($label);
+                           
+                           echo "if (!tagRules[\"$monthYear\"]) tagRules[\"$monthYear\"] = [];\n";
+                           echo "tagRules[\"$monthYear\"].push({ index: $index, label: $labelJson, clickable: " . ($clickable ? 'true' : 'false') . " });\n";
+                           
+                           $start->addDay();
+                           }
+                           } catch (\Exception $e) {}
+                           @endphp
+                           
+                           @elseif ($applyDate && $label)
+                           @php
+                           try {
+                           $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $applyDate);
+                           $monthYear = ($dt->month - 1) . '-' . $dt->year;
+                           $index = $dt->day;
+                           $labelJson = json_encode($label);
+                           
+                           echo "if (!tagRules[\"$monthYear\"]) tagRules[\"$monthYear\"] = [];\n";
+                           echo "tagRules[\"$monthYear\"].push({ index: $index, label: $labelJson, clickable: true });\n";
+                           } catch (\Exception $e) {}
+                           @endphp
+                           @endif
+                           @endforeach
+                           
+                           
                            
                                    // Example: current month = 4, year = 2025
                                    const currentKey = `${month}-${year}`;
@@ -1427,54 +1428,82 @@
                                }
                            
                                input.addEventListener("input", () => updateSuggestions(input.value));
-                               input.addEventListener("keydown", (e) => {
+                               function saveWorkingHour(val) {
+                                 val = val.trim();
+                           
+                                 if (!/^[1-8]$/.test(val)) {
+                                    Swal.fire({
+                                       icon: 'error',
+                                       title: 'Invalid Input',
+                                       text: 'Only numbers 1 to 8 are allowed for working hours.'
+                                    });
+                                    return;
+                                 }
+
+                           
+                                 const formattedDate = `${String(date.getDate()).padStart(2, '0')} / ${String(date.getMonth() + 1).padStart(2, '0')} / ${date.getFullYear()}`;
+                           
+                                 const recordData = {
+                                    date: '',
+                                    workingHours: val,
+                                    applyOnCell: formattedDate
+                                 };
+                           
+                                 const formData = new FormData();
+                                 formData.append("type", "timesheet");
+                                 formData.append("user_id", "{{ $userData['id'] ?? '' }}");
+                                 formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+                                 formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+                                 formData.append("record", JSON.stringify(recordData));
+                           
+                                 fetch("{{ route('consultant.data.save') }}", {
+                                    method: "POST",
+                                    headers: {
+                                       "X-CSRF-TOKEN": document.querySelector('meta[name=\"csrf-token\"]').getAttribute("content")
+                                    },
+                                    body: formData
+                                 })
+                                 .then(res => {
+                                    if (!res.ok) throw new Error("Server error");
+                                    return res.json();
+                                 })
+                                 .then(data => {
+                                    console.log("Saved:", data);
+                                    // applyTag(cell, val, "#007bff");
+                                    // dropdown.remove();
+                                    location.reload();
+                                 })
+                                 .catch(error => {
+                                    console.error("Failed to save:", error);
+                                    alert("Failed to save working hours.");
+                                 });
+                              }
+                           
+                              // ✅ Save on Enter key
+                              input.addEventListener("keydown", (e) => {
                                  if (e.key === "Enter") {
-                                    const val = input.value.trim();
-
-                                    // ✅ Only allow numbers 1 to 8
-                                    if (/^[1-8]$/.test(val)) {
-                                          const formattedDate = `${String(date.getDate()).padStart(2, '0')} / ${String(date.getMonth() + 1).padStart(2, '0')} / ${date.getFullYear()}`;
-
-                                          const recordData = {
-                                             date: '',
-                                             workingHours: val,
-                                             applyOnCell: formattedDate
-                                          };
-
-                                          const formData = new FormData();
-                                          formData.append("type", "timesheet");
-                                          formData.append("user_id", "{{ $userData['id'] ?? '' }}");
-                                          formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
-                                          formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
-                                          formData.append("record", JSON.stringify(recordData));
-
-                                          fetch("{{ route('consultant.data.save') }}", {
-                                             method: "POST",
-                                             headers: {
-                                                "X-CSRF-TOKEN": document.querySelector('meta[name=\"csrf-token\"]').getAttribute("content")
-                                             },
-                                             body: formData
-                                          })
-                                          .then(res => {
-                                             if (!res.ok) throw new Error("Server error");
-                                             return res.json();
-                                          })
-                                          .then(data => {
-                                             console.log("Saved:", data);
-                                             applyTag(cell, val, "#007bff");
-                                             dropdown.remove();
-                                          })
-                                          .catch(error => {
-                                             console.error("Failed to save:", error);
-                                             alert("Failed to save working hours.");
-                                          });
-
-                                    } else {
-                                          alert("❌ Invalid working hours. Only numbers 1 to 8 are allowed.");
-                                    }
+                                    saveWorkingHour(input.value);
                                  }
                               });
-
+                           
+                              // ✅ Save on input blur (user clicks outside)
+                              input.addEventListener("blur", () => {
+                                 if (input.value.trim() !== "") {
+                                    saveWorkingHour(input.value);
+                                 }
+                              });
+                           
+                              // ✅ Render suggestions (clickable)
+                              dropdownSuggestions.forEach((item) => {
+                                 const opt = document.createElement("div");
+                                 opt.innerHTML = `<span style="margin-right: 8px;">${item.icon}</span>${item.label}`;
+                                 opt.onclick = () => {
+                                    saveWorkingHour(item.label);
+                                 };
+                                 suggestionBox.appendChild(opt);
+                              });
+                           
+                           
                            
                                dropdown.appendChild(input);
                                dropdown.appendChild(suggestionBox);
@@ -1486,7 +1515,7 @@
                            function applyTag(cell, label, color = "#000000") { // Default fallback black
                             // Remove any existing tags
                             cell.querySelectorAll(".tag").forEach((t) => t.remove());
-
+                           
                             // Make cell flex-centered
                             cell.style.display = "flex";
                             cell.style.flexDirection = "column";
@@ -1494,25 +1523,25 @@
                             cell.style.alignItems = "center";
                             cell.style.textAlign = "center";
                             cell.style.position = "relative";
-
+                           
                             // Adjust the date (top text)
                             const dateLabel = cell.querySelector(".cell-date");
                             if (dateLabel) {
                                 dateLabel.style.marginBottom = "4px";
                                 dateLabel.style.fontSize = "12px";
                             }
-
+                           
                             // Create the tag
                             const tag = document.createElement("div");
                             tag.className = "tag";
                             tag.innerText = label;
-
+                           
                             // Style the tag
                             tag.style.fontSize = "15px";
                             tag.style.margin = "0";
                             tag.style.padding = "0";
                             tag.style.lineHeight = "1";
-
+                           
                             // Set color logic
                             if (["PDO", "PH", "AL", "ML"].includes(label)) {
                                 tag.style.color = "blue";
@@ -1530,11 +1559,11 @@
                             } else {
                                 tag.style.color = color; // fallback if label is not a number
                             }
-
+                           
                             // Append the tag
                             cell.appendChild(tag);
                            }
-
+                           
                            
                            
                            function closeAllDropdowns() {
@@ -1554,72 +1583,114 @@
                            
                            populateMonthYearSelectors();
                            renderCalendar();
-                           document.getElementById("submit_icon").addEventListener("click", function (e) {
-                              e.preventDefault();
-
+                           function saveCalendarData(statusValue = 'Submitted') {
                               const cells = document.querySelectorAll(".calendar-cell");
                               const promises = [];
-
+                           
                               cells.forEach(cell => {
                                  const dateElement = cell.querySelector(".cell-date");
                                  const tagElement = cell.querySelector(".tag");
-
+                           
                                  if (dateElement && tagElement) {
-                                       const day = dateElement.innerText.trim();
-                                       const month = monthSelect.value; // 0-based
-                                       const year = yearSelect.value;
-
-                                       const formattedDate = `${day.padStart(2, '0')} / ${(parseInt(month) + 1).toString().padStart(2, '0')} / ${year}`;
-
-                                       const label = tagElement.innerText.trim();
-
-                                       // ✅ Only proceed if label is exactly "8"
-                                       if (label === "8") {
-                                          const recordData = {
-                                             date: '',
-                                             workingHours: "8",
-                                             applyOnCell: formattedDate
-                                          };
-
-                                          const formData = new FormData();
-                                          formData.append('type', 'timesheet');
-                                          formData.append('record', JSON.stringify(recordData));
-                                          formData.append('user_id', "{{ $userData['id'] ?? '' }}");
-                                          formData.append('client_id', "{{ $consultant->client_id ?? '' }}");
-                                          formData.append('client_name', "{{ $consultant->client_name ?? '' }}");
-
-                                          const promise = fetch("{{ route('consultant.data.save') }}", {
-                                             method: "POST",
-                                             headers: {
-                                                   "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-                                             },
-                                             body: formData
-                                          })
-                                          .then(response => {
-                                             if (!response.ok) throw new Error('Server error');
-                                             return response.json();
-                                          });
-
-                                          promises.push(promise);
-                                       }
-                                       // ❌ If "PH", "ML", "Custom", "PDO", "AL" -> do nothing (skip)
+                                    const day = dateElement.innerText.trim();
+                                    const month = monthSelect.value; // 0-based
+                                    const year = yearSelect.value;
+                           
+                                    const formattedDate = `${day.padStart(2, '0')} / ${(parseInt(month) + 1).toString().padStart(2, '0')} / ${year}`;
+                           
+                                    const label = tagElement.innerText.trim();
+                           
+                                    // ✅ Save any label (8, PH, ML, AL, etc.)
+                                    const recordData = {};
+                           
+                                    if (["PH", "ML", "Custom", "PDO", "AL"].includes(label)) {
+                                       recordData.date = '';
+                                       recordData.leaveType = label;
+                                       recordData.applyOnCell = formattedDate;
+                                    } else {
+                                       recordData.date = '';
+                                       recordData.workingHours = label;
+                                       recordData.applyOnCell = formattedDate;
+                                    }
+                           
+                                    const formData = new FormData();
+                                    formData.append('type', 'timesheet');
+                                    formData.append('record', JSON.stringify(recordData));
+                                    formData.append('user_id', "{{ $userData['id'] ?? '' }}");
+                                    formData.append('client_id', "{{ $consultant->client_id ?? '' }}");
+                                    formData.append('client_name', "{{ $consultant->client_name ?? '' }}");
+                                    formData.append('status', statusValue); // Submitted ya Draft dynamically
+                           
+                                    const promise = fetch("{{ route('consultant.data.save') }}", {
+                                       method: "POST",
+                                       headers: {
+                                          "X-CSRF-TOKEN": document.querySelector('meta[name=\"csrf-token\"]').getAttribute("content")
+                                       },
+                                       body: formData
+                                    })
+                                    .then(response => {
+                                       if (!response.ok) throw new Error('Server error');
+                                       return response.json();
+                                    });
+                           
+                                    promises.push(promise);
                                  }
                               });
-
+                           
                               Promise.all(promises)
                               .then(results => {
-                                 console.log("All records saved:", results);
-                                 alert("All '8' working hours saved successfully!");
-                                 location.reload();
+                                 Swal.close(); // ✅ Hide loader
+                                 if (statusValue === 'Submitted') {
+                                    Swal.fire("Submitted!", "All details submitted successfully!", "success").then(() => location.reload());
+                                 } else {
+                                    Swal.fire("Saved!", "All details saved as Draft!", "success").then(() => location.reload());
+                                 }
                               })
                               .catch(error => {
                                  console.error("Error saving records:", error);
                                  alert("Failed to save some records.");
                               });
+                           }
+                           
+                           // 🔵 Submit button (Submitted status)
+                           document.getElementById("submit_icon").addEventListener("click", function (e) {
+                              e.preventDefault();
+                              saveCalendarData('Submitted');
+                           });
+                           
+                           // 🟠 Save button (Draft status or Submitted as per your wish)
+                           document.getElementById("save_icon").addEventListener("click", function (e) {
+                              e.preventDefault();
+                              saveCalendarData('Draft'); // 👉 If you want save to keep editable, use 'Draft' here
                            });
 
+                           document.getElementById("edit_icon").addEventListener("click", function (e) {
+                              e.preventDefault();
 
+                              // 🌀 Show loader
+                              Swal.fire({
+                                 title: 'Please wait...',
+                                 text: 'Enabling edit mode',
+                                 allowOutsideClick: false,
+                                 didOpen: () => {
+                                    Swal.showLoading();
+                                 }
+                              });
 
+                              // ✅ Wait 2 seconds, then enable editing
+                              setTimeout(() => {
+                                 calendarEditable = true;
+                                 renderCalendar();
+                                 Swal.close(); // ❌ Close loader
+                              }, 1500);
+                           });
+
+                           document.getElementById("save_icon").addEventListener("click", function (e) {
+                              e.preventDefault();
+                              calendarEditable = false;
+                              renderCalendar();
+                           });
+                           
                            
                         </script>
                      </div>

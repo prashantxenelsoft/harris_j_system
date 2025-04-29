@@ -1,3 +1,4 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="tab-content" id="pills-tabContent">
    <div class="tab-pane fade" id="homeconsultant" role="tabpanel" aria-labelledby="pills-home-tab">...</div>
    <div class="tab-pane fade show active" id="timesheet" role="tabpanel" aria-labelledby="pills-profile-tab">
@@ -37,12 +38,15 @@
                         @endif
                      </div>
                      <div class="right-col-top-bar">
-                        <div class="calendar-top-header-btn-group">
-                           <a href="#" class="save-btn">
+                     <div class="calendar-top-header-btn-group">
+                           <a href="#" class="edit-icon" id="edit_icon">
+                           <i class="fa fa-pen"></i>
+                           </a>
+                           <a href="#" class="save-btn" id="save_icon">
                            <img src="{{ asset('public/assets/latest/images/save-icon-circle.png') }}" class="img-fluid" />
                            Save
                            </a>
-                           <a href="#" class="submit-btn">
+                           <a href="#" class="submit-btn" id="submit_icon">
                            Submit
                            </a>
                         </div>
@@ -656,6 +660,7 @@
                            });
                         </script>
                         <script>
+                           let calendarEnabled = false;
                            const calendarDays = document.getElementById("calendarDays");
                            const monthSelect = document.getElementById("monthSelect");
                            const yearSelect = document.getElementById("yearSelect");
@@ -781,12 +786,14 @@
                                    const today = new Date();
                                        today.setHours(0, 0, 0, 0); // Normalize time
                            
-                                       if (day === 0 || day === 6 || date < today) {
-                                           cell.classList.add("disabled");
+                                      
+                                       if (day === 0 || day === 6 || !calendarEnabled) {
+                                 
+                                          cell.classList.add("disabled");
                                        } else {
-                                           cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
+                                          cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
                                        }
-                           
+                                    
                                    calendarDays.appendChild(cell);
                                }
                            }
@@ -807,6 +814,7 @@
                                        const opt = document.createElement("div");
                                        opt.innerHTML = `<span style="margin-right: 8px;">${item.icon}</span>${item.label}`;
                                        opt.onclick = () => {
+                                       document.getElementById("claimForm").reset();
                                         const formattedDate = new Date(date);
                                         const day = String(formattedDate.getDate()).padStart(2, "0");
                                         const month = String(formattedDate.getMonth() + 1).padStart(2, "0");
@@ -880,39 +888,46 @@
                            }
                            
                            function applyTag(cell, label) {
-                                if (!cell) return;
+                              if (!cell) return;
 
-                                const color = labelColors[label] || "#007bff";
+                              const color = labelColors[label] || "#007bff";
 
-                                // Don't duplicate same label
-                                if (cell.querySelector(`.tag-bar-${label}`)) return;
+                              // Don't duplicate same label
+                              if (cell.querySelector(`.tag-bar-${label}`)) return;
 
-                                // ✅ Create the segment
-                                const segment = document.createElement("div");
-                                segment.className = `tag-bar-${label} tag-bar`;
-                                segment.style.backgroundColor = color;
-                                segment.style.flex = "1"; // 🟢 Equal space for each tag
-                                segment.style.height = "100%";
+                              // ✅ Get/create tag holder
+                              let holder = cell.querySelector(".tag-bar-holder");
+                              if (!holder) {
+                                 holder = document.createElement("div");
+                                 holder.className = "tag-bar-holder";
+                                 holder.style.position = "absolute";
+                                 holder.style.top = "0";
+                                 holder.style.left = "0";
+                                 holder.style.width = "100%";
+                                 holder.style.height = "100%";
+                                 holder.style.display = "flex";
+                                 holder.style.zIndex = "0"; // keep behind date
+                                 holder.style.borderRadius = "inherit";
+                                 cell.style.position = "relative";
+                                 cell.appendChild(holder);
+                              }
 
-                                // ✅ Add container if not exists
-                                let holder = cell.querySelector(".tag-bar-holder");
-                                if (!holder) {
-                                    holder = document.createElement("div");
-                                    holder.className = "tag-bar-holder";
-                                    holder.style.position = "absolute";
-                                    holder.style.top = "0";
-                                    holder.style.left = "0";
-                                    holder.style.width = "100%";
-                                    holder.style.height = "100%";
-                                    holder.style.display = "flex"; // 🟢 Enable horizontal bar layout
-                                    holder.style.zIndex = "2";
-                                    holder.style.borderRadius = "inherit"; // optional
-                                    cell.style.position = "relative";
-                                    cell.appendChild(holder);
-                                }
+                              // ✅ Add the color segment
+                              const segment = document.createElement("div");
+                              segment.className = `tag-bar-${label} tag-bar`;
+                              segment.style.backgroundColor = color;
+                              segment.style.flex = "1";
+                              segment.style.height = "100%";
+                              holder.appendChild(segment);
 
-                                holder.appendChild(segment);
-                            }
+                              // ✅ Make sure date stays on top
+                              const dateLabel = cell.querySelector(".cell-date");
+                              if (dateLabel) {
+                                 dateLabel.style.zIndex = "1";
+                                 dateLabel.style.color = "#000"; // keep it visible
+                              }
+                           }
+
 
                            
                            function closeAllDropdowns() {
@@ -933,7 +948,24 @@
                            populateMonthYearSelectors();
                            renderCalendar();
                            
-                                                            
+                            document.getElementById("edit_icon").addEventListener("click", function (e) {
+                              e.preventDefault();
+                              calendarEnabled = true;
+                              renderCalendar(); // re-render to activate clicks
+                           });
+
+                           document.getElementById("save_icon").addEventListener("click", function (e) {
+                              e.preventDefault();
+                              calendarEnabled = false;
+                              renderCalendar(); // re-render to disable clicks
+                              Swal.fire("Submitted!", "All details save successfully!", "success").then(() => location.reload());
+                           });
+
+                           document.getElementById("submit_icon").addEventListener("click", function (e) {
+                              e.preventDefault();
+                              Swal.fire("Submitted!", "All details submitted successfully!", "success").then(() => location.reload());
+                           });
+                                 
                            
                                                            
                         </script>

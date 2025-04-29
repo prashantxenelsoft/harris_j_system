@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use App\Models\Consultant;
 use DB;
-use Carbon\Carbon;
 
 class ConsultantController extends Controller
 {
@@ -54,10 +53,50 @@ class ConsultantController extends Controller
         $applyOnCell = $recordData['applyOnCell'] ?? null;
         $incomingExpenseType = $recordData['expenseType'] ?? null;
         $type = $request->type;
+        $status = $request->status ?? 'Draft';
+
+        // ✅ Delete overlapping workingHours entries if date range exists
+        if (!empty($recordData['date']) && strpos($recordData['date'], 'to') !== false) {
+            $rangeParts = explode(' to ', $recordData['date']);
+            if (count($rangeParts) === 2) {
+                try {
+                    $start = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[0]));
+                    $end = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[1]));
+
+                    while ($start->lte($end)) {
+                        $formattedDate = $start->format('d / m / Y');
+                    
+                        // ✅ Get all rows to be deleted first
+                        $rowsToDelete = DB::table('consultant_dashboard')
+                            ->where('type', 'timesheet')
+                            ->where('user_id', $request->user_id)
+                            ->whereJsonContains('record->applyOnCell', $formattedDate)
+                            // ->whereJsonContains('record->workingHours', '8') // optional if needed
+                            ->get();
+                    
+                        foreach ($rowsToDelete as $row) {
+                            $decoded = json_decode($row->record, true);
+                            $imagePath = $decoded['certificate_path'] ?? null;
+                    
+                            if ($imagePath && file_exists(base_path($imagePath))) {
+                                unlink(base_path($imagePath));
+                            }
+                    
+                            DB::table('consultant_dashboard')->where('id', $row->id)->delete();
+                        }
+                    
+                        $start->addDay();
+                    }
+                    
+                } catch (\Exception $e) {
+                    \Log::error("Failed to delete overlapping workingHours: " . $e->getMessage());
+                }
+            }
+        }
 
         $match = null;
 
-        // Fetch records for matching
+        // 🔍 Check if an exact match exists (for update)
         $existingRecords = DB::table('consultant_dashboard')
             ->where('type', $type)
             ->where('user_id', $request->user_id)
@@ -68,60 +107,64 @@ class ConsultantController extends Controller
             if (
                 ($type === 'timesheet' && !empty($decoded['applyOnCell']) && $decoded['applyOnCell'] === $applyOnCell) ||
                 ($type === 'claims' &&
-                !empty($decoded['expenseType']) && $decoded['expenseType'] === $incomingExpenseType &&
-                !empty($decoded['applyOnCell']) && $decoded['applyOnCell'] === $applyOnCell)
-
+                    !empty($decoded['expenseType']) && $decoded['expenseType'] === $incomingExpenseType &&
+                    !empty($decoded['applyOnCell']) && $decoded['applyOnCell'] === $applyOnCell)
             ) {
                 $match = $row;
                 break;
             }
         }
 
-        // Handle image replacement
+        // 🖼 Handle image
         $oldImagePath = $match ? (json_decode($match->record, true)['certificate_path'] ?? null) : null;
 
         if ($request->hasFile('certificate')) {
-            // ✅ Remove old image if it exists
             if ($oldImagePath && file_exists(base_path($oldImagePath))) {
                 unlink(base_path($oldImagePath));
             }
 
-            // ✅ Store new image in the same folder as your original logic
             $image = $request->file('certificate');
             $fileName = time() . '_' . $image->getClientOriginalName();
-            $image->storeAs('consultant', $fileName); // This stores to storage/app/consultant
-            $recordData['certificate_path'] = 'storage/app/public/consultant/' . $fileName; // You wanted this exact format
+            $image->storeAs('consultant', $fileName);
+            $recordData['certificate_path'] = 'storage/app/public/consultant/' . $fileName;
         } elseif (!$request->hasFile('certificate') && !$match) {
             $recordData['certificate_path'] = null;
         } elseif (!$request->hasFile('certificate') && $match) {
             $recordData['certificate_path'] = $oldImagePath;
         }
 
-        // ✅ Insert or update record
+        // ✅ Insert or Update
         if ($match) {
+            // 🛡️ If existing record is Submitted, force keep status = Submitted
+            $finalStatus = ($match->status === 'Submitted') ? 'Submitted' : $status;
+        
             DB::table('consultant_dashboard')
                 ->where('id', $match->id)
                 ->update([
                     'record' => json_encode($recordData),
                     'client_id' => $request->client_id,
                     'client_name' => $request->client_name,
+                    'status' => $finalStatus, // ✅ Important: force keep 'Submitted' if already submitted
                     'updated_at' => now()
                 ]);
         } else {
-            
+            // ➡️ New insert case
             DB::table('consultant_dashboard')->insert([
                 'type' => $type,
                 'record' => json_encode($recordData),
                 'user_id' => $request->user_id,
                 'client_id' => $request->client_id,
                 'client_name' => $request->client_name,
+                'status' => $status,
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
         }
+        
 
         return response()->json(['success' => true, 'message' => 'Data saved successfully!']);
     }
+
     
     public function deleteClaim(Request $request)
     {
