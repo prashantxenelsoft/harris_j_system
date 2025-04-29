@@ -272,10 +272,7 @@
                                                                                     <span><i class="fa-solid fa-location-dot"></i></span>
                                                                                     <a href="#">{{ $consultancy['show_address_input'] ?? '' }}</a>
                                                                                 </li>
-                                                                                <li>
-                                                                                    <span><i class="fa-solid fa-location-dot"></i></span>
-                                                                                    <a href="#">{{ $plusCode }}</a>
-                                                                                </li>
+                                                                                
                                                                             </ul>
                                                                         </div>
                                                                     </li>

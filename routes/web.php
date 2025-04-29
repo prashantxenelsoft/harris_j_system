@@ -15,7 +15,9 @@ use App\Http\Controllers\Api\ConsultancyApiController;
 Route::group(['prefix' => 'api'], function () {
     Route::post('auth/login', [AuthController::class, 'apiLogin']);
     Route::get('getConsultancy', [ConsultancyApiController::class, 'getConsultancy']);
-    Route::post('add-consultancy', [ConsultancyApiController::class, 'add_consultancy']); // ✅ new route added here
+    Route::post('add-consultancy', [ConsultancyApiController::class, 'add_consultancy']); 
+    Route::get('countries', [ConsultancyApiController::class, 'countries']);
+    Route::get('/states', [ConsultancyApiController::class, 'getStates']);
 });
 
 Route::get('/', function () {

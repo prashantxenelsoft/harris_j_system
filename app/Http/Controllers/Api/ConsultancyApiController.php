@@ -20,6 +20,38 @@ use DB;
 
 class ConsultancyApiController extends Controller
 {
+    public function __construct()
+    {
+        $this->data = include(resource_path('data/country_states.php'));
+    }
+
+    public function countries()
+    {
+        $countries = array_keys($this->data);
+
+        return response()->json([
+            'status' => true,
+            'countries' => $countries
+        ]);
+    }
+
+    public function getStates(Request $request)
+    {
+        $country = $request->query('country'); // URL se ?country=Afghanistan aayega
+
+        if (!$country || !isset($this->data[$country])) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Country not found or missing.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'country' => $country,
+            'states' => $this->data[$country]
+        ]);
+    }
     public function getConsultancy(Request $request)
     {
         $consultancies = Consultancy::orderBy('id', 'desc')->get();
