@@ -948,7 +948,7 @@
                            populateMonthYearSelectors();
                            renderCalendar();
                            
-                          
+                           
                            document.getElementById("edit_icon").addEventListener("click", function (e) {
                               e.preventDefault();
 
@@ -964,7 +964,7 @@
 
                               // ✅ Wait 2 seconds, then enable editing
                               setTimeout(() => {
-                                 calendarEditable = true;
+                                 calendarEnabled = true;
                                  renderCalendar();
                                  Swal.close(); 
                               }, 1500);
