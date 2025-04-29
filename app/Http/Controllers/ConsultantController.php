@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use App\Models\Consultant;
 use DB;
+use Carbon\Carbon;
 
 class ConsultantController extends Controller
 {
@@ -107,6 +108,7 @@ class ConsultantController extends Controller
                     'updated_at' => now()
                 ]);
         } else {
+            
             DB::table('consultant_dashboard')->insert([
                 'type' => $type,
                 'record' => json_encode($recordData),

@@ -1193,51 +1193,61 @@
                            
                                    // Add example tags with blue color
                                    const tagRules = {};
-                           
-                                   @foreach ($dataTimesheet as $item)
-                                       @php
-                                           $record = json_decode($item->record ?? '{}', true);
-                                           $applyDate = $record['applyOnCell'] ?? null;
-                                           $rawLabel = $record['leaveType'] ?? null;
-                           
-                                           // Normalize label: if it starts with "Custom", only use "Custom"
-                                           $label = Str::startsWith($rawLabel, 'Custom') ? 'Custom' : $rawLabel;
-                           
-                                           if ($applyDate && $label) {
-                                               try {
-                                                   $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $applyDate);
-                                                   $monthYear = ($dt->month - 1) . '-' . $dt->year; // Zero-based month
-                                                   $index = $dt->day;
-                                               } catch (Exception $e) {
-                                                   $monthYear = null;
-                                                   $index = null;
-                                               }
-                                           }
-                                       @endphp
-                           
-                                       @php
-                                           $rangeParts = explode(' to ', $record['date'] ?? '');
-                                       @endphp
-                           
-                                       @if (count($rangeParts) === 2)
-                                           @php
-                                               try {
-                                                   $start = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[0]));
-                                                   $end = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[1]));
-                                                   for ($day = $start->copy(); $day->lte($end); $day->addDay()) {
-                                                       $monthYear = ($day->month - 1) . '-' . $day->year;
-                                                       $index = $day->day;
-                                                       $clickable = $day->equalTo($start); // only start date clickable
-                                                       echo "if (!tagRules['$monthYear']) tagRules['$monthYear'] = [];";
-                                                       echo "tagRules['$monthYear'].push({ index: $index, label: '$label', clickable: " . ($clickable ? 'true' : 'false') . " });";
-                                                   }
-                                               } catch (\Exception $e) {}
-                                           @endphp
-                                       @elseif (isset($monthYear) && isset($index))
-                                           tagRules["{{ $monthYear }}"] = tagRules["{{ $monthYear }}"] || [];
-                                           tagRules["{{ $monthYear }}"].push({ index: {{ $index }}, label: "{{ $label }}", clickable: true });
-                                       @endif
-                                   @endforeach
+
+@foreach ($dataTimesheet as $item)
+    @php
+        $record = json_decode($item->record ?? '{}', true);
+        $applyDate = $record['applyOnCell'] ?? null;
+        $leaveLabel = $record['leaveType'] ?? null;
+        $workingLabel = $record['workingHours'] ?? null;
+       // $label = $leaveLabel ? (Str::startsWith($leaveLabel, 'Custom') ? 'Custom' : $leaveLabel) : $workingLabel;
+            if ($leaveLabel) {
+            $label = \Illuminate\Support\Str::startsWith($leaveLabel, 'Custom') ? 'Custom' : $leaveLabel;
+         } else {
+            $label = $workingLabel;
+         }
+        $rangeDate = $record['date'] ?? '';
+    @endphp
+
+    @php $rangeParts = explode(' to ', $rangeDate); @endphp
+
+    @if (count($rangeParts) === 2 && $label)
+        @php
+            try {
+                $start = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[0]));
+                $end = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[1]));
+                $first = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[0]));
+
+                while ($start->lte($end)) {
+                    $monthYear = ($start->month - 1) . '-' . $start->year;
+                    $index = $start->day;
+                    $clickable = $start->equalTo($first);
+                    $labelJson = json_encode($label);
+
+                    echo "if (!tagRules[\"$monthYear\"]) tagRules[\"$monthYear\"] = [];\n";
+                    echo "tagRules[\"$monthYear\"].push({ index: $index, label: $labelJson, clickable: " . ($clickable ? 'true' : 'false') . " });\n";
+
+                    $start->addDay();
+                }
+            } catch (\Exception $e) {}
+        @endphp
+
+    @elseif ($applyDate && $label)
+        @php
+            try {
+                $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $applyDate);
+                $monthYear = ($dt->month - 1) . '-' . $dt->year;
+                $index = $dt->day;
+                $labelJson = json_encode($label);
+
+                echo "if (!tagRules[\"$monthYear\"]) tagRules[\"$monthYear\"] = [];\n";
+                echo "tagRules[\"$monthYear\"].push({ index: $index, label: $labelJson, clickable: true });\n";
+            } catch (\Exception $e) {}
+        @endphp
+    @endif
+@endforeach
+
+
                            
                                    // Example: current month = 4, year = 2025
                                    const currentKey = `${month}-${year}`;
@@ -1346,7 +1356,7 @@
                                                    const allData = @json($dataTimesheet); // Laravel injected
                                                    const matchRecord = allData.find(entry => {
                                                        const record = JSON.parse(entry.record || '{}');
-                                                       return record.applyOnCell === finalDate && record.leaveType.startsWith('Custom');
+                                                       return record.applyOnCell === finalDate && typeof record.leaveType === "string" && record.leaveType.startsWith('Custom');
                                                    });
                            
                                                    if (matchRecord) {
@@ -1418,13 +1428,53 @@
                            
                                input.addEventListener("input", () => updateSuggestions(input.value));
                                input.addEventListener("keydown", (e) => {
-                                   if (e.key === "Enter") {
-                                       if (input.value.trim() !== "") {
-                                           applyTag(cell, input.value.trim(), "#007bff");
-                                           dropdown.remove();
-                                       }
-                                   }
-                               });
+                                 if (e.key === "Enter") {
+                                    const val = input.value.trim();
+
+                                    // ✅ Only allow numbers 1 to 8
+                                    if (/^[1-8]$/.test(val)) {
+                                          const formattedDate = `${String(date.getDate()).padStart(2, '0')} / ${String(date.getMonth() + 1).padStart(2, '0')} / ${date.getFullYear()}`;
+
+                                          const recordData = {
+                                             date: '',
+                                             workingHours: val,
+                                             applyOnCell: formattedDate
+                                          };
+
+                                          const formData = new FormData();
+                                          formData.append("type", "timesheet");
+                                          formData.append("user_id", "{{ $userData['id'] ?? '' }}");
+                                          formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+                                          formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+                                          formData.append("record", JSON.stringify(recordData));
+
+                                          fetch("{{ route('consultant.data.save') }}", {
+                                             method: "POST",
+                                             headers: {
+                                                "X-CSRF-TOKEN": document.querySelector('meta[name=\"csrf-token\"]').getAttribute("content")
+                                             },
+                                             body: formData
+                                          })
+                                          .then(res => {
+                                             if (!res.ok) throw new Error("Server error");
+                                             return res.json();
+                                          })
+                                          .then(data => {
+                                             console.log("Saved:", data);
+                                             applyTag(cell, val, "#007bff");
+                                             dropdown.remove();
+                                          })
+                                          .catch(error => {
+                                             console.error("Failed to save:", error);
+                                             alert("Failed to save working hours.");
+                                          });
+
+                                    } else {
+                                          alert("❌ Invalid working hours. Only numbers 1 to 8 are allowed.");
+                                    }
+                                 }
+                              });
+
                            
                                dropdown.appendChild(input);
                                dropdown.appendChild(suggestionBox);
@@ -1505,71 +1555,69 @@
                            populateMonthYearSelectors();
                            renderCalendar();
                            document.getElementById("submit_icon").addEventListener("click", function (e) {
-    e.preventDefault();
+                              e.preventDefault();
 
-    const cells = document.querySelectorAll(".calendar-cell");
-    const promises = [];
+                              const cells = document.querySelectorAll(".calendar-cell");
+                              const promises = [];
 
-    cells.forEach(cell => {
-        const dateElement = cell.querySelector(".cell-date");
-        const tagElement = cell.querySelector(".tag");
+                              cells.forEach(cell => {
+                                 const dateElement = cell.querySelector(".cell-date");
+                                 const tagElement = cell.querySelector(".tag");
 
-        if (dateElement && tagElement) {
-            const day = dateElement.innerText.trim();
-            const month = monthSelect.value; // 0-based
-            const year = yearSelect.value;
+                                 if (dateElement && tagElement) {
+                                       const day = dateElement.innerText.trim();
+                                       const month = monthSelect.value; // 0-based
+                                       const year = yearSelect.value;
 
-            const formattedDate = `${day.padStart(2, '0')} / ${(parseInt(month) + 1).toString().padStart(2, '0')} / ${year}`;
+                                       const formattedDate = `${day.padStart(2, '0')} / ${(parseInt(month) + 1).toString().padStart(2, '0')} / ${year}`;
 
-            const label = tagElement.innerText.trim();
+                                       const label = tagElement.innerText.trim();
 
-            let recordData = {
-                date: '',
-                applyOnCell: formattedDate
-            };
+                                       // ✅ Only proceed if label is exactly "8"
+                                       if (label === "8") {
+                                          const recordData = {
+                                             date: '',
+                                             workingHours: "8",
+                                             applyOnCell: formattedDate
+                                          };
 
-            if (label === "8") {
-                recordData.workingHours = "8";
-            } else if (["PH", "ML", "Custom", "PDO", "AL"].includes(label)) {
-                recordData.leaveType = label;
-            } else {
-                return; // skip
-            }
+                                          const formData = new FormData();
+                                          formData.append('type', 'timesheet');
+                                          formData.append('record', JSON.stringify(recordData));
+                                          formData.append('user_id', "{{ $userData['id'] ?? '' }}");
+                                          formData.append('client_id', "{{ $consultant->client_id ?? '' }}");
+                                          formData.append('client_name', "{{ $consultant->client_name ?? '' }}");
 
-            const formData = new FormData();
-            formData.append('type', 'timesheet');
-            formData.append('record', JSON.stringify(recordData)); // NOTE: JSON.stringify here
-            formData.append('user_id', "{{ $userData['id'] ?? '' }}");
-            formData.append('client_id', "{{ $consultant->client_id ?? '' }}");
-            formData.append('client_name', "{{ $consultant->client_name ?? '' }}");
+                                          const promise = fetch("{{ route('consultant.data.save') }}", {
+                                             method: "POST",
+                                             headers: {
+                                                   "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                             },
+                                             body: formData
+                                          })
+                                          .then(response => {
+                                             if (!response.ok) throw new Error('Server error');
+                                             return response.json();
+                                          });
 
-            const promise = fetch("{{ route('consultant.data.save') }}", {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Server error');
-                return response.json();
-            });
+                                          promises.push(promise);
+                                       }
+                                       // ❌ If "PH", "ML", "Custom", "PDO", "AL" -> do nothing (skip)
+                                 }
+                              });
 
-            promises.push(promise);
-        }
-    });
+                              Promise.all(promises)
+                              .then(results => {
+                                 console.log("All records saved:", results);
+                                 alert("All '8' working hours saved successfully!");
+                                 location.reload();
+                              })
+                              .catch(error => {
+                                 console.error("Error saving records:", error);
+                                 alert("Failed to save some records.");
+                              });
+                           });
 
-    Promise.all(promises)
-    .then(results => {
-        console.log("All records saved:", results);
-        alert("All records saved successfully!");
-        location.reload();
-    })
-    .catch(error => {
-        console.error("Error saving records:", error);
-        alert("Failed to save some records.");
-    });
-});
 
 
                            
