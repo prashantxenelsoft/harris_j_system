@@ -948,10 +948,26 @@
                            populateMonthYearSelectors();
                            renderCalendar();
                            
-                            document.getElementById("edit_icon").addEventListener("click", function (e) {
+                          
+                           document.getElementById("edit_icon").addEventListener("click", function (e) {
                               e.preventDefault();
-                              calendarEnabled = true;
-                              renderCalendar(); // re-render to activate clicks
+
+                              // 🌀 Show loader
+                              Swal.fire({
+                                 title: 'Please wait...',
+                                 text: 'Enabling edit mode',
+                                 allowOutsideClick: false,
+                                 didOpen: () => {
+                                    Swal.showLoading();
+                                 }
+                              });
+
+                              // ✅ Wait 2 seconds, then enable editing
+                              setTimeout(() => {
+                                 calendarEditable = true;
+                                 renderCalendar();
+                                 Swal.close(); 
+                              }, 1500);
                            });
 
                            document.getElementById("save_icon").addEventListener("click", function (e) {
