@@ -56,9 +56,9 @@
                      <div class="calendar-container">
                         <div class="calender-top-steps-wrapper">
                         <div class="progress-steps-calender">
-                              <ul>
+                              <ul id="claimStatus">
                                  <li>
-                                    <span class="active"> 
+                                    <span> 
                                           <i class="fa-solid fa-compass-drafting"></i>
                                     </span>
                                  </li>
@@ -515,6 +515,89 @@
                            });
                         </script>
                         <script>
+                           document.addEventListener("DOMContentLoaded", function () {
+                              const monthSelect = document.getElementById("monthSelect");
+                              const yearSelect = document.getElementById("yearSelect");
+
+                              const savedMonth = localStorage.getItem("claimMonth");
+                              const savedYear = localStorage.getItem("claimYear");
+
+                              if (savedMonth !== null && savedYear !== null) {
+                                 monthSelect.value = savedMonth;
+                                 yearSelect.value = savedYear;
+
+                                 currentDate.setMonth(parseInt(savedMonth));
+                                 currentDate.setFullYear(parseInt(savedYear));
+                              } else {
+                                 const now = new Date();
+                                 currentDate.setMonth(now.getMonth());
+                                 currentDate.setFullYear(now.getFullYear());
+                                 monthSelect.value = now.getMonth();
+                                 yearSelect.value = now.getFullYear();
+                              }
+
+                              renderCalendar();  // if calendar is shown for claims
+                              fetchClaimStatus();
+                           });
+
+                           // Store to claim-specific localStorage on change
+                           document.getElementById("monthSelect").addEventListener("change", function () {
+                              localStorage.setItem("claimMonth", this.value);
+                              localStorage.setItem("claimYear", document.getElementById("yearSelect").value);
+                              fetchClaimStatus();
+                           });
+
+                           document.getElementById("yearSelect").addEventListener("change", function () {
+                              localStorage.setItem("claimYear", this.value);
+                              localStorage.setItem("claimMonth", document.getElementById("monthSelect").value);
+                              fetchClaimStatus();
+                           });
+
+                           function fetchClaimStatus() {
+                              const month = document.getElementById("monthSelect").value;
+                              const year = document.getElementById("yearSelect").value;
+
+                              fetch(`{{ route('get-claim-status') }}?month=${month}&year=${year}`) // <-- updated route
+                                 .then(response => response.json())
+                                 .then(data => {
+                                       updateClaimStatusIcon(data.status);
+                                 })
+                                 .catch(error => {
+                                       console.error("Claim status fetch error:", error);
+                                 });
+                           }
+
+                           function updateClaimStatusIcon(status) {
+                              const iconList = document.querySelectorAll("#claimStatus li span");
+
+                              iconList.forEach(span => span.classList.remove("active"));
+
+                              switch (status) {
+                                 case "draft":
+                                       iconList[0].classList.add("active");
+                                       break;
+                                 case "submitted":
+                                       iconList[1].classList.add("active");
+                                       break;
+                                 case "approved":
+                                       iconList[2].classList.add("active");
+                                       break;
+                                 case "reviewed":
+                                       iconList[3].classList.add("active");
+                                       break;
+                                 case "finalized":
+                                       iconList[4].classList.add("active");
+                                       break;
+                                 case "paid":
+                                       iconList[5].classList.add("active");
+                                       break;
+                                 default:
+                                       break;
+                              }
+                           }
+
+
+
                            let calendarEnabled = false;
                            const calendarDays = document.getElementById("calendarDays");
                            const monthSelect = document.getElementById("monthSelect");
@@ -790,11 +873,37 @@
                            }
                            
                            function changeMonth(delta) {
-                               currentDate.setMonth(currentDate.getMonth() + delta);
-                               monthSelect.value = currentDate.getMonth();
-                               yearSelect.value = currentDate.getFullYear();
-                               renderCalendar();
+                              currentDate.setMonth(currentDate.getMonth() + delta);
+
+                              const monthSelect = document.getElementById("monthSelect");
+                              const yearSelect = document.getElementById("yearSelect");
+
+                              monthSelect.value = currentDate.getMonth();
+                              yearSelect.value = currentDate.getFullYear();
+
+                              // ✅ Store in localStorage every time user changes month (claim-specific)
+                              localStorage.setItem("claimMonth", monthSelect.value);
+                              localStorage.setItem("claimYear", yearSelect.value);
+
+                              renderCalendar();       // if applicable
+                              fetchClaimStatus();     // update icon/status bar
                            }
+
+                           document.getElementById("monthSelect").addEventListener("change", function () {
+                              localStorage.setItem("claimMonth", this.value);
+                              localStorage.setItem("claimYear", document.getElementById("yearSelect").value);
+                              fetchClaimStatus();
+                              renderCalendar();
+                           });
+
+                           document.getElementById("yearSelect").addEventListener("change", function () {
+                              localStorage.setItem("claimYear", this.value);
+                              localStorage.setItem("claimMonth", document.getElementById("monthSelect").value);
+                              fetchClaimStatus();
+                              renderCalendar();
+                           });
+
+
                            
                            document.addEventListener("click", function (e) {
                                if (!e.target.closest(".calendar-cell")) closeAllDropdowns();

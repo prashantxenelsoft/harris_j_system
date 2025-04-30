@@ -88,6 +88,47 @@ class ConsultantController extends Controller
         return response()->json(['status' => null]);
     }
 
+    public function getClaimStatus(Request $request)
+    {
+        $userId = auth()->id();
+        $month = (int) $request->query('month') + 1;
+        $year = (int) $request->query('year');  
+        $entries = DB::table('consultant_dashboard')
+            ->where('user_id', $userId)
+            ->where('type', 'claims')
+            ->get();
+
+        $filtered = $entries->filter(function ($item) use ($month, $year) {
+            $record = json_decode($item->record, true);
+        
+            if (!isset($record['applyOnCell'])) return false;
+        
+            $dateStr = trim($record['applyOnCell']);
+            $date = \DateTime::createFromFormat('d / m / Y', $dateStr);
+        
+            return $date && ((int)$date->format('n') === $month) && ((int)$date->format('Y') === $year);
+        });
+            
+
+        if ($filtered->isEmpty()) {
+            return response()->json(['status' => null]);
+        }
+
+        // Now check status values
+        $statuses = $filtered->pluck('status')->map(fn($s) => strtolower(trim($s)));
+
+        if ($statuses->contains('draft')) {
+            return response()->json(['status' => 'draft']);
+        }
+
+        if ($statuses->every(fn($s) => $s === 'submitted')) {
+            return response()->json(['status' => 'submitted']);
+        }
+
+        // fallback — mixed or unknown status
+        return response()->json(['status' => null]);
+    }
+
     public function addConsultantData(Request $request)
     {
         $recordData = json_decode($request->record, true);
