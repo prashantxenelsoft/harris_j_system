@@ -981,9 +981,31 @@
                            
                         </script>
                         <script>
-                           document.addEventListener("DOMContentLoaded", function () {
-                              fetchStatus(); // Call on initial page load
-                           });
+                          document.addEventListener("DOMContentLoaded", function () {
+                           const monthSelect = document.getElementById("monthSelect");
+                           const yearSelect = document.getElementById("yearSelect");
+
+                           const savedMonth = localStorage.getItem("timesheetMonth");
+                           const savedYear = localStorage.getItem("timesheetYear");
+
+                           if (savedMonth !== null && savedYear !== null) {
+                              monthSelect.value = savedMonth;
+                              yearSelect.value = savedYear;
+
+                              currentDate.setMonth(parseInt(savedMonth));
+                              currentDate.setFullYear(parseInt(savedYear));
+                           } else {
+                              const now = new Date();
+                              currentDate.setMonth(now.getMonth());
+                              currentDate.setFullYear(now.getFullYear());
+                              monthSelect.value = now.getMonth();
+                              yearSelect.value = now.getFullYear();
+                           }
+
+                           renderCalendar();
+                           fetchStatus();
+                        });
+
                            document.getElementById("monthSelect").addEventListener("change", fetchStatus);
                            document.getElementById("yearSelect").addEventListener("change", fetchStatus);
 
@@ -1499,13 +1521,39 @@
                            function closeAllDropdowns() {
                                document.querySelectorAll(".dropdown").forEach((d) => d.remove());
                            }
-                           
+
                            function changeMonth(delta) {
-                               currentDate.setMonth(currentDate.getMonth() + delta);
-                               monthSelect.value = currentDate.getMonth();
-                               yearSelect.value = currentDate.getFullYear();
-                               renderCalendar();
+                              currentDate.setMonth(currentDate.getMonth() + delta);
+
+                              const monthSelect = document.getElementById("monthSelect");
+                              const yearSelect = document.getElementById("yearSelect");
+
+                              monthSelect.value = currentDate.getMonth();
+                              yearSelect.value = currentDate.getFullYear();
+
+                              // 🔥 Store in localStorage every time user changes month
+                              localStorage.setItem("timesheetMonth", monthSelect.value);
+                              localStorage.setItem("timesheetYear", yearSelect.value);
+
+                              renderCalendar();
+                              fetchStatus();
                            }
+
+                           document.getElementById("monthSelect").addEventListener("change", function () {
+                              localStorage.setItem("timesheetMonth", this.value);
+                              localStorage.setItem("timesheetYear", document.getElementById("yearSelect").value);
+                              fetchStatus();
+                              renderCalendar(); // optional if needed
+                           });
+
+                           document.getElementById("yearSelect").addEventListener("change", function () {
+                              localStorage.setItem("timesheetYear", this.value);
+                              localStorage.setItem("timesheetMonth", document.getElementById("monthSelect").value);
+                              fetchStatus();
+                              renderCalendar(); // optional if needed
+                           });
+
+
                            
                            document.addEventListener("click", function (e) {
                                if (!e.target.closest(".calendar-cell")) closeAllDropdowns();
@@ -1516,71 +1564,80 @@
                            function saveCalendarData(statusValue = 'Submitted') {
                               const cells = document.querySelectorAll(".calendar-cell");
                               const promises = [];
-                           
+                              let hasData = false; // ← to check if there's anything to save
+
                               cells.forEach(cell => {
                                  const dateElement = cell.querySelector(".cell-date");
                                  const tagElement = cell.querySelector(".tag");
-                           
+
                                  if (dateElement && tagElement) {
-                                    const day = dateElement.innerText.trim();
-                                    const month = monthSelect.value; // 0-based
-                                    const year = yearSelect.value;
-                           
-                                    const formattedDate = `${day.padStart(2, '0')} / ${(parseInt(month) + 1).toString().padStart(2, '0')} / ${year}`;
-                           
-                                    const label = tagElement.innerText.trim();
-                           
-                                    // ✅ Save any label (8, PH, ML, AL, etc.)
-                                    const recordData = {};
-                           
-                                    if (["PH", "ML", "Custom", "PDO", "AL"].includes(label)) {
-                                       recordData.date = '';
-                                       recordData.leaveType = label;
-                                       recordData.applyOnCell = formattedDate;
-                                    } else {
-                                       recordData.date = '';
-                                       recordData.workingHours = label;
-                                       recordData.applyOnCell = formattedDate;
-                                    }
-                           
-                                    const formData = new FormData();
-                                    formData.append('type', 'timesheet');
-                                    formData.append('record', JSON.stringify(recordData));
-                                    formData.append('user_id', "{{ $userData['id'] ?? '' }}");
-                                    formData.append('client_id', "{{ $consultant->client_id ?? '' }}");
-                                    formData.append('client_name', "{{ $consultant->client_name ?? '' }}");
-                                    formData.append('status', statusValue); // Submitted ya Draft dynamically
-                           
-                                    const promise = fetch("{{ route('consultant.data.save') }}", {
-                                       method: "POST",
-                                       headers: {
-                                          "X-CSRF-TOKEN": document.querySelector('meta[name=\"csrf-token\"]').getAttribute("content")
-                                       },
-                                       body: formData
-                                    })
-                                    .then(response => {
-                                       if (!response.ok) throw new Error('Server error');
-                                       return response.json();
-                                    });
-                           
-                                    promises.push(promise);
+                                       hasData = true; // ✔️ At least one cell has data
+
+                                       const day = dateElement.innerText.trim();
+                                       const month = monthSelect.value; // 0-based
+                                       const year = yearSelect.value;
+
+                                       const formattedDate = `${day.padStart(2, '0')} / ${(parseInt(month) + 1).toString().padStart(2, '0')} / ${year}`;
+                                       const label = tagElement.innerText.trim();
+
+                                       const recordData = {};
+
+                                       if (["PH", "ML", "Custom", "PDO", "AL"].includes(label)) {
+                                          recordData.date = '';
+                                          recordData.leaveType = label;
+                                          recordData.applyOnCell = formattedDate;
+                                       } else {
+                                          recordData.date = '';
+                                          recordData.workingHours = label;
+                                          recordData.applyOnCell = formattedDate;
+                                       }
+
+                                       const formData = new FormData();
+                                       formData.append('type', 'timesheet');
+                                       formData.append('record', JSON.stringify(recordData));
+                                       formData.append('user_id', "{{ $userData['id'] ?? '' }}");
+                                       formData.append('client_id', "{{ $consultant->client_id ?? '' }}");
+                                       formData.append('client_name', "{{ $consultant->client_name ?? '' }}");
+                                       formData.append('status', statusValue);
+
+                                       const promise = fetch("{{ route('consultant.data.save') }}", {
+                                          method: "POST",
+                                          headers: {
+                                             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                          },
+                                          body: formData
+                                       })
+                                       .then(response => {
+                                          if (!response.ok) throw new Error('Server error');
+                                          return response.json();
+                                       });
+
+                                       promises.push(promise);
                                  }
                               });
-                           
+
+                              
+                              if (!hasData) {
+                                 Swal.fire("No Data!", "Does not have data for this month", "info");
+                                 return;
+                              }
+
+                              // ✅ Proceed to submit if data found
                               Promise.all(promises)
-                              .then(results => {
-                                 Swal.close(); // ✅ Hide loader
-                                 if (statusValue === 'Submitted') {
-                                    Swal.fire("Submitted!", "All details submitted successfully!", "success").then(() => location.reload());
-                                 } else {
-                                    Swal.fire("Saved!", "All details saved as Draft!", "success").then(() => location.reload());
-                                 }
-                              })
-                              .catch(error => {
-                                 console.error("Error saving records:", error);
-                                 alert("Failed to save some records.");
-                              });
+                                 .then(results => {
+                                       Swal.close(); // ✅ Hide loader
+                                       if (statusValue === 'Submitted') {
+                                          Swal.fire("Submitted!", "All details submitted successfully!", "success").then(() => location.reload());
+                                       } else {
+                                          Swal.fire("Saved!", "All details saved as Draft!", "success").then(() => location.reload());
+                                       }
+                                 })
+                                 .catch(error => {
+                                       console.error("Error saving records:", error);
+                                       alert("Failed to save some records.");
+                                 });
                            }
+
                            
                            // 🔵 Submit button (Submitted status)
                            document.getElementById("submit_icon").addEventListener("click", function (e) {
