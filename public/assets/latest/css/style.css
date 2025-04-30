@@ -212,6 +212,8 @@ table {
 
 .bom-header #myTab {
     align-items: end;
+    width: fit-content;
+    margin: auto;
 }
 
 .bom-right-col {

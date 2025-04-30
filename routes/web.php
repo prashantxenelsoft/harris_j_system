@@ -82,7 +82,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/save-consultant-data', [ConsultantController::class, 'addConsultantData'])->name('consultant.data.save');
     Route::post('/delete-consultant-claim', [ConsultantController::class, 'deleteClaim'])->name('consultant.claim.delete');
-
+    Route::get('/get-timesheet-status', [ConsultantController::class, 'getTimesheetStatus'])->name('get-timesheet-status');
 
 
 });

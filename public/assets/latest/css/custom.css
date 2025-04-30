@@ -340,6 +340,30 @@
         flex-direction: column;
         gap: 0px;
     }
+
+    .progress-steps-calender ul li span {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid grey;
+    }
+    
+    .progress-steps-calender ul li span i{
+        font-size: 14px;
+    }
+    
+    .progress-steps-calender ul li span.active {
+        background-color: #007AFF;
+        border: none;
+    }
+    
+    .progress-steps-calender ul li span.active i{
+        color: #fff;
+    }
     
     /* Timelines End*/
     
