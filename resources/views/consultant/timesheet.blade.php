@@ -1690,64 +1690,84 @@
                      <i class="fa-solid fa-caret-down"></i>
                      {{ $consultant->client_name ?? 'N/A' }}
                   </h6>
+                 
+
                   <div class="timelines-inner">
+                  @php
+                     use Carbon\Carbon;
+
+                     $monthGroups = [];
+
+                     // 🔁 Group records by month-year key like "2025-04"
+                     foreach ($dataTimesheet as $item) {
+                        $record = json_decode($item->record ?? '{}', true);
+                        if (!isset($record['applyOnCell'])) continue;
+
+                        $parts = explode(' / ', $record['applyOnCell']);
+                        if (count($parts) !== 3) continue;
+
+                        [$day, $month, $year] = $parts;
+                        $key = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT); // e.g. "2025-04"
+
+                        $monthGroups[$key][] = strtolower(trim($item->status));
+                     }
+
+                     // 🧠 Determine single status per month group
+                     $monthlyStatus = [];
+
+                     foreach ($monthGroups as $monthKey => $statuses) {
+                        if (in_array('draft', $statuses)) {
+                              $monthlyStatus[$monthKey] = 'Draft';
+                        } elseif (count(array_unique($statuses)) === 1) {
+                              $monthlyStatus[$monthKey] = ucfirst($statuses[0]);
+                        } else {
+                              $monthlyStatus[$monthKey] = 'Mixed';
+                        }
+                     }
+
+                     // 🔃 Sort months descending
+                     krsort($monthlyStatus);
+
+                     // ✅ Limit to last 6 months
+                     $monthlyStatus = array_slice($monthlyStatus, 0, 6, true);
+                  @endphp
+
+                  @if (!empty($monthlyStatus))
                      <ul>
-                        <li>
-                           <div class="timeline-item">
-                              <div class="timeline-icon blue"></div>
-                              <div class="timeline-content">
-                                 <div class="timeline-title">Timesheet Overview</div>
-                                 <span class="badge draft">Draft</span>
-                              </div>
-                           </div>
-                        </li>
-                        <li>
-                           <div class="timeline-item">
-                              <div class="timeline-icon green"></div>
-                              <div class="timeline-content">
-                                 <div class="timeline-title">Timesheet Overview</div>
-                                 <span class="badge approved">Auto Approved</span>
-                              </div>
-                           </div>
-                        </li>
-                        <li>
-                           <div class="timeline-item line">
-                              <div class="timeline-icon yellow"></div>
-                              <div class="timeline-content">
-                                 <div class="timeline-title">Timesheet Overview</div>
-                                 <span class="badge submitted">Submitted</span>
-                              </div>
-                           </div>
-                        </li>
-                        <li>
-                           <div class="timeline-item">
-                              <div class="timeline-icon blue"></div>
-                              <div class="timeline-content">
-                                 <div class="timeline-title">Timesheet Overview</div>
-                                 <span class="badge draft">Draft</span>
-                              </div>
-                           </div>
-                        </li>
-                        <li>
-                           <div class="timeline-item">
-                              <div class="timeline-icon green"></div>
-                              <div class="timeline-content">
-                                 <div class="timeline-title">Timesheet Overview</div>
-                                 <span class="badge approved">Auto Approved</span>
-                              </div>
-                           </div>
-                        </li>
-                        <li>
-                           <div class="timeline-item line">
-                              <div class="timeline-icon yellow"></div>
-                              <div class="timeline-content">
-                                 <div class="timeline-title">Timesheet Overview</div>
-                                 <span class="badge submitted">Submitted</span>
-                              </div>
-                           </div>
+                        @foreach ($monthlyStatus as $monthKey => $status)
+                              @php
+                                 $monthTitle = Carbon::createFromFormat('Y-m', $monthKey)->format('F - Y');
+                                 $badgeClass = match(strtolower($status)) {
+                                    'draft' => 'badge draft',
+                                    'submitted' => 'badge submitted',
+                                    'approved', 'auto approved' => 'badge approved',
+                                    default => 'badge unknown'
+                                 };
+                                 $dotClass = match(strtolower($status)) {
+                                    'draft' => 'blue',
+                                    'submitted' => 'yellow',
+                                    'approved', 'auto approved' => 'green',
+                                    default => 'gray'
+                                 };
+                              @endphp
+
+                              <li>
+                                 <div class="timeline-item {{ $loop->last ? 'line' : '' }}">
+                                    <div class="timeline-icon {{ $dotClass }}"></div>
+                                    <div class="timeline-content">
+                                          <div class="timeline-title">Timesheet Overview ({{ $monthTitle }})</div>
+                                          <span class="{{ $badgeClass }}">{{ $status }}</span>
+                                    </div>
+                                 </div>
+                              </li>
+                        @endforeach
+                     </ul>
+                  @else
+                     <p class="text-muted" style="padding: 0.5rem 1rem;">Timesheet Overview not found</p>
+                  @endif
+
+
                   </div>
-                  </li>
-                  </ul>
                </div>
             </div>
             <div class="row mt-3 bottom-remark-timesheet-group">
