@@ -79,6 +79,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/lookup-option/{id}', [ConsultancyController::class, 'destroylookupOption'])->name('lookup-option.destroy');
     Route::post('/update-lookup-option', [ConsultancyController::class, 'updateLookupOption'])->name('lookup-option.update');
     Route::get('consultancy/dashboard', [ConsultancyController::class, 'index'])->name('consultancy.dashboard');
+    Route::delete('consultancies/delete-client/{id}', [ConsultancyController::class, 'deleteClient']);
+
 
     Route::post('/save-consultant-data', [ConsultantController::class, 'addConsultantData'])->name('consultant.data.save');
     Route::post('/delete-consultant-claim', [ConsultantController::class, 'deleteClaim'])->name('consultant.claim.delete');

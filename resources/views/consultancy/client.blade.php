@@ -9,8 +9,8 @@
                 <option value="">All</option>
                 <option value="active">Active</option>
                 <option value="Disabled">Disabled</option>
-                <option value="Block">Block</option>
-                <option value="Deleted">Deleted</option>
+                <!-- <option value="Block">Block</option>
+                <option value="Deleted">Deleted</option> -->
             </select>
         </div>
 
@@ -104,11 +104,15 @@
                                         data-full_address="{{ $item['full_address'] }}"
                                         data-show_address_input="{{ $item['show_address_input'] }}"
                                         data-client_status="{{ $item['client_status'] }}"
+                                        data-description="{{ $item['description'] }}"
                                         data-reset_password="{{ $item['reset_password'] }}"
                                     >
                                         <i class="fas fa-pen-nib"></i>
                                     </span>
-                                    <span>
+                                    <span
+                                        class="delete-client"
+                                        data-id="{{ $item['id'] }}"
+                                    >
                                         <i class="fa fa-trash" aria-hidden="true"></i>
                                     </span>
                                 </div>
@@ -335,13 +339,61 @@
                                     <option value="" selected disabled>Client Status</option>
                                     <option value="Active">Active</option>
                                     <option value="Disabled">Disabled</option>
-                                    <option value="Block">Block</option>
-                                    <option value="Deleted">Deleted</option>
+                                    <!-- <option value="Block">Block</option>
+                                    <option value="Deleted">Deleted</option> -->
                                 </select>
+                            </div>
+
+                            <div class="consultancy-form-col" style="flex: 1 1 100%; margin-top: 10px;display: block;">
+                                <label for="description" style="font-weight: 600; display: block; margin-bottom: 5px;">Description</label>
+                                <textarea name="description" id="description" rows="10"></textarea>
                             </div>
                         </div>
                     </form>
                 </div>
+
+                <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+                <script>
+                    CKEDITOR.replace('description', {
+                        height: 200,
+                        width: '100%',
+                        toolbar: [
+                            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
+                            { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                            { name: 'clipboard', items: ['Undo', 'Redo'] },
+                            { name: 'editing', items: ['Scayt'] },
+                            { name: 'styles', items: ['Format'] },
+                            { name: 'font', items: ['FontSize'] },
+                        ],
+                        on: {
+                            key: function(evt) {
+                                const editor = evt.editor;
+                                const plainText = editor.document.getBody().getText().trim();
+
+                                const keyCode = evt.data.keyCode;
+                                const isAllowedKey = [8, 46, 37, 38, 39, 40].includes(keyCode); // backspace, delete, arrows
+
+                                if (plainText.length >= 800 && !isAllowedKey) {
+                                    alert("Only 800 characters allowed.");
+                                    evt.cancel(); // block typing
+                                }
+                            },
+                            paste: function(evt) {
+                                const editor = evt.editor;
+                                const plainText = editor.document.getBody().getText().trim();
+                                const clipboardData = evt.data.dataValue.replace(/<[^>]*>/g, '').trim();
+
+                                if ((plainText.length + clipboardData.length) > 800) {
+                                    alert("Pasting would exceed 10 characters limit.");
+                                    evt.cancel(); // block paste
+                                }
+                            }
+                        }
+                    });
+                </script>
+
+
+
 
                 <!-- Address Modal -->
                 <div class="bom-add-address-screen">
@@ -928,6 +980,7 @@
 
 
         if (!valid) return false;
+        CKEDITOR.instances.description.updateElement();
 
         // Proceed with AJAX Submission
         let formData = new FormData(form);
@@ -1028,6 +1081,7 @@
         $('input[name="edit_id"]').val($(this).data("id"));
         $('input[name="serving_client"]').val($(this).data("serving_client"));
         $('input[name="client_id"]').val($(this).data("client_id"));
+        CKEDITOR.instances.description.setData($(this).data("description"));
         $('input[name="full_address"]').val($(this).data("full_address"));
         $('input[name="reset_password"]').prop('checked', $(this).data('reset_password') == 1);
 
@@ -1169,4 +1223,47 @@
         const addressCol = document.querySelector(".address-popup-right-col");
         addressCol.innerHTML = `<h4>Address</h4>` + newAddressHTML;
     });
+
+    $(document).on('click', '.delete-client', function () {
+    let clientId = $(this).data('id');
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This action cannot be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: "{{ url('consultancies/delete-client') }}/" + clientId,
+                method: "DELETE",
+                headers: {
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+                },
+                success: function (response) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Deleted!",
+                        text: response.message,
+                        confirmButtonColor: "#3085d6",
+                    }).then(() => {
+                        location.reload(); // OR remove row from table if you're not reloading
+                    });
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops!",
+                        text: "Something went wrong while deleting.",
+                        confirmButtonColor: "#d33",
+                    });
+                }
+            });
+        }
+    });
+});
+
 </script>

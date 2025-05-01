@@ -17,6 +17,7 @@ class UserManagment extends Model
         'sex',
         'dob',
         'mobile_number',
+        'mobile_number_code',
         'email',
         'receipt_file',
         'full_address',

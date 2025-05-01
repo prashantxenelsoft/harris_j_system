@@ -364,6 +364,27 @@
     .progress-steps-calender ul li span.active i{
         color: #fff;
     }
+    .cke_notification_warning {
+        display: none;
+    }
     
     /* Timelines End*/
+
+    /* userManagmentForm Form css fixing */
+    #userManagmentForm .gender_selection_box label{
+       font-size: 12px;
+    }
     
+
+    .gender_selection_box span {
+        margin-left: 5px;
+    }
+
+    #userManagmentForm input[name="dob"]{
+        margin-left: 5px;
+        padding: 10px 5px;
+    }
+
+    #userManagmentForm .consultancy-form-col span{
+        font-size: 11px;
+    }

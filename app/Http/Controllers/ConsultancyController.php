@@ -25,12 +25,6 @@ class ConsultancyController extends Controller
     {
         $userData = Session::get('user_data');
 
-        // $consultancy = DB::table('users_type')
-        // ->join('consultancy', 'users_type.unique_id', '=', 'consultancy.consultancy_id')
-        // ->where('users_type.user_id', $userData['id'])
-        // ->select('consultancy.*')
-        // ->first();
-
         $client = Client::where('user_id',  $userData['id'])->get();
         $users = UserManagment::where('user_id',  $userData['id'])->get();
         $dataConsultancy = Consultancy::join('users', 'consultancy.admin_email', '=', 'users.email')
@@ -52,6 +46,16 @@ class ConsultancyController extends Controller
 
     public function add_client(Request $request)
     {
+        // Check if primary_email already exists
+        $existing = Client::where('primary_email', $request->primary_email)->first();
+
+        if ($existing) {
+            return response()->json([
+                'message' => 'Primary email already exists.'
+            ], 400); // 400 means Bad Request
+        }
+
+        // Insert new client
         $client = Client::create([
             'serving_client' => $request->serving_client,
             'client_id' => $request->client_id,
@@ -59,6 +63,7 @@ class ConsultancyController extends Controller
             'primary_mobile' => $request->primary_mobile,
             'primary_email' => $request->primary_email,
             'secondary_contact' => $request->secondary_contact,
+            'description' => $request->description,
             'secondary_mobile' => $request->secondary_mobile,
             'secondary_email' => $request->secondary_email,
             'full_address' => $request->full_address,
@@ -69,8 +74,11 @@ class ConsultancyController extends Controller
             'user_id'=>Session::get('user_data')['id'],
             'reset_password' => $request->reset_password,
         ]);
-        $insertedId = $client->id;
-        return true;
+
+        return response()->json([
+            'message' => 'Client added successfully.',
+            'id' => $client->id
+        ], 200);
     }
 
     public function add_user(Request $request)
@@ -102,6 +110,7 @@ class ConsultancyController extends Controller
             'sex'                  => $data['sex'],
             'dob'                  => $data['dob'],
             'mobile_number'        => $data['mobile_number'],
+            'mobile_number_code'   => $data['mobile_number_code'],
             'email'                => $data['email'],
             'receipt_file'         => $data['receipt_file'] ?? null,
             'full_address'         => $data['full_address'],
@@ -145,6 +154,7 @@ class ConsultancyController extends Controller
         $user->sex = $request->sex;
         $user->dob = $request->dob;
         $user->mobile_number = $request->mobile_number;
+        $user->mobile_number_code = $request->mobile_number_code;
         $user->email = $request->email;
         $user->full_address = $request->full_address;
         $user->show_address_input = $request->show_address_input;
@@ -180,8 +190,20 @@ class ConsultancyController extends Controller
 
     public function update_client(Request $request, $id)
     {
+        // Check if primary_email exists for another record
+        $exists = Client::where('primary_email', $request->primary_email)
+            ->where('id', '!=', $id)
+            ->first();
+
+        if ($exists) {
+            return response()->json([
+                'message' => 'Primary email already exists.'
+            ], 400);
+        }
+
+        // Proceed to update
         $client = Client::findOrFail($id);
-    
+
         $client->serving_client = $request->serving_client;
         $client->client_id = $request->client_id;
         $client->primary_contact = $request->primary_contact;
@@ -189,6 +211,7 @@ class ConsultancyController extends Controller
         $client->primary_email = $request->primary_email;
         $client->secondary_contact = $request->secondary_contact;
         $client->secondary_mobile = $request->secondary_mobile;
+        $client->description = $request->description;
         $client->secondary_email = $request->secondary_email;
         $client->full_address = $request->full_address;
         $client->show_address_input = $request->show_address_input;
@@ -197,12 +220,14 @@ class ConsultancyController extends Controller
         $client->secondary_mobile_country_code = $request->secondary_mobile_country_code;
         $client->reset_password = $request->reset_password;
 
-    
         $client->save();
-    
-        return response()->json(['success' => true, 'message' => 'Client updated successfully.']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Client updated successfully.'
+        ]);
     }
-    
+
 
 
     /**
@@ -322,6 +347,19 @@ class ConsultancyController extends Controller
     {
         //
     }
+
+    public function deleteClient($id)
+    {
+        $client = Client::find($id);
+        if (!$client) {
+            return response()->json(['message' => 'Client not found'], 404);
+        }
+
+        $client->delete();
+
+        return response()->json(['message' => 'Client deleted successfully']);
+    }
+
 
     /**
      * Update the specified resource in storage.

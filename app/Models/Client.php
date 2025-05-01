@@ -21,6 +21,7 @@ class Client extends Model
         'secondary_mobile',
         'secondary_email',
         'full_address',
+        'description',
         'show_address_input',
         'client_status',
         'primary_mobile_country_code',

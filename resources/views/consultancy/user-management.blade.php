@@ -9,8 +9,8 @@
                 <option value="">All</option>
                 <option value="Active">Active</option>
                 <option value="Disabled">Disabled</option>
-                <option value="Block">Block</option>
-                <option value="Deleted">Deleted</option>
+                <!-- <option value="Block">Block</option>
+                <option value="Deleted">Deleted</option> -->
             </select>
         </div>
 
@@ -87,6 +87,7 @@
                                         data-sex="{{ $user->sex }}"
                                         data-dob="{{ \Carbon\Carbon::parse($user->dob)->format('Y-m-d') }}"
                                         data-mobile_number="{{ $user->mobile_number }}"
+                                        data-mobile_number_code="{{ $user->mobile_number_code }}"
                                         data-email="{{ $user->email }}"
                                         data-receipt_file="{{ $user->receipt_file }}"
                                         data-full_address="{{ $user->full_address }}"
@@ -185,7 +186,7 @@
                                 <input type="text" name="emp_code" placeholder="Employee Code" required>
                             </div>
 
-                            <div class="consultancy-form-col gender_selection_box">
+                            <div class="consultancy-form-col gender_selection_box" id="genderBox">
                                 <span>Sex :</span>
                                 <span>
                                     <input type="radio" name="sex" value="Male" id="sex_male" required>
@@ -202,6 +203,31 @@
                                     <label for="sex_others">Others</label>
                                 </span>
                             </div>
+
+                            <!-- Custom "Others" Input (Initially Hidden) -->
+                            <div class="consultancy-form-col" id="otherGenderInput" style="display: none;">
+                                <input type="text" id="custom_sex" placeholder="Specify gender">
+                            </div>
+
+                            <script>
+                                const radios = document.querySelectorAll('input[name="sex"]');
+                                const otherInputDiv = document.getElementById("otherGenderInput");
+                                const customInput = document.getElementById("custom_sex");
+
+                                radios.forEach((radio) => {
+                                    radio.addEventListener("change", function () {
+                                        if (this.value === "Others" && this.checked) {
+                                            otherInputDiv.style.display = "block";
+                                        } else {
+                                            otherInputDiv.style.display = "none";
+                                        }
+                                    });
+                                });
+
+                                
+                            </script>
+
+
 
                             <div class="consultancy-form-col">
                                 <span>Date Of Birth :</span>
@@ -222,7 +248,7 @@
                                 <div class="upload_certificate">
                                     <div class="file_input">
                                         <i class="fa-solid fa-arrow-up-from-bracket me-3"></i>
-                                        <p>Upload Invoice / Receipt</p>
+                                        <p>Upload Profile Picture</p>
                                     </div>
                                     <input type="file" name="receipt_file" id="uploadFile" required>
                                  
@@ -367,22 +393,78 @@
                                 </div>
                             </div>
 
-                           
-                            <div class="consultancy-form-col full_width">
-                                <input type="date" name="joining_date" required>
+                 
+                            <!-- Start Date -->
+                            <div class="consultancy-form-col full_width start-date-col" onclick="document.getElementById('startDate').showPicker()">
+                                <input 
+                                    type="date" 
+                                    id="startDate" 
+                                    name="joining_date" 
+                                    placeholder="Start Date / Joining Date" 
+                                    style="pointer-events: none; margin-left: 0px;"
+                                />
+                                <table id="dateTable" border="1">
+                                    <thead>
+                                        <tr><th>Start Date / Joining Date</th></tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
 
-                            <div class="consultancy-form-col full_width">
-                                <input type="date" name="resignation_date">
+                            <!-- End Date -->
+                            <div class="consultancy-form-col full_width end-date-col" onclick="document.getElementById('endDate').showPicker()">
+                                <input 
+                                    type="date" 
+                                    id="endDate" 
+                                    name="resignation_date" 
+                                    placeholder="Select Expire / Last working date" 
+                                    style="pointer-events: none; margin-left: 0px;"
+                                />
+                                <table id="enddateTable" border="1">
+                                    <thead>
+                                        <tr><th>Select Expire / Last working date</th></tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
+
+                            <script>
+                                document.getElementById("startDate").addEventListener("change", function () {
+                                    this.placeholder = "";
+                                    const thead = document.querySelector("#dateTable thead");
+                                    if (thead) thead.remove();
+
+                                    const tableBody = document.querySelector("#dateTable tbody");
+                                    tableBody.innerHTML = "";
+
+                                    const newRow = tableBody.insertRow();
+                                    const newCell = newRow.insertCell(0);
+                                    newCell.textContent = this.value;
+                                });
+
+                                document.getElementById("endDate").addEventListener("change", function () {
+                                    this.placeholder = "";
+                                    const thead = document.querySelector("#enddateTable thead");
+                                    if (thead) thead.remove();
+
+                                    const tableBody = document.querySelector("#enddateTable tbody");
+                                    tableBody.innerHTML = "";
+
+                                    const newRow = tableBody.insertRow();
+                                    const newCell = newRow.insertCell(0);
+                                    newCell.textContent = this.value;
+                                });
+                            </script>
+
+
 
                             <div class="consultancy-form-col">
                                 <select name="status" required>
                                     <option value="" selected disabled>Select User Status</option>
                                     <option value="Active">Active</option>
                                     <option value="Disabled">Disabled</option>
-                                    <option value="Block">Block</option>
-                                    <option value="Deleted">Deleted</option>
+                                    <!-- <option value="Block">Block</option>
+                                    <option value="Deleted">Deleted</option> -->
                                 </select>
                             </div>
                         </div>
@@ -525,6 +607,7 @@
     </div>
 </div>
 <script>
+    
     document.addEventListener("DOMContentLoaded", function () {
         const searchInput = document.getElementById("searchInput");
         const statusFilter = document.getElementById("statusFilter");
@@ -607,6 +690,68 @@
         const form = document.getElementById("userManagmentForm");
         let valid = true;
 
+        const startDateInput = document.getElementById("startDate");
+        const endDateInput = document.getElementById("endDate");
+
+        const startDateWrapper = document.querySelector(".start-date-col");
+        const endDateWrapper = document.querySelector(".end-date-col");
+
+        // Reset any previous red borders
+        startDateWrapper.style.border = "";
+        endDateWrapper.style.border = "";
+
+        // Validate start date
+        if (!startDateInput.value) {
+            startDateWrapper.style.border = "1px solid red";
+            valid = false;
+        }
+
+        // Validate end date
+        if (!endDateInput.value) {
+            endDateWrapper.style.border = "1px solid red";
+            valid = false;
+        }
+
+
+
+       
+        const selectedRadio = form.querySelector('input[name="sex"]:checked');
+        const selectedSex = selectedRadio ? selectedRadio.value : "";
+
+        const genderBox = document.getElementById("genderBox");
+        const customInput = document.getElementById("custom_sex");
+        const customInputWrapper = document.getElementById("otherGenderInput");
+
+        // Clean previous error styles
+        genderBox.style.border = "";
+        genderBox.querySelector(".field-error")?.remove();
+        customInput.style.border = "";
+        customInputWrapper.querySelector(".field-error")?.remove();
+
+        // Case 1: No gender selected
+        if (!selectedSex) {
+            genderBox.style.border = "1px solid red";
+            genderBox.style.borderRadius = "6px";
+
+            const errorMsg = document.createElement("span");
+            errorMsg.className = "field-error";
+            errorMsg.style.color = "red";
+            errorMsg.style.fontSize = "10px";
+            genderBox.appendChild(errorMsg);
+
+            valid = false;
+        }
+
+        // Case 2: Others selected → validate custom input
+        if (selectedSex === "Others") {
+            const customValue = customInput.value.trim();
+            if (customValue === "") {
+                customInput.style.border = "1px solid red";
+                valid = false;
+            }
+        }
+
+
 
         // Remove previous styles and messages
         document.querySelectorAll(".mobile-error").forEach((el) => el.remove());
@@ -652,12 +797,18 @@
 
 
         if (!valid) return false;
+        
 
         // Proceed with AJAX Submission
         let formData = new FormData(form);
 
+        if (selectedSex === "Others") {
+            const customValue = customInput.value.trim();
+            formData.set("sex", "Other:" + customValue); 
+        }
+
         const dialCode1 = "+" + iti1.intlTelInput("getSelectedCountryData").dialCode;
-        formData.append("mobile_number", dialCode1);
+        formData.append("mobile_number_code", dialCode1);
         formData.append('reset_password', $('input[name="reset_password"]').is(':checked') ? '1' : '0');
         
         // Determine whether to Add or Update
@@ -674,7 +825,6 @@
         }
 
         //console.log(Object.fromEntries(formData.entries()));
-
 
         $.ajax({
             url: actionUrl,
@@ -838,6 +988,19 @@
             }
             return false;
         }
+
+        // Remove border and error on selecting any gender
+        document.querySelectorAll('input[name="sex"]').forEach((radio) => {
+            radio.addEventListener("change", function () {
+                const genderBox = document.getElementById("genderBox"); // your container div
+                genderBox.style.border = "";
+                
+                // Also remove error message span if exists
+                const errorMsg = genderBox.querySelector(".field-error");
+                if (errorMsg) errorMsg.remove();
+            });
+        });
+
 
         function clearBorderOnFocus(field) {
             if (field) {
@@ -1036,7 +1199,13 @@
         });
     });
 
-
+    function setIntlTelInput(selector, dialCode) {
+        let countryISO = Object.keys(countryCode).find(key => countryCode[key] === dialCode) || "in";
+        $(selector).intlTelInput("destroy").intlTelInput({
+            initialCountry: countryISO,
+            separateDialCode: true,
+        });
+    }
 
 
     $(document).on("click", ".edit-user", function () {
@@ -1045,6 +1214,7 @@
         $('input[name="emp_code"]').val($(this).data("emp_code"));
         $('input[name="full_address"]').val($(this).data("full_address"));
         $('input[name="reset_password"]').prop('checked', $(this).data('reset_password') == 1);
+        setIntlTelInput("#mobile_number", $(this).data("mobile_number_code"));
 
         let fullAddressStr = $(this).data("full_address"); // get the string
         let addressObj = {};
