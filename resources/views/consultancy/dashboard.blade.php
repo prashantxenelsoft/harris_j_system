@@ -10,7 +10,7 @@
                     <div class="col-lg-2">
                         <div class="header-logo">
                             
-                            <img src="{{ asset('/' . $consultancy->consultancy_logo) }}" alt="Consultancy Logo" width="60" />
+                            <img src="{{ asset('/' . $dataConsultancy->consultancy_logo) }}" alt="Consultancy Logo" width="60" />
                            
                         </div>
                     </div>
@@ -20,9 +20,7 @@
                             @php $activeTab = request('tab', 'user-management'); // default tab @endphp
 
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link {{ $activeTab == 'home' ? 'active' : '' }}" href="?tab=home">Home</a>
-                                </li>
+                                
                                 <li class="nav-item" role="presentation">
                                     <a class="nav-link {{ $activeTab == 'user-management' ? 'active' : '' }}" href="?tab=user-management">User Management</a>
                                 </li>
@@ -88,9 +86,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="tab-content">
-                        @if ($activeTab == 'home')
-                        <p>Dashboard Section</p>
-                        @elseif ($activeTab == 'user-management') @include('consultancy.user-management')
+                        @if ($activeTab == 'user-management') @include('consultancy.user-management')
                         @elseif ($activeTab == 'clients') @include('consultancy.client')
                         @elseif ($activeTab == 'reports') 
                         <p>Reports Section</p>

@@ -25,11 +25,11 @@ class ConsultancyController extends Controller
     {
         $userData = Session::get('user_data');
 
-        $consultancy = DB::table('users_type')
-        ->join('consultancy', 'users_type.unique_id', '=', 'consultancy.consultancy_id')
-        ->where('users_type.user_id', $userData['id'])
-        ->select('consultancy.*')
-        ->first();
+        // $consultancy = DB::table('users_type')
+        // ->join('consultancy', 'users_type.unique_id', '=', 'consultancy.consultancy_id')
+        // ->where('users_type.user_id', $userData['id'])
+        // ->select('consultancy.*')
+        // ->first();
 
         $client = Client::where('user_id',  $userData['id'])->get();
         $users = UserManagment::where('user_id',  $userData['id'])->get();
@@ -39,7 +39,7 @@ class ConsultancyController extends Controller
         ->first();
         //echo "<pre>";print_r($dataConsultancy);die;
 
-       return view('consultancy.dashboard',compact('consultancy','client','users','dataConsultancy'));
+       return view('consultancy.dashboard',compact('client','users','dataConsultancy'));
     }
 
     /**
