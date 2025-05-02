@@ -250,7 +250,7 @@
                                         <i class="fa-solid fa-arrow-up-from-bracket me-3"></i>
                                         <p>Upload Profile Picture</p>
                                     </div>
-                                    <input type="file" name="receipt_file" id="uploadFile" required>
+                                    <input type="file" name="receipt_file" id="uploadFile">
                                  
                                 </div>
                             </div>
@@ -401,7 +401,7 @@
                                     id="startDate" 
                                     name="joining_date" 
                                     placeholder="Start Date / Joining Date" 
-                                    style="pointer-events: none; margin-left: 0px;"
+                                    style="margin-left: 0px;"
                                 />
                                 <table id="dateTable" border="1">
                                     <thead>
@@ -418,7 +418,7 @@
                                     id="endDate" 
                                     name="resignation_date" 
                                     placeholder="Select Expire / Last working date" 
-                                    style="pointer-events: none; margin-left: 0px;"
+                                    style="margin-left: 0px;"
                                 />
                                 <table id="enddateTable" border="1">
                                     <thead>
@@ -711,9 +711,6 @@
             endDateWrapper.style.border = "1px solid red";
             valid = false;
         }
-
-
-
        
         const selectedRadio = form.querySelector('input[name="sex"]:checked');
         const selectedSex = selectedRadio ? selectedRadio.value : "";
@@ -750,8 +747,6 @@
                 valid = false;
             }
         }
-
-
 
         // Remove previous styles and messages
         document.querySelectorAll(".mobile-error").forEach((el) => el.remove());
@@ -794,10 +789,9 @@
         } else {
             mobileInput.style.borderColor = ""; // Reset border color if valid
         }
-
+       // console.log("check valid",valid);
 
         if (!valid) return false;
-        
 
         // Proceed with AJAX Submission
         let formData = new FormData(form);
@@ -894,6 +888,31 @@
             separateDialCode: true,
         });
     }
+
+    function updateStartDateTable(date) {
+        const thead = document.querySelector("#dateTable thead");
+        if (thead) thead.remove();
+
+        const tableBody = document.querySelector("#dateTable tbody");
+        tableBody.innerHTML = "";
+
+        const newRow = tableBody.insertRow();
+        const newCell = newRow.insertCell(0);
+        newCell.textContent = date;
+    }
+
+    function updateEndDateTable(date) {
+        const thead = document.querySelector("#enddateTable thead");
+        if (thead) thead.remove();
+
+        const tableBody = document.querySelector("#enddateTable tbody");
+        tableBody.innerHTML = "";
+
+        const newRow = tableBody.insertRow();
+        const newCell = newRow.insertCell(0);
+        newCell.textContent = date;
+    }
+
 
     const countrySelect = document.getElementById("country-select");
     Object.keys(countryStateData).forEach((country) => {
@@ -1199,13 +1218,6 @@
         });
     });
 
-    function setIntlTelInput(selector, dialCode) {
-        let countryISO = Object.keys(countryCode).find(key => countryCode[key] === dialCode) || "in";
-        $(selector).intlTelInput("destroy").intlTelInput({
-            initialCountry: countryISO,
-            separateDialCode: true,
-        });
-    }
 
 
     $(document).on("click", ".edit-user", function () {
@@ -1214,12 +1226,45 @@
         $('input[name="emp_code"]').val($(this).data("emp_code"));
         $('input[name="full_address"]').val($(this).data("full_address"));
         $('input[name="reset_password"]').prop('checked', $(this).data('reset_password') == 1);
+        const mobileNumber = $(this).data("mobile_number");
+
+        $("#mobile_number").val(mobileNumber); 
         setIntlTelInput("#mobile_number", $(this).data("mobile_number_code"));
+
+        const sex = $(this).data("sex");   
+        const dob = $(this).data("dob");
+
+        // --- Set SEX ---
+        if (sex.startsWith("Other:")) {
+            const customValue = sex.split("Other:")[1];
+            $("#sex_others").prop("checked", true);         // Check "Others"
+            $("#otherGenderInput").show();                  // Show textbox
+            $("#custom_sex").val(customValue);              // Fill custom gender
+        } else {
+            $(`input[name="sex"][value="${sex}"]`).prop("checked", true); // Check Male/Female
+            $("#otherGenderInput").hide();                  // Hide custom input if not Others
+            $("#custom_sex").val("");                       // Clear value
+        }
+
+        $("#dob").val(dob);  
+
+        const joiningDate = $(this).data("joining_date");
+        const resignationDate = $(this).data("resignation_date");
+
+        // Delay to ensure date input is ready (especially if modal just opened)
+        setTimeout(() => {
+            // Set joining date and manually update table
+            $("#startDate").val(joiningDate);
+            updateStartDateTable(joiningDate); // custom function below
+
+            // Set resignation date and manually update table
+            $("#endDate").val(resignationDate);
+            updateEndDateTable(resignationDate);
+        }, 100);
 
         let fullAddressStr = $(this).data("full_address"); // get the string
         let addressObj = {};
 
-        // Split by comma and process each key-value pair
         fullAddressStr.split(",").forEach(function (item) {
             let parts = item.split(":");
             if (parts.length === 2) {
@@ -1229,7 +1274,6 @@
             }
         });
 
-        // Populate form fields
         $('select[name="address_type"]').val(addressObj.addressType);
         $('select[name="country"]').val(addressObj.country);
         $('input[name="postal_code"]').val(addressObj.postalCode);
@@ -1273,16 +1317,7 @@
         }
 
 
-
-
          $('input[name="show_address_input"]').val($(this).data("show_address_input"));
-        // $('input[name="primary_contact"]').val($(this).data("primary_contact"));
-        // $('input[name="primary_mobile_country_code"]').val($(this).data("primary_mobile_country_code"));
-        // $('input[name="primary_mobile"]').val($(this).data("primary_mobile"));
-        // $('input[name="primary_email"]').val($(this).data("primary_email"));
-        // $('input[name="secondary_contact"]').val($(this).data("secondary_contact"));
-        // $('input[name="secondary_email"]').val($(this).data("secondary_email"));
-        // $('input[name="secondary_mobile_country_code"]').val($(this).data("secondary_mobile_country_code"));
 
         let receiptPath = $(this).data("receipt_file");
 
@@ -1305,14 +1340,9 @@
         $('input[name="login_email"]').val($(this).data("login_email"));
         $('input[name="email"]').val($(this).data("email"));
         $('input[name="dob"]').val($(this).data("dob"));
-        $('select[name="sex"]').val($(this).data("sex"));
+       
         $('select[name="designation"]').val($(this).data("designation"));
         $('select[name="status"]').val($(this).data("status"));
-        $('input[name="joining_date"]').val($(this).data("joining_date"));
-        $('input[name="resignation_date"]').val($(this).data("resignation_date"));
-        let sex = $(this).data("sex");
-        $('input[name="sex"][value="' + sex + '"]').prop("checked", true);
-        
 
         $(".table-bom-list-section").hide();
         $(".filter-section-consultancy").hide();
