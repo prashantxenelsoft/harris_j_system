@@ -167,15 +167,15 @@ class ConsultancyApiController extends Controller
             'role_id' => 7,
         ]);
 
-        if ($request->reset_password == 1) {
-            $data = [
-                'name' => $request->consultancy_name,
-                'message' => 'Here is the important link you requested.',
-                'url' => route('insert.password', ['id' => $userinsertedId])
-            ];
+        // if ($request->reset_password == 1) {
+        //     $data = [
+        //         'name' => $request->consultancy_name,
+        //         'message' => 'Here is the important link you requested.',
+        //         'url' => route('insert.password', ['id' => $userinsertedId])
+        //     ];
 
-            Mail::to($request->admin_email)->send(new TestMail($data));
-        }
+        //     Mail::to($request->admin_email)->send(new TestMail($data));
+        // }
 
         return response()->json([
             'status' => 'success',
