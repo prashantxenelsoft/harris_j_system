@@ -19,6 +19,9 @@
                                  <h6>Employee Name</h6>
                                  <p>: {{ $consultant->emp_name ?? 'N/A' }}</p>
                               </li>
+                              <li>
+                                 <p><input type="text" style="    width: 150%;" id="reporting manager" placeholder="Enter Reporting Manager Email" /></p>
+                              </li>
                            </ul>
                         </div>
                         <div class="client-details-consultant">
@@ -28,8 +31,7 @@
                                  <p>: {{ $consultant->client_name ?? 'N/A' }}</p>
                               </li>
                               <li>
-                                 <h6>Reporting Manager</h6>
-                                 <p>: {{ $consultant->designation ?? 'N/A' }}</p>
+                                 <p><input style="    width: 150%;" type="text" id="reporting manager" placeholder="Enter Reporting Manager Name" /></p>
                               </li>
                            </ul>
                         </div>
