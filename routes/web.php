@@ -16,8 +16,11 @@ Route::group(['prefix' => 'api'], function () {
     Route::post('auth/login', [AuthController::class, 'apiLogin']);
     Route::get('getConsultancy', [ConsultancyApiController::class, 'getConsultancy']);
     Route::post('add-consultancy', [ConsultancyApiController::class, 'add_consultancy']); 
+    Route::post('update-consultancy/{id}', [ConsultancyApiController::class, 'api_update_consultancy']);
     Route::get('countries', [ConsultancyApiController::class, 'countries']);
     Route::get('/states', [ConsultancyApiController::class, 'getStates']);
+    Route::delete('delete-consultancy/{id}', [ConsultancyApiController::class, 'api_delete_consultancy']);
+
 });
 
 Route::get('/', function () {

@@ -350,9 +350,9 @@
                                                const startDate = new Date(defaultDate.getFullYear(), defaultDate.getMonth(), defaultDate.getDate());
                                                const today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
                            
-                                               if (today.getDay() === 0 || today.getDay() === 6) {
-                                                   return true; // Disable Saturday/Sunday
-                                               }
+                                             //   if (today.getDay() === 0 || today.getDay() === 6) {
+                                             //       return true; // Disable Saturday/Sunday
+                                             //   }
                                                if (today < startDate) {
                                                    return true; // Disable past dates
                                                }
@@ -832,9 +832,9 @@
                            const startDate = new Date(defaultDate.getFullYear(), defaultDate.getMonth(), defaultDate.getDate());
                            const today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
                            
-                           if (today.getDay() === 0 || today.getDay() === 6) {
-                           return true;
-                           }
+                           // if (today.getDay() === 0 || today.getDay() === 6) {
+                           // return true;
+                           // }
                            if (today < startDate) {
                            return true;
                            }
@@ -1132,14 +1132,9 @@
                                     const cellDate = new Date(date);
                                     cellDate.setHours(0, 0, 0, 0);
                            
-                                    const dayOfWeek = cellDate.getDay(); // 0=Sunday, 6=Saturday
-                           
-                                    // 👉 1. Past working days par "8" daalna
+                                    const dayOfWeek = cellDate.getDay(); 
                                     if (cellDate < today && dayOfWeek !== 0 && dayOfWeek !== 6) {
-                                       applyTag(cell, "8", "#000000"); // Tumhara apna applyTag function
-                                    }
-                           
-                                    // 👉 2. Ab click active/inactive karna
+                                       applyTag(cell, "8", "#000000"); 
                                     if (dayOfWeek === 0 || dayOfWeek === 6 || !calendarEditable) {
                                        cell.classList.add("disabled");
                                     } else {

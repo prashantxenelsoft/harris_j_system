@@ -86,7 +86,6 @@ class ConsultancyApiController extends Controller
 
     public function add_consultancy(Request $request)
     {
-        //echo "<pre>";print_r($request->all());die;
         $existingConsultancy = Consultancy::where('consultancy_id', $request->consultancy_id)->first();
         $existingConsultancyAdminEmail = Consultancy::where('admin_email', $request->admin_email)->first();
         $existingUserEmail = User::where('email', $request->admin_email)->first();
@@ -167,21 +166,127 @@ class ConsultancyApiController extends Controller
             'role_id' => 7,
         ]);
 
-        // if ($request->reset_password == 1) {
-        //     $data = [
-        //         'name' => $request->consultancy_name,
-        //         'message' => 'Here is the important link you requested.',
-        //         'url' => route('insert.password', ['id' => $userinsertedId])
-        //     ];
-
-        //     Mail::to($request->admin_email)->send(new TestMail($data));
-        // }
-
         return response()->json([
             'status' => 'success',
             'message' => 'Consultancy created successfully!'
         ]);
     }
+
+    public function api_update_consultancy(Request $request, string $id)
+    {
+        $checks = [
+            'consultancy_id' => 'Consultancy ID already exists.',
+            'admin_email' => 'Consultancy Admin Email already exists. Please use a different email.',
+        ];
+        
+        // Check in consultancy table (excluding current record)
+        foreach ($checks as $field => $message) {
+            if (Consultancy::where($field, $request->$field)->where('id', '!=', $id)->exists()) {
+                return response()->json(['status' => 'error', 'message' => $message], 400);
+            }
+        }
+        
+        // Additional check in users table for admin_email (excluding current user)
+        if (!empty($request->admin_email) && isset($user->id)) {
+            $emailExistsInUsers = User::where('email', $request->admin_email)
+                ->where('id', '!=', $user->id)
+                ->exists();
+        
+            if ($emailExistsInUsers) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User Email already exists. Please use a different email.'
+                ], 400);
+            }
+        }
+        
+
+        $consultancy = Consultancy::find($id);
+        if (!$consultancy) {
+            return response()->json(['status' => false, 'message' => 'Consultancy not found!']);
+        }
+
+         // ✅ Update unique_id in users_type
+        DB::table('users_type')->where('unique_id', $consultancy->consultancy_id)->update([
+            'unique_id' => $request->consultancy_id
+        ]);
+
+
+        $user = DB::table('users_type')
+            ->where('unique_id', $consultancy->consultancy_id)
+            ->join('users', 'users.id', '=', 'users_type.user_id')
+            ->select('users.*')
+            ->first();
+
+        if ($user) {
+            User::where('id', $user->id)->update([
+                'name' => $request->consultancy_name,
+                'email' => $request->admin_email,
+                'status' => $request->consultancy_status
+            ]);
+        }
+
+        // ✅ Handle incoming fields except unneeded
+        $requestData = $request->except(['_token', '_method']);
+
+        // ✅ Handle image upload
+        if ($request->hasFile('consultancy_image')) {
+            $image = $request->file('consultancy_image');
+            $fileName = time() . '_' . $image->getClientOriginalName();
+            $path = $image->storeAs('consultancy', $fileName, 'public');
+
+            // Delete old image if present
+            if ($consultancy->consultancy_logo) {
+                $oldPath = str_replace('storage/app/public/', '', $consultancy->consultancy_logo);
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
+
+            $requestData['consultancy_logo'] = 'storage/app/public/consultancy/' . $fileName;
+        }
+
+        // ✅ Update consultancy record
+        $consultancy->update($requestData);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Consultancy updated successfully!',
+            'data' => $consultancy
+        ]);
+    }
+
+    public function api_delete_consultancy(string $id)
+    {
+        $consultancy = Consultancy::findOrFail($id);
+        // Get user from users_type by consultancy_id
+        $user = DB::table('users_type')
+            ->where('unique_id', $consultancy->consultancy_id)
+            ->join('users', 'users.id', '=', 'users_type.user_id')
+            ->select('users.*')
+            ->first();
+
+        if ($user) {
+            User::where('id', $user->id)->delete();
+            DB::table('users_type')->where('user_id', $user->id)->delete();
+        }
+
+        // Delete consultancy logo from storage
+        if ($consultancy->consultancy_logo) {
+            $logoPath = str_replace('storage/app/public/', '', $consultancy->consultancy_logo);
+            if (Storage::disk('public')->exists($logoPath)) {
+                Storage::disk('public')->delete($logoPath);
+            }
+        }
+
+        $consultancy->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Consultancy deleted successfully.'
+        ]);
+    }
+
 
 
 }
