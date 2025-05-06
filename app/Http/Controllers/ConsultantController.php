@@ -29,8 +29,9 @@ class ConsultantController extends Controller
             ->where('user_id', $userId)
             ->where('type', 'claims')
             ->get();
+            $publicHolidays = DB::table('public_holidays')->get();
            // echo "<pre>";print_r($dataTimesheet);die;
-            return view('consultant.dashboard',compact('consultant','userData','dataTimesheet','dataClaims'));
+            return view('consultant.dashboard',compact('consultant','userData','dataTimesheet','dataClaims','publicHolidays'));
         }
         else
         {
