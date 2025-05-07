@@ -389,3 +389,22 @@
     #userManagmentForm .consultancy-form-col span{
         font-size: 11px;
     }
+
+    .bottom-remark-timesheet-group .work-summary .bottom-stats>div {
+        display: flex
+    ;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+    }
+    
+    .bottom-remark-timesheet-group .work-summary .bottom-stats>div span {
+        font-size: 14px;
+        color: #000;
+    }
+    .bottom-remark-timesheet-group .work-summary .tab_content_body thead th{
+       font-size: 11px;
+    }
+    .bottom-remark-timesheet-group .work-summary .tab_content_body table td{
+     font-size: 11px;
+    }

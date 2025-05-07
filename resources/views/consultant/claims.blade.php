@@ -141,6 +141,16 @@
                                                 <span>Select Expense Type :</span>
                                                 <h2 id="showClaimName">Taxi</h2>
                                              </div>
+                                             <style>
+                                                input::placeholder,
+                                                   textarea::placeholder {
+                                                   color: #aaa; /* light gray like in your image */
+                                                   font-size: 16px;
+                                                   font-weight: 400;
+                                                   opacity: 1; /* Make sure it's visible */
+                                                   font-family: inherit;
+                                                   }
+                                             </style>
                                              <form id="claimForm">
                                                 <div class="e_form_fields">
                                                    <div class="container-fluid p-0">
@@ -157,7 +167,7 @@
                                                             <label for="expenseType" class="form-label">Expense Type</label>
                                                             <select name="expenseType" id="expenseType" class="form-control">
                                                                <option value="Taxi">Taxi</option>
-                                                               <option value="Dining">Dining</option>
+                                                               <option value="Dining">Dining</option> 
                                                                <option value="Others">Others</option>
                                                             </select>
                                                          </div>
@@ -172,7 +182,20 @@
                                                          </div>
                                                          <div class="col-md-6 mb-4">
                                                             <label for="eParticulars" class="form-label">Particulars</label>
-                                                            <input type="text" class="form-control" id="eParticulars" />
+                                                            <input type="text" placeholder="Invoice number" class="form-control" id="eParticulars" />
+                                                            <script>
+                                                               const remarkBox = document.getElementById("eParticulars");
+
+                                                               remarkBox.addEventListener("focus", function () {
+                                                                  this.placeholder = "";
+                                                               });
+
+                                                               remarkBox.addEventListener("blur", function () {
+                                                                  if (this.value.trim() === "") {
+                                                                     this.placeholder = "Invoice number";
+                                                                  }
+                                                               });
+                                                            </script>
                                                          </div>
                                                          <div class="col-md-6 mb-4">
                                                             <label for="eAmount" class="form-label">Amount $</label>
@@ -192,6 +215,19 @@
                                                 <div class="add_remark">
                                                    <span>Remarks *</span>
                                                    <textarea name="remarks" id="customRemark" rows="4" placeholder="Max 200 words are allowed"></textarea>
+                                                   <script>
+                                                      const remarkBox = document.getElementById("customRemark");
+
+                                                      remarkBox.addEventListener("focus", function () {
+                                                         this.placeholder = "";
+                                                      });
+
+                                                      remarkBox.addEventListener("blur", function () {
+                                                         if (this.value.trim() === "") {
+                                                            this.placeholder = "Max 200 words are allowed";
+                                                         }
+                                                      });
+                                                   </script>
                                                 </div>
                                                 <div class="upload_certificate">
                                                    <div class="file_input">

@@ -23,14 +23,16 @@ class ConsultantController extends Controller
             $dataTimesheet = DB::table('consultant_dashboard')
             ->where('user_id', $userId)
             ->where('type', 'timesheet')
+            ->orderBy('id', 'desc')
             ->get();
 
             $dataClaims = DB::table('consultant_dashboard')
             ->where('user_id', $userId)
             ->where('type', 'claims')
+            ->orderBy('id', 'desc')
             ->get();
             $publicHolidays = DB::table('public_holidays')->get();
-           // echo "<pre>";print_r($dataTimesheet);die;
+            //echo "<pre>";print_r($dataTimesheet);die;
             return view('consultant.dashboard',compact('consultant','userData','dataTimesheet','dataClaims','publicHolidays'));
         }
         else
@@ -218,7 +220,7 @@ class ConsultantController extends Controller
 
         // ✅ Insert or Update
         if ($match) {
-            // 🛡️ If existing record is Submitted, force keep status = Submitted
+            // 🛡️ Prevent submitted records from being reverted to Draft
             $finalStatus = ($match->status === 'Submitted') ? 'Submitted' : $status;
         
             DB::table('consultant_dashboard')
@@ -227,10 +229,49 @@ class ConsultantController extends Controller
                     'record' => json_encode($recordData),
                     'client_id' => $request->client_id,
                     'client_name' => $request->client_name,
-                    'status' => $finalStatus, // ✅ Important: force keep 'Submitted' if already submitted
+                    'status' => $finalStatus,
                     'updated_at' => now()
                 ]);
-        } else {
+        
+            // ✅ If this record is marked as Submitted, then apply it to all records of the same month
+            if ($finalStatus === 'Submitted') {
+                try {
+                    $applyDate = \Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
+                    $month = $applyDate->format('m');
+                    $year = $applyDate->format('Y');
+        
+                    $allSameMonth = DB::table('consultant_dashboard')
+                        ->where('type', $type)
+                        ->where('user_id', $request->user_id)
+                        ->get();
+        
+                        foreach ($allSameMonth as $row) {
+                            $decoded = json_decode($row->record, true);
+                            $cellDate = $decoded['applyOnCell'] ?? null;
+                        
+                            if ($cellDate) {
+                                try {
+                                    $cellDateCarbon = \Carbon\Carbon::createFromFormat('d / m / Y', trim($cellDate));
+                                    if ($cellDateCarbon->isSameMonth($applyDate)) {
+                                        DB::table('consultant_dashboard')
+                                            ->where('id', $row->id)
+                                            ->update([
+                                                'status' => 'Submitted',
+                                                'updated_at' => now()
+                                            ]);
+                                    }
+                                } catch (\Exception $e) {
+                                    \Log::warning("Invalid applyOnCell format in row ID {$row->id}");
+                                }
+                            }
+                        }
+                        
+                } catch (\Exception $e) {
+                    \Log::error("Failed to update same month records to Submitted: " . $e->getMessage());
+                }
+            }
+        }
+        else {
             // ➡️ New insert case
             DB::table('consultant_dashboard')->insert([
                 'type' => $type,

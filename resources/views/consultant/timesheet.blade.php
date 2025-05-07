@@ -316,10 +316,10 @@
                               const clockItBtn = modal.querySelector(".ml_clockit_btn");
                               const fileInput = modal.querySelector("#uploadFile");
 
-                              const fullDay = document.getElementById("fullDay");
-                              const fHalfDay = document.getElementById("fHalfDay");
-                              const sHalfDay = document.getElementById("sHalfDay");
-                              const customDay = document.getElementById("customDay");
+                              const fullDay = modal.querySelector("#fullDay");
+                              const fHalfDay = modal.querySelector("#fHalfDay");
+                              const sHalfDay = modal.querySelector("#sHalfDay");
+                              const customDay = modal.querySelector("#customDay");
 
                               function setSlider(minIndex, maxIndex, disable = true) {
                                  rangeInput[0].value = minIndex;
@@ -335,7 +335,7 @@
                               // ✅ Handle radio button selection changes
                               [fullDay, fHalfDay, sHalfDay, customDay].forEach(radio => {
                                  if (radio) {
-                                    const popTime = document.getElementById("medical_pop_time");
+                                    const popTime = modal.querySelector("#medical_pop_time");
                                     radio.addEventListener("change", function () {
                                           if (this.checked) {
                                              switch (this.id) {
@@ -752,7 +752,7 @@
                                                 <span>Date: <span id="customLeaveDisplay"></span></span>
                                              </div>
                                              <div class="ml_duty_time">
-                                                <span>Time On Duty : <span> -- / 8.30</span></span>
+                                                <span id="custom_pop_time">Time On Duty : <span> -- / 8.30</span></span>
                                              </div>
                                           </div>
                                           <div class="ml_leave_detail">
@@ -770,12 +770,28 @@
                                              </div>
                                              <div class="ml_leave_hour">
                                                 <ul>
-                                                   <li><input type="radio" name="Day" id="fullDay" /><label for="fullDay">Full Day</label></li>
-                                                   <li><input type="radio" name="Day" id="sHalfDay" /><label for="sHalfDay">Second half workday (HD2)</label></li>
+                                                   <li>
+                                                      <input type="radio" name="Day" id="fullDay" />
+                                                      <img src="{{ asset('public/assets/latest/images/night-day.png') }}" alt="" />
+                                                      <label for="fullDay">Full Day</label>
+                                                   </li>
+                                                   <li>
+                                                      <input type="radio" name="Day" id="sHalfDay" />
+                                                      <img src="{{ asset('public/assets/latest/images/night-day.png') }}" alt="" />
+                                                      <label for="sHalfDay">Second half workday (HD2)</label>
+                                                   </li>
                                                 </ul>
                                                 <ul>
-                                                   <li><input type="radio" name="Day" id="fHalfDay" /><label for="fHalfDay">First half workday (HD1)</label></li>
-                                                   <li><input type="radio" name="Day" id="customDay" /><label for="customDay">Custom</label></li>
+                                                   <li>
+                                                      <input type="radio" name="Day" id="fHalfDay" />
+                                                      <img src="{{ asset('public/assets/latest/images/night-day.png') }}" alt="" />
+                                                      <label for="fHalfDay">First half workday (HD1)</label>
+                                                   </li>
+                                                   <li>
+                                                      <input type="radio" name="Day" id="customDay" />
+                                                      <img src="{{ asset('public/assets/latest/images/custom-wheel.png') }}" alt="" />
+                                                      <label for="customDay">Custom</label>
+                                                   </li>
                                                 </ul>
                                              </div>
                                              <div class="date_selector">
@@ -828,6 +844,59 @@
                            const clockItBtn = modal.querySelector(".ml_clockit_btn");
                            const leaveTypeBtns = modal.querySelectorAll(".leave_type_options a");
                            const selectedTypeInput = modal.querySelector("#selectedLeaveType");
+
+                           const fullDay = modal.querySelector("#fullDay");
+                           const fHalfDay = modal.querySelector("#fHalfDay");
+                           const sHalfDay = modal.querySelector("#sHalfDay");
+                           const customDay = modal.querySelector("#customDay");
+
+                           function setSlider(minIndex, maxIndex, disable = true) {
+                                 rangeInput[0].value = minIndex;
+                                 rangeInput[1].value = maxIndex;
+
+                                 updateSlider();
+                                 rangeInput.forEach(input => input.disabled = disable);
+                                 range.style.pointerEvents = disable ? "none" : "auto";
+                              }
+
+
+
+                              // ✅ Handle radio button selection changes
+                              [fullDay, fHalfDay, sHalfDay, customDay].forEach(radio => {
+                                 if (radio) {
+                                    const popTime = modal.querySelector("#custom_pop_time");
+                                    radio.addEventListener("change", function () {
+                                          if (this.checked) {
+                                             switch (this.id) {
+                                                case "fullDay":
+                                                      setSlider(18, 37, true); // 9:00 AM – 6:30 PM
+                                                      if (popTime) {
+                                                         popTime.innerHTML = `Time On Duty : <span>-- / 8:30</span>`;
+                                                      }
+                                                      break;
+                                                case "fHalfDay":
+                                                      setSlider(18, 26, true); // 9:00 AM – 1:00 PM
+                                                      if (popTime) {
+                                                         popTime.innerHTML = `Time On Duty : <span>4:30 / 8:30</span>`;
+                                                      }
+                                                      break;
+                                                case "sHalfDay":
+                                                      setSlider(28, 37, true); // 2:00 PM – 6:30 PM
+                                                      if (popTime) {
+                                                         popTime.innerHTML = `Time On Duty : <span>4:30 / 8:30</span>`;
+                                                      }
+                                                      break;
+                                                case "customDay":
+                                                      setSlider(+rangeInput[0].value, +rangeInput[1].value, false); // Enable handles
+                                                      if (popTime) {
+                                                         popTime.innerHTML = `Time On Duty : <span>-- / 8:30</span>`;
+                                                      }
+                                                      break;
+                                             }
+                                          }
+                                    });
+                                 }
+                              });
                            
                            let dateRangeInstance = null;
                            
@@ -1248,8 +1317,8 @@
                                  const isPublicHoliday = publicHolidays.some(h => h.date === dateStr);
                                  if (isPublicHoliday) {
                                     applyTag(cell, "PH", "#dc3545"); // red color tag
-                                    cell.classList.add("disabled");
-                                    cell.style.pointerEvents = 'none';
+                                    // cell.classList.add("disabled");
+                                    // cell.style.pointerEvents = 'none';
                                  }
 
                                  
@@ -1257,8 +1326,8 @@
                                     applyTag(cell, "8", "#000000"); 
                                  }
 
-                                 // if (dayOfWeek === 0 || dayOfWeek === 6 || !calendarEditable || isPublicHoliday) {
-                                 if (dayOfWeek === 0 || dayOfWeek === 6 || !calendarEditable || isPublicHoliday) {
+                                  if (dayOfWeek === 0 || dayOfWeek === 6 || !calendarEditable) {
+                                 // if (dayOfWeek === 0 || dayOfWeek === 6  ) {
                                     cell.classList.add("disabled");
                                  } else {
                                     cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
@@ -1274,7 +1343,9 @@
                                  $leaveLabel = $record['leaveType'] ?? null;
                                  $workingLabel = $record['workingHours'] ?? null;
                                  if ($leaveLabel) {
-                                    $label = \Illuminate\Support\Str::startsWith($leaveLabel, 'Custom') ? 'Custom' : $leaveLabel;
+                                    $label = \Illuminate\Support\Str::startsWith($leaveLabel, 'Custom')
+                                    ? trim(Str::replaceFirst('Custom', '', $leaveLabel))
+                                    : $leaveLabel;
                                  } else {
                                     $label = $workingLabel;
                                  }
@@ -1316,6 +1387,10 @@
                                                 } elseif (\Illuminate\Support\Str::contains($record['leaveHour'], 'HD2')) {
                                                    $labelSub = 'HD2';
                                                 }
+                                                elseif (\Illuminate\Support\Str::contains($record['leaveHour'], 'Custom')) {
+                                                   $labelSub = 'Custom';
+                                                }
+                                                
                                              }
 
                                              $combinedLabel = $labelMain;
@@ -1349,6 +1424,8 @@
                                                 $labelSub = 'HD1';
                                              } elseif (\Illuminate\Support\Str::contains($record['leaveHour'], 'HD2')) {
                                                 $labelSub = 'HD2';
+                                             } elseif (\Illuminate\Support\Str::contains($record['leaveHour'], 'Custom')) {
+                                                   $labelSub = 'Custom';
                                              }
                                           }
 
@@ -1740,10 +1817,11 @@
 
                                        const formattedDate = `${day.padStart(2, '0')} / ${(parseInt(month) + 1).toString().padStart(2, '0')} / ${year}`;
                                        const label = tagElement.innerText.trim();
+                                       if (label.startsWith("ML") || label.startsWith("Custom")) return;
 
                                        const recordData = {};
 
-                                       if (["PH", "ML", "Custom", "PDO", "AL"].includes(label)) {
+                                       if (["PH", "PDO", "AL"].includes(label)) {
                                           recordData.date = '';
                                           recordData.leaveType = label;
                                           recordData.applyOnCell = formattedDate;
@@ -1960,34 +2038,79 @@
                                     </tr>
                                  </thead>
                                  <tbody>
-                                    <tr>
-                                       <td><span class="leave-type pdo lt_btn1">PDO</span></td>
-                                       <td>05/05/2024</td>
-                                       <td>05/05/2024</td>
-                                       <td class="half-day">1/2</td>
-                                    </tr>
-                                    <tr>
-                                       <td>
-                                          <span class="leave-type ml lt_btn1">ML <sup>HD1</sup></span>
-                                       </td>
-                                       <td>09/05/2024</td>
-                                       <td>09/05/2024</td>
-                                       <td class="half-day">1/2</td>
-                                    </tr>
-                                    <tr>
-                                       <td><span class="leave-type ul lt_btn2">UL</span></td>
-                                       <td>11/05/2024</td>
-                                       <td>11/05/2024</td>
-                                       <td class="half-day">1/2</td>
-                                    </tr>
-                                    <tr>
-                                       <td>
-                                          <span class="leave-type ul-hd lt_btn2">UL <sup>HD1</sup></span>
-                                       </td>
-                                       <td>22/05/2024</td>
-                                       <td>22/05/2024</td>
-                                       <td class="half-day">1/2</td>
-                                    </tr>
+                                 @foreach ($dataTimesheet as $entry)
+                                 @php
+                                    $record = json_decode($entry->record);
+
+                                    // Skip if leaveType not set (e.g. workingHours)
+                                    if (!isset($record->leaveType)) continue;
+
+                                    $leaveType = $record->leaveType ?? '';
+                                    $date = $record->date ?? '';
+                                    $applyOnCell = $record->applyOnCell ?? '';
+                                    $leaveHourId = $record->leaveHourId ?? '';
+
+                                    $from = $to = '';
+                                    $days = '1';
+
+                                    // Case 1: If date is empty, fallback to applyOnCell
+                                    if (empty($date) && !empty($applyOnCell)) {
+                                          $from = $to = trim($applyOnCell);
+                                          $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
+
+                                    // Case 2: If date is a range
+                                    } elseif (strpos($date, 'to') !== false) {
+                                          [$from, $to] = array_map('trim', explode('to', $date));
+
+                                          if ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') {
+                                             $days = '1/2';
+                                          } else {
+                                             try {
+                                                $fromDate = \Carbon\Carbon::createFromFormat('d / m / Y', $from);
+                                                $toDate = \Carbon\Carbon::createFromFormat('d / m / Y', $to);
+                                                $days = $fromDate->diffInDays($toDate) + 1;
+                                             } catch (\Exception $e) {
+                                                $days = '1'; // fallback
+                                             }
+                                          }
+
+                                    // Case 3: Single date (not empty)
+                                    } else {
+                                          $from = $to = trim($date);
+                                          $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
+                                    }
+
+                                    // Badge styling
+                                    $badgeClass = match($leaveType) {
+                                          'PDO' => 'badge bg-primary text-white',
+                                          'ML' => 'badge bg-info text-white',
+                                          'UL' => 'badge bg-warning text-dark',
+                                          'PH' => 'badge bg-success text-white',
+                                          default => 'badge bg-secondary text-white',
+                                    };
+
+                                    // Label for half-day types
+                                    $leaveShort = '';
+                                    if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                    elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                    elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+                                 @endphp
+
+                                 <tr>
+                                    <td>
+                                          <span class="{{ $badgeClass }}">
+                                             {{ \Illuminate\Support\Str::replaceFirst('Custom', '', $leaveType) }}
+                                             @if ($leaveShort)
+                                                <small><strong>{{ $leaveShort }}</strong></small>
+                                             @endif
+                                          </span>
+                                    </td>
+                                    <td>{{ $from }}</td>
+                                    <td>{{ $to }}</td>
+                                    <td><span style="color:red;">{{ $days }}</span></td>
+                                 </tr>
+                              @endforeach
+
                                  </tbody>
                               </table>
                            </div>
@@ -2004,10 +2127,10 @@
                               </div>
                            </div>
                            <div class="bottom-stats">
-                              <div>15</div>
-                              <div>10</div>
-                              <div>03</div>
-                              <div>02</div>
+                              <div>15 <span>Leave Log</span></div>
+                              <div>10 <span>AL</span></div>
+                              <div>03 <span>MC</span></div>
+                              <div>02 <span>Comp Off</span></div>
                            </div>
                         </div>
                      </div>
@@ -2044,34 +2167,78 @@
                                              </tr>
                                           </thead>
                                           <tbody>
-                                             <tr>
-                                                <td><span class="leave-type pdo lt_btn1">PDO</span></td>
-                                                <td>05/05/2024</td>
-                                                <td>05/05/2024</td>
-                                                <td class="half-day">1/2</td>
-                                             </tr>
-                                             <tr>
-                                                <td>
-                                                   <span class="leave-type ml lt_btn1">ML <sup>HD1</sup></span>
-                                                </td>
-                                                <td>09/05/2024</td>
-                                                <td>09/05/2024</td>
-                                                <td class="half-day">1/2</td>
-                                             </tr>
-                                             <tr>
-                                                <td><span class="leave-type ul lt_btn2">UL</span></td>
-                                                <td>11/05/2024</td>
-                                                <td>11/05/2024</td>
-                                                <td class="half-day">1/2</td>
-                                             </tr>
-                                             <tr>
-                                                <td>
-                                                   <span class="leave-type ul-hd lt_btn2">UL <sup>HD1</sup></span>
-                                                </td>
-                                                <td>22/05/2024</td>
-                                                <td>22/05/2024</td>
-                                                <td class="half-day">1/2</td>
-                                             </tr>
+                                             @foreach ($dataTimesheet as $entry)
+                                                @php
+                                                   $record = json_decode($entry->record);
+
+                                                   // Skip if leaveType not set (e.g. workingHours)
+                                                   if (!isset($record->leaveType)) continue;
+
+                                                   $leaveType = $record->leaveType ?? '';
+                                                   $date = $record->date ?? '';
+                                                   $applyOnCell = $record->applyOnCell ?? '';
+                                                   $leaveHourId = $record->leaveHourId ?? '';
+
+                                                   $from = $to = '';
+                                                   $days = '1';
+
+                                                   // Case 1: If date is empty, fallback to applyOnCell
+                                                   if (empty($date) && !empty($applyOnCell)) {
+                                                         $from = $to = trim($applyOnCell);
+                                                         $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
+
+                                                   // Case 2: If date is a range
+                                                   } elseif (strpos($date, 'to') !== false) {
+                                                         [$from, $to] = array_map('trim', explode('to', $date));
+
+                                                         if ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') {
+                                                            $days = '1/2';
+                                                         } else {
+                                                            try {
+                                                               $fromDate = \Carbon\Carbon::createFromFormat('d / m / Y', $from);
+                                                               $toDate = \Carbon\Carbon::createFromFormat('d / m / Y', $to);
+                                                               $days = $fromDate->diffInDays($toDate) + 1;
+                                                            } catch (\Exception $e) {
+                                                               $days = '1'; // fallback
+                                                            }
+                                                         }
+
+                                                   // Case 3: Single date (not empty)
+                                                   } else {
+                                                         $from = $to = trim($date);
+                                                         $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
+                                                   }
+
+                                                   // Badge styling
+                                                   $badgeClass = match($leaveType) {
+                                                         'PDO' => 'badge bg-primary text-white',
+                                                         'ML' => 'badge bg-info text-white',
+                                                         'UL' => 'badge bg-warning text-dark',
+                                                         'PH' => 'badge bg-success text-white',
+                                                         default => 'badge bg-secondary text-white',
+                                                   };
+
+                                                   // Label for half-day types
+                                                   $leaveShort = '';
+                                                   if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                                   elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                                   elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+                                                @endphp
+
+                                                <tr>
+                                                   <td>
+                                                         <span class="{{ $badgeClass }}">
+                                                            {{ \Illuminate\Support\Str::replaceFirst('Custom', '', $leaveType) }}
+                                                            @if ($leaveShort)
+                                                               <small><strong>{{ $leaveShort }}</strong></small>
+                                                            @endif
+                                                         </span>
+                                                   </td>
+                                                   <td>{{ $from }}</td>
+                                                   <td>{{ $to }}</td>
+                                                   <td><span style="color:red;">{{ $days }}</span></td>
+                                                </tr>
+                                             @endforeach
                                           </tbody>
                                        </table>
                                     </div>
@@ -2362,158 +2529,88 @@
                      <div class="tab-content tab_content_body p-2">
                         <div class="tab-pane fade show active" id="overviewTab">
                            <div class="timeline">
+
+                           @php
+
+                           $timelineItems = [];
+
+                           foreach ($dataTimesheet as $entry) {
+                              $record = json_decode($entry->record, true);
+                              $leaveType = $record['leaveType'] ?? null;
+                              $workingHours = $record['workingHours'] ?? null;
+                              $leaveHourId = $record['leaveHourId'] ?? null;
+                              $applyOnCell = $record['applyOnCell'] ?? null;
+                              $dateRange = $record['date'] ?? '';
+
+                              $leaveShort = '';
+                              if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                              elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                              elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+
+                              $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
+
+                              $dates = [];
+
+                              if ($dateRange && str_contains($dateRange, 'to')) {
+                                 try {
+                                       [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                       $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                       $endDate = Carbon::createFromFormat('d / m / Y', $end);
+
+                                       while ($startDate->lte($endDate)) {
+                                          $dates[] = $startDate->copy();
+                                          $startDate->addDay();
+                                       }
+                                 } catch (\Exception $e) {
+                                       // fallback
+                                 }
+                              } elseif ($applyOnCell) {
+                                 try {
+                                       $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                 } catch (\Exception $e) {
+                                       // fallback
+                                 }
+                              }
+
+                              foreach ($dates as $date) {
+                                 if (in_array($date->dayOfWeek, [0, 6])) continue;
+
+                                 $timelineItems[] = [
+                                       'date' => $date,
+                                       'formatted' => $date->format('D, d M Y'),
+                                       'badge' => $badgeText,
+                                       'workingHours' => $workingHours,
+                                 ];
+                              }
+                           }
+
+                           
+                           usort($timelineItems, fn($a, $b) => $b['date']->timestamp <=> $a['date']->timestamp);
+                           @endphp
+
+                           @foreach ($timelineItems as $item)
                               <div class="timeline-item d-flex align-items-start mb-3">
                                  <div class="me-2">
-                                    <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                    <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
+                                       <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                       <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
                                  </div>
                                  <div>
-                                    <div class="d-flex align-items-center mb-1 tl-header">
-                                       <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                       <span class="text-primary">PH - (1)</span>
-                                    </div>
-                                    <div class="tl_details">
-                                       <span>Sat, 15 Aug - </span>
-                                       <span class="badge">PH</span>
-                                       <span>-</span>
-                                       <span class="text-primary badge badge bold_text"> Paid day off</span>
-                                       <span> - 3 hours off</span>
-                                    </div>
+                                       <div class="d-flex align-items-center mb-1 tl-header">
+                                          <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
+                                          <div class="tl_details">
+                                             @if ($item['badge'])
+                                                   <span>{{ $item['formatted'] }} -</span>
+                                                   <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
+                                             @elseif ($item['workingHours'])
+                                                   <span>{{ $item['formatted'] }} - {{ $item['workingHours'] }} hours</span>
+                                             @endif
+                                          </div>
+                                       </div>
                                  </div>
                               </div>
-                              <div class="timeline-item d-flex align-items-start mb-3">
-                                 <div class="me-2">
-                                    <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                    <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                 </div>
-                                 <div>
-                                    <div class="d-flex align-items-center mb-1 tl-header">
-                                       <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                       <span class="text-primary">PH - (1)</span>
-                                    </div>
-                                    <div class="tl_details">
-                                       <span>Sat, 15 Aug - </span>
-                                       <span class="badge">PH</span>
-                                       <span>-</span>
-                                       <span class="text-primary badge badge bold_text"> Paid day off</span>
-                                       <span> - 3 hours off</span>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div class="timeline-item d-flex align-items-start mb-3">
-                                 <div class="me-2">
-                                    <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                    <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                 </div>
-                                 <div>
-                                    <div class="d-flex align-items-center mb-1 tl-header">
-                                       <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                       <span class="text-primary">PH - (1)</span>
-                                    </div>
-                                    <div class="tl_details">
-                                       <span>Sat, 15 Aug - </span>
-                                       <span class="badge">PH</span>
-                                       <span>-</span>
-                                       <span class="text-primary badge bold_text"> Paid day off</span>
-                                       <span> - 3 hours off</span>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div class="timeline-item d-flex align-items-start mb-3">
-                                 <div class="me-2">
-                                    <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                    <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                 </div>
-                                 <div>
-                                    <div class="d-flex align-items-center mb-1 tl-header">
-                                       <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                       <span class="text-primary">PH - (1)</span>
-                                    </div>
-                                    <div class="tl_details">
-                                       <span>Sat, 15 Aug - </span>
-                                       <span class="badge">PH</span>
-                                       <span>-</span>
-                                       <span class="text-primary badge bold_text"> Paid day off</span>
-                                       <span> - 3 hours off</span>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div class="timeline-item d-flex align-items-start mb-3">
-                                 <div class="me-2">
-                                    <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                    <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                 </div>
-                                 <div>
-                                    <div class="d-flex align-items-center mb-1 tl-header">
-                                       <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                       <span class="text-primary">PH - (1)</span>
-                                    </div>
-                                    <div class="tl_details">
-                                       <span>Sat, 15 Aug - </span>
-                                       <span class="badge">PH</span>
-                                       <span>-</span>
-                                       <span class="text-primary badge bold_text"> Paid day off</span>
-                                       <span> - 3 hours off</span>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div class="timeline-item d-flex align-items-start mb-3">
-                                 <div class="me-2">
-                                    <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                    <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                 </div>
-                                 <div>
-                                    <div class="d-flex align-items-center mb-1 tl-header">
-                                       <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                       <span class="text-primary">PH - (1)</span>
-                                    </div>
-                                    <div class="tl_details">
-                                       <span>Sat, 15 Aug - </span>
-                                       <span class="badge">PH</span>
-                                       <span>-</span>
-                                       <span class="text-primary badge bold_text"> Paid day off</span>
-                                       <span> - 3 hours off</span>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div class="timeline-item d-flex align-items-start mb-3">
-                                 <div class="me-2">
-                                    <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                    <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                 </div>
-                                 <div>
-                                    <div class="d-flex align-items-center mb-1 tl-header">
-                                       <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                       <span class="text-primary">PH - (1)</span>
-                                    </div>
-                                    <div class="tl_details">
-                                       <span>Sat, 15 Aug - </span>
-                                       <span class="badge">PH</span>
-                                       <span>-</span>
-                                       <span class="text-primary badge bold_text"> Paid day off</span>
-                                       <span> - 3 hours off</span>
-                                    </div>
-                                 </div>
-                              </div>
-                              <div class="timeline-item d-flex align-items-start mb-3">
-                                 <div class="me-2">
-                                    <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                    <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                 </div>
-                                 <div>
-                                    <div class="d-flex align-items-center mb-1 tl-header">
-                                       <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                       <span class="text-primary">PH - (1)</span>
-                                    </div>
-                                    <div class="tl_details">
-                                       <span>Sat, 15 Aug - </span>
-                                       <span class="badge">PH</span>
-                                       <span>-</span>
-                                       <span class="text-primary badge bold_text"> Paid day off</span>
-                                       <span> - 3 hours off</span>
-                                    </div>
-                                 </div>
-                              </div>
+                           @endforeach
+                   
+                              
                            </div>
                         </div>
                         <!-- Other tabs can be filled similarly -->
@@ -2911,158 +3008,87 @@
                               <div class="tab-content tab_content_body">
                                  <div class="tab-pane fade show active" id="modeloverviewTab">
                                     <div class="timeline">
-                                       <div class="timeline-item d-flex align-items-start mb-3">
-                                          <div class="me-2">
-                                             <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                             <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                          </div>
-                                          <div>
-                                             <div class="d-flex align-items-center mb-1 tl-header">
-                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                <span class="text-primary">PH - (1)</span>
+
+                                       @php
+
+                                       $timelineItems = [];
+
+                                       foreach ($dataTimesheet as $entry) {
+                                          $record = json_decode($entry->record, true);
+                                          $leaveType = $record['leaveType'] ?? null;
+                                          $workingHours = $record['workingHours'] ?? null;
+                                          $leaveHourId = $record['leaveHourId'] ?? null;
+                                          $applyOnCell = $record['applyOnCell'] ?? null;
+                                          $dateRange = $record['date'] ?? '';
+
+                                          $leaveShort = '';
+                                          if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                          elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                          elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+
+                                          $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
+
+                                          $dates = [];
+
+                                          if ($dateRange && str_contains($dateRange, 'to')) {
+                                             try {
+                                                   [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                                   $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                                   $endDate = Carbon::createFromFormat('d / m / Y', $end);
+
+                                                   while ($startDate->lte($endDate)) {
+                                                      $dates[] = $startDate->copy();
+                                                      $startDate->addDay();
+                                                   }
+                                             } catch (\Exception $e) {
+                                                   // fallback
+                                             }
+                                          } elseif ($applyOnCell) {
+                                             try {
+                                                   $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                             } catch (\Exception $e) {
+                                                   // fallback
+                                             }
+                                          }
+
+                                          foreach ($dates as $date) {
+                                             if (in_array($date->dayOfWeek, [0, 6])) continue;
+
+                                             $timelineItems[] = [
+                                                   'date' => $date,
+                                                   'formatted' => $date->format('D, d M Y'),
+                                                   'badge' => $badgeText,
+                                                   'workingHours' => $workingHours,
+                                             ];
+                                          }
+                                       }
+
+                                       
+                                       usort($timelineItems, fn($a, $b) => $b['date']->timestamp <=> $a['date']->timestamp);
+                                       @endphp
+
+                                       @foreach ($timelineItems as $item)
+                                          <div class="timeline-item d-flex align-items-start mb-3">
+                                             <div class="me-2">
+                                                   <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                                   <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
                                              </div>
-                                             <div class="tl_details">
-                                                <span>Sat, 15 Aug - </span>
-                                                <span class="badge">PH</span>
-                                                <span>-</span>
-                                                <span class="text-primary badge badge bold_text"> Paid day off</span>
-                                                <span> - 3 hours off</span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                       <div class="timeline-item d-flex align-items-start mb-3">
-                                          <div class="me-2">
-                                             <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                             <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                          </div>
-                                          <div>
-                                             <div class="d-flex align-items-center mb-1 tl-header">
-                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                <span class="text-primary">PH - (1)</span>
-                                             </div>
-                                             <div class="tl_details">
-                                                <span>Sat, 15 Aug - </span>
-                                                <span class="badge">PH</span>
-                                                <span>-</span>
-                                                <span class="text-primary badge badge bold_text"> Paid day off</span>
-                                                <span> - 3 hours off</span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                       <div class="timeline-item d-flex align-items-start mb-3">
-                                          <div class="me-2">
-                                             <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                             <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                          </div>
-                                          <div>
-                                             <div class="d-flex align-items-center mb-1 tl-header">
-                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                <span class="text-primary">PH - (1)</span>
-                                             </div>
-                                             <div class="tl_details">
-                                                <span>Sat, 15 Aug - </span>
-                                                <span class="badge">PH</span>
-                                                <span>-</span>
-                                                <span class="text-primary badge bold_text"> Paid day off</span>
-                                                <span> - 3 hours off</span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                       <div class="timeline-item d-flex align-items-start mb-3">
-                                          <div class="me-2">
-                                             <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                             <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                          </div>
-                                          <div>
-                                             <div class="d-flex align-items-center mb-1 tl-header">
-                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                <span class="text-primary">PH - (1)</span>
-                                             </div>
-                                             <div class="tl_details">
-                                                <span>Sat, 15 Aug - </span>
-                                                <span class="badge">PH</span>
-                                                <span>-</span>
-                                                <span class="text-primary badge bold_text"> Paid day off</span>
-                                                <span> - 3 hours off</span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                       <div class="timeline-item d-flex align-items-start mb-3">
-                                          <div class="me-2">
-                                             <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                             <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                          </div>
-                                          <div>
-                                             <div class="d-flex align-items-center mb-1 tl-header">
-                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                <span class="text-primary">PH - (1)</span>
-                                             </div>
-                                             <div class="tl_details">
-                                                <span>Sat, 15 Aug - </span>
-                                                <span class="badge">PH</span>
-                                                <span>-</span>
-                                                <span class="text-primary badge bold_text"> Paid day off</span>
-                                                <span> - 3 hours off</span>
+                                             <div>
+                                                   <div class="d-flex align-items-center mb-1 tl-header">
+                                                      <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
+                                                      <div class="tl_details">
+                                                         @if ($item['badge'])
+                                                               <span>{{ $item['formatted'] }} -</span>
+                                                               <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
+                                                         @elseif ($item['workingHours'])
+                                                               <span>{{ $item['formatted'] }} - {{ $item['workingHours'] }} hours</span>
+                                                         @endif
+                                                      </div>
+                                                   </div>
                                              </div>
                                           </div>
-                                       </div>
-                                       <div class="timeline-item d-flex align-items-start mb-3">
-                                          <div class="me-2">
-                                             <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                             <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                          </div>
-                                          <div>
-                                             <div class="d-flex align-items-center mb-1 tl-header">
-                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                <span class="text-primary">PH - (1)</span>
-                                             </div>
-                                             <div class="tl_details">
-                                                <span>Sat, 15 Aug - </span>
-                                                <span class="badge">PH</span>
-                                                <span>-</span>
-                                                <span class="text-primary badge bold_text"> Paid day off</span>
-                                                <span> - 3 hours off</span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                       <div class="timeline-item d-flex align-items-start mb-3">
-                                          <div class="me-2">
-                                             <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                             <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                          </div>
-                                          <div>
-                                             <div class="d-flex align-items-center mb-1 tl-header">
-                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                <span class="text-primary">PH - (1)</span>
-                                             </div>
-                                             <div class="tl_details">
-                                                <span>Sat, 15 Aug - </span>
-                                                <span class="badge">PH</span>
-                                                <span>-</span>
-                                                <span class="text-primary badge bold_text"> Paid day off</span>
-                                                <span> - 3 hours off</span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                       <div class="timeline-item d-flex align-items-start mb-3">
-                                          <div class="me-2">
-                                             <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                             <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                          </div>
-                                          <div>
-                                             <div class="d-flex align-items-center mb-1 tl-header">
-                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                <span class="text-primary">PH - (1)</span>
-                                             </div>
-                                             <div class="tl_details">
-                                                <span>Sat, 15 Aug - </span>
-                                                <span class="badge">PH</span>
-                                                <span>-</span>
-                                                <span class="text-primary badge bold_text"> Paid day off</span>
-                                                <span> - 3 hours off</span>
-                                             </div>
-                                          </div>
-                                       </div>
+                                       @endforeach
+                                      
                                     </div>
                                  </div>
                                  <!-- Other tabs can be filled similarly -->
