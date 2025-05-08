@@ -11,6 +11,7 @@ use App\Http\Controllers\ConsultancyController;
 use App\Http\Controllers\ConsultantController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ConsultancyApiController;
+use App\Http\Controllers\Api\ConsultanctApiController;
 
 // Route::group(['prefix' => 'api'], function () {
 //     Route::post('auth/login', [AuthController::class, 'apiLogin']);
@@ -36,6 +37,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::delete('delete-consultancy/{id}', [ConsultancyApiController::class, 'api_delete_consultancy']);
         Route::get('countries', [ConsultancyApiController::class, 'countries']);
         Route::get('/states', [ConsultancyApiController::class, 'getStates']);
+        Route::post('consultant/update-basic', [ConsultanctApiController::class, 'apiUpdateBasicDetailsConsultant']);
     });
 
 });
