@@ -32,7 +32,6 @@ class ConsultantController extends Controller
             ->orderBy('id', 'desc')
             ->get();
             $publicHolidays = DB::table('public_holidays')->get();
-            //echo "<pre>";print_r($dataTimesheet);die;
             return view('consultant.dashboard',compact('consultant','userData','dataTimesheet','dataClaims','publicHolidays'));
         }
         else
@@ -42,6 +41,53 @@ class ConsultantController extends Controller
         
     }
 
+    public function updateBasicDetailsConsultant(Request $request)
+    {
+        $consultant = Consultant::findOrFail($request->id);
+
+        $consultant->fill($request->only([
+            'first_name', 'middle_name', 'last_name', 'dob',
+            'citizen', 'nationality', 'address_by_user', 'mobile_number'
+        ]));
+
+        // 🔄 Handle Profile Image Upload
+        if ($request->hasFile('profile_image')) {
+            // Delete old profile image if it exists
+            if ($consultant->profile_image && file_exists(public_path('storage/' . $consultant->profile_image))) {
+                unlink(public_path('storage/' . $consultant->profile_image));
+            }
+
+            $image = $request->file('profile_image');
+            $fileName = time() . '_profile_' . $image->getClientOriginalName();
+            $image->storeAs('consultant', $fileName, 'public');
+            $consultant->profile_image = 'consultant/' . $fileName;
+        }
+
+        // 🔄 Handle Resume Upload
+        if ($request->hasFile('resume_file')) {
+            // Delete old resume if it exists
+            if ($consultant->resume_file && file_exists(public_path('storage/' . $consultant->resume_file))) {
+                unlink(public_path('storage/' . $consultant->resume_file));
+            }
+
+            $resume = $request->file('resume_file');
+            $fileName = time() . '_resume_' . $resume->getClientOriginalName();
+            $resume->storeAs('consultant', $fileName, 'public');
+            $consultant->resume_file = 'consultant/' . $fileName;
+        }
+
+        $consultant->save();
+
+        return redirect()->intended(route('consultant.dashboard'));
+    }
+
+    public function information()
+    {
+        $userData = Session::get('user_data');
+        $userId = Session::get('user_data')['id'] ?? null;
+        $consultant = Consultant::where('login_email',  $userData['email'])->first();
+        return view('consultant.basic_info_page',compact('consultant'));
+    }
     /**
      * Show the form for creating a new resource.
      */

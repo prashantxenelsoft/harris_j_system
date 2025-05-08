@@ -19,7 +19,8 @@ class AdminController extends Controller
             } elseif ($roleId == 6) {
                 return redirect()->intended(route('bom.dashboard'));
             }  elseif ($roleId == 11) {
-                return redirect()->intended(route('consultant.dashboard'));
+                // return redirect()->intended(route('consultant.dashboard'));
+                return redirect()->intended(route('consultant.information'));
             } else {
                 Auth::logout();
                 return back()->with('error', 'Unauthorized access');
@@ -51,7 +52,8 @@ class AdminController extends Controller
             } elseif ($user->role_id == 7) {
                 return redirect()->intended(route('consultancy.dashboard'));
             }  elseif ($user->role_id == 11) {
-                return redirect()->intended(route('consultant.dashboard'));
+                // return redirect()->intended(route('consultant.dashboard'));
+                return redirect()->intended(route('consultant.information'));
             } else {
                 Auth::logout();
                 return back()->with('error', 'Unauthorized access');

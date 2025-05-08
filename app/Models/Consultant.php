@@ -30,6 +30,14 @@ class Consultant extends Model
         'user_id',
         'client_id',
         'client_name',
+        'profile_image',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'citizen',
+        'nationality',
+        'address_by_user',
+        'resume_file',
     ];
 
     protected $casts = [

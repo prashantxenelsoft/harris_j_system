@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::get('admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('bom/dashboard', [BomController::class, 'dashboard'])->name('bom.dashboard');
     Route::get('consultant/dashboard', [ConsultantController::class, 'index'])->name('consultant.dashboard');
+    Route::get('consultant/information', [ConsultantController::class, 'information'])->name('consultant.information');
     Route::post('admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
     Route::resource('admin/roles', RoleController::class);
     Route::resource('admin/users', UserController::class);
@@ -106,6 +107,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/delete-consultant-claim', [ConsultantController::class, 'deleteClaim'])->name('consultant.claim.delete');
     Route::get('/get-timesheet-status', [ConsultantController::class, 'getTimesheetStatus'])->name('get-timesheet-status');
     Route::get('/get-claim-status', [ConsultantController::class, 'getClaimStatus'])->name('get-claim-status');
+    Route::post('/consultant/update-basic-details', [ConsultantController::class, 'updateBasicDetailsConsultant'])->name('consultant.update.basic.details');
+
 
 
 });
