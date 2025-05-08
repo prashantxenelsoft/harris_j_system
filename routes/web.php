@@ -12,14 +12,31 @@ use App\Http\Controllers\ConsultantController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ConsultancyApiController;
 
+// Route::group(['prefix' => 'api'], function () {
+//     Route::post('auth/login', [AuthController::class, 'apiLogin']);
+//     Route::get('getConsultancy', [ConsultancyApiController::class, 'getConsultancy']);
+//     Route::post('add-consultancy', [ConsultancyApiController::class, 'add_consultancy']); 
+//     Route::post('update-consultancy/{id}', [ConsultancyApiController::class, 'api_update_consultancy']);
+//     Route::get('countries', [ConsultancyApiController::class, 'countries']);
+//     Route::get('/states', [ConsultancyApiController::class, 'getStates']);
+//     Route::delete('delete-consultancy/{id}', [ConsultancyApiController::class, 'api_delete_consultancy']);
+
+// });
+
 Route::group(['prefix' => 'api'], function () {
+
+    // 🔓 Public Route
     Route::post('auth/login', [AuthController::class, 'apiLogin']);
-    Route::get('getConsultancy', [ConsultancyApiController::class, 'getConsultancy']);
-    Route::post('add-consultancy', [ConsultancyApiController::class, 'add_consultancy']); 
-    Route::post('update-consultancy/{id}', [ConsultancyApiController::class, 'api_update_consultancy']);
-    Route::get('countries', [ConsultancyApiController::class, 'countries']);
-    Route::get('/states', [ConsultancyApiController::class, 'getStates']);
-    Route::delete('delete-consultancy/{id}', [ConsultancyApiController::class, 'api_delete_consultancy']);
+
+    // 🔒 Protected Routes
+    Route::middleware('auth:api')->group(function () {
+        Route::get('getConsultancy', [ConsultancyApiController::class, 'getConsultancy']);
+        Route::post('add-consultancy', [ConsultancyApiController::class, 'add_consultancy']); 
+        Route::post('update-consultancy/{id}', [ConsultancyApiController::class, 'api_update_consultancy']);
+        Route::delete('delete-consultancy/{id}', [ConsultancyApiController::class, 'api_delete_consultancy']);
+        Route::get('countries', [ConsultancyApiController::class, 'countries']);
+        Route::get('/states', [ConsultancyApiController::class, 'getStates']);
+    });
 
 });
 

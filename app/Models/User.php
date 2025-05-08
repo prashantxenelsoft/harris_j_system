@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject; // Add this
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject // Implement JWTSubject
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -45,5 +44,16 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // 🔐 JWT-required methods
+    public function getJWTIdentifier()
+    {
+        return $this->getKey(); // usually the 'id'
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return []; // you can return custom payload data here if needed
     }
 }
