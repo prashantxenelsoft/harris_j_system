@@ -2779,7 +2779,7 @@
                               @elseif (!empty($item['remarks']))
                                  <p>{{ $item['remarks'] }}</p>
                               @else
-                                 <p>No remarks</p>
+                               
                               @endif
                               
                            </div>
@@ -2890,7 +2890,7 @@
                                        @elseif (!empty($item['remarks']))
                                           <p>{{ $item['remarks'] }}</p>
                                        @else
-                                          <p>No remarks</p>
+                                          
                                        @endif
                                        
                                     </div>
