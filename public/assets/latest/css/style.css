@@ -628,20 +628,21 @@ span.inactive-badge::before {
 
 /* Login Page */
 
+
 .login-page-wrapper {
     min-height: 100vh;
 }
-
+ 
 .login-page-wrapper .container {
     box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
 }
-
+ 
 .login-page-wrapper .login-screen-image img {
     height: 100%;
     width: 100%;
     object-fit: cover;
 }
-
+ 
 .login-page-wrapper .login-right-col {
     height: 100%;
     width: 90%;
@@ -650,22 +651,23 @@ span.inactive-badge::before {
     flex-direction: column;
     justify-content: center;
 }
-
+ 
 .login-page-wrapper .login-right-col h2 {
-    font-family: var(--Themefont);
-    font-weight: 600;
+    font-family: "Ubuntu", sans-serif;
+    font-weight: 500;
     font-size: var(--Font32px);
     text-align: center;
     line-height: 1.5;
+    padding: 0 12%;
 }
-
+ 
 .login-page-wrapper .login-right-col .login-row {
     margin-top: 20px;
     display: flex;
     flex-direction: column;
     margin-bottom: 10px;
 }
-
+ 
 .login-page-wrapper .login-right-col .login-row input[type="email"] {
     width: 100%;
     height: 56px;
@@ -674,7 +676,7 @@ span.inactive-badge::before {
     border: 1px solid #66666659;
     font-family: var(--Themefont);
 }
-
+ 
 .login-page-wrapper .login-right-col .login-row input[type="password"] {
     width: 100%;
     height: 56px;
@@ -683,66 +685,66 @@ span.inactive-badge::before {
     border: 1px solid #66666659;
     font-family: var(--Themefont);
 }
-
+ 
 .login-page-wrapper .login-right-col .login-row span {
     color: #666666CC;
-    font-family: var(--Themefont);
+    font-family: "Poppins", sans-serif;
     display: flex;
     margin-left: auto;
     margin-bottom: 10px;
     font-size: var(--Font18);
     cursor: pointer;
 }
-
+ 
 .login-page-wrapper .login-right-col .login-row span i {
     margin-right: 5px;
 }
-
+ 
 .login-page-wrapper .login-row-remember {
     display: flex;
     justify-content: space-between;
     margin-top: 15px;
     margin-bottom: 15px;
 }
-
+ 
 .form-switch {
     display: flex;
     align-items: center;
     gap: 10px;
 }
-
+ 
 .login-page-wrapper .login-row-remember .login-form-remember-button p {
-    font-family: var(--Themefont);
+    font-family: "Poppins", sans-serif;
     font-size: var(--Font18);
 }
-
+ 
 .login-page-wrapper .login-row-remember .password-assistance-wrap a {
     text-decoration: none;
-    font-family: var(--Themefont);
+    font-family: "Poppins", sans-serif;
     font-size: var(--Font16px);
     font-weight: 600;
     color: #007AFF;
     letter-spacing: 0.3px;
 }
-
+ 
 .login-page-wrapper .login-form-plicy p {
-    font-family: var(--Themefont);
+    font-family: "Poppins", sans-serif;
     font-size: var(--Font16px);
     font-weight: 400;
     line-height: 1.5;
     color: #fff;
 }
-
+ 
 .login-page-wrapper .login-form-plicy p a {
     color: #fff;
 }
-
+ 
 .login-page-wrapper .login-row input[type="submit"] {
     background-color: var(--Themeorange);
     border: none;
     padding: 15px 0px;
     border-radius: 10px;
-    font-family: var(--Themefont);
+    font-family: "Poppins", sans-serif;
     color: #fff;
     font-size: var(--Font22px);
 }
