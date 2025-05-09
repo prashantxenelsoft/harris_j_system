@@ -26,7 +26,7 @@
                               <li>
                                  <h6>Client Name</h6>
                                  <p>: {{ $consultant->client_name ?? 'N/A' }}</p>
-                              </li>
+                              </li> 
                            </ul>
                         </div>
                         @else
