@@ -25,6 +25,7 @@ class ConsultantController extends Controller
             ->where('type', 'timesheet')
             ->orderBy('id', 'desc')
             ->get();
+           // echo "<pre>";print_r($dataTimesheet);die;
 
             $dataClaims = DB::table('consultant_dashboard')
             ->where('user_id', $userId)

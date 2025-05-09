@@ -408,3 +408,11 @@
     .bottom-remark-timesheet-group .work-summary .tab_content_body table td{
      font-size: 11px;
     }
+
+    .progress-steps-calender ul li span svg{
+        height: 18px;
+        width: 18px;
+        }
+        .progress-steps-calender ul li span.active svg path{
+        filter: invert(1);
+        }

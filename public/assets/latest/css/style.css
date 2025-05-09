@@ -2832,6 +2832,7 @@ span.inactive-badge::before {
     padding: 7px 15px;
     border-radius: 12px;
     font-size: var(--Font16px);
+    text-decoration: none;
 }
 
 .calendar-top-header-btn-group .save-btn img {
@@ -2850,6 +2851,7 @@ span.inactive-badge::before {
     color: #fff;
     height: 100%;
     display: flex;
+    text-decoration: none;
     align-items: center;
 }
 
@@ -5909,3 +5911,122 @@ margin-left: 5px;
     object-fit: contain;
     filter: invert(31%) sepia(92%) saturate(2389%) hue-rotate(340deg) brightness(103%) contrast(102%);
   }
+
+  /* Submit PopUp Start */
+
+#submitpopup .modal-header{
+    background-color: var(--Themeorange);
+}
+
+#submitpopup .modal-header h5{
+    color: #fff;
+    font-family: var(--Themefont);
+    font-size: var(--Font24px);
+    font-weight: 600;
+}
+
+#submitpopup .modal-header button img{
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+}
+
+#submitpopup .modal-header button{
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    background-color: transparent;
+}
+
+.modal-submission-form {
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.modal-submission-form h4{
+    font-family: var(--Themefont);
+    color: var(--Themeorange);
+    font-size: var(--Font24px);
+    font-weight: 600;
+    position: relative;
+}
+
+.modal-submission-form h4::before{
+    position: absolute;
+    content: '';
+    top: 10px;
+    right: 0;
+    height: 1px;
+    width: 44%;
+    background-color: #666666;
+}
+
+.modal-submission-form .modal-submit-form-row{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.modal-submission-form .modal-submit-form-row input{
+    height: 48px;
+    border: 1px solid #adb5bd;
+    border-radius: 8px;
+    padding-left: 10px;
+    font-family: var(--Themefont);
+}
+
+.modal-submission-form .modal-submit-form-row input::placeholder{
+    font-weight: 500;
+    color: grey;
+}
+
+.modal-submission-form .submit-form-btn-group{
+    margin-top: 40px;
+}
+
+.modal-submission-form .submit-form-btn-group ul{
+  display: flex;
+  justify-content: space-evenly;
+  gap: 50px;
+  padding: 10px 5%;
+}
+
+.modal-submission-form .submit-form-btn-group ul li{
+    width: 45%;
+
+}
+
+.modal-submission-form .submit-form-btn-group ul li a{
+    background-color: var(--Themeorange);
+    font-family: var(--Themefont);
+    border: 1px solid var(--Themeorange);
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: var(--Font18);
+    color: #fff;
+    height: 100%;
+    text-align: center;
+    display: flex
+;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-submission-form .submit-form-btn-group ul li a img{
+    width: 25px;
+    margin-right: 5px;
+}
+
+#submitpopup .modal-content{
+  border-radius: 20px;
+}
+
+#submitpopup .modal-header{
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+
+/* Submit PopUp End */
