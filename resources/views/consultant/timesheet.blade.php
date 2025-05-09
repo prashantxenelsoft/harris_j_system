@@ -112,12 +112,14 @@
 
                                     </ul>
                               </div>
+
                            <div class="month-controls">
                               <button onclick="changeMonth(-1)">&#x25C0;</button>
                               <select id="monthSelect"></select>
                               <select id="yearSelect"></select>
                               <button onclick="changeMonth(1)">&#x25B6;</button>
                            </div>
+                           
                         </div>
                         <div class="calendar-container">
                            <div class="calendar">

@@ -66,7 +66,7 @@
                             </label>
 
                             @if ($consultant->resume_file)
-                                <div style="margin-top: 5px;">
+                                <div class="preview_link" style="margin-top: 5px;">
                                     <a href="{{ asset('storage/app/public/' . $consultant->resume_file) }}" target="_blank" style="text-decoration: underline; color:darkred;">Preview</a>
                                 </div>
                             @endif
