@@ -1076,7 +1076,7 @@
                                                 <div><a href="#" data-type="AL">AL</a></div>
                                                 <div><a href="#" data-type="UL">UL</a></div>
                                                 <div><a href="#" data-type="PDO">PDO</a></div>
-                                                <div><a href="#" data-type="COMP_OFF">Comp - Off</a></div>
+                                                <div><a href="#" data-type="COMP-OFF">Comp - Off</a></div>
                                              </div>
                                              <input type="hidden" id="selectedLeaveType" />
                                              <div class="select_leave_hour">
@@ -2352,7 +2352,7 @@
 
                                        const formattedDate = `${day.padStart(2, '0')} / ${(parseInt(month) + 1).toString().padStart(2, '0')} / ${year}`;
                                        const label = tagElement.innerText.trim();
-                                       if (label.startsWith("ML") || label.startsWith("Custom")|| label.startsWith("AL")|| label.startsWith("PDO")|| label.startsWith("UL")) return;
+                                       if (label.startsWith("ML") || label.startsWith("Custom")|| label.startsWith("AL")|| label.startsWith("COMP-OFF")|| label.startsWith("PDO")|| label.startsWith("UL")) return;
 
                                        const recordData = {};
 
@@ -2415,7 +2415,7 @@
                            
                            // 🔵 Submit button (Submitted status)
                            document.getElementById("submit_icon").addEventListener("click", function (e) {
-                              // e.preventDefault();
+                               e.preventDefault();
                                saveCalendarData('Submitted');
                            });
                            
