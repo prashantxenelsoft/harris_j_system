@@ -416,3 +416,107 @@
         .progress-steps-calender ul li span.active svg path{
         filter: invert(1);
         }
+
+    .month-year-picker {
+  background: transparent;
+  padding: 0px;
+  border-radius: 0px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: var(--Font16px);
+  color: #333;
+}
+
+.month-year-picker i {
+  color: #555;
+  font-size: 18px;
+}
+.month-year-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+#monthYearDropdown {
+  position: absolute;
+  top: 100%;
+  left: -80px;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  display: flex;
+  gap: 8px;
+}
+
+
+.dropdown-hidden {
+  display: none !important;
+}
+
+#monthYearDropdown select {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.month-year-picker img{
+   width: 24px;
+}
+
+#timesheet .calender-top-steps-wrapper{
+   justify-content: space-between;
+}
+
+.month-year-wrapper {
+   padding: 0 30px 0 0px;
+}
+
+#backDateClaim{
+    background: #D1D1D6;
+    padding: 22px 0;
+    text-align: center;
+    color: white;
+    /* font-weight: 600; */
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    font-family: Montserrat;
+    /* font-weight: 700; */
+    font-size: 20px;
+    line-height: 24px;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    height: 68px;
+}
+
+div#timesheet .timeline-dot.dot-blue {
+    left: -7%;
+}
+
+div#timesheet .timesheet-overview-consultant{
+    margin-top: 20px;
+    height: 96%;
+}
+
+div#timesheet .timeline-container{
+    height: 100%;
+}
+
+div#home_page_timesheet{
+    margin-top: 0px;
+    height: 100%;
+}
+
+div#home_page_timesheet .timeline-container{
+    height: 100%;
+}
+
+/* .calender-custom .calendar{
+    background-color: #d1d1d6;
+} */

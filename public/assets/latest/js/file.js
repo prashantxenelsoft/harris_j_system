@@ -2,13 +2,12 @@
 
 
 const timesheet = document.getElementById('timesheetChart').getContext('2d');
-
 new Chart(timesheet, {
   type: 'pie', // Ensure it's 'pie'
   data: {
     labels: ['Approved', 'Submitted (Unapproved)', 'Rejected'],
     datasets: [{
-      data: [240, 50, 0],
+      data: [window.dashboardDataTimeSheet.approved, window.dashboardDataTimeSheet.submitted, window.dashboardDataTimeSheet.rejected],
       backgroundColor: ['#2563eb', '#16a34a', '#ef4444'], // Blue, Green, Red
       borderWidth: 2,
       borderColor: '#fff'
@@ -25,13 +24,12 @@ new Chart(timesheet, {
 
 
 const ctxx = document.getElementById('workingChart').getContext('2d');
-
 new Chart(ctxx, {
   type: 'pie', // Full circle pie chart
   data: {
     labels: ['Hours Logged', 'Remaining Hours'],
     datasets: [{
-      data: [42, 126], // Customize these values
+      data: [window.dashboardData.totalLogged, window.dashboardData.totalForecasted], // Customize these values
       backgroundColor: ['#22c55e', '#f97316'], // Green and Orange
       borderColor: '#fff',
       borderWidth: 2

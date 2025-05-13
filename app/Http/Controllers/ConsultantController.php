@@ -14,6 +14,7 @@ class ConsultantController extends Controller
      */
     public function index()
     {
+        $currentUrl = url()->full(); 
         $userData = Session::get('user_data');
         $userId = Session::get('user_data')['id'] ?? null;
         $consultant = Consultant::where('login_email',  $userData['email'])->first();
@@ -32,6 +33,7 @@ class ConsultantController extends Controller
             ->where('type', 'claims')
             ->orderBy('id', 'desc')
             ->get();
+            //echo "<pre>";print_r($dataClaims);die;
             $publicHolidays = DB::table('public_holidays')->get();
             return view('consultant.dashboard',compact('consultant','userData','dataTimesheet','dataClaims','publicHolidays'));
         }
