@@ -17,6 +17,9 @@
       const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
       const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
       const submitBtn = document.getElementById("submit_icon");
+      const save_icon = document.getElementById("save_icon");
+      const reporting_fileds_data = document.getElementById("reporting_fileds_data");
+      
 
       let hasData = false;
       let hasDraft = false;
@@ -44,9 +47,13 @@
 
       if (submitBtn) {
          if (!hasData || hasDraft) {
-            submitBtn.style.display = "grid"; // ✅ Show
+            submitBtn.style.display = "grid"; 
+            reporting_fileds_data.style.display = "block"; 
+            save_icon.style.display = "flex"; 
          } else {
-            submitBtn.style.display = "none"; // ❌ Hide
+            submitBtn.style.display = "none"; 
+            reporting_fileds_data.style.display = "none"; 
+            save_icon.style.display = "none"; 
          }
       }
    });
@@ -82,7 +89,7 @@
                            </ul>
                         </div>
 
-                        <div class="client-details-consultant">
+                        <div id="reporting_fileds_data" class="client-details-consultant">
                            <ul>
                                  <li>
                                     <input type="text" placeholder="Enter Reporting Manager Name">
@@ -180,7 +187,7 @@
                            <div class="month-year-wrapper">
                               <div class="month-year-picker" onclick="toggleMonthYearMenu()">
                                  <img src="{{ asset('public/assets/latest/images/calender.png') }}" class="img-fluid" />
-                                 <span id="monthYearLabel">August - 2024</span>
+                                 <span id="monthYearLabel"></span>
                               </div>
 
                               <div id="monthYearDropdown" class="dropdown-hidden">
@@ -1499,7 +1506,7 @@
                               monthSelect.value = now.getMonth();
                               yearSelect.value = now.getFullYear();
                            }
-                           updateMonthYearLabel()
+                           updateMonthYearLabel();
                            renderCalendar();
                            fetchStatus();
                         });
@@ -1701,7 +1708,7 @@
 
                                  //if (dayOfWeek === 0 || dayOfWeek === 6 || !calendarEditable) {
 
-                                  if (dayOfWeek === 0 || dayOfWeek === 6 || !calendarEditable) {
+                                  if (dayOfWeek === 0 || dayOfWeek === 6 ) {
                                  // if (dayOfWeek === 0 || dayOfWeek === 6  ) {
                                     cell.classList.add("disabled");
                                  } else {
@@ -3156,125 +3163,126 @@
                      </div>
                     <div class="remark-timeline" id="remarkTimeline">
                         @php
-                        
-
+                           
                            $timelineItems = [];
 
-                           foreach ($dataTimesheet as $entry) {
-                              $record = json_decode($entry->record, true);
-                              $leaveType = $record['leaveType'] ?? null;
-                              $workingHours = $record['workingHours'] ?? null;
-                              $leaveHourId = $record['leaveHourId'] ?? null;
-                              $applyOnCell = $record['applyOnCell'] ?? null;
-                              $dateRange = $record['date'] ?? '';
-                              $remarks = $record['remarks'] ?? null;
+                           // ✅ Sort by updated_at DESC (latest activity first)
+                           $sortedTimesheet = $dataTimesheet->sortByDesc('updated_at');
 
-                              $leaveShort = '';
-                              if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-                              elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-                              elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+                           foreach ($sortedTimesheet as $entry) {
+                                 $record = json_decode($entry->record, true);
+                                 $leaveType = $record['leaveType'] ?? null;
+                                 $workingHours = $record['workingHours'] ?? null;
+                                 $leaveHourId = $record['leaveHourId'] ?? null;
+                                 $applyOnCell = $record['applyOnCell'] ?? null;
+                                 $dateRange = $record['date'] ?? '';
+                                 $remarks = $record['remarks'] ?? null;
 
-                              $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
+                                 $leaveShort = '';
+                                 if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                 elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                 elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
 
-                              $dates = [];
+                                 $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
 
-                              if ($dateRange && str_contains($dateRange, 'to')) {
-                                 try {
-                                    [$start, $end] = array_map('trim', explode('to', $dateRange));
-                                    $startDate = Carbon::createFromFormat('d / m / Y', $start);
-                                    $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                                 $dates = [];
 
-                                    while ($startDate->lte($endDate)) {
-                                       $dates[] = $startDate->copy();
-                                       $startDate->addDay();
-                                    }
-                                 } catch (\Exception $e) {}
-                              } elseif ($applyOnCell) {
-                                 try {
-                                    $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-                                 } catch (\Exception $e) {}
-                              }
+                                 if ($dateRange && str_contains($dateRange, 'to')) {
+                                    try {
+                                       [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                       $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                       $endDate = Carbon::createFromFormat('d / m / Y', $end);
 
-                              foreach ($dates as $date) {
-                                 if (in_array($date->dayOfWeek, [0, 6])) continue;
+                                       while ($startDate->lte($endDate)) {
+                                             $dates[] = $startDate->copy();
+                                             $startDate->addDay();
+                                       }
+                                    } catch (\Exception $e) {}
+                                 } elseif ($applyOnCell) {
+                                    try {
+                                       $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                    } catch (\Exception $e) {}
+                                 }
 
-                                 $timelineItems[] = [
-                                    'date' => $date,
-                                    'formatted' => $date->format('D, d M Y'),
-                                    'badge' => $badgeText,
-                                    'workingHours' => $workingHours,
-                                    'leaveType' => $leaveType,
-                                    'remarks' => $remarks,
-                                    'month' => $date->month,
-                                    'year' => $date->year
-                                 ];
-                              }
+                                 foreach ($dates as $date) {
+                                    if (in_array($date->dayOfWeek, [0, 6])) continue;
+
+                                    $timelineItems[] = [
+                                       'date' => $date,
+                                       'formatted' => $date->format('D, d M Y'),
+                                       'badge' => $badgeText,
+                                       'workingHours' => $workingHours,
+                                       'leaveType' => $leaveType,
+                                       'remarks' => $remarks,
+                                       'month' => $date->month,
+                                       'year' => $date->year
+                                    ];
+                                 }
                            }
-
-                           usort($timelineItems, fn($a, $b) => $b['date']->timestamp <=> $a['date']->timestamp);
                         @endphp
 
                         <div id="timelineContainer" class="remark-container">
                            @foreach ($timelineItems as $item)
-                              <div class="remark-item mb-3" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
-                                 <div class="d-flex align-items-start">
-                                    <div class="me-2 text-primary">
-                                       <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                       <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                    </div>
-                                    <div>
-                                       <div class="d-flex align-items-center mb-1">
-                                          <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
-                                          <small class="text-muted">
-                                             @if ($item['badge'])
-                                                <span>{{ $item['formatted'] }} -</span>
-                                                <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
-                                             @elseif ($item['workingHours'])
-                                                <span>{{ $item['formatted'] }} - {{ $item['workingHours'] }} hours</span>
-                                             @endif
-                                          </small>
+                                 <div class="remark-item mb-3" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
+                                    <div class="d-flex align-items-start">
+                                       <div class="me-2 text-primary">
+                                             <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                             <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
                                        </div>
+                                       <div>
+                                             <div class="d-flex align-items-center mb-1">
+                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
+                                                <small class="text-muted">
+                                                   {{ $item['formatted'] }} -
+                                                   @if ($item['badge'])
+                                                         <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
+                                                   @elseif ($item['workingHours'])
+                                                         {{ $item['workingHours'] }} hours
+                                                   @endif
+                                                </small>
+                                             </div>
 
-                                       @if ($item['leaveType'] === 'ML')
-                                          <p>{{ $consultant->emp_name }} has applied for medical leave</p>
-                                       @elseif (!empty($item['remarks']))
-                                          <p>{{ $item['remarks'] }}</p>
-                                       @endif
+                                             @if ($item['leaveType'] === 'ML')
+                                                <p>{{ $consultant->emp_name }} has applied for medical leave</p>
+                                             @elseif (!empty($item['remarks']))
+                                                <p>{{ $item['remarks'] }}</p>
+                                             @endif
+                                       </div>
                                     </div>
                                  </div>
-                              </div>
                            @endforeach
 
                            <div id="noRemarksMessage" class="text-center text-muted p-3 d-none">
-                              <strong>Remarks not found</strong>
+                                 <strong>Remarks not found</strong>
                            </div>
                         </div>
                      </div>
 
                      <script>
-                        document.addEventListener("DOMContentLoaded", function () {
-                           const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
-                           const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+                     document.addEventListener("DOMContentLoaded", function () {
+                        const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                        const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
 
-                           const remarkItems = document.querySelectorAll("#timelineContainer .remark-item");
-                           let visibleCount = 0;
+                        const remarkItems = document.querySelectorAll("#timelineContainer .remark-item");
+                        let visibleCount = 0;
 
-                           remarkItems.forEach(item => {
-                              const month = parseInt(item.getAttribute("data-month"));
-                              const year = parseInt(item.getAttribute("data-year"));
+                        remarkItems.forEach(item => {
+                           const month = parseInt(item.getAttribute("data-month"));
+                           const year = parseInt(item.getAttribute("data-year"));
 
-                              if (month === selectedMonth && year === selectedYear) {
+                           if (month === selectedMonth && year === selectedYear) {
                                  item.style.display = "";
                                  visibleCount++;
-                              } else {
+                           } else {
                                  item.style.display = "none";
-                              }
-                           });
-
-                           const noRemarks = document.getElementById("noRemarksMessage");
-                           noRemarks.classList.toggle("d-none", visibleCount > 0);
+                           }
                         });
+
+                        const noRemarks = document.getElementById("noRemarksMessage");
+                        noRemarks.classList.toggle("d-none", visibleCount > 0);
+                     });
                      </script>
+
 
                   </div>
                   <!-- Modal for Expanded View -->
@@ -3288,98 +3296,99 @@
                               </button>
                            </div>
                            <div class="modal-body">
-                                <div class="remark-timeline" id="timelineRemarksBox">
+                                <div class="remark-timeline" id="remarkTimeline">
                                     @php
-
+                                       
                                        $timelineItems = [];
 
-                                       foreach ($dataTimesheet as $entry) {
-                                          $record = json_decode($entry->record, true);
-                                          $leaveType = $record['leaveType'] ?? null;
-                                          $workingHours = $record['workingHours'] ?? null;
-                                          $leaveHourId = $record['leaveHourId'] ?? null;
-                                          $applyOnCell = $record['applyOnCell'] ?? null;
-                                          $dateRange = $record['date'] ?? '';
-                                          $remarks = $record['remarks'] ?? null;
+                                       // ✅ Sort by updated_at DESC (latest activity first)
+                                       $sortedTimesheet = $dataTimesheet->sortByDesc('updated_at');
 
-                                          $leaveShort = '';
-                                          if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-                                          elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-                                          elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+                                       foreach ($sortedTimesheet as $entry) {
+                                             $record = json_decode($entry->record, true);
+                                             $leaveType = $record['leaveType'] ?? null;
+                                             $workingHours = $record['workingHours'] ?? null;
+                                             $leaveHourId = $record['leaveHourId'] ?? null;
+                                             $applyOnCell = $record['applyOnCell'] ?? null;
+                                             $dateRange = $record['date'] ?? '';
+                                             $remarks = $record['remarks'] ?? null;
 
-                                          $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
+                                             $leaveShort = '';
+                                             if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                             elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                             elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
 
-                                          $dates = [];
+                                             $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
 
-                                          if ($dateRange && str_contains($dateRange, 'to')) {
-                                             try {
-                                                [$start, $end] = array_map('trim', explode('to', $dateRange));
-                                                $startDate = Carbon::createFromFormat('d / m / Y', $start);
-                                                $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                                             $dates = [];
 
-                                                while ($startDate->lte($endDate)) {
-                                                   $dates[] = $startDate->copy();
-                                                   $startDate->addDay();
-                                                }
-                                             } catch (\Exception $e) {}
-                                          } elseif ($applyOnCell) {
-                                             try {
-                                                $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-                                             } catch (\Exception $e) {}
-                                          }
+                                             if ($dateRange && str_contains($dateRange, 'to')) {
+                                                try {
+                                                   [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                                   $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                                   $endDate = Carbon::createFromFormat('d / m / Y', $end);
 
-                                          foreach ($dates as $date) {
-                                             if (in_array($date->dayOfWeek, [0, 6])) continue;
+                                                   while ($startDate->lte($endDate)) {
+                                                         $dates[] = $startDate->copy();
+                                                         $startDate->addDay();
+                                                   }
+                                                } catch (\Exception $e) {}
+                                             } elseif ($applyOnCell) {
+                                                try {
+                                                   $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                                } catch (\Exception $e) {}
+                                             }
 
-                                             $timelineItems[] = [
-                                                'date' => $date,
-                                                'formatted' => $date->format('D, d M Y'),
-                                                'badge' => $badgeText,
-                                                'workingHours' => $workingHours,
-                                                'leaveType' => $leaveType,
-                                                'remarks' => $remarks,
-                                                'month' => $date->month,
-                                                'year' => $date->year
-                                             ];
-                                          }
+                                             foreach ($dates as $date) {
+                                                if (in_array($date->dayOfWeek, [0, 6])) continue;
+
+                                                $timelineItems[] = [
+                                                   'date' => $date,
+                                                   'formatted' => $date->format('D, d M Y'),
+                                                   'badge' => $badgeText,
+                                                   'workingHours' => $workingHours,
+                                                   'leaveType' => $leaveType,
+                                                   'remarks' => $remarks,
+                                                   'month' => $date->month,
+                                                   'year' => $date->year
+                                                ];
+                                             }
                                        }
-
-                                       usort($timelineItems, fn($a, $b) => $b['date']->timestamp <=> $a['date']->timestamp);
                                     @endphp
 
-                                    <div id="timelineRemarksContainer">
+                                    <div id="timelineContainer" class="remark-container">
                                        @foreach ($timelineItems as $item)
-                                          <div class="remark-item mb-3" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
-                                             <div class="d-flex align-items-start">
-                                                <div class="me-2 text-primary">
-                                                   <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                                   <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                                </div>
-                                                <div>
-                                                   <div class="d-flex align-items-center mb-1">
-                                                      <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
-                                                      <small class="text-muted">
-                                                         @if ($item['badge'])
-                                                            <span>{{ $item['formatted'] }} -</span>
-                                                            <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
-                                                         @elseif ($item['workingHours'])
-                                                            <span>{{ $item['formatted'] }} - {{ $item['workingHours'] }} hours</span>
-                                                         @endif
-                                                      </small>
+                                             <div class="remark-item mb-3" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
+                                                <div class="d-flex align-items-start">
+                                                   <div class="me-2 text-primary">
+                                                         <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                                         <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
                                                    </div>
+                                                   <div>
+                                                         <div class="d-flex align-items-center mb-1">
+                                                            <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
+                                                            <small class="text-muted">
+                                                               {{ $item['formatted'] }} -
+                                                               @if ($item['badge'])
+                                                                     <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
+                                                               @elseif ($item['workingHours'])
+                                                                     {{ $item['workingHours'] }} hours
+                                                               @endif
+                                                            </small>
+                                                         </div>
 
-                                                   @if ($item['leaveType'] === 'ML')
-                                                      <p>{{ $consultant->emp_name }} has applied for medical leave</p>
-                                                   @elseif (!empty($item['remarks']))
-                                                      <p>{{ $item['remarks'] }}</p>
-                                                   @endif
+                                                         @if ($item['leaveType'] === 'ML')
+                                                            <p>{{ $consultant->emp_name }} has applied for medical leave</p>
+                                                         @elseif (!empty($item['remarks']))
+                                                            <p>{{ $item['remarks'] }}</p>
+                                                         @endif
+                                                   </div>
                                                 </div>
                                              </div>
-                                          </div>
                                        @endforeach
 
-                                       <div id="remarksEmptyMsg" class="text-center text-muted p-3 d-none">
-                                          <strong>Remarks not found</strong>
+                                       <div id="noRemarksMessage" class="text-center text-muted p-3 d-none">
+                                             <strong>Remarks not found</strong>
                                        </div>
                                     </div>
                                  </div>
@@ -3413,8 +3422,6 @@
                                        }
                                     });
                                  </script>
-
-
                            </div>
                         </div>
                      </div>
@@ -3504,111 +3511,283 @@
                      <!-- Tab Contents -->
                      <div class="tab-content tab_content_body p-2">
                         <div class="tab-pane fade show active" id="overviewTab">
-                           <div class="timeline">
+                          <div class="timeline">
+                              @php
+                                 
+                                 $timelineItems = [];
 
-                           @php
+                                 // Sort by updated_at descending
+                                 $sortedTimesheet = $dataTimesheet->sortByDesc('updated_at');
 
-                           $timelineItems = [];
+                                 foreach ($sortedTimesheet as $entry) {
+                                       $record = json_decode($entry->record, true);
+                                       $leaveType = $record['leaveType'] ?? null;
+                                       $workingHours = $record['workingHours'] ?? null;
+                                       $leaveHourId = $record['leaveHourId'] ?? null;
+                                       $applyOnCell = $record['applyOnCell'] ?? null;
+                                       $dateRange = $record['date'] ?? '';
 
-                           foreach ($dataTimesheet as $entry) {
-                              $record = json_decode($entry->record, true);
-                              $leaveType = $record['leaveType'] ?? null;
-                              $workingHours = $record['workingHours'] ?? null;
-                              $leaveHourId = $record['leaveHourId'] ?? null;
-                              $applyOnCell = $record['applyOnCell'] ?? null;
-                              $dateRange = $record['date'] ?? '';
+                                       $leaveShort = '';
+                                       if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                       elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                       elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
 
-                              $leaveShort = '';
-                              if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-                              elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-                              elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+                                       $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
 
-                              $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
+                                       $dates = [];
 
-                              $dates = [];
+                                       if ($dateRange && str_contains($dateRange, 'to')) {
+                                          try {
+                                             [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                             $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                             $endDate = Carbon::createFromFormat('d / m / Y', $end);
 
-                              if ($dateRange && str_contains($dateRange, 'to')) {
-                                 try {
-                                       [$start, $end] = array_map('trim', explode('to', $dateRange));
-                                       $startDate = Carbon::createFromFormat('d / m / Y', $start);
-                                       $endDate = Carbon::createFromFormat('d / m / Y', $end);
-
-                                       while ($startDate->lte($endDate)) {
-                                          $dates[] = $startDate->copy();
-                                          $startDate->addDay();
+                                             while ($startDate->lte($endDate)) {
+                                                   $dates[] = $startDate->copy();
+                                                   $startDate->addDay();
+                                             }
+                                          } catch (\Exception $e) {}
+                                       } elseif ($applyOnCell) {
+                                          try {
+                                             $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                          } catch (\Exception $e) {}
                                        }
-                                 } catch (\Exception $e) {
-                                       // fallback
+
+                                       foreach ($dates as $date) {
+                                          if (in_array($date->dayOfWeek, [0, 6])) continue;
+
+                                          $timelineItems[] = [
+                                             'date' => $date,
+                                             'formatted' => $date->format('D, d M Y'),
+                                             'badge' => $badgeText,
+                                             'workingHours' => $workingHours,
+                                             'month' => $date->month,
+                                             'year' => $date->year
+                                          ];
+                                       }
                                  }
-                              } elseif ($applyOnCell) {
-                                 try {
-                                       $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-                                 } catch (\Exception $e) {
-                                       // fallback
-                                 }
-                              }
+                              @endphp
 
-                              foreach ($dates as $date) {
-                                 if (in_array($date->dayOfWeek, [0, 6])) continue;
+                              <div class="timeline-wrapper">
+                                @foreach ($dataTimesheet->sortByDesc('updated_at') as $entry)
+                                    @php
+                                       $record = json_decode($entry->record, true);
+                                       $leaveType = $record['leaveType'] ?? null;
+                                       $subType = $record['type'] ?? null;
+                                       $extraHours = $record['extraHours'] ?? null;
+                                       $applyOnCell = $record['applyOnCell'] ?? null;
 
-                                 $timelineItems[] = [
-                                       'date' => $date,
-                                       'formatted' => $date->format('D, d M Y'),
-                                       'badge' => $badgeText,
-                                       'workingHours' => $workingHours,
-                                 ];
-                              }
-                           }
+                                       try {
+                                             $date = \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                             $formattedDate = $date->format('D, d M');
+                                             $month = $date->month;
+                                             $year = $date->year;
+                                       } catch (\Exception $e) {
+                                             continue;
+                                       }
 
-                           
-                           usort($timelineItems, fn($a, $b) => $b['date']->timestamp <=> $a['date']->timestamp);
-                           @endphp
+                                       $labelMap = [
+                                             'PH' => 'Public Holiday',
+                                             'ML' => 'Medical Leave',
+                                             'AL' => 'Annual Leave',
+                                             'UL' => 'Unpaid Leave',
+                                             'PDO' => 'Paid day off',
+                                             'Custom COMP-OFF' => 'Comp off',
+                                             'pay_off' => 'Pay off',
+                                             'comp_off' => 'Comp off',
+                                             'ignore' => 'Ignore',
+                                       ];
 
-                           @foreach ($timelineItems as $item)
-                              <div class="timeline-item d-flex align-items-start mb-3">
-                                 <div class="me-2">
-                                       <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                       <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                 </div>
-                                 <div>
-                                       <div class="d-flex align-items-center mb-1 tl-header">
-                                          <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                          <div class="tl_details">
-                                             @if ($item['badge'])
-                                                   <span>{{ $item['formatted'] }} -</span>
-                                                   <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
-                                             @elseif ($item['workingHours'])
-                                                   <span>{{ $item['formatted'] }} - {{ $item['workingHours'] }} hours</span>
-                                             @endif
-                                          </div>
+                                       $topLabel = $leaveType ?? ucfirst(str_replace('_', ' ', $subType));
+                                       $mainLabel = $labelMap[$leaveType] ?? $labelMap[$subType] ?? null;
+                                    @endphp
+
+                                    <div id="littletimesheet" class="timeline-item d-flex align-items-start mb-3"
+                                          data-month="{{ $month }}"
+                                          data-year="{{ $year }}">
+                                       <div class="me-2">
+                                             <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                             <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
                                        </div>
+
+                                       <div>
+                                             {{-- 🔷 TOP ROW: Image + leaveType --}}
+                                             <div class="d-flex align-items-center mb-1">
+                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" width="24" height="24" />
+                                                <span class="fw-bold text-primary" style="font-size: 14px;">
+                                                   {{ strtoupper($topLabel) }} - (1)
+                                                </span>
+                                             </div>
+
+                                             {{-- 🧾 SECOND ROW: Date + Label + Hours --}}
+                                             <div class="d-flex align-items-center flex-wrap gap-2 ms-4">
+                                                <span>{{ $formattedDate }}</span>
+
+                                                @if ($mainLabel)
+                                                   <span class="badge bg-info text-white">{{ $mainLabel }}</span>
+                                                @endif
+
+                                                @if (!empty($extraHours))
+                                                   <span class="fw-semibold">- {{ $extraHours }} hours off</span>
+                                                @endif
+                                             </div>
+                                       </div>
+                                    </div>
+                                 @endforeach
+                                 <div id="noTimelineMessage" class="text-center text-muted p-3 d-none">
+                                       <strong>No entries found for this month</strong>
                                  </div>
                               </div>
-                           @endforeach
-                   
-                              
                            </div>
+
+                           <script>
+                              // Delay execution to ensure DOM and localStorage are ready
+                              document.addEventListener("DOMContentLoaded", function () {
+                                 setTimeout(function () {
+                                    const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                    const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+                                    
+                                    const items = document.querySelectorAll("#littletimesheet");
+                                    let visibleCount = 0;
+
+                                    items.forEach(item => {
+                                       const month = parseInt(item.getAttribute("data-month"));
+                                       const year = parseInt(item.getAttribute("data-year"));
+                                    
+                                       if (month === selectedMonth && year === selectedYear) {
+                                          item.style.display = "";
+                                          visibleCount++;
+                                       } else {
+                                          item.style.setProperty("display", "none", "important");
+                                       }
+                                    });
+
+                                    const noMessage = document.querySelector("#noTimelineMessage");
+                                    if (noMessage) {
+                                       noMessage.classList.toggle("d-none", visibleCount > 0);
+                                    }
+                                 }, 200);
+                              });
+                           </script>
+
+
+
                         </div>
                         <!-- Other tabs can be filled similarly -->
                         <div class="tab-pane fade" id="extraTimeTab">
 
                         
-                              @foreach ($dataTimesheet as $item)
-                                 @php
+                            <div id="filteredTimeline">
+                                 @foreach ($dataTimesheet as $item)
+                                    @php
                                        $record = json_decode($item->record ?? '{}', true);
                                        $type = $record['type'] ?? null;
 
-                                       // Define label and color based on type
+                                       // Label map
                                        $labelMap = [
-                                          'comp_off' => ['label' => 'Comp - Off', 'color' => '#d35400'], // orange
-                                          'pay_off'  => ['label' => 'Pay - Off',  'color' => '#2980b9'], // blue
-                                          'ignore'   => ['label' => 'Ignored',    'color' => '#7f8c8d'], // grey
+                                             'comp_off' => ['label' => 'Comp - Off', 'color' => '#d35400'],
+                                             'pay_off'  => ['label' => 'Pay - Off',  'color' => '#2980b9'],
+                                             'ignore'   => ['label' => 'Ignored',    'color' => '#7f8c8d'],
                                        ];
+
+                                       // Extract date parts
+                                       $month = null;
+                                       $year = null;
+                                       if (!empty($record['applyOnCell'])) {
+                                             try {
+                                                $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                                                $month = $dt->month;
+                                                $year = $dt->year;
+                                             } catch (\Exception $e) {}
+                                       }
+                                    @endphp
+
+                                    @if (isset($labelMap[$type]) && $month && $year)
+                                       <div class="timeline-item d-flex align-items-start mb-3"
+                                             data-month="{{ $month }}"
+                                             data-year="{{ $year }}">
+                                             <div class="me-2">
+                                                <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
+                                                <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
+                                             </div>
+                                             <div>
+                                                <div class="d-flex align-items-center mb-1 tl-header">
+                                                   <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
+                                                   <span style="color: {{ $labelMap[$type]['color'] }}; font-weight: bold;">
+                                                         {{ $labelMap[$type]['label'] }}
+                                                   </span>
+                                                </div>
+                                                <div class="tl_details">
+                                                   <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
+                                                   <span class="badge" style="background-color: #ffe0b3; color: {{ $labelMap[$type]['color'] }}; font-weight: bold;">
+                                                         {{ $labelMap[$type]['label'] }}
+                                                   </span>
+                                                   <span>- {{ str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
+                                                </div>
+                                             </div>
+                                       </div>
+                                    @endif
+                                 @endforeach
+                            </div>
+                            <div id="noEntriesMessage" class="text-muted text-center p-2 d-none">
+                              <strong>No entries found for this month</strong>
+                           </div>
+                           <script>
+                              document.addEventListener("DOMContentLoaded", function () {
+                                 setTimeout(() => {
+                                    const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                    const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+
+                                    const items = document.querySelectorAll("#filteredTimeline .timeline-item");
+                                    let visibleCount = 0;
+
+                                    items.forEach(item => {
+                                          const month = parseInt(item.getAttribute("data-month"));
+                                          const year = parseInt(item.getAttribute("data-year"));
+
+                                          if (month === selectedMonth && year === selectedYear) {
+                                             item.style.display = "";
+                                             visibleCount++;
+                                          } else {
+                                             item.style.setProperty("display", "none", "important");
+                                          }
+                                    });
+
+                                    const noMessage = document.getElementById("noEntriesMessage");
+                                    if (noMessage) {
+                                          noMessage.classList.toggle("d-none", visibleCount > 0);
+                                    }
+                                 }, 200);
+                              });
+                              </script>
+
+
+
+                           
+                        </div>
+                        <div class="tab-pane fade" id="payOffTab">
+                           <div class="timeline">
+
+                           <div id="payoffTimeline">
+                              @foreach ($dataTimesheet as $item)
+                                 @php
+                                    $record = json_decode($item->record ?? '{}', true);
+
+                                    $month = null;
+                                    $year = null;
+                                    if (!empty($record['applyOnCell'])) {
+                                          try {
+                                             $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                                             $month = $dt->month;
+                                             $year = $dt->year;
+                                          } catch (\Exception $e) {}
+                                    }
                                  @endphp
 
-                                 @if (isset($labelMap[$type]))
-                                 <div class="timeline">
-                                    <div class="timeline-item d-flex align-items-start mb-3">
+                                 @if (isset($record['type']) && $record['type'] === 'pay_off' && $month && $year)
+                                    <div class="timeline-item d-flex align-items-start mb-3"
+                                          data-month="{{ $month }}"
+                                          data-year="{{ $year }}">
                                           <div class="me-2">
                                              <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
                                              <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
@@ -3616,83 +3795,144 @@
                                           <div>
                                              <div class="d-flex align-items-center mb-1 tl-header">
                                                 <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                <span style="color: {{ $labelMap[$type]['color'] }}; font-weight: bold;">
-                                                      {{ $labelMap[$type]['label'] }}
-                                                </span>
-                                             </div>
-                                             <div class="tl_details">
-                                                <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
-                                                <span class="badge" style="background-color: #ffe0b3; color: {{ $labelMap[$type]['color'] }}; font-weight: bold;">
-                                                      {{ $labelMap[$type]['label'] }}
-                                                </span>
-                                                <span>- {{ str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
+                                                <div class="pay_off_log">
+                                                      <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
+                                                      <span>{{ str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
+                                                </div>
                                              </div>
                                           </div>
                                     </div>
-                                 </div>
                                  @endif
                               @endforeach
-                           
-                        </div>
-                        <div class="tab-pane fade" id="payOffTab">
-                           <div class="timeline">
+                              </div>
 
-                           @foreach ($dataTimesheet as $item)
-                              @php
-                                 $record = json_decode($item->record ?? '{}', true);
-                              @endphp
+                              {{-- Hidden "no data" message --}}
+                              <div id="noPayoffMessage" class="text-muted text-center p-2 d-none">
+                                 <strong>No entries found for this month</strong>
+                              </div>
 
-                              @if (isset($record['type']) && $record['type'] === 'pay_off')
-                                 <div class="timeline-item d-flex align-items-start mb-3">
-                                       <div class="me-2">
-                                          <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                          <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                       </div>
-                                       <div>
-                                          <div class="d-flex align-items-center mb-1 tl-header">
-                                             <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                             <div class="pay_off_log">
-                                                   <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
-                                                   <span>{{ str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
-                                             </div>
-                                          </div>
-                                       </div>
-                                 </div>
-                              @endif
-                           @endforeach
+                              <script>
+                                 document.addEventListener("DOMContentLoaded", function () {
+                                    setTimeout(() => {
+                                       const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                       const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
 
+                                       const items = document.querySelectorAll("#payoffTimeline .timeline-item");
+                                       let visibleCount = 0;
 
+                                       items.forEach(item => {
+                                             const month = parseInt(item.getAttribute("data-month"));
+                                             const year = parseInt(item.getAttribute("data-year"));
+
+                                             if (month === selectedMonth && year === selectedYear) {
+                                                item.style.display = "";
+                                                visibleCount++;
+                                             } else {
+                                                item.style.setProperty("display", "none", "important");
+                                             }
+                                       });
+
+                                       const noMessage = document.getElementById("noPayoffMessage");
+                                       if (noMessage) {
+                                             noMessage.classList.toggle("d-none", visibleCount > 0);
+                                       }
+                                    }, 200);
+                                 });
+                              </script>
 
                            </div>
                         </div>
                         <div class="tab-pane fade" id="compOffTab">
                            <div class="timeline">
 
+                           <div id="compOffTimeline">
                            @foreach ($dataTimesheet as $item)
                               @php
                                  $record = json_decode($item->record ?? '{}', true);
+
+                                 $month = null;
+                                 $year = null;
+                                 if (!empty($record['applyOnCell'])) {
+                                       try {
+                                          $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                                          $month = $dt->month;
+                                          $year = $dt->year;
+                                       } catch (\Exception $e) {}
+                                 }
+
+                                 $leaveType = $record['leaveType'] ?? '';
+                                 $extraHours = (int) ($record['extraHours'] ?? 0);
+                                 $leaveHour = $record['leaveHour'] ?? '';
+
+                                 $subLabel = '';
+                                 if (Str::contains($leaveHour, 'HD1')) {
+                                       $subLabel = 'HD1';
+                                 } elseif (Str::contains($leaveHour, 'HD2')) {
+                                       $subLabel = 'HD2';
+                                 }
+
+                                 $displayLabel = 'Comp - Off' . ($subLabel ? " $subLabel" : '');
                               @endphp
 
-                              @if (isset($record['type']) && $record['type'] === 'comp_off')
-                                 <div class="timeline-item d-flex align-items-start mb-3">
+                              @if ($leaveType === 'Custom COMP-OFF' && $month && $year)
+                                 <div class="timeline-item d-flex align-items-start mb-3"
+                                       data-month="{{ $month }}"
+                                       data-year="{{ $year }}">
                                        <div class="me-2">
-                                          <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                          <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
+                                          <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
+                                          <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
                                        </div>
                                        <div>
                                           <div class="d-flex align-items-center mb-1 tl-header">
                                              <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                             <div class="comp_off_log">
-                                                   <span>{{ $record['applyOnCell'] ?? '--/--/----' }} -</span>
-                                                   <span class="badge">Comp - Off</span>
-                                                   <span>{{ str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
+                                             <div class="comp_off_log d-flex align-items-center flex-wrap gap-2">
+                                                   <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
+                                                   <span class="badge" style="background-color:#f9e79f; color:#d35400; font-weight: bold;">
+                                                      {{ $displayLabel }}
+                                                   </span>
+                                                   @if ($extraHours > 0)
+                                                      <span>{{ str_pad($extraHours, 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
+                                                   @endif
                                              </div>
                                           </div>
                                        </div>
                                  </div>
                               @endif
                            @endforeach
+                           </div>
 
+                           <div id="noCompOffMessage" class="text-muted text-center p-2 d-none">
+                              <strong>No entries found for this month</strong>
+                           </div>
+
+                           <script>
+                           document.addEventListener("DOMContentLoaded", function () {
+                              setTimeout(() => {
+                                 const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                 const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+
+                                 const items = document.querySelectorAll("#compOffTimeline .timeline-item");
+                                 let visibleCount = 0;
+
+                                 items.forEach(item => {
+                                       const month = parseInt(item.getAttribute("data-month"));
+                                       const year = parseInt(item.getAttribute("data-year"));
+
+                                       if (month === selectedMonth && year === selectedYear) {
+                                          item.style.display = "";
+                                          visibleCount++;
+                                       } else {
+                                          item.style.setProperty("display", "none", "important");
+                                       }
+                                 });
+
+                                 const noMessage = document.getElementById("noCompOffMessage");
+                                 if (noMessage) {
+                                       noMessage.classList.toggle("d-none", visibleCount > 0);
+                                 }
+                              }, 200);
+                           });
+                           </script>
 
                            </div>
                         </div>
@@ -3734,179 +3974,284 @@
                               <div class="tab-content tab_content_body">
                                  <div class="tab-pane fade show active" id="modeloverviewTab">
                                     <div class="timeline">
-
                                        @php
+                                          
+                                          $timelineItems = [];
 
-                                       $timelineItems = [];
+                                          // Sort by updated_at descending
+                                          $sortedTimesheet = $dataTimesheet->sortByDesc('updated_at');
 
-                                       foreach ($dataTimesheet as $entry) {
-                                          $record = json_decode($entry->record, true);
-                                          $leaveType = $record['leaveType'] ?? null;
-                                          $workingHours = $record['workingHours'] ?? null;
-                                          $leaveHourId = $record['leaveHourId'] ?? null;
-                                          $applyOnCell = $record['applyOnCell'] ?? null;
-                                          $dateRange = $record['date'] ?? '';
+                                          foreach ($sortedTimesheet as $entry) {
+                                                $record = json_decode($entry->record, true);
+                                                $leaveType = $record['leaveType'] ?? null;
+                                                $workingHours = $record['workingHours'] ?? null;
+                                                $leaveHourId = $record['leaveHourId'] ?? null;
+                                                $applyOnCell = $record['applyOnCell'] ?? null;
+                                                $dateRange = $record['date'] ?? '';
 
-                                          $leaveShort = '';
-                                          if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-                                          elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-                                          elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+                                                $leaveShort = '';
+                                                if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                                elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                                elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
 
-                                          $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
+                                                $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
 
-                                          $dates = [];
+                                                $dates = [];
 
-                                          if ($dateRange && str_contains($dateRange, 'to')) {
-                                             try {
-                                                   [$start, $end] = array_map('trim', explode('to', $dateRange));
-                                                   $startDate = Carbon::createFromFormat('d / m / Y', $start);
-                                                   $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                                                if ($dateRange && str_contains($dateRange, 'to')) {
+                                                   try {
+                                                      [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                                      $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                                      $endDate = Carbon::createFromFormat('d / m / Y', $end);
 
-                                                   while ($startDate->lte($endDate)) {
-                                                      $dates[] = $startDate->copy();
-                                                      $startDate->addDay();
-                                                   }
-                                             } catch (\Exception $e) {
-                                                   // fallback
-                                             }
-                                          } elseif ($applyOnCell) {
-                                             try {
-                                                   $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-                                             } catch (\Exception $e) {
-                                                   // fallback
-                                             }
+                                                      while ($startDate->lte($endDate)) {
+                                                            $dates[] = $startDate->copy();
+                                                            $startDate->addDay();
+                                                      }
+                                                   } catch (\Exception $e) {}
+                                                } elseif ($applyOnCell) {
+                                                   try {
+                                                      $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                                   } catch (\Exception $e) {}
+                                                }
+
+                                                foreach ($dates as $date) {
+                                                   if (in_array($date->dayOfWeek, [0, 6])) continue;
+
+                                                   $timelineItems[] = [
+                                                      'date' => $date,
+                                                      'formatted' => $date->format('D, d M Y'),
+                                                      'badge' => $badgeText,
+                                                      'workingHours' => $workingHours,
+                                                      'month' => $date->month,
+                                                      'year' => $date->year
+                                                   ];
+                                                }
                                           }
-
-                                          foreach ($dates as $date) {
-                                             if (in_array($date->dayOfWeek, [0, 6])) continue;
-
-                                             $timelineItems[] = [
-                                                   'date' => $date,
-                                                   'formatted' => $date->format('D, d M Y'),
-                                                   'badge' => $badgeText,
-                                                   'workingHours' => $workingHours,
-                                             ];
-                                          }
-                                       }
-
-                                       
-                                       usort($timelineItems, fn($a, $b) => $b['date']->timestamp <=> $a['date']->timestamp);
                                        @endphp
 
-                                       @foreach ($timelineItems as $item)
-                                          <div class="timeline-item d-flex align-items-start mb-3">
-                                             <div class="me-2">
-                                                   <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                                   <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                             </div>
-                                             <div>
-                                                   <div class="d-flex align-items-center mb-1 tl-header">
-                                                      <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                      <div class="tl_details">
-                                                         @if ($item['badge'])
-                                                               <span>{{ $item['formatted'] }} -</span>
-                                                               <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
-                                                         @elseif ($item['workingHours'])
-                                                               <span>{{ $item['formatted'] }} - {{ $item['workingHours'] }} hours</span>
+                                       <div class="timeline-wrapper">
+                                       @foreach ($dataTimesheet->sortByDesc('updated_at') as $entry)
+                                             @php
+                                                $record = json_decode($entry->record, true);
+                                                $leaveType = $record['leaveType'] ?? null;
+                                                $subType = $record['type'] ?? null;
+                                                $extraHours = $record['extraHours'] ?? null;
+                                                $applyOnCell = $record['applyOnCell'] ?? null;
+
+                                                try {
+                                                      $date = \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                                      $formattedDate = $date->format('D, d M');
+                                                      $month = $date->month;
+                                                      $year = $date->year;
+                                                } catch (\Exception $e) {
+                                                      continue;
+                                                }
+
+                                                $labelMap = [
+                                                      'PH' => 'Public Holiday',
+                                                      'ML' => 'Medical Leave',
+                                                      'AL' => 'Annual Leave',
+                                                      'UL' => 'Unpaid Leave',
+                                                      'PDO' => 'Paid day off',
+                                                      'Custom COMP-OFF' => 'Comp off',
+                                                      'pay_off' => 'Pay off',
+                                                      'comp_off' => 'Comp off',
+                                                      'ignore' => 'Ignore',
+                                                ];
+
+                                                $topLabel = $leaveType ?? ucfirst(str_replace('_', ' ', $subType));
+                                                $mainLabel = $labelMap[$leaveType] ?? $labelMap[$subType] ?? null;
+                                             @endphp
+
+                                             <div id="littletimesheet" class="timeline-item d-flex align-items-start mb-3"
+                                                   data-month="{{ $month }}"
+                                                   data-year="{{ $year }}">
+                                                <div class="me-2">
+                                                      <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                                      <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
+                                                </div>
+
+                                                <div>
+                                                      {{-- 🔷 TOP ROW: Image + leaveType --}}
+                                                      <div class="d-flex align-items-center mb-1">
+                                                         <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" width="24" height="24" />
+                                                         <span class="fw-bold text-primary" style="font-size: 14px;">
+                                                            {{ strtoupper($topLabel) }} - (1)
+                                                         </span>
+                                                      </div>
+
+                                                      {{-- 🧾 SECOND ROW: Date + Label + Hours --}}
+                                                      <div class="d-flex align-items-center flex-wrap gap-2 ms-4">
+                                                         <span>{{ $formattedDate }}</span>
+
+                                                         @if ($mainLabel)
+                                                            <span class="badge bg-info text-white">{{ $mainLabel }}</span>
+                                                         @endif
+
+                                                         @if (!empty($extraHours))
+                                                            <span class="fw-semibold">- {{ $extraHours }} hours off</span>
                                                          @endif
                                                       </div>
-                                                   </div>
+                                                </div>
                                              </div>
+                                          @endforeach
+                                          <div id="noTimelineMessage" class="text-center text-muted p-3 d-none">
+                                                <strong>No entries found for this month</strong>
                                           </div>
-                                       @endforeach
-                                      
+                                       </div>
                                     </div>
+
+                                    <script>
+                                       // Delay execution to ensure DOM and localStorage are ready
+                                       document.addEventListener("DOMContentLoaded", function () {
+                                          setTimeout(function () {
+                                             const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                             const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+                                             
+                                             const items = document.querySelectorAll("#littletimesheet");
+                                             let visibleCount = 0;
+
+                                             items.forEach(item => {
+                                                const month = parseInt(item.getAttribute("data-month"));
+                                                const year = parseInt(item.getAttribute("data-year"));
+                                             
+                                                if (month === selectedMonth && year === selectedYear) {
+                                                   item.style.display = "";
+                                                   visibleCount++;
+                                                } else {
+                                                   item.style.setProperty("display", "none", "important");
+                                                }
+                                             });
+
+                                             const noMessage = document.querySelector("#noTimelineMessage");
+                                             if (noMessage) {
+                                                noMessage.classList.toggle("d-none", visibleCount > 0);
+                                             }
+                                          }, 200);
+                                       });
+                                    </script>
                                  </div>
                                  <!-- Other tabs can be filled similarly -->
                                  <div class="tab-pane fade" id="modelextraTimeTab">
-                                 @foreach ($dataTimesheet as $item)
-                                       @php
-                                             $record = json_decode($item->record ?? '{}', true);
-                                             $type = $record['type'] ?? null;
 
-                                             // Define label and color based on type
-                                             $labelMap = [
-                                                'comp_off' => ['label' => 'Comp - Off', 'color' => '#d35400'], // orange
-                                                'pay_off'  => ['label' => 'Pay - Off',  'color' => '#2980b9'], // blue
-                                                'ignore'   => ['label' => 'Ignored',    'color' => '#7f8c8d'], // grey
-                                             ];
-                                       @endphp
+                                     <div id="filteredTimeline">
+                                          @foreach ($dataTimesheet as $item)
+                                             @php
+                                                $record = json_decode($item->record ?? '{}', true);
+                                                $type = $record['type'] ?? null;
 
-                                       @if (isset($labelMap[$type]))
-                                       <div class="timeline">
-                                          <div class="timeline-item d-flex align-items-start mb-3">
-                                                <div class="me-2">
-                                                   <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
-                                                   <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
+                                                // Label map
+                                                $labelMap = [
+                                                      'comp_off' => ['label' => 'Comp - Off', 'color' => '#d35400'],
+                                                      'pay_off'  => ['label' => 'Pay - Off',  'color' => '#2980b9'],
+                                                      'ignore'   => ['label' => 'Ignored',    'color' => '#7f8c8d'],
+                                                ];
+
+                                                // Extract date parts
+                                                $month = null;
+                                                $year = null;
+                                                if (!empty($record['applyOnCell'])) {
+                                                      try {
+                                                         $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                                                         $month = $dt->month;
+                                                         $year = $dt->year;
+                                                      } catch (\Exception $e) {}
+                                                }
+                                             @endphp
+
+                                             @if (isset($labelMap[$type]) && $month && $year)
+                                                <div class="timeline-item d-flex align-items-start mb-3"
+                                                      data-month="{{ $month }}"
+                                                      data-year="{{ $year }}">
+                                                      <div class="me-2">
+                                                         <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
+                                                         <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
+                                                      </div>
+                                                      <div>
+                                                         <div class="d-flex align-items-center mb-1 tl-header">
+                                                            <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
+                                                            <span style="color: {{ $labelMap[$type]['color'] }}; font-weight: bold;">
+                                                                  {{ $labelMap[$type]['label'] }}
+                                                            </span>
+                                                         </div>
+                                                         <div class="tl_details">
+                                                            <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
+                                                            <span class="badge" style="background-color: #ffe0b3; color: {{ $labelMap[$type]['color'] }}; font-weight: bold;">
+                                                                  {{ $labelMap[$type]['label'] }}
+                                                            </span>
+                                                            <span>- {{ str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
+                                                         </div>
+                                                      </div>
                                                 </div>
-                                                <div>
-                                                   <div class="d-flex align-items-center mb-1 tl-header">
-                                                      <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                      <span style="color: {{ $labelMap[$type]['color'] }}; font-weight: bold;">
-                                                            {{ $labelMap[$type]['label'] }}
-                                                      </span>
-                                                   </div>
-                                                   <div class="tl_details">
-                                                      <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
-                                                      <span class="badge" style="background-color: #ffe0b3; color: {{ $labelMap[$type]['color'] }}; font-weight: bold;">
-                                                            {{ $labelMap[$type]['label'] }}
-                                                      </span>
-                                                      <span>- {{ str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
-                                                   </div>
-                                                </div>
-                                          </div>
-                                       </div>
-                                       @endif
-                                    @endforeach
+                                             @endif
+                                          @endforeach
+                                    </div>
+                                    <div id="noEntriesMessage" class="text-muted text-center p-2 d-none">
+                                       <strong>No entries found for this month</strong>
+                                    </div>
+                                    <script>
+                                       document.addEventListener("DOMContentLoaded", function () {
+                                          setTimeout(() => {
+                                             const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                             const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+
+                                             const items = document.querySelectorAll("#filteredTimeline .timeline-item");
+                                             let visibleCount = 0;
+
+                                             items.forEach(item => {
+                                                   const month = parseInt(item.getAttribute("data-month"));
+                                                   const year = parseInt(item.getAttribute("data-year"));
+
+                                                   if (month === selectedMonth && year === selectedYear) {
+                                                      item.style.display = "";
+                                                      visibleCount++;
+                                                   } else {
+                                                      item.style.setProperty("display", "none", "important");
+                                                   }
+                                             });
+
+                                             const noMessage = document.getElementById("noEntriesMessage");
+                                             if (noMessage) {
+                                                   noMessage.classList.toggle("d-none", visibleCount > 0);
+                                             }
+                                          }, 200);
+                                       });
+                                    </script>
+                                 
                                  </div>
                                  <div class="tab-pane fade" id="modelpayOffTab">
                                     <div class="timeline">
 
-                                    @foreach ($dataTimesheet as $item)
-                                       @php
-                                          $record = json_decode($item->record ?? '{}', true);
-                                       @endphp
-
-                                       @if (isset($record['type']) && $record['type'] === 'pay_off')
-                                          <div class="timeline-item d-flex align-items-start mb-3">
-                                                <div class="me-2">
-                                                   <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                                   <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                                </div>
-                                                <div>
-                                                   <div class="d-flex align-items-center mb-1 tl-header">
-                                                      <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                      <div class="pay_off_log">
-                                                            <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
-                                                            <span>{{ str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
-                                                      </div>
-                                                   </div>
-                                                </div>
-                                          </div>
-                                       @endif
-                                    @endforeach
-                                       
-                                    </div>
-                                 </div>
-                                 <div class="tab-pane fade" id="modelcompOffTab">
-                                    <div class="timeline">
-                                    @foreach ($dataTimesheet as $item)
+                                    <div id="payoffTimeline">
+                                       @foreach ($dataTimesheet as $item)
                                           @php
                                              $record = json_decode($item->record ?? '{}', true);
+
+                                             $month = null;
+                                             $year = null;
+                                             if (!empty($record['applyOnCell'])) {
+                                                   try {
+                                                      $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                                                      $month = $dt->month;
+                                                      $year = $dt->year;
+                                                   } catch (\Exception $e) {}
+                                             }
                                           @endphp
 
-                                          @if (isset($record['type']) && $record['type'] === 'comp_off')
-                                             <div class="timeline-item d-flex align-items-start mb-3">
+                                          @if (isset($record['type']) && $record['type'] === 'pay_off' && $month && $year)
+                                             <div class="timeline-item d-flex align-items-start mb-3"
+                                                   data-month="{{ $month }}"
+                                                   data-year="{{ $year }}">
                                                    <div class="me-2">
-                                                      <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                                      <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
+                                                      <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
+                                                      <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
                                                    </div>
                                                    <div>
                                                       <div class="d-flex align-items-center mb-1 tl-header">
                                                          <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                         <div class="comp_off_log">
-                                                               <span>{{ $record['applyOnCell'] ?? '--/--/----' }} -</span>
-                                                               <span class="badge">Comp - Off</span>
+                                                         <div class="pay_off_log">
+                                                               <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
                                                                <span>{{ str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
                                                          </div>
                                                       </div>
@@ -3914,6 +4259,135 @@
                                              </div>
                                           @endif
                                        @endforeach
+                                       </div>
+
+                                       {{-- Hidden "no data" message --}}
+                                       <div id="noPayoffMessage" class="text-muted text-center p-2 d-none">
+                                          <strong>No entries found for this month</strong>
+                                       </div>
+
+                                       <script>
+                                          document.addEventListener("DOMContentLoaded", function () {
+                                             setTimeout(() => {
+                                                const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                                const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+
+                                                const items = document.querySelectorAll("#payoffTimeline .timeline-item");
+                                                let visibleCount = 0;
+
+                                                items.forEach(item => {
+                                                      const month = parseInt(item.getAttribute("data-month"));
+                                                      const year = parseInt(item.getAttribute("data-year"));
+
+                                                      if (month === selectedMonth && year === selectedYear) {
+                                                         item.style.display = "";
+                                                         visibleCount++;
+                                                      } else {
+                                                         item.style.setProperty("display", "none", "important");
+                                                      }
+                                                });
+
+                                                const noMessage = document.getElementById("noPayoffMessage");
+                                                if (noMessage) {
+                                                      noMessage.classList.toggle("d-none", visibleCount > 0);
+                                                }
+                                             }, 200);
+                                          });
+                                       </script>
+
+                                       
+                                    </div>
+                                 </div>
+                                 <div class="tab-pane fade" id="modelcompOffTab">
+                                    <div class="timeline">
+                                        <div id="compOffTimeline">
+                                       @foreach ($dataTimesheet as $item)
+                                          @php
+                                             $record = json_decode($item->record ?? '{}', true);
+
+                                             $month = null;
+                                             $year = null;
+                                             if (!empty($record['applyOnCell'])) {
+                                                   try {
+                                                      $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                                                      $month = $dt->month;
+                                                      $year = $dt->year;
+                                                   } catch (\Exception $e) {}
+                                             }
+
+                                             $leaveType = $record['leaveType'] ?? '';
+                                             $extraHours = (int) ($record['extraHours'] ?? 0);
+                                             $leaveHour = $record['leaveHour'] ?? '';
+
+                                             $subLabel = '';
+                                             if (Str::contains($leaveHour, 'HD1')) {
+                                                   $subLabel = 'HD1';
+                                             } elseif (Str::contains($leaveHour, 'HD2')) {
+                                                   $subLabel = 'HD2';
+                                             }
+
+                                             $displayLabel = 'Comp - Off' . ($subLabel ? " $subLabel" : '');
+                                          @endphp
+
+                                          @if ($leaveType === 'Custom COMP-OFF' && $month && $year)
+                                             <div class="timeline-item d-flex align-items-start mb-3"
+                                                   data-month="{{ $month }}"
+                                                   data-year="{{ $year }}">
+                                                   <div class="me-2">
+                                                      <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
+                                                      <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
+                                                   </div>
+                                                   <div>
+                                                      <div class="d-flex align-items-center mb-1 tl-header">
+                                                         <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
+                                                         <div class="comp_off_log d-flex align-items-center flex-wrap gap-2">
+                                                               <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
+                                                               <span class="badge" style="background-color:#f9e79f; color:#d35400; font-weight: bold;">
+                                                                  {{ $displayLabel }}
+                                                               </span>
+                                                               @if ($extraHours > 0)
+                                                                  <span>{{ str_pad($extraHours, 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
+                                                               @endif
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                             </div>
+                                          @endif
+                                       @endforeach
+                                       </div>
+
+                                       <div id="noCompOffMessage" class="text-muted text-center p-2 d-none">
+                                          <strong>No entries found for this month</strong>
+                                       </div>
+
+                                       <script>
+                                       document.addEventListener("DOMContentLoaded", function () {
+                                          setTimeout(() => {
+                                             const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                             const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+
+                                             const items = document.querySelectorAll("#compOffTimeline .timeline-item");
+                                             let visibleCount = 0;
+
+                                             items.forEach(item => {
+                                                   const month = parseInt(item.getAttribute("data-month"));
+                                                   const year = parseInt(item.getAttribute("data-year"));
+
+                                                   if (month === selectedMonth && year === selectedYear) {
+                                                      item.style.display = "";
+                                                      visibleCount++;
+                                                   } else {
+                                                      item.style.setProperty("display", "none", "important");
+                                                   }
+                                             });
+
+                                             const noMessage = document.getElementById("noCompOffMessage");
+                                             if (noMessage) {
+                                                   noMessage.classList.toggle("d-none", visibleCount > 0);
+                                             }
+                                          }, 200);
+                                       });
+                                       </script>
                                     </div>
                                  </div>
                                  <div class="tab-pane fade" id="modelcopiesTab">

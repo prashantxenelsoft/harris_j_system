@@ -5590,7 +5590,7 @@ margin-left: 5px;
     height: 10px;
     background: #2563eb;
     position: relative;
-    left: -10%;
+    left: -4%;
     top: 12px;
     border-radius: 50%;
 }
@@ -6180,3 +6180,104 @@ margin-left: 5px;
 }
 
 /* Timelines End*/
+
+/* Work Summary */
+.work-summary .nav-tabs .nav-link.active {
+    background-color: var(--Themeorange);
+    color: white !important;
+}
+
+.work-summary .stats-box {
+    background: #f1f1f1;
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 10px;
+}
+
+.work-summary .stats-number {
+    font-size: var(--Font22px);
+    color: #008080;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.work-summary .stats-label {
+    font-size: var(--Font16px);
+    color: #333;
+    font-weight: 600;
+}
+
+.work-summary .bottom-stats {
+    display: flex;
+    justify-content: space-around;
+    color: red;
+    font-weight: bold;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+.work-summary .expand-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.flow-edit-btn {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: rgba(245, 35, 12, 1);
+    color: #fff;
+    border: none;
+}
+
+.remark-section .flow-edit-btn {
+    margin-left: 10px;
+}
+
+.work-summary .expand-btn img {
+    width: 100%;
+}
+
+.work-summary {
+    position: relative;
+    background: #fff;
+    border-radius: 10px;
+    overflow-y: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 0px auto;
+    padding: 10px;
+    height: 170px;
+}
+
+.work-summary button.nav-link {
+    background: #F2F2F2;
+    border-radius: 10px 0px 0px 0px;
+    color: #000;
+    font-family: var(--Themefont);
+    padding: 15px 15px;
+    font-size: var(--Font14px);
+}
+
+.work-summary button#summary-tab {
+    border-radius: 0px 10px 0px 0px !important;
+}
+
+#workTabsContent {
+    font-family: var(--Themefont);
+    font-size: var(--Font22px);
+}
+
+/* Work Summary End */

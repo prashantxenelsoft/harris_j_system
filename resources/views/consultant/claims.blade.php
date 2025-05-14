@@ -1,46 +1,106 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+      // Set default month/year if not already set
+      if (!localStorage.getItem("timesheetMonth") || !localStorage.getItem("timesheetYear")) {
+         const now = new Date();
+         localStorage.setItem("timesheetMonth", now.getMonth()); // 0-based (Jan = 0)
+         localStorage.setItem("timesheetYear", now.getFullYear());
+      }
+   });
+</script>
+<script>
+   const claimsData = @json($dataClaims);
+
+   document.addEventListener("DOMContentLoaded", function () {
+      const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+      const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+      const submitBtn = document.getElementById("submit_icon");
+      const save_icon = document.getElementById("save_icon");
+      const reporting_fileds_data = document.getElementById("reporting_fileds_data");
+      
+
+      let hasData = false;
+      let hasDraft = false;
+
+      claimsData.forEach(item => {
+         const record = JSON.parse(item.record || '{}');
+         const applyOnCell = record.applyOnCell || '';
+         const status = item.status?.toLowerCase() || '';
+
+         if (!applyOnCell || !status) return;
+
+         const parts = applyOnCell.split(" / ");
+         if (parts.length !== 3) return;
+
+         const month = parseInt(parts[1]);
+         const year = parseInt(parts[2]);
+
+         if (month === selectedMonth && year === selectedYear) {
+            hasData = true;
+            if (status === 'draft') {
+               hasDraft = true;
+            }
+         }
+      });
+
+      if (submitBtn) {
+         if (!hasData || hasDraft) {
+            submitBtn.style.display = "grid"; 
+            reporting_fileds_data.style.display = "block"; 
+            save_icon.style.display = "flex"; 
+         } else {
+            submitBtn.style.display = "none"; 
+            reporting_fileds_data.style.display = "none"; 
+            save_icon.style.display = "none"; 
+         }
+      }
+   });
+</script>
 <div class="tab-content" id="pills-tabContent">
    <div class="tab-pane fade" id="homeconsultant" role="tabpanel" aria-labelledby="pills-home-tab">...</div>
-   <div class="tab-pane fade show active" id="timesheet" role="tabpanel" aria-labelledby="pills-profile-tab">
+   <div class="tab-pane fade show active" id="consultantsconsultant" role="tabpanel" aria-labelledby="pills-profile-tab">
       <div class="container my-4">
          <div class="row">
             <div class="col-lg-9 col-xl-8">
                <div class="calender-wrap-parent">
-                  <div class="login-dashboard-top-bar mb-0">
+                   <div class="login-dashboard-top-bar mb-0">
                      <div class="left-col-top-bar">
-                        @if($consultant)
+                      <div class="left-col-top-bar">
                         <div class="employee-details-consultant">
                            <ul>
-                              <li>
-                                 <h6>Employee ID</h6>
-                                 <p>: {{ $consultant->emp_code ?? 'N/A' }}</p>
-                              </li>
-                              <li>
-                                 <h6>Employee Name</h6>
-                                 <p>: {{ $consultant->emp_name ?? 'N/A' }}</p>
-                              </li>
-                              <li>
-                                 <p><input type="text" style="    width: 150%;" id="reporting manager" placeholder="Enter Reporting Manager Email" /></p>
-                              </li>
+                                 <li>
+                                    <h6>Employee ID</h6>
+                                    <p>: {{ $consultant->emp_code ?? 'N/A' }}</p>
+                                 </li>
+                                 <li>
+                                    <h6>Employee Name</h6>
+                                    <p>: {{ $consultant->emp_name ?? 'N/A' }}</p>
+                                 </li>
+
+                                 <li>
+                                    <h6>Client Name</h6>
+                                    <p>: {{ $consultant->client_name ?? 'N/A' }}</p>
+                                 </li>
                            </ul>
                         </div>
-                        <div class="client-details-consultant">
+
+                        <div id="reporting_fileds_data" class="client-details-consultant">
                            <ul>
-                              <li>
-                                 <h6>Client Name</h6>
-                                 <p>: {{ $consultant->client_name ?? 'N/A' }}</p>
-                              </li>
-                              <li>
-                                 <p><input style="    width: 150%;" type="text" id="reporting manager" placeholder="Enter Reporting Manager Name" /></p>
-                              </li>
+                                 <li>
+                                    <input type="text" placeholder="Enter Reporting Manager Name">
+                                    </li>
+
+                                    <li>
+                                    <input type="text" placeholder="Enter Reporting Manager Email Id">
+                                    </li>
+                              
                            </ul>
                         </div>
-                        @else
-                        <p>No consultant data found.</p>
-                        @endif
+                     </div>
                      </div>
                      <div class="right-col-top-bar">
-                     <div class="calendar-top-header-btn-group">
+                        <div class="calendar-top-header-btn-group">
                            <a href="#" class="edit-icon" id="edit_icon">
                            <i class="fa fa-pen"></i>
                            </a>
@@ -111,12 +171,17 @@
 
                               </ul>
                         </div>
-                        <div class="month-controls">
-                           <button onclick="changeMonth(-1)">&#x25C0;</button>
-                           <select id="monthSelect"></select>
-                           <select id="yearSelect"></select>
-                           <button onclick="changeMonth(1)">&#x25B6;</button>
-                        </div>
+                          <div class="month-year-wrapper">
+                              <div class="month-year-picker" onclick="toggleMonthYearMenu()">
+                                 <img src="{{ asset('public/assets/latest/images/calender.png') }}" class="img-fluid" />
+                                 <span id="monthYearLabel"></span>
+                              </div>
+
+                              <div id="monthYearDropdown" class="dropdown-hidden">
+                                 <select id="monthSelect" onchange="onMonthYearChange()"></select>
+                                 <select id="yearSelect" onchange="onMonthYearChange()"></select>
+                              </div>
+                           </div>
                         </div>
                         <div class="calendar-container">
                            <div class="calendar">
@@ -577,8 +642,10 @@
                               const monthSelect = document.getElementById("monthSelect");
                               const yearSelect = document.getElementById("yearSelect");
 
-                              const savedMonth = localStorage.getItem("claimMonth");
-                              const savedYear = localStorage.getItem("claimYear");
+                              const savedMonth = localStorage.getItem("timesheetMonth");
+                              const savedYear = localStorage.getItem("timesheetYear");
+
+                              
 
                               if (savedMonth !== null && savedYear !== null) {
                                  monthSelect.value = savedMonth;
@@ -593,21 +660,21 @@
                                  monthSelect.value = now.getMonth();
                                  yearSelect.value = now.getFullYear();
                               }
-
+                              updateMonthYearLabel();
                               renderCalendar();  // if calendar is shown for claims
                               fetchClaimStatus();
                            });
 
                            // Store to claim-specific localStorage on change
                            document.getElementById("monthSelect").addEventListener("change", function () {
-                              localStorage.setItem("claimMonth", this.value);
-                              localStorage.setItem("claimYear", document.getElementById("yearSelect").value);
+                              localStorage.setItem("timesheetMonth", this.value);
+                              localStorage.setItem("timesheetYear", document.getElementById("yearSelect").value);
                               fetchClaimStatus();
                            });
 
                            document.getElementById("yearSelect").addEventListener("change", function () {
-                              localStorage.setItem("claimYear", this.value);
-                              localStorage.setItem("claimMonth", document.getElementById("monthSelect").value);
+                              localStorage.setItem("timesheetYear", this.value);
+                              localStorage.setItem("timesheetMonth", document.getElementById("monthSelect").value);
                               fetchClaimStatus();
                            });
 
@@ -626,33 +693,61 @@
                            }
 
                            function updateClaimStatusIcon(status) {
-                              const iconList = document.querySelectorAll("#claimStatus li span");
-
-                              iconList.forEach(span => span.classList.remove("active"));
+                              // 🔹 Existing logic for #claimStatus
+                              const claimIcons = document.querySelectorAll("#claimStatus li span");
+                              claimIcons.forEach(span => span.classList.remove("active"));
 
                               switch (status) {
                                  case "draft":
-                                       iconList[0].classList.add("active");
-                                       break;
+                                    claimIcons[0]?.classList.add("active");
+                                    break;
                                  case "submitted":
-                                       iconList[1].classList.add("active");
-                                       break;
+                                    claimIcons[1]?.classList.add("active");
+                                    break;
                                  case "approved":
-                                       iconList[2].classList.add("active");
-                                       break;
+                                    claimIcons[2]?.classList.add("active");
+                                    break;
                                  case "reviewed":
-                                       iconList[3].classList.add("active");
-                                       break;
+                                    claimIcons[3]?.classList.add("active");
+                                    break;
                                  case "finalized":
-                                       iconList[4].classList.add("active");
-                                       break;
+                                    claimIcons[4]?.classList.add("active");
+                                    break;
                                  case "paid":
-                                       iconList[5].classList.add("active");
-                                       break;
+                                    claimIcons[5]?.classList.add("active");
+                                    break;
                                  default:
-                                       break;
+                                    break;
+                              }
+
+                              // 🔸 New logic for #timeSheetStatus
+                              const timeIcons = document.querySelectorAll("#timeSheetStatus li span");
+                              timeIcons.forEach(span => span.classList.remove("active"));
+
+                              switch (status) {
+                                 case "draft":
+                                    timeIcons[0]?.classList.add("active");
+                                    break;
+                                 case "submitted":
+                                    timeIcons[1]?.classList.add("active");
+                                    break;
+                                 case "approved":
+                                    timeIcons[2]?.classList.add("active");
+                                    break;
+                                 case "reviewed":
+                                    timeIcons[3]?.classList.add("active");
+                                    break;
+                                 case "finalized":
+                                    timeIcons[4]?.classList.add("active");
+                                    break;
+                                 case "paid":
+                                    timeIcons[5]?.classList.add("active");
+                                    break;
+                                 default:
+                                    break;
                               }
                            }
+
 
 
 
@@ -782,8 +877,8 @@
                                    const today = new Date();
                                        today.setHours(0, 0, 0, 0); // Normalize time
                            
-                                       if (day === 0 || day === 6 || !calendarEnabled) {
-                                     //  if (day === 0 || day === 6 ) {
+                                      // if (day === 0 || day === 6 || !calendarEnabled) {
+                                       if (day === 0 || day === 6 ) {
                                  
                                           cell.classList.add("disabled");
                                        } else {
@@ -804,6 +899,18 @@
                                  calendarDays.appendChild(trailingCell);
                               }
 
+                           }
+
+                           function generateClaimCodeFromDate(dateStr) {
+                              // Remove slashes and spaces, e.g., "02 / 04 / 2025" → "02042025"
+                              const clean = dateStr.replace(/\D/g, '');
+                              // Create a numeric hash and convert to base36, then uppercase
+                              let hash = 0;
+                              for (let i = 0; i < clean.length; i++) {
+                                 hash = (hash << 5) - hash + clean.charCodeAt(i);
+                                 hash |= 0; // Keep 32-bit
+                              }
+                              return "CF" + Math.abs(hash).toString(36).substring(0, 5).toUpperCase();
                            }
                            
                            function showInputDropdown(event, cell, date) {
@@ -860,9 +967,9 @@
                                         const modalCustomLeave = new bootstrap.Modal(document.getElementById("otherModal"));
                                         modalCustomLeave.show();
 
-                                        const claimNum = "CF" + Math.floor(1000 + Math.random() * 9000);
+                                        const finalDatenew = generateClaimCodeFromDate(finalDate);
                                         const claimSpan = document.querySelector("#otherModal .ml_duty_time span span");
-                                        if (claimSpan) claimSpan.textContent = " " + claimNum;
+                                        if (claimSpan) claimSpan.textContent = finalDatenew;
 
                                         const selectedApplyOnCell = document.getElementById("showCellDate").innerText.trim();
                                         const allClaims = document.querySelectorAll("#otherModal .tab_type_list .tab_lists");
@@ -937,38 +1044,257 @@
                            }
 
 
+                           const monthNames = [
+                              "January", "February", "March", "April", "May", "June",
+                              "July", "August", "September", "October", "November", "December"
+                           ];
+
+                           //const currentDate = new Date();
+
+                           function populateDropdowns() {
+                              const monthSelect = document.getElementById("monthSelect");
+                              const yearSelect = document.getElementById("yearSelect");
+
+                              // Months
+                              monthSelect.innerHTML = monthNames
+                                 .map((m, i) => `<option value="${i}">${m}</option>`)
+                                 .join("");
+                              monthSelect.value = currentDate.getMonth();
+
+                              // Years
+                              const thisYear = new Date().getFullYear();
+                              let options = "";
+                              for (let y = 2007; y <= thisYear + 5; y++) {
+                                 options += `<option value="${y}">${y}</option>`;
+                              }
+                              yearSelect.innerHTML = options;
+                              yearSelect.value = currentDate.getFullYear();
+
+                              updateMonthYearLabel();
+                           }
+
+                           function toggleMonthYearMenu() {
+                              const dropdown = document.getElementById("monthYearDropdown");
+                              const trigger = document.querySelector(".month-year-picker");
+
+                              const isOpening = dropdown.classList.contains("dropdown-hidden");
+                              dropdown.classList.toggle("dropdown-hidden");
+                              if (!isOpening) return;
+
+                              dropdown.innerHTML = "";
+
+                              // Inject styles once
+                              if (!document.getElementById("monthYearStyles")) {
+                                 const style = document.createElement("style");
+                                 style.id = "monthYearStyles";
+                                 style.textContent = `
+                                    #monthYearDropdown {
+                                       width: 260px !important;
+                                       background: #fff !important;
+                                       border-radius: 12px !important;
+                                       padding: 16px !important;
+                                       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+                                       font-family: 'Segoe UI', sans-serif !important;
+                                       z-index: 1000 !important;
+                                       position: absolute !important;
+                                    }
+
+                                    #monthYearDropdown > div:first-child {
+                                       display: flex !important;
+                                       justify-content: center !important;
+                                       align-items: center !important;
+                                       gap: 20px !important;
+                                       font-weight: 600 !important;
+                                       font-size: 18px !important;
+                                       color: #1976d2 !important;
+                                       margin-bottom: 18px !important;
+                                    }
+
+                                    #monthYearDropdown > div:first-child span {
+                                       cursor: pointer !important;
+                                       font-size: 22px !important;
+                                       user-select: none !important;
+                                       color: #1976d2 !important;
+                                    }
+
+                                    #monthYearDropdown > div:last-child {
+                                       display: grid !important;
+                                       grid-template-columns: repeat(3, 1fr) !important;
+                                       gap: 10px !important;
+                                    }
+
+                                    #monthYearDropdown > div:last-child button {
+                                       padding: 10px 0 !important;
+                                       border: none !important;
+                                       border-radius: 12px !important;
+                                       background-color: #f0f0f0 !important;
+                                       font-weight: 600 !important;
+                                       color: #444 !important;
+                                       cursor: pointer !important;
+                                       font-size: 14px !important;
+                                       transition: all 0.2s ease !important;
+                                    }
+
+                                    #monthYearDropdown > div:last-child button:hover {
+                                       background-color: #e0e0e0 !important;
+                                    }
+
+                                    #monthYearDropdown > div:last-child button[data-selected="true"] {
+                                       background-color: #1976d2 !important;
+                                       color: white !important;
+                                    }
+                                 `;
+                                 document.head.appendChild(style);
+                              }
+
+                              // Create hidden selects if missing
+                              let monthSelect = document.getElementById("monthSelect");
+                              if (!monthSelect) {
+                                 monthSelect = document.createElement("select");
+                                 monthSelect.id = "monthSelect";
+                                 monthSelect.style.display = "none";
+                                 for (let i = 0; i < 12; i++) {
+                                    const opt = document.createElement("option");
+                                    opt.value = i;
+                                    opt.textContent = i;
+                                    monthSelect.appendChild(opt);
+                                 }
+                                 document.body.appendChild(monthSelect);
+                              }
+
+                              let yearSelect = document.getElementById("yearSelect");
+                              if (!yearSelect) {
+                                 yearSelect = document.createElement("select");
+                                 yearSelect.id = "yearSelect";
+                                 yearSelect.style.display = "none";
+                                 for (let y = 2000; y <= 2100; y++) {
+                                    const opt = document.createElement("option");
+                                    opt.value = y;
+                                    opt.textContent = y;
+                                    yearSelect.appendChild(opt);
+                                 }
+                                 document.body.appendChild(yearSelect);
+                              }
+
+                              // Get selected values from localStorage (actual visible month/year)
+                              const selectedMonth = parseInt(localStorage.getItem("timesheetMonth") ?? new Date().getMonth());
+                              const selectedYear = parseInt(localStorage.getItem("timesheetYear") ?? new Date().getFullYear());
+                              let currentYear = selectedYear;
+
+                              // === Year header ===
+                              const yearHeader = document.createElement("div");
+
+                              const prevBtn = document.createElement("span");
+                              prevBtn.innerHTML = "&#10094;";
+                              prevBtn.onclick = () => {
+                                 currentYear--;
+                                 yearText.textContent = currentYear;
+                              };
+
+                              const nextBtn = document.createElement("span");
+                              nextBtn.innerHTML = "&#10095;";
+                              nextBtn.onclick = () => {
+                                 currentYear++;
+                                 yearText.textContent = currentYear;
+                              };
+
+                              const yearText = document.createElement("span");
+                              yearText.textContent = currentYear;
+
+                              yearHeader.appendChild(prevBtn);
+                              yearHeader.appendChild(yearText);
+                              yearHeader.appendChild(nextBtn);
+                              dropdown.appendChild(yearHeader);
+
+                              // === Month grid ===
+                              const monthGrid = document.createElement("div");
+                              const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+                              monthNames.forEach((name, index) => {
+                                 const btn = document.createElement("button");
+                                 btn.textContent = name;
+
+                                 // ✅ selected state from localStorage values
+                                 if (index === selectedMonth && currentYear === selectedYear) {
+                                    btn.setAttribute("data-selected", "true");
+                                 }
+
+                                 btn.onclick = () => {
+                                    monthSelect.value = index;
+                                    yearSelect.value = currentYear;
+
+                                    // ✅ Save values to localStorage
+                                    localStorage.setItem("timesheetMonth", index);
+                                    localStorage.setItem("timesheetYear", currentYear);
+
+                                    // ✅ Trigger full update
+                                    if (typeof onMonthYearChange === "function") {
+                                       onMonthYearChange();
+                                    }
+
+                                    dropdown.classList.add("dropdown-hidden");
+                                    document.removeEventListener("click", outsideClickHandler);
+                                 };
+
+                                 monthGrid.appendChild(btn);
+                              });
+
+                              dropdown.appendChild(monthGrid);
+
+                              // Outside click handler
+                              const outsideClickHandler = (e) => {
+                                 if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+                                    dropdown.classList.add("dropdown-hidden");
+                                    document.removeEventListener("click", outsideClickHandler);
+                                 }
+                              };
+
+                              setTimeout(() => {
+                                 document.addEventListener("click", outsideClickHandler);
+                              }, 0);
+                           }
+
+                           function onMonthYearChange() {
+                              document.getElementById("monthYearDropdown").classList.add("dropdown-hidden");
+                              const month = parseInt(document.getElementById("monthSelect").value);
+                              const year = parseInt(document.getElementById("yearSelect").value);
+
+                              currentDate.setMonth(month);
+                              currentDate.setFullYear(year);
+
+                              localStorage.setItem("timesheetMonth", month);
+                              localStorage.setItem("timesheetYear", year);
+
+                              updateMonthYearLabel();
+                              // renderCalendar(); // ← Call your existing render function
+                              // fetchStatus();
+                              location.reload();
+                           }
+
+                           function updateMonthYearLabel() {
+                              const label = document.getElementById("monthYearLabel");
+                              console.log(label);
+                              label.textContent = `${monthNames[currentDate.getMonth()]} - ${currentDate.getFullYear()}`;
+                           }
+
+
                            
                            function closeAllDropdowns() {
                                document.querySelectorAll(".dropdown").forEach((d) => d.remove());
                            }
                            
-                           function changeMonth(delta) {
-                              currentDate.setMonth(currentDate.getMonth() + delta);
-
-                              const monthSelect = document.getElementById("monthSelect");
-                              const yearSelect = document.getElementById("yearSelect");
-
-                              monthSelect.value = currentDate.getMonth();
-                              yearSelect.value = currentDate.getFullYear();
-
-                              // ✅ Store in localStorage every time user changes month (claim-specific)
-                              localStorage.setItem("claimMonth", monthSelect.value);
-                              localStorage.setItem("claimYear", yearSelect.value);
-
-                              renderCalendar();       // if applicable
-                              fetchClaimStatus();     // update icon/status bar
-                           }
+                          
 
                            document.getElementById("monthSelect").addEventListener("change", function () {
-                              localStorage.setItem("claimMonth", this.value);
-                              localStorage.setItem("claimYear", document.getElementById("yearSelect").value);
+                              localStorage.setItem("timesheetMonth", this.value);
+                              localStorage.setItem("timesheetYear", document.getElementById("yearSelect").value);
                               fetchClaimStatus();
                               renderCalendar();
                            });
 
                            document.getElementById("yearSelect").addEventListener("change", function () {
-                              localStorage.setItem("claimYear", this.value);
-                              localStorage.setItem("claimMonth", document.getElementById("monthSelect").value);
+                              localStorage.setItem("timesheetYear", this.value);
+                              localStorage.setItem("timesheetMonth", document.getElementById("monthSelect").value);
                               fetchClaimStatus();
                               renderCalendar();
                            });
@@ -1084,13 +1410,13 @@
                            }
 
                            document.getElementById("save_icon").addEventListener("click", function (e) {
-                              // e.preventDefault();
-                              // saveClaimData("Draft");
+                              e.preventDefault();
+                              saveClaimData("Draft");
                            });
 
                            document.getElementById("submit_icon").addEventListener("click", function (e) {
-                              // e.preventDefault();
-                              // saveClaimData("Submitted");
+                              e.preventDefault();
+                              saveClaimData("Submitted");
                            });
                                                                                  
                         </script>
@@ -1134,188 +1460,253 @@
                   <div class="tab-content tab_content_body" id="clickTabsContent">
                      <div class="tab-pane fade show active" id="claimContent" role="tabpanel" aria-labelledby="claim-tab">
                         <div class="timeline">
-                           @php
-                              $claimsByDate = [];
 
-                              foreach ($dataClaims as $entry) {
-                                 $record = json_decode($entry->record, true);
-                                 $date = $record['date'] ?? '';
-                                 $claim_no = $record['claim_no'] ?? '';
-                                 $record['certificate_path'] = $record['certificate_path'] ?? '';
-                                 $status = $record['status'] ?? '';
+                            @php
+   $claimsByDate = [];
 
-                                 if ($date && $claim_no) {
-                                    $claimsByDate[$date][] = [
-                                       'claim_no' => $claim_no,
-                                       'record' => $record,
-                                       'status' => $status
-                                    ];
-                                 }
-                              }
-                           @endphp
+   foreach ($dataClaims as $entry) {
+      $record = json_decode($entry->record ?? '{}', true);
+      $date = $record['date'] ?? '';
+      $claim_no = $record['claim_no'] ?? '';
+      $record['certificate_path'] = $record['certificate_path'] ?? '';
+      $status = strtolower($entry->status ?? 'draft');
 
-                           @if (count($claimsByDate))
-                              @foreach ($claimsByDate as $date => $claims)
-                                 @php
-                                    $formattedDate = \Carbon\Carbon::parse($date)->format('d/m/Y');
-                                    $claimNos = collect($claims)->pluck('claim_no')->unique()->values();
-                                    $totalClaims = count($claims);
-                                    $firstClaim = $claims[0]['record'];
-                                    $certificate = $firstClaim['certificate_path'] ?? null;
-                                    $status = ucfirst($firstClaim['status'] ?? 'Submitted');
-                                 @endphp
+      if ($date && $claim_no) {
+         $claimsByDate[$date][$claim_no][] = [
+            'record' => $record,
+            'status' => $status,
+         ];
+      }
+   }
+@endphp
 
-                                 <div class="timeline-item d-flex mb-3">
-                                    <div class="me-2">
-                                       <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                       <div class="line bg-primary"></div>
-                                    </div>
-                                    <div>
-                                       <div class="d-flex align-items-center mb-1 tl-header">
-                                          <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                          <span class="text-primary">
-                                             Claim No # - {{ strtoupper($claimNos->first()) }}
-                                             @if ($claimNos->count() > 1)
-                                                <span class="text-muted">(and {{ $claimNos->count() - 1 }} more)</span>
-                                             @endif
-                                          </span>
-                                       </div>
-                                       <div class="tl_details">
-                                          <span>{{ $formattedDate }} -</span>
-                                          <span class="badge"><span class="badge_dot"></span>{{ $status }}</span>
-                                          <span>- {{ $totalClaims }} individual {{ $totalClaims > 1 ? 'claims' : 'claim' }} -</span>
+@foreach ($claimsByDate as $date => $claimsGroup)
+   @foreach ($claimsGroup as $claimNo => $claims)
+      @php
+         $parsedDate = \Carbon\Carbon::parse($date);
+         $formattedDate = $parsedDate->format('d/m/Y');
+         $month = $parsedDate->month;
+         $year = $parsedDate->year;
 
-                                          @if ($certificate)
-                                             <a href="{{ asset($certificate) }}" download class="badge_icon">
-                                                <i class="fa-solid fa-cloud-arrow-down"></i>
-                                             </a>
-                                          @endif
-                                        
-                                         <a href="#"
-                                             class="badge_icon open-claim-modal"
-                                             data-bs-toggle="modal"
-                                             data-bs-target="#claimModal"
-                                             data-applyoncell="{{ $firstClaim['applyOnCell'] ?? '' }}">
-                                             <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                          </a>
+         $firstClaim = $claims[0]['record'];
+         $certificate = $firstClaim['certificate_path'] ?? null;
+         $statusRaw = $claims[0]['status'] ?? 'draft';
+         $status = ucfirst($statusRaw);
+         $totalClaims = count($claims);
 
-                                       </div>
-                                    </div>
-                                 </div>
-                              @endforeach
-                           @else
-                              <p class="text-muted px-3 py-2">Claims not found.</p>
-                           @endif
+         $badgeClass = match(strtolower($statusRaw)) {
+            'submitted' => 'badge bg-warning text-dark',
+            'approved'  => 'badge bg-success',
+            'rejected'  => 'badge bg-danger',
+            'draft'     => 'badge bg-secondary',
+            default     => 'badge bg-light text-dark',
+         };
+      @endphp
+
+      <div id="ctab" class="timeline-item d-flex mb-3"
+         data-month="{{ $month }}"
+         data-year="{{ $year }}">
+         <div class="me-2">
+            <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+            <div class="line bg-primary"></div>
+         </div>
+         <div>
+            <div class="d-flex align-items-center mb-1 tl-header">
+               <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
+               <span class="text-primary fw-bold">
+                  Claim No # - {{ strtoupper($claimNo) }}
+               </span>
+            </div>
+            <div class="tl_details">
+               <span>{{ $formattedDate }} -</span>
+               <span class="{{ $badgeClass }}"><span class="badge_dot"></span>{{ $status }}</span>
+               <span>- {{ $totalClaims }} individual {{ $totalClaims > 1 ? 'claims' : 'claim' }} -</span>
+
+               @if ($certificate)
+                  <a href="{{ asset($certificate) }}" download class="badge_icon">
+                     <i class="fa-solid fa-cloud-arrow-down"></i>
+                  </a>
+               @endif
+
+               <a href="#"
+                  class="badge_icon open-claim-modal"
+                  data-bs-toggle="modal"
+                  data-bs-target="#claimModal"
+                  data-applyoncell="{{ $firstClaim['applyOnCell'] ?? '' }}">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+               </a>
+            </div>
+         </div>
+      </div>
+   @endforeach
+@endforeach
+
+{{-- ✅ Always render this hidden by default --}}
+<p id="noClaimMessage" class="text-muted px-3 py-2 d-none">No entries found for this month</p>
+
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+      setTimeout(() => {
+         const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+         const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+
+         const items = document.querySelectorAll("#ctab");
+         let visibleCount = 0;
+
+         items.forEach(item => {
+            const month = parseInt(item.getAttribute("data-month"));
+            const year = parseInt(item.getAttribute("data-year"));
+
+            if (month === selectedMonth && year === selectedYear) {
+               item.style.display = "";
+               visibleCount++;
+            } else {
+               item.style.setProperty("display", "none", "important");
+            }
+         });
+
+         const noMsg = document.getElementById("noClaimMessage");
+         if (noMsg) noMsg.classList.toggle("d-none", visibleCount > 0);
+      }, 200);
+   });
+</script>
+
+
                         </div>
 
                      </div>
                      <script>
                         // ✅ Your full claim collection exposed from backend
-window.allClaims = @json($dataClaims);
+                        window.allClaims = @json($dataClaims);
 
-// ✅ Attach event on claim open buttons
-document.querySelectorAll('.open-claim-modal').forEach(button => {
-   button.addEventListener('click', function () {
-      const applyOnCell = this.dataset.applyoncell;
-      const container = document.querySelector('#claimModal .modal_body_inner .container-fluid');
-       
+                        // ✅ Attach event on claim open buttons
+                        document.querySelectorAll('.open-claim-modal').forEach(button => {
+                           button.addEventListener('click', function () {
+                              const applyOnCell = this.dataset.applyoncell;
+                              const container = document.querySelector('#claimModal .modal_body_inner .container-fluid');
+                              
 
-           
+                                 
 
-      // Clear old content
-      container.innerHTML = '';
+                              // Clear old content
+                              container.innerHTML = '';
 
-      const claims = window.allClaims.filter(item => {
-         try {
-            const record = JSON.parse(item.record || '{}');
-            return record.applyOnCell === applyOnCell;
-         } catch (e) {
-            return false;
-         }
-      });
-
-      // Update count
-      document.querySelector('.claim_hour_title .text-danger').innerHTML = `Individual Claims ( ${claims.length} )`;
-      const pathParts = window.location.pathname.split('/');
-      const basePath = pathParts.length > 1 ? '/' + pathParts[1] : '';
-      const baseUrl = window.location.origin + basePath;
-
-  
-
-      //console.log(baseUrl);
-      // Generate each block dynamically
-      claims.forEach(c => {
-         const r = JSON.parse(c.record || '{}');
-         const html = `
-            <div class="row tabs_type_row mb-4">
-               <div class="col-md-6 p-0">
-                  <div class="top_ic_details detial_row">
-                     <div class="d_n_t">
-                        <span class="fw-bold">Date & Time</span>
-                        <span>${r.date || '-'}</span>
-                     </div>
-                     <div class="e_n_t">
-                        <span class="fw-bold">Expense Type </span>
-                        <span>${r.expenseType || '-'}</span>
-                     </div>
-                     <div class="e_amt">
-                        <span class="fw-bold">Amount</span>
-                        <span>$ ${r.amount || '0.00'}</span>
-                     </div>
-                     <div class="u_icons">
-                        <a href="#" class="badge_icon"><i class="fa-solid fa-pen-nib"></i></a>
-                        <a href="#" class="badge_icon"><i class="fa-solid fa-trash-can"></i></a>
-                     </div>
-                  </div>
-                  <div class="bottom_ic_details detial_row">
-                     <div class="e_particular">
-                        <span class="fw-bold">Particulars</span>
-                        <span>${r.particulars || '-'}</span>
-                     </div>
-                     ${r.locationFrom ? `
-                     <div class="e_location_from">
-                        <span class="fw-bold">Location From</span>
-                        <span>${r.locationFrom}</span>
-                     </div>
-                     ` : ''}
-
-                     ${r.locationTo ? `
-                     <div class="e_location_to">
-                        <span class="fw-bold">Location To</span>
-                        <span>${r.locationTo}</span>
-                     </div>
-                     ` : ''}
-
-                  </div>
-               </div>
-               <div class="col-md-3 p-0">
-                  <div class="e_invoice_box">
-                     <div class="e_invoice_box_inner">
-                        <img src="${baseUrl}/${r.certificate_path || 'public/assets/latest/images/no-data-2.png'}" />
-                        <p class="mt-2">
-                           <span>Add Invoice</span>
-                        </p>
-                     </div>
-                  </div>
-               </div>
-               <div class="col-md-3 p-0">
-                  <div class="e_remark_box">
-                     <div class="e_remark_box_inner">
-                        <span class="fw-bold">Remarks</span>
-                        <p class="mt-2">
-                           <span>${r.remarks || ''}</span>
-                        </p>
-                     </div>
-                  </div>
-               </div>
-            </div>`;
-
-            
-
-         container.insertAdjacentHTML('beforeend', html);
-      });
-   });
+                              // ✅ Filter claims
+const claims = window.allClaims.filter(item => {
+   try {
+      const record = JSON.parse(item.record || '{}');
+      return record.applyOnCell === applyOnCell;
+   } catch (e) {
+      return false;
+   }
 });
+
+// ✅ Now add the dynamic header update here
+const first = claims[0] || {};
+const record = JSON.parse(first.record || '{}');
+const claimNo = record.claim_no || 'N/A';
+const claimStatus = (first.status || 'Draft').toLowerCase();
+const claimCount = claims.length;
+
+// 🔄 Update claim number
+document.querySelector('.model_c_form h4').textContent = 'Claim Form';
+document.querySelector('.model_c_form span').textContent = claimNo;
+
+// 🔄 Update status button
+const statusBtn = document.querySelector('.modal-header .draft_btn');
+if (statusBtn) {
+   const colorMap = {
+      draft: { text: 'Draft', bg: '#007bff' },
+      submitted: { text: 'Submitted', bg: '#f1c40f' },
+      approved: { text: 'Approved', bg: '#28a745' },
+      rejected: { text: 'Rejected', bg: '#dc3545' }
+   };
+   const color = colorMap[claimStatus] || colorMap['draft'];
+   statusBtn.innerHTML = `<span class="dot" style="background-color:${color.bg}"></span> ${color.text}`;
+}
+
+// 🔄 Update claim count
+document.querySelector('.claim_hour_title .text-danger').textContent = `Individual Claims ( ${claimCount} )`;
+
+                              // Update count
+                              document.querySelector('.claim_hour_title .text-danger').innerHTML = `Individual Claims ( ${claims.length} )`;
+                              const pathParts = window.location.pathname.split('/');
+                              const basePath = pathParts.length > 1 ? '/' + pathParts[1] : '';
+                              const baseUrl = window.location.origin + basePath;
+
+                     
+                              claims.forEach(c => {
+                                 const r = JSON.parse(c.record || '{}');
+                                 const html = `
+                                    <div class="row tabs_type_row mb-4">
+                                       <div class="col-md-6 p-0">
+                                          <div class="top_ic_details detial_row">
+                                             <div class="d_n_t">
+                                                <span class="fw-bold">Date & Time</span>
+                                                <span>${r.date || '-'}</span>
+                                             </div>
+                                             <div class="e_n_t">
+                                                <span class="fw-bold">Expense Type </span>
+                                                <span>${r.expenseType || '-'}</span>
+                                             </div>
+                                             <div class="e_amt">
+                                                <span class="fw-bold">Amount</span>
+                                                <span>$ ${r.amount || '0.00'}</span>
+                                             </div>
+                                             <div class="u_icons">
+                                                <a href="#" class="badge_icon"><i class="fa-solid fa-pen-nib"></i></a>
+                                                <a href="#" class="badge_icon"><i class="fa-solid fa-trash-can"></i></a>
+                                             </div>
+                                          </div>
+                                          <div class="bottom_ic_details detial_row">
+                                             <div class="e_particular">
+                                                <span class="fw-bold">Particulars</span>
+                                                <span>${r.particulars || '-'}</span>
+                                             </div>
+                                             ${r.locationFrom ? `
+                                             <div class="e_location_from">
+                                                <span class="fw-bold">Location From</span>
+                                                <span>${r.locationFrom}</span>
+                                             </div>
+                                             ` : ''}
+
+                                             ${r.locationTo ? `
+                                             <div class="e_location_to">
+                                                <span class="fw-bold">Location To</span>
+                                                <span>${r.locationTo}</span>
+                                             </div>
+                                             ` : ''}
+
+                                          </div>
+                                       </div>
+                                       <div class="col-md-3 p-0">
+                                          <div class="e_invoice_box">
+                                             <div class="e_invoice_box_inner">
+                                                <img src="${baseUrl}/${r.certificate_path || 'public/assets/latest/images/no-data-2.png'}" />
+                                                <p class="mt-2">
+                                                   <span>Add Invoice</span>
+                                                </p>
+                                             </div>
+                                          </div>
+                                       </div>
+                                       <div class="col-md-3 p-0">
+                                          <div class="e_remark_box">
+                                             <div class="e_remark_box_inner">
+                                                <span class="fw-bold">Remarks</span>
+                                                <p class="mt-2">
+                                                   <span>${r.remarks || ''}</span>
+                                                </p>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>`;
+
+                                    
+
+                                 container.insertAdjacentHTML('beforeend', html);
+                              });
+                           });
+                        });
 
                      </script>
                      <div class="tab-pane fade" id="gCopiesContent" role="tabpanel" aria-labelledby="gCopies-tab">
@@ -1324,96 +1715,6 @@ document.querySelectorAll('.open-claim-modal').forEach(button => {
                            <span>Total Work Hours</span>
                         </div>
                         <div class="timeline tile_shape_box">
-                           <div class="timeline-item d-flex mb-3">
-                              <div class="select_box">
-                                 <input type="checkbox" value="" />
-                              </div>
-                              <div class="timeline_right">
-                                 <div class="d-flex align-items-center mb-3 tl-header">
-                                    <span class="c_form_no">Claim Form : #2948</span>
-                                    <span class="c_amount">Amount : $ 1800.00</span>
-                                 </div>
-                                 <div class="d-flex align-items-center tl-header">
-                                    <span class="ind_claim">individual claims ( 03 )</span>
-                                    <span>
-                                    <a href="#" class="badge_icon"><i class="fa-solid fa-cloud-arrow-down"></i></a>
-                                    <a href="#" class="badge_icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                                    </span>
-                                 </div>
-                              </div>
-                           </div>
-                           <div class="timeline-item d-flex mb-3">
-                              <div class="select_box">
-                                 <input type="checkbox" value="" />
-                              </div>
-                              <div class="timeline_right">
-                                 <div class="d-flex align-items-center mb-3 tl-header">
-                                    <span class="c_form_no">Claim Form : #2948</span>
-                                    <span class="c_amount">Amount : $ 1800.00</span>
-                                 </div>
-                                 <div class="d-flex align-items-center tl-header">
-                                    <span class="ind_claim">individual claims ( 03 )</span>
-                                    <span>
-                                    <a href="#" class="badge_icon"><i class="fa-solid fa-cloud-arrow-down"></i></a>
-                                    <a href="#" class="badge_icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                                    </span>
-                                 </div>
-                              </div>
-                           </div>
-                           <div class="timeline-item d-flex mb-3">
-                              <div class="select_box">
-                                 <input type="checkbox" value="" />
-                              </div>
-                              <div class="timeline_right">
-                                 <div class="d-flex align-items-center mb-3 tl-header">
-                                    <span class="c_form_no">Claim Form : #2948</span>
-                                    <span class="c_amount">Amount : $ 1800.00</span>
-                                 </div>
-                                 <div class="d-flex align-items-center tl-header">
-                                    <span class="ind_claim">individual claims ( 03 )</span>
-                                    <span>
-                                    <a href="#" class="badge_icon"><i class="fa-solid fa-cloud-arrow-down"></i></a>
-                                    <a href="#" class="badge_icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                                    </span>
-                                 </div>
-                              </div>
-                           </div>
-                           <div class="timeline-item d-flex mb-3">
-                              <div class="select_box">
-                                 <input type="checkbox" value="" />
-                              </div>
-                              <div class="timeline_right">
-                                 <div class="d-flex align-items-center mb-3 tl-header">
-                                    <span class="c_form_no">Claim Form : #2948</span>
-                                    <span class="c_amount">Amount : $ 1800.00</span>
-                                 </div>
-                                 <div class="d-flex align-items-center tl-header">
-                                    <span class="ind_claim">individual claims ( 03 )</span>
-                                    <span>
-                                    <a href="#" class="badge_icon"><i class="fa-solid fa-cloud-arrow-down"></i></a>
-                                    <a href="#" class="badge_icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                                    </span>
-                                 </div>
-                              </div>
-                           </div>
-                           <div class="timeline-item d-flex mb-3">
-                              <div class="select_box">
-                                 <input type="checkbox" value="" />
-                              </div>
-                              <div class="timeline_right">
-                                 <div class="d-flex align-items-center mb-3 tl-header">
-                                    <span class="c_form_no">Claim Form : #2948</span>
-                                    <span class="c_amount">Amount : $ 1800.00</span>
-                                 </div>
-                                 <div class="d-flex align-items-center tl-header">
-                                    <span class="ind_claim">individual claims ( 03 )</span>
-                                    <span>
-                                    <a href="#" class="badge_icon"><i class="fa-solid fa-cloud-arrow-down"></i></a>
-                                    <a href="#" class="badge_icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                                    </span>
-                                 </div>
-                              </div>
-                           </div>
                            <div class="timeline-item d-flex mb-3">
                               <div class="select_box">
                                  <input type="checkbox" value="" />
@@ -1462,7 +1763,7 @@ document.querySelectorAll('.open-claim-modal').forEach(button => {
                               <a href="#" class="draft_btn"><span class="dot"></span> Draft</a>
                               <div class="claim_hour_title">
                                  <span class="text-danger me-4 fw-bold">Individual Claims ( 03 )</span>
-                                 <span class="fw-bold">Total Work Hours</span>
+                                 <!-- <span class="fw-bold">Total Work Hours</span> -->
                               </div>
                               <button type="button" class="btn-close ml-close-btn" data-bs-dismiss="modal" aria-label="Close" onclick="location.reload()">
                                  <i class="fa-solid fa-xmark"></i>
@@ -1721,13 +2022,28 @@ document.querySelectorAll('.open-claim-modal').forEach(button => {
                            </button>
                         </div>
                      </div>
-                     <div class="timeline">
-                        @if (!empty($dataClaims) && count($dataClaims))
-                           @foreach ($dataClaims as $item)
+                     <div class="timeline" id="remarkTimeline">
+                        @php
+                           $hasData = false;
+                        @endphp
+
+                        @foreach ($dataClaims as $item)
+                           @php
+                              $record = json_decode($item->record ?? '{}', true);
+                              $date = $record['date'] ?? null;
+                              $parsed = $date ? \Carbon\Carbon::parse($date) : null;
+                           @endphp
+
+                           @if ($parsed)
                               @php
-                                 $record = json_decode($item->record ?? '{}', true);
+                                 $hasData = true;
+                                 $month = $parsed->month;
+                                 $year = $parsed->year;
                               @endphp
-                              <div class="remark-item mb-3">
+
+                              <div class="remark-item mb-3"
+                                 data-month="{{ $month }}"
+                                 data-year="{{ $year }}">
                                  <div class="d-flex">
                                     <div class="me-2 text-primary">
                                        <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
@@ -1737,18 +2053,46 @@ document.querySelectorAll('.open-claim-modal').forEach(button => {
                                        <div class="d-flex align-items-center mb-1">
                                           <img src="{{ $item->profile_image ?? 'https://i.pravatar.cc/24' }}" class="rounded-circle me-2" title="{{ $item->user_name ?? 'User' }}" />
                                           <small class="text-muted">
-                                             Claim No # - {{ $record['claim_no'] ?? '' }} On {{ \Carbon\Carbon::parse($record['date'])->format('d/m/Y') }}
+                                             Claim No # - {{ $record['claim_no'] ?? '' }} On {{ $parsed->format('d/m/Y') }}
                                           </small>
                                        </div>
                                        <p>{{ $record['remarks'] ?? '' }}</p>
                                     </div>
                                  </div>
                               </div>
-                           @endforeach
-                        @else
-                           <p class="text-muted px-3 py-2">Claims not found.</p>
-                        @endif
+                           @endif
+                        @endforeach
+
+                        <p id="noRemarksMessage" class="text-muted px-3 py-2 d-none">No entries found for this month</p>
                      </div>
+
+                     <script>
+                     document.addEventListener("DOMContentLoaded", function () {
+                        setTimeout(() => {
+                           const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                           const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+
+                           const items = document.querySelectorAll("#remarkTimeline .remark-item");
+                           let visibleCount = 0;
+
+                           items.forEach(item => {
+                              const month = parseInt(item.getAttribute("data-month"));
+                              const year = parseInt(item.getAttribute("data-year"));
+
+                              if (month === selectedMonth && year === selectedYear) {
+                                 item.style.display = "";
+                                 visibleCount++;
+                              } else {
+                                 item.style.setProperty("display", "none", "important");
+                              }
+                           });
+
+                           const msg = document.getElementById("noRemarksMessage");
+                           if (msg) msg.classList.toggle("d-none", visibleCount > 0);
+                        }, 200);
+                     });
+                     </script>
+
 
                   </div>
                </div>
