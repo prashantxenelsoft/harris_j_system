@@ -2774,7 +2774,7 @@
                               <table class="w-100">
                                  <thead>
                                     <tr>
-                                       <th>Type Of Leave1</th>
+                                       <th>Type Of Leave</th>
                                        <th>From</th>
                                        <th>To</th>
                                        <th>Days</th>
