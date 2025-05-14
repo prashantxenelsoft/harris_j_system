@@ -519,3 +519,43 @@ div#home_page_timesheet .timeline-container{
 /* .calender-custom .calendar{
     background-color: #d1d1d6;
 } */
+ .employee-details-consultant p{
+    width: 102px;
+ }
+
+ #consultantsconsultant .employee-details-consultant ul li h6{
+    width: 120px;
+ }
+
+ @media screen and (min-width: 1600px) {
+
+    .calendar{
+        max-width: 100%;
+    }
+
+    .employee-details-consultant p{
+    width: 130px;
+    }
+
+ #consultantsconsultant .employee-details-consultant ul li h6{
+    width: 140px;
+ }
+
+}
+
+@media screen and (min-width: 1800px) {
+
+    .calendar{
+        max-width: 100%;
+    }
+
+    .employee-details-consultant p{
+    width: 180px;
+    }
+
+ #consultantsconsultant .employee-details-consultant ul li h6{
+    width: 160px;
+ }
+
+}
+

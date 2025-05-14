@@ -1,17 +1,68 @@
-@media screen and (min-width: 1100px) and (max-width: 1360px){
-    .table-bom-list-section thead th{
-        font-size: 12px;
+@media screen and (min-width: 1100px) and (max-width: 1360px) {
+
+    #consultantsconsultant .client-details-consultant ul li input[type="text"]{
+        width: 250px;
     }
 
-    .table-bom-list-section table tbody tr td{
+    .reports-inner-col table tr td{
         font-size: 11px;
     }
 
-    .add-consultants-wrapper .col-lg-4{
+    .reports-inner-col table th{
+        font-size: 12px;
+    }
+
+    .table-hj-list-section thead th {
+        font-size: 12px;
+    }
+
+    .reports-consultancy-listing-wrapper {
+    padding: 13px;
+}
+
+.reports-consultancy-listing-wrapper .clients-tab-switch .clients-img-name h6{
+    font-size: 13px;
+}
+
+.reports-consultancy-listing-wrapper .nav-link{
+    padding: 8px;
+}
+
+.reports-consultancy-listing-wrapper .clients-tab-switch .clients-img-name{
+    gap: 6px;
+}
+
+.report-table-col-btn-group img {
+    width: 21px;
+}
+
+.search-box-wrapper .search-box input {
+    padding: 10px 10px 10px 34px;
+    width: 332px;
+    background-size: 19px;
+}
+
+.search-box-wrapper .buttons-reports a img {
+    width: 20px;
+}
+
+.search-box-wrapper .buttons-reports a{
+    font-size: 15px;
+}
+
+.search-box-wrapper .buttons-reports a{
+    padding: 9px 15px;
+}
+
+    .table-hj-list-section table tbody tr td {
+        font-size: 11px;
+    }
+
+    .add-consultants-wrapper .col-lg-4 {
         width: 29%;
     }
 
-    .add-consultants-wrapper .col-lg-8{
+    .add-consultants-wrapper .col-lg-8 {
         width: 71%;
     }
 
@@ -19,15 +70,15 @@
         max-width: 97%;
     }
 
-    .add-consultant-parent td{
-           font-size: 10px;
-    }
-
-    .add-consultant-parent .table-bom-list-section thead th {
+    .add-consultant-parent td {
         font-size: 10px;
     }
 
-    .add-consultant-parent .icon-group-listing span{
+    .add-consultant-parent .table-hj-list-section thead th {
+        font-size: 10px;
+    }
+
+    .add-consultant-parent .icon-group-listing span {
         height: 20px;
         width: 20px;
     }
@@ -43,15 +94,15 @@
         color: #A30D11;
     }
 
-    .add-consultant-parent .span.inactive-badge{
+    .add-consultant-parent .span.inactive-badge {
         padding: 10px 10px 10px 22px;
     }
 
-    .add-consultant-parent span.active-badge{
+    .add-consultant-parent span.active-badge {
         padding: 10px 10px 10px 22px;
     }
 
-    .add-consultant-parent .span.active-badge{
+    .add-consultant-parent .span.active-badge {
         padding: 10px 10px 10px 20px;
     }
 
@@ -60,30 +111,30 @@
         gap: 5px;
     }
 
-    .add-consultant-parent .table-bom-list-section table tbody tr td{
+    .add-consultant-parent .table-hj-list-section table tbody tr td {
         font-size: 10px;
     }
 
-    .add-consultant-parent .clients-tab-header .clients-tab-header-left-col input[type="text"]{
+    .add-consultant-parent .clients-tab-header .clients-tab-header-left-col input[type="text"] {
         height: 30px;
     }
 
-    .add-consultant-parent .clients-tab-header .clients-tab-header-left-col select{
+    .add-consultant-parent .clients-tab-header .clients-tab-header-left-col select {
         height: 30px;
         font-size: 12px;
     }
 }
 
-@media screen and (min-width: 1361px) and (max-width: 1440px){
-    .add-consultant-parent .table-bom-list-section thead th{
+@media screen and (min-width: 1361px) and (max-width: 1440px) {
+    .add-consultant-parent .table-hj-list-section thead th {
         font-size: 12px;
     }
 
-    .add-consultant-parent .table-bom-list-section table tbody tr td{
+    .add-consultant-parent .table-hj-list-section table tbody tr td {
         font-size: 12px;
     }
 
-    .icon-group-listing{
+    .icon-group-listing {
         gap: 10px;
     }
 
@@ -106,22 +157,622 @@
 
 
 @media (min-width: 576px) {
-    .bom-add-consultancy-screen .modal-dialog {
+    .hj-add-consultancy-screen .modal-dialog {
         max-width: 85%;
+        margin: 1.75rem auto;
+    }
+
+    .calendar-ui .modal-dialog {
+        left: 30%;
+        top: 12%;
+    }
+
+    #designationModal .modal-dialog {
+        max-width: 70%;
+        margin: 1.75rem auto;
+    }
+
+    #rolesModal .modal-dialog {
+        max-width: 70%;
         margin: 1.75rem auto;
     }
 }
 
-@media screen and (max-width: 1440px){
-    .login-page-wrapper .login-right-col .login-row input[type="email"]{
+@media screen and (max-width: 1440px) {
+
+    .hr-inner-tab .add-consultant-clients-wrapper .clients-consultants-tags ul li p{
+        font-size: 10px;
+    }
+
+    .dashboard-consultancy-listing-wrapper .table-hj-list-section thead th {
+        font-size: 10px !important;
+    }
+
+    .dashboard-consultancy-listing-wrapper td {
+        font-size: 10px !important;
+    }
+
+    .dashboard-consultancy-listing-wrapper span.active-badge {
+        position: relative;
+        padding: 5px 10px 5px 25px;
+        border-radius: 6px;
+        display: block;
+        background-color: #EBF9F1;
+        width: fit-content;
+        margin-top: 10px;
+        color: var(--Green);
+    }
+
+    .login-page-wrapper .login-right-col .login-row input[type="email"] {
         height: 46px;
     }
 
-    .login-page-wrapper .login-right-col .login-row input[type="password"]{
+    .login-page-wrapper .login-right-col .login-row input[type="password"] {
         height: 46px;
     }
 
-    .login-dashboard-top-bar .left-col-top-bar{
+    .login-dashboard-top-bar .left-col-top-bar {
         font-size: 11px;
     }
+}
+
+/* Tablet */
+@media screen and (min-width: 767px) and (max-width: 991px) {
+    .hj-header .nav-tabs .nav-link {
+        padding: 10px 10px;
+    }
+
+    .hj-header .nav-tabs .nav-link.active {
+        padding: 14px 20px;
+    }
+
+    .hj-header .nav-tabs .nav-link {
+        font-size: 12px;
+    }
+
+    .hj-right-col .hj-col-country-dropdown {
+        width: 25%;
+    }
+
+    .hj-right-col {
+        height: 100%;
+        justify-content: space-between;
+        padding: 16px 0px 5px 0px;
+    }
+
+    .hj-right-col .hj-col-country-dropdown select {
+        display: block;
+    }
+
+    .hj-header .header-logo {
+        justify-content: center;
+        padding: 20px 0px;
+    }
+
+    .graph-two-dashboard .second-graph-top-row .graph-top-bar-right-wrap select {
+        height: 100%;
+        border-radius: 8px;
+        border: 1px solid #8D91A0;
+        font-family: var(--Themefont);
+        height: 32px;
+        color: #8D91A0;
+        padding: 0 10px;
+        width: 115px;
+    }
+
+    .graph-two-dashboard .second-graph-top-row .graph-top-bar-right-wrap input {
+        width: 150px;
+        height: 32px;
+    }
+
+    .graph-top-row-cta a {
+        padding: 5px;
+    }
+
+    .top-row-dashboard-lisitng {
+        margin-top: 30px;
+    }
+
+    /* HR Dashboard  */
+    .hr-inner-tab .add-consultant-clients-wrapper {
+        width: 100%;
+        height: 275px;
+        padding: 20px;
+    }
+
+    .hr-inner-tab .add-consultant-clients-wrapper .clients-consultants-tags ul li {
+        width: 24%;
+    }
+
+    .hr-inner-tab {
+        flex-direction: column;
+    }
+
+    .add-consultant-parent .add-consultant-clients-wrapper .nav {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+    }
+
+    .add-consultant-parent .add-consultant-clients-wrapper .nav .nav-link {
+        width: 48%;
+    }
+
+    .hr-consultants-clients-tabs-content {
+        width: 100%;
+    }
+
+    .hr-dashboard-my-activities ul li .hr-dashboard-activity-card {
+        padding: 20px 10px;
+        justify-content: space-between;
+    }
+
+    .hr-dashboard-my-activities ul li .hr-dashboard-activity-card .activity-card-icon {
+        width: 20%;
+    }
+
+    .hr-dashboard-my-activities ul li .hr-dashboard-activity-card .activity-card-text {
+        width: 75%;
+    }
+
+    .hr-dashboard-my-activities ul li .hr-dashboard-activity-card .activity-card-text p {
+        font-size: 12px;
+    }
+
+    .hr-dashboard-my-activities ul li .hr-dashboard-activity-card .activity-card-icon img {
+        width: 80%;
+    }
+
+    .hr-my-dashboard-wrapper h4 {
+        margin-top: 30px;
+    }
+
+    .hr-my-dashboard .total {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .hr-tab-inner .bottom-remark-timesheet-group {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .hr-tab-inner .bottom-remark-timesheet-group .col-lg-6 {
+        padding: 0;
+    }
+
+    .calendar-ui {
+        width: 100%;
+    }
+
+    .calendar-ui .icon svg {
+        width: 100%;
+    }
+
+    .calendar-ui .icons-bar {
+        justify-content: center;
+        gap: 50px;
+    }
+
+    .hr-table {
+        width: 100%;
+        height: 400px;
+    }
+
+    .hr-tab-inner .icons-bar.icons-bar span::before {
+        width: 171%;
+        left: 30px;
+    }
+
+    .hr-table-inner thead tr th:nth-child(2) {
+        width: 10%;
+    }
+
+    .hr-inner-tab .add-consultant-clients-wrapper .clients-consultants-tags ul {
+        padding: 0 3%;
+    }
+
+    .claim-form-conusltant-dashboard .claim-tab-dummy-consulatnt a{
+        font-size: 12px;
+        }
+
+        .claim-summary-dashboard-consultant .dashboard-remark-section p{
+             font-size: 12px;
+        }
+
+        .timeline-container{
+            margin-top: 30px;
+        }
+
+            .login-dashboard-top-bar .left-col-top-bar {
+        font-size: 10px;
+    }
+
+    .graph-one-col-dashboard-consultant .label-item{
+        font-size: 12px;
+    }
+
+    .graph-two-col-dashboard-consultant .label-item{
+        font-size: 12px;
+    }
+}
+
+/* Small screen desktop */
+
+@media screen and (min-width: 992px) and (max-width: 1250px) {
+    .hj-header .nav-tabs .nav-link {
+        padding: 14px 12px;
+    }
+
+    .hj-header .nav-tabs .nav-link.active {
+        padding: 18px 20px;
+    }
+
+    .graph-two-dashboard .second-graph-top-row .graph-top-bar-right-wrap select {
+        width: 120px;
+    }
+
+    .graph-two-dashboard .second-graph-top-row .graph-top-bar-right-wrap input {
+        width: 160px;
+    }
+
+    #mixedChart {
+        width: 100%;
+    }
+
+    .active-inactive-consultancy-dashboard-wrap .dashboard-inactive-consultancy {
+        box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+        padding: 20px 5%;
+        border-radius: 5px;
+    }
+
+    .active-inactive-consultancy-dashboard-wrap .dashboard-active-consultancy img {
+        width: 70px;
+    }
+
+    .active-inactive-consultancy-dashboard-wrap .dashboard-inactive-consultancy img {
+        width: 70px;
+    }
+
+    .hj-right-col .bell-icon-col span {
+        top: 8px;
+        left: 8px;
+    }
+
+    .hj-right-col .bell-icon-col i {
+        font-size: 20px;
+    }
+
+    .hj-col-country-dropdown select{
+        font-size: 10px;
+    }
+
+    .add-consultant-parent .add-consultant-clients-wrapper .clients-tab-switch .clients-img-name img{
+        width: 15px;
+    }
+
+    .add-consultant-parent .add-consultant-clients-wrapper .clients-numbers-tab-switch span{
+        font-size: 10px;
+    }
+
+    .add-consultant-parent .add-consultant-clients-wrapper .nav-link.active h6{
+        font-size: 10px;
+    }
+
+    .add-consultant-parent .add-consultant-clients-wrapper .clients-tab-switch .clients-img-name h6{
+        font-size: 10px;
+    }
+
+    .add-consultant-parent .add-consultant-clients-wrapper .nav-link {
+        padding: 5px       
+     }
+
+     .hr-inner-tab .add-consultant-clients-wrapper .clients-consultants-tags ul li p{
+        font-size: 7px;
+     }
+
+     .add-consultant-parent .add-consultant-clients-wrapper .clients-consultants-tags ul li span{
+        width: 8px;
+        height: 8px;
+     }
+
+     .operator-dashboard-my-activities ul li .operator-dashboard-activity-card{
+        gap: 15px;
+     }
+
+     .graph-one-col-dashboard-consultant .label-item{
+        font-size: 10px;
+     }
+
+     .graph-two-col-dashboard-consultant .label-item{
+        font-size: 10px;
+     }
+
+     .operator-dashboard-activity-card .activity-card-text p{
+        font-size: 10px;
+     }
+
+     .add-consultant-parent .add-consultant-clients-wrapper h4{
+        font-size: 12px;
+     }
+
+     .graph-two-col-dashboard-consultant canvas {
+        max-width: 170px;
+        max-height: 170px;
+    }
+
+    .graph-one-col-dashboard-consultant canvas {
+        max-width: 170px;
+        max-height: 170px;
+        margin: 25px auto;
+    }
+
+    .operator-inner-tab .add-consultant-clients-wrapper {
+        height: 468px !important;
+    }
+
+    .operator-dashboard-my-activities ul li .operator-dashboard-activity-card {
+        padding: 20px 10px;
+    }
+
+    .operator-dashboard-activity-card img {
+        width: 85px;
+        height: 85px;
+    }
+
+    .hr-table-inner th, .hr-table-inner td{
+        font-size: 10px;
+    }
+
+    .hr-tab-inner .status-buttons button {
+        font-size: 8px;
+    }
+
+    .calendar-ui .status {
+        padding: 6px 5px;
+    }
+
+    .hr-tab-inner .status-buttons button{
+        gap: 2px;
+    }
+
+    .hr-tab-inner .status-buttons img {
+        width: 10px;
+    }
+
+    .reports-inner-col table tr td{
+        font-size: 10px;
+    }
+}
+
+/* Small screen desktop end*/
+
+/* Responsive of pop ups start */
+
+@media screen and (min-width:768px) {
+
+    #medicalLeaveModal .modal-xl,
+    #customLeaveModal .modal-xl,
+    .common_modal .modal-xl {
+        max-width: 576px;
+    }
+
+    #workSummaryModal .modal-dialog {
+        max-width: 600px;
+    }
+
+    #timesheetModal .modal-dialog {
+        max-width: 740px;
+    }
+}
+
+@media screen and (min-width:992px) {
+    #workSummaryModal .modal-dialog {
+        max-width: 800px;
+    }
+}
+
+@media screen and (min-width:1024px) {
+
+    #medicalLeaveModal .modal-xl,
+    #customLeaveModal .modal-xl,
+    .common_modal .modal-xl {
+        max-width: 750px;
+    }
+
+    .modal-body .modal_body_inner .mb_left {
+        min-width: 450px;
+    }
+
+    #timesheetModal .modal-dialog {
+        max-width: 850px;
+    }
+
+    #claimModal .modal-xl {
+        max-width: 900px;
+    }
+}
+
+@media screen and (min-width:1260px) {
+    #timesheetModal .modal-dialog {
+        max-width: 900px;
+    }
+
+    .common_modal .modal-xl {
+        max-width: 900px;
+    }
+
+    #claimModal .modal-xl {
+        max-width: 1100px;
+    }
+}
+
+@media screen and (min-width:1400px) {
+
+    #medicalLeaveModal .modal-xl,
+    #customLeaveModal .modal-xl,
+    .common_modal .modal-xl {
+        max-width: 950px;
+    }
+
+    .modal-body .modal_body_inner .mb_left {
+        min-width: 500px;
+    }
+
+    #claimModal .modal-xl {
+        max-width: 1300px;
+    }
+
+    .calendar-ui .status-buttons {
+        justify-content: flex-end;
+    }
+
+    .hr-table-inner th,
+    .hr-table-inner td {
+        padding: 15px 6px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+}
+
+@media screen and (min-width:1600px) {
+
+    #consultantsconsultant .timeline-parent-col {
+    height: 335px;
+}
+
+    #consultantsconsultant .client-details-consultant ul li input[type="text"] {
+    height: 46px;
+    width: 350px;
+}
+
+#consultantsconsultant .employee-details-consultant ul li h6{
+    width: 150px;
+}
+
+    .hj-right-col .hj-col-country-dropdown {
+    width: 36%;
+}
+
+.hj-right-col .bell-icon-col {
+    width: 12%;
+}
+
+.hj-right-col .hj-profile-col img{
+    margin-left: 0;
+}
+
+.hj-right-col{
+    justify-content: end;
+}
+
+.hj-right-col .hj-profile-col {
+    width: 10%;
+}
+
+    .timesheet-section .nav-tabs button{
+        font-size: 12px !important;
+        padding: 5px;
+    }
+
+    .calender-top-steps-wrapper .progress-steps-calender ul{
+        gap: 120px;
+    }
+
+    .calender-top-steps-wrapper .progress-steps-calender ul li:not(:last-child)::before {
+    position: absolute;
+    content: '';
+    height: 2px;
+    width: 333%;
+    background-color: grey;
+    top: 50%;
+    left: 37px;
+}
+
+    #medicalLeaveModal .modal-xl,
+    #customLeaveModal .modal-xl,
+    .common_modal .modal-xl {
+        max-width: 1100px;
+    }
+
+    .modal-body .modal_body_inner .mb_left {
+        min-width: 600px;
+    }
+
+    #claimModal .modal-xl {
+        max-width: 1500px;
+    }
+}
+
+@media screen and (min-width:1950px) {
+    .tab_type_list .tab_lists span {
+        font-size: 16px;
+    }
+
+    #claimModal .modal-xl {
+        max-width: 1800px;
+    }
+}
+
+@media screen and (max-width:1600px) {
+    #workTabsContent.tab_content_body thead th {
+        font-size: var(--Font14px);
+    }
+
+    #workTabsContent.tab_content_body thead th,
+    #workTabsContent table td {
+        padding: 6px 6px;
+    }
+}
+
+@media screen and (max-width:1400px) {
+    .leave_type_options a {
+        padding: 8px 45px;
+    }
+
+    .ml_leave_detail .clock_it_btn button {
+        margin-left: 25px;
+    }
+
+    .modal_body_inner .detial_row {
+        grid-template-columns: repeat(4, minmax(130px, max-content));
+    }
+
+    .hr-tab-inner .status-buttons button {
+        font-size: 11px;
+    }
+}
+
+@media screen and (max-width:1260px) {
+    .modal_body_inner .detial_row {
+        grid-template-columns: repeat(4, minmax(110px, max-content));
+    }
+}
+
+@media screen and (max-width:1023.5px) {
+    .modal-body .modal_body_inner {
+        flex-direction: column;
+    }
+
+    .mb-right .ml_no_data {
+        position: static;
+        transform: unset;
+        margin: 0 auto;
+    }
+
+    .mb-right .ml_document_list {
+        padding: 20px;
+    }
+
+    .nav-tabs .tab_btn {
+        padding: 10px 8px;
+    }
+}
+
+@media screen and (max-width:768px) {
+    .stats_score {
+        width: 50%;
+        margin-bottom: 15px;
+    }
+
 }
