@@ -52,6 +52,8 @@ Route::get('login', [AdminController::class, 'showLoginForm'])->name('login'); /
 Route::post('admin/login', [AdminController::class, 'login'])->name('admin.login.submit');
 Route::match(['get', 'post'], 'insert-password/{id}', [ConsultancyController::class, 'insertPassword'])->name('insert.password');
 // Route::get('/send-test-email', [ConsultancyController::class, 'sendTestEmail']);
+  Route::get('/update-timesheet-status/{id}', [ConsultantController::class, 'updateTimesheetstatus']);
+    Route::get('/get-timesheet-status-reporitng-manager', [ConsultantController::class, 'getTimesheetStatusReportingManager'])->name('get-timesheet-status-reporitng-manager');
 
 Route::get('/logout', [AdminController::class, 'logout']);
 Route::get('/linkstorage', function () {
@@ -110,7 +112,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/get-timesheet-status', [ConsultantController::class, 'getTimesheetStatus'])->name('get-timesheet-status');
     Route::get('/get-claim-status', [ConsultantController::class, 'getClaimStatus'])->name('get-claim-status');
     Route::post('/consultant/update-basic-details', [ConsultantController::class, 'updateBasicDetailsConsultant'])->name('consultant.update.basic.details');
-
+  
 
 
 });

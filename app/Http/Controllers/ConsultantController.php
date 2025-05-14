@@ -140,6 +140,49 @@ class ConsultantController extends Controller
         return response()->json(['status' => null]);
     }
 
+    public function getTimesheetStatusReportingManager(Request $request)
+    {
+
+        $userId = (int) $request->query('user_id');
+        $month = (int) $request->query('month') + 1;
+        $year = (int) $request->query('year');  
+        $entries = DB::table('consultant_dashboard')
+            ->where('user_id', $userId)
+            ->where('type', 'timesheet')
+            ->get();
+
+        $filtered = $entries->filter(function ($item) use ($month, $year) {
+            $record = json_decode($item->record, true);
+        
+            if (!isset($record['applyOnCell'])) return false;
+        
+            $dateStr = trim($record['applyOnCell']);
+            $date = \DateTime::createFromFormat('d / m / Y', $dateStr);
+        
+            return $date && ((int)$date->format('n') === $month) && ((int)$date->format('Y') === $year);
+        });
+            
+
+        if ($filtered->isEmpty()) {
+            return response()->json(['status' => null]);
+        }
+
+        // Now check status values
+        $statuses = $filtered->pluck('status')->map(fn($s) => strtolower(trim($s)));
+
+        if ($statuses->contains('draft')) {
+            return response()->json(['status' => 'draft']);
+        }
+
+        if ($statuses->every(fn($s) => $s === 'submitted')) {
+            return response()->json(['status' => 'submitted']);
+        }
+
+        // fallback — mixed or unknown status
+        return response()->json(['status' => null]);
+
+    }
+
     public function getClaimStatus(Request $request)
     {
         $userId = auth()->id();
@@ -321,7 +364,42 @@ class ConsultantController extends Controller
             }
         }
         else {
-            // ➡️ New insert case
+            // 🔁 Same-month status update before inserting
+            try {
+                $applyDate = \Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
+                $month = $applyDate->format('m');
+                $year = $applyDate->format('Y');
+
+                $sameMonthRecords = DB::table('consultant_dashboard')
+                    ->where('type', $type)
+                    ->where('user_id', $request->user_id)
+                    ->get();
+
+                foreach ($sameMonthRecords as $row) {
+                    $decoded = json_decode($row->record, true);
+                    $cellDate = $decoded['applyOnCell'] ?? null;
+
+                    if ($cellDate) {
+                        try {
+                            $cellDateCarbon = \Carbon\Carbon::createFromFormat('d / m / Y', trim($cellDate));
+                            if ($cellDateCarbon->format('m') === $month && $cellDateCarbon->format('Y') === $year) {
+                                DB::table('consultant_dashboard')
+                                    ->where('id', $row->id)
+                                    ->update([
+                                        'status' => $status,
+                                        'updated_at' => now()
+                                    ]);
+                            }
+                        } catch (\Exception $e) {
+                            \Log::warning("Invalid applyOnCell format in row ID {$row->id}");
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::error("Month status sync before insert failed: " . $e->getMessage());
+            }
+
+            // ➡️ Now insert
             DB::table('consultant_dashboard')->insert([
                 'type' => $type,
                 'record' => json_encode($recordData),
@@ -333,6 +411,7 @@ class ConsultantController extends Controller
                 'updated_at' => now()
             ]);
         }
+
         
 
         return response()->json(['success' => true, 'message' => 'Data saved successfully!']);
@@ -373,7 +452,59 @@ class ConsultantController extends Controller
         ]);
     }
 
-    
+
+    // In ConsultantController.php
+
+   public function updateTimesheetStatus(Request $request, $id)
+    {
+        $month = (int) $request->query('month'); 
+        $year = (int) $request->query('year');   
+        $user_id = $id;
+
+        $user_data = DB::table('users')
+            ->where('id', $id)
+            ->where('status', 'Active')
+            ->first(['email']);
+
+        if (!$user_data || empty($user_data->email)) {
+            abort(404);
+        }
+
+        $publicHolidays = DB::table('public_holidays')->get();
+
+        $consultant = Consultant::where('login_email', $user_data->email)->first();
+
+        $allRows = DB::table('consultant_dashboard')
+            ->where('user_id', $id)
+            ->where('type', 'timesheet')
+            ->where('status', 'Submitted')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $dataTimesheet = $allRows->filter(function ($row) use ($month, $year) {
+            $record = json_decode($row->record ?? '{}', true);
+            $applyOnCell = $record['applyOnCell'] ?? null;
+
+            if ($applyOnCell) {
+                try {
+                    $date = \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                    return $date->month == $month && $date->year == $year;
+                } catch (\Exception $e) {
+                    return false;
+                }
+            }
+            return false;
+        })->values();
+
+        // ❌ Return 404 if any of the required parts are missing
+        if ($dataTimesheet->isEmpty() || !$consultant || $publicHolidays->isEmpty()) {
+            abort(404);
+        }
+
+        return view('consultant.Reporting_manager_approval_page', compact('dataTimesheet', 'consultant', 'publicHolidays','user_id'));
+    }
+
+
 
    
 

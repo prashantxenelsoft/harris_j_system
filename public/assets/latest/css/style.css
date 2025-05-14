@@ -6062,6 +6062,10 @@ margin-left: 5px;
 
 /* Timelines */
 
+.timeline-parent-col{
+     height: 70%;
+}
+
 .timeline-parent-col {
     margin-top: 20px;
     box-shadow: 0px 0px 4px 0px #00000040;
@@ -6131,6 +6135,48 @@ margin-left: 5px;
 
 .timeline-line.yellow-timeline{
     background-color: var(--Yellow);
+}
+
+#consultantsconsultant .client-details-consultant ul li input[type="text"]{
+  height: 36px;
+  border-radius: 8px;
+  width: 300px;
+  border: 1px solid #A8B9CA;
+  padding-left: 10px;
+  font-family: var(--Themefont2);
+}
+
+#consultantsconsultant .client-details-consultant ul li input[type="text"]::placeholder{
+    font-family: var(--Themefont2);
+    font-size: var(--Font14px);
+    color: #A8B9CA;
+    font-weight: 500;
+}
+
+#consultantsconsultant .login-dashboard-top-bar{
+    align-items: flex-start;
+}
+
+#consultantsconsultant .employee-details-consultant ul li:not(:last-child){
+    margin-bottom: 20px;
+}
+
+#consultantsconsultant .employee-details-consultant ul li h6{
+  width: 100px;
+  font-weight: 500;
+  color: silver;
+}
+
+#consultantsconsultant .employee-details-consultant ul li  {
+ font-weight: 500;
+}
+
+.back-icon-consultant img{
+ width: 25px;
+}
+
+#consultantsconsultant .timeline-parent-col{
+     height: 310px;
 }
 
 /* Timelines End*/

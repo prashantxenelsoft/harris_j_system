@@ -1,114 +1,72 @@
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-   document.addEventListener("DOMContentLoaded", function () {
-      // Set default month/year if not already set
-      if (!localStorage.getItem("timesheetMonth") || !localStorage.getItem("timesheetYear")) {
-         const now = new Date();
-         localStorage.setItem("timesheetMonth", now.getMonth()); // 0-based (Jan = 0)
-         localStorage.setItem("timesheetYear", now.getFullYear());
-      }
-   });
-</script>
-<script>
-   const timesheetData = @json($dataTimesheet);
+<!DOCTYPE html>
+<html lang="en">
 
-   document.addEventListener("DOMContentLoaded", function () {
-      const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
-      const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
-      const submitBtn = document.getElementById("submit_icon");
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Harris J System</title>
+<!-- 
+    <link rel="icon" href="{{ asset('public/assets/latest/images/fav-icon.ico') }}">  -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" integrity="sha512-1cK78a1o+ht2JcaW6g8OXYwqpev9+6GqOkz9xmBN9iUUhIndKtxwILGWYOSibOKjLsEdjyjZvYDq/cZwNeak0w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" integrity="sha512-tS3S5qG0BlhnQROyJXvNjeEM4UpMXHrQfTGmbQ1gKmelCxlSEBUaxhRBj/EFTzpbP4RVSrpEikbmdJobCvhE3g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" integrity="sha512-sMXtMNL1zRzolHYKEujM2AqCLUR9F2C4/05cdbxjjLSRvMQIciEPCQZo++nk7go3BtSuK9kfa/s+a4f4i5pLkw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css" integrity="sha512-rd0qOHVMOcez6pLWPVFIv7EfSdGKLt+eafXh4RO/12Fgr41hDQxfGvoi1Vy55QIVcQEujUE1LQrATCLl2Fs+ag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('public/assets/latest/css/style.css') }}?v={{mt_rand(000000,999999)}}">
+    <link rel="stylesheet" href="{{ asset('public/assets/latest/css/responsive.css') }}?v={{mt_rand(000000,999999)}}">
+    <link rel="stylesheet" href="{{ asset('public/assets/latest/css/custom.css') }}?v={{mt_rand(000000,999999)}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/css/intlTelInput.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+        rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">  
+</head>
 
-      let hasData = false;
-      let hasDraft = false;
+<body>
 
-      timesheetData.forEach(item => {
-         const record = JSON.parse(item.record || '{}');
-         const applyOnCell = record.applyOnCell || '';
-         const status = item.status?.toLowerCase() || '';
-
-         if (!applyOnCell || !status) return;
-
-         const parts = applyOnCell.split(" / ");
-         if (parts.length !== 3) return;
-
-         const month = parseInt(parts[1]);
-         const year = parseInt(parts[2]);
-
-         if (month === selectedMonth && year === selectedYear) {
-            hasData = true;
-            if (status === 'draft') {
-               hasDraft = true;
-            }
-         }
-      });
-
-      if (submitBtn) {
-         if (!hasData || hasDraft) {
-            submitBtn.style.display = "grid"; // ✅ Show
-         } else {
-            submitBtn.style.display = "none"; // ❌ Hide
-         }
-      }
-   });
-</script>
 
 
 
 <div class="tab-content" id="pills-tabContent">
    <div class="tab-pane fade" id="homeconsultant" role="tabpanel" aria-labelledby="pills-home-tab">...</div>
-   <div class="tab-pane fade show active" id="consultantsconsultant" role="tabpanel" aria-labelledby="pills-profile-tab">
+   <div class="tab-pane fade show active" id="timesheet" role="tabpanel" aria-labelledby="pills-profile-tab">
       <div class="container my-4">
          <div class="row">
             <div class="col-lg-9 col-xl-8">
                <div class="calender-wrap-parent">
                   <div class="login-dashboard-top-bar mb-0">
                      <div class="left-col-top-bar">
-                      <div class="left-col-top-bar">
+                        @if($consultant)
                         <div class="employee-details-consultant">
                            <ul>
-                                 <li>
-                                    <h6>Employee ID</h6>
-                                    <p>: {{ $consultant->emp_code ?? 'N/A' }}</p>
-                                 </li>
-                                 <li>
-                                    <h6>Employee Name</h6>
-                                    <p>: {{ $consultant->emp_name ?? 'N/A' }}</p>
-                                 </li>
-
-                                 <li>
-                                    <h6>Client Name</h6>
-                                    <p>: {{ $consultant->client_name ?? 'N/A' }}</p>
-                                 </li>
+                              <li>
+                                 <h6>Employee ID</h6>
+                                 <p>: {{ $consultant->emp_code ?? 'N/A' }}</p>
+                              </li>
+                              <li>
+                                 <h6>Employee Name</h6>
+                                 <p>: {{ $consultant->emp_name ?? 'N/A' }}</p>
+                              </li>
                            </ul>
                         </div>
-
                         <div class="client-details-consultant">
                            <ul>
-                                 <li>
-                                    <input type="text" placeholder="Enter Reporting Manager Name">
-                                    </li>
-
-                                    <li>
-                                    <input type="text" placeholder="Enter Reporting Manager Email Id">
-                                    </li>
-                              
+                              <li>
+                                 <h6>Client Name</h6>
+                                 <p>: {{ $consultant->client_name ?? 'N/A' }}</p>
+                              </li>
                            </ul>
                         </div>
+                        @else
+                        <p>No consultant data found.</p>
+                        @endif
                      </div>
-                     </div>
-                     <div class="right-col-top-bar">
-                        <div class="calendar-top-header-btn-group">
-                           <a href="#" class="edit-icon" id="edit_icon">
-                           <i class="fa fa-pen"></i>
-                           </a>
-                           <a href="#" class="save-btn" id="save_icon">
-                           <img src="{{ asset('public/assets/latest/images/save-icon-circle.png') }}" class="img-fluid" />
-                           Save
-                           </a>
-                           <a href="#" class="submit-btn" id="submit_icon">
-                           Submit
-                           </a>
-                        </div>
                      </div>
                   </div>
                   <div class="calender-custom">
@@ -169,15 +127,9 @@
                                     </ul>
                               </div>
 
-                           <!-- <div class="month-controls">
-                              <button onclick="changeMonth(-1)">&#x25C0;</button>
-                              <select id="monthSelect"></select>
-                              <select id="yearSelect"></select>
-                              <button onclick="changeMonth(1)">&#x25B6;</button>
-                           </div> -->
-
+                          
                            <!-- HTML -->
-                           <div class="month-year-wrapper">
+                           <div class="month-year-wrapper" style="pointer-events: none;">
                               <div class="month-year-picker" onclick="toggleMonthYearMenu()">
                                  <img src="{{ asset('public/assets/latest/images/calender.png') }}" class="img-fluid" />
                                  <span id="monthYearLabel">August - 2024</span>
@@ -1509,17 +1461,17 @@
                            document.getElementById("yearSelect").addEventListener("change", fetchStatus);
 
                            function fetchStatus() {
-                              const month = document.getElementById("monthSelect").value;
-                              const year = document.getElementById("yearSelect").value;
+                             const month = document.getElementById("monthSelect").value;
+                                const year = document.getElementById("yearSelect").value;
+                                const user_id = 15;
 
-                              fetch(`{{ route('get-timesheet-status') }}?month=${month}&year=${year}`)
-                                 .then(response => response.json())
-                                 .then(data => {
-                                       updateStatusIcon(data.status);  
-                                 })
-                                 .catch(error => {
-                                       console.error("Status fetch error:", error);
-                                 });
+                                const url = `{{ route('get-timesheet-status-reporitng-manager') }}?month=${month}&year=${year}&user_id=${user_id}`;
+                                //console.log(url);
+                                fetch(url)
+                                .then(response => response.json())
+                                .then(data => {
+                                    updateStatusIcon(data.status);  
+                                });
                            }
                            function updateStatusIcon(status) {
                               const iconList = document.querySelectorAll("#timeSheetStatus li span");
@@ -1695,9 +1647,7 @@
                                  }
 
                                  
-                                 if (!isPublicHoliday && cellDate < today && dayOfWeek !== 0 && dayOfWeek !== 6) {
-                                    applyTag(cell, "8", "#000000"); 
-                                 }
+                                 
 
                                  //if (dayOfWeek === 0 || dayOfWeek === 6 || !calendarEditable) {
 
@@ -2656,47 +2606,6 @@
                                        alert("Failed to save some records.");
                                  });
                            }
-
-                           
-                           // 🔵 Submit button (Submitted status)
-                           document.getElementById("submit_icon").addEventListener("click", function (e) {
-                               e.preventDefault();
-                               saveCalendarData('Submitted');
-                           });
-                           
-                           // 🟠 Save button (Draft status or Submitted as per your wish)
-                           document.getElementById("save_icon").addEventListener("click", function (e) {
-                              e.preventDefault();
-                              saveCalendarData('Draft'); // 👉 If you want save to keep editable, use 'Draft' here
-                           });
-
-                           document.getElementById("edit_icon").addEventListener("click", function (e) {
-                              e.preventDefault();
-
-                              // 🌀 Show loader
-                              Swal.fire({
-                                 title: 'Please wait...',
-                                 text: 'Enabling edit mode',
-                                 allowOutsideClick: false,
-                                 didOpen: () => {
-                                    Swal.showLoading();
-                                 }
-                              });
-
-                              // ✅ Wait 2 seconds, then enable editing
-                              setTimeout(() => {
-                                 calendarEditable = true;
-                                 renderCalendar();
-                                 Swal.close(); // ❌ Close loader
-                              }, 1500);
-                           });
-
-                           document.getElementById("save_icon").addEventListener("click", function (e) {
-                              e.preventDefault();
-                              calendarEditable = false;
-                              renderCalendar();
-                           });
-                           
                            
                            
                         </script>
@@ -2707,96 +2616,12 @@
 
             
 
-
+           @php
+            use Carbon\Carbon;
+           @endphp
            <div class="col-xl-4">
                <div class="timesheet-overview-consultant">
-                  <div class="timeline-container">
-                     <div class="timeline-title">
-                        <i class="fa-solid fa-caret-down"></i> {{ $consultant->client_name ?? 'N/A' }}
-                     </div>
-
-                     @php
-                        use Carbon\Carbon;
-
-                        $monthGroups = [];
-
-                        foreach ($dataTimesheet as $item) {
-                           $record = json_decode($item->record ?? '{}', true);
-                           if (!isset($record['applyOnCell'])) continue;
-
-                           $parts = explode(' / ', $record['applyOnCell']);
-                           if (count($parts) !== 3) continue;
-
-                           [$day, $month, $year] = $parts;
-                           $key = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
-                           $monthGroups[$key][] = strtolower(trim($item->status));
-                        }
-
-                        $monthlyStatus = [];
-                        foreach ($monthGroups as $monthKey => $statuses) {
-                           if (in_array('draft', $statuses)) {
-                              $monthlyStatus[$monthKey] = 'Draft';
-                           } elseif (count(array_unique($statuses)) === 1) {
-                              $monthlyStatus[$monthKey] = ucfirst($statuses[0]);
-                           } else {
-                              $monthlyStatus[$monthKey] = 'Mixed';
-                           }
-                        }
-
-                        krsort($monthlyStatus);
-                        $monthlyStatus = array_slice($monthlyStatus, 0, 6, true);
-                     @endphp
-
-                     @if (!empty($monthlyStatus))
-                        @foreach ($monthlyStatus as $monthKey => $status)
-                           @php
-                              $monthTitle = Carbon::createFromFormat('Y-m', $monthKey)->format('F - Y');
-                              $statusLower = strtolower($status);
-
-                              $dotClass = match($statusLower) {
-                                 'draft' => 'dot-blue',
-                                 'submitted' => 'dot-yellow',
-                                 'auto approved', 'approved' => 'dot-green',
-                                 'rejected' => 'dot-red',
-                                 default => 'dot-gray',
-                              };
-
-                              $lineClass = match($statusLower) {
-                                 'draft' => 'blue-timeline',
-                                 'submitted' => 'yellow-timeline',
-                                 'auto approved', 'approved' => 'green-timeline',
-                                 'rejected' => 'red-timeline',
-                                 default => 'gray-timeline',
-                              };
-
-                              $badgeClass = match($statusLower) {
-                                 'draft' => 'badge blue',
-                                 'submitted' => 'badge yellow',
-                                 'auto approved', 'approved' => 'badge green',
-                                 'rejected' => 'badge red',
-                                 default => 'badge gray',
-                              };
-
-                              $icon = match($statusLower) {
-                                 'auto approved', 'approved' => '<i class="fa-solid fa-check"></i>',
-                                 'submitted' => '<i class="fa-solid fa-xmark"></i>',
-                                 default => '',
-                              };
-                           @endphp
-
-                           <div class="timeline-item">
-                              <div class="timeline-dot {{ $dotClass }}">{!! $icon !!}</div>
-                              <div class="timeline-line {{ $lineClass }}"></div>
-                              <div class="timeline-content">
-                                 <h4>Timesheet Overview ({{ $monthTitle }})</h4>
-                                 <div class="{{ $badgeClass }}">{{ ucwords($status) }}</div>
-                              </div>
-                           </div>
-                        @endforeach
-                     @else
-                        <p class="text-muted" style="padding: 0.5rem 1rem;">Timesheet Overview not found</p>
-                     @endif
-                  </div>
+                 
                </div>
             </div>
 
@@ -3951,3 +3776,20 @@
    </div>
    <div class="tab-pane fade" id="claims" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
 </div>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/intlTelInput-jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js" integrity="sha512-bPs7Ae6pVvhOSiIcyUClR7/q2OAsRiovw4vAkX+zJbw3ShAeeqezq50RIIcIURq7Oa20rW2n2q+fyXBNcU9lrw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js" integrity="sha512-Ysw1DcK1P+uYLqprEAzNQJP+J4hTx4t/3X2nbVwszao8wD+9afLjBQYjz7Uk4ADP+Er++mJoScI42ueGtQOzEA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" integrity="sha512-A7AYk1fGKX6S2SsHywmPkrnzTZHrgiVT7GcQkLGDe2ev0aWb8zejytzS8wjo7PGEXKqJOrjQ4oORtnimIRZBtw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+
+</body>
+
+</html>
+
