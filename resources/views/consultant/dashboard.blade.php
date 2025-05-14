@@ -1,5 +1,4 @@
 @extends('layouts.custom_layout') @section('content')
-
 <!-- Add Consultant Screen Start-->
 <section class="add-consultant-parent">
     <header class="bom-header">

@@ -1,5 +1,15 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+      // Set default month/year if not already set
+      if (!localStorage.getItem("timesheetMonth") || !localStorage.getItem("timesheetYear")) {
+         const now = new Date();
+         localStorage.setItem("timesheetMonth", now.getMonth()); // 0-based (Jan = 0)
+         localStorage.setItem("timesheetYear", now.getFullYear());
+      }
+   });
+</script>
 <div class="tab-content" id="pills-tabContent">
    <div class="tab-pane fade" id="homeconsultant" role="tabpanel" aria-labelledby="pills-home-tab">...</div>
    <div class="tab-pane fade show active" id="timesheet" role="tabpanel" aria-labelledby="pills-profile-tab">
@@ -1447,6 +1457,7 @@
                            fetchStatus();
                         });
 
+                           
                            document.getElementById("monthSelect").addEventListener("change", fetchStatus);
                            document.getElementById("yearSelect").addEventListener("change", fetchStatus);
 
@@ -1463,7 +1474,6 @@
                                        console.error("Status fetch error:", error);
                                  });
                            }
-
                            function updateStatusIcon(status) {
                               const iconList = document.querySelectorAll("#timeSheetStatus li span");
 
@@ -1775,6 +1785,15 @@
                                  }
 
                                  calendarDays.appendChild(cell);
+                              }
+
+                              const totalFilled = firstDay + daysInMonth;
+                              const extraCells = totalFilled % 7 === 0 ? 0 : 7 - (totalFilled % 7);
+
+                              for (let i = 0; i < extraCells; i++) {
+                                 const trailingCell = document.createElement("div");
+                                 trailingCell.classList.add("calendar-cell", "disabled");
+                                 calendarDays.appendChild(trailingCell);
                               }
 
                            }
@@ -2238,7 +2257,7 @@
                                 if (num >= 1 && num <= 5) {
                                     tag.style.color = "red"; 
                                 } else if (num >= 6 && num <= 7) {
-                                    tag.style.color = "orange"; // ✅ 6-7 → Orange
+                                    tag.style.color = "red"; // ✅ 6-7 → Orange
                                 } else if (num >= 8) {
                                     tag.style.color = "black"; // ✅ 8 or more → Black
                                 } else {
@@ -2289,10 +2308,187 @@
 
             function toggleMonthYearMenu() {
                const dropdown = document.getElementById("monthYearDropdown");
+               const trigger = document.querySelector(".month-year-picker");
+
+               const isOpening = dropdown.classList.contains("dropdown-hidden");
                dropdown.classList.toggle("dropdown-hidden");
+               if (!isOpening) return;
+
+               dropdown.innerHTML = "";
+
+               // Inject styles once
+               if (!document.getElementById("monthYearStyles")) {
+                  const style = document.createElement("style");
+                  style.id = "monthYearStyles";
+                  style.textContent = `
+                     #monthYearDropdown {
+                        width: 260px !important;
+                        background: #fff !important;
+                        border-radius: 12px !important;
+                        padding: 16px !important;
+                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+                        font-family: 'Segoe UI', sans-serif !important;
+                        z-index: 1000 !important;
+                        position: absolute !important;
+                     }
+
+                     #monthYearDropdown > div:first-child {
+                        display: flex !important;
+                        justify-content: center !important;
+                        align-items: center !important;
+                        gap: 20px !important;
+                        font-weight: 600 !important;
+                        font-size: 18px !important;
+                        color: #1976d2 !important;
+                        margin-bottom: 18px !important;
+                     }
+
+                     #monthYearDropdown > div:first-child span {
+                        cursor: pointer !important;
+                        font-size: 22px !important;
+                        user-select: none !important;
+                        color: #1976d2 !important;
+                     }
+
+                     #monthYearDropdown > div:last-child {
+                        display: grid !important;
+                        grid-template-columns: repeat(3, 1fr) !important;
+                        gap: 10px !important;
+                     }
+
+                     #monthYearDropdown > div:last-child button {
+                        padding: 10px 0 !important;
+                        border: none !important;
+                        border-radius: 12px !important;
+                        background-color: #f0f0f0 !important;
+                        font-weight: 600 !important;
+                        color: #444 !important;
+                        cursor: pointer !important;
+                        font-size: 14px !important;
+                        transition: all 0.2s ease !important;
+                     }
+
+                     #monthYearDropdown > div:last-child button:hover {
+                        background-color: #e0e0e0 !important;
+                     }
+
+                     #monthYearDropdown > div:last-child button[data-selected="true"] {
+                        background-color: #1976d2 !important;
+                        color: white !important;
+                     }
+                  `;
+                  document.head.appendChild(style);
                }
 
+               // Create hidden selects if missing
+               let monthSelect = document.getElementById("monthSelect");
+               if (!monthSelect) {
+                  monthSelect = document.createElement("select");
+                  monthSelect.id = "monthSelect";
+                  monthSelect.style.display = "none";
+                  for (let i = 0; i < 12; i++) {
+                     const opt = document.createElement("option");
+                     opt.value = i;
+                     opt.textContent = i;
+                     monthSelect.appendChild(opt);
+                  }
+                  document.body.appendChild(monthSelect);
+               }
+
+               let yearSelect = document.getElementById("yearSelect");
+               if (!yearSelect) {
+                  yearSelect = document.createElement("select");
+                  yearSelect.id = "yearSelect";
+                  yearSelect.style.display = "none";
+                  for (let y = 2000; y <= 2100; y++) {
+                     const opt = document.createElement("option");
+                     opt.value = y;
+                     opt.textContent = y;
+                     yearSelect.appendChild(opt);
+                  }
+                  document.body.appendChild(yearSelect);
+               }
+
+               // Get selected values from localStorage (actual visible month/year)
+               const selectedMonth = parseInt(localStorage.getItem("timesheetMonth") ?? new Date().getMonth());
+               const selectedYear = parseInt(localStorage.getItem("timesheetYear") ?? new Date().getFullYear());
+               let currentYear = selectedYear;
+
+               // === Year header ===
+               const yearHeader = document.createElement("div");
+
+               const prevBtn = document.createElement("span");
+               prevBtn.innerHTML = "&#10094;";
+               prevBtn.onclick = () => {
+                  currentYear--;
+                  yearText.textContent = currentYear;
+               };
+
+               const nextBtn = document.createElement("span");
+               nextBtn.innerHTML = "&#10095;";
+               nextBtn.onclick = () => {
+                  currentYear++;
+                  yearText.textContent = currentYear;
+               };
+
+               const yearText = document.createElement("span");
+               yearText.textContent = currentYear;
+
+               yearHeader.appendChild(prevBtn);
+               yearHeader.appendChild(yearText);
+               yearHeader.appendChild(nextBtn);
+               dropdown.appendChild(yearHeader);
+
+               // === Month grid ===
+               const monthGrid = document.createElement("div");
+               const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+               monthNames.forEach((name, index) => {
+                  const btn = document.createElement("button");
+                  btn.textContent = name;
+
+                  // ✅ selected state from localStorage values
+                  if (index === selectedMonth && currentYear === selectedYear) {
+                     btn.setAttribute("data-selected", "true");
+                  }
+
+                  btn.onclick = () => {
+                     monthSelect.value = index;
+                     yearSelect.value = currentYear;
+
+                     // ✅ Save values to localStorage
+                     localStorage.setItem("timesheetMonth", index);
+                     localStorage.setItem("timesheetYear", currentYear);
+
+                     // ✅ Trigger full update
+                     if (typeof onMonthYearChange === "function") {
+                        onMonthYearChange();
+                     }
+
+                     dropdown.classList.add("dropdown-hidden");
+                     document.removeEventListener("click", outsideClickHandler);
+                  };
+
+                  monthGrid.appendChild(btn);
+               });
+
+               dropdown.appendChild(monthGrid);
+
+               // Outside click handler
+               const outsideClickHandler = (e) => {
+                  if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+                     dropdown.classList.add("dropdown-hidden");
+                     document.removeEventListener("click", outsideClickHandler);
+                  }
+               };
+
+               setTimeout(() => {
+                  document.addEventListener("click", outsideClickHandler);
+               }, 0);
+            }
+
             function onMonthYearChange() {
+               document.getElementById("monthYearDropdown").classList.add("dropdown-hidden");
                const month = parseInt(document.getElementById("monthSelect").value);
                const year = parseInt(document.getElementById("yearSelect").value);
 
@@ -2303,8 +2499,9 @@
                localStorage.setItem("timesheetYear", year);
 
                updateMonthYearLabel();
-               renderCalendar(); // ← Call your existing render function
-               fetchStatus();    // ← Call your existing status fetcher
+               // renderCalendar(); // ← Call your existing render function
+               // fetchStatus();
+               location.reload();
             }
 
             function updateMonthYearLabel() {
@@ -2577,86 +2774,83 @@
                               <table class="w-100">
                                  <thead>
                                     <tr>
-                                       <th>Type Of Leave</th>
+                                       <th>Type Of Leave1</th>
                                        <th>From</th>
                                        <th>To</th>
                                        <th>Days</th>
                                     </tr>
                                  </thead>
-                                 <tbody>
-                                 @foreach ($dataTimesheet as $entry)
-                                 @php
-                                    $record = json_decode($entry->record);
+                                <tbody>
+                                    @foreach ($dataTimesheet as $entry)
+                                       @php
+                                          $record = json_decode($entry->record);
 
-                                    // Skip if leaveType not set (e.g. workingHours)
-                                    if (!isset($record->leaveType)) continue;
+                                          if (!isset($record->leaveType)) continue;
 
-                                    $leaveType = $record->leaveType ?? '';
-                                    $date = $record->date ?? '';
-                                    $applyOnCell = $record->applyOnCell ?? '';
-                                    $leaveHourId = $record->leaveHourId ?? '';
+                                          $leaveType = $record->leaveType ?? '';
+                                          $date = $record->date ?? '';
+                                          $applyOnCell = $record->applyOnCell ?? '';
+                                          $leaveHourId = $record->leaveHourId ?? '';
 
-                                    $from = $to = '';
-                                    $days = '1';
+                                          $from = $to = '';
+                                          $days = '1';
 
-                                    // Case 1: If date is empty, fallback to applyOnCell
-                                    if (empty($date) && !empty($applyOnCell)) {
-                                          $from = $to = trim($applyOnCell);
-                                          $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
+                                          if (empty($date) && !empty($applyOnCell)) {
+                                             $from = $to = trim($applyOnCell);
+                                             $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
 
-                                    // Case 2: If date is a range
-                                    } elseif (strpos($date, 'to') !== false) {
-                                          [$from, $to] = array_map('trim', explode('to', $date));
+                                          } elseif (strpos($date, 'to') !== false) {
+                                             [$from, $to] = array_map('trim', explode('to', $date));
 
-                                          if ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') {
-                                             $days = '1/2';
-                                          } else {
-                                             try {
-                                                $fromDate = \Carbon\Carbon::createFromFormat('d / m / Y', $from);
-                                                $toDate = \Carbon\Carbon::createFromFormat('d / m / Y', $to);
-                                                $days = $fromDate->diffInDays($toDate) + 1;
-                                             } catch (\Exception $e) {
-                                                $days = '1'; // fallback
+                                             if ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') {
+                                                $days = '1/2';
+                                             } else {
+                                                try {
+                                                   $fromDate = \Carbon\Carbon::createFromFormat('d / m / Y', $from);
+                                                   $toDate = \Carbon\Carbon::createFromFormat('d / m / Y', $to);
+                                                   $days = $fromDate->diffInDays($toDate) + 1;
+                                                } catch (\Exception $e) {
+                                                   $days = '1';
+                                                }
                                              }
+
+                                          } else {
+                                             $from = $to = trim($date);
+                                             $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
                                           }
 
-                                    // Case 3: Single date (not empty)
-                                    } else {
-                                          $from = $to = trim($date);
-                                          $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
-                                    }
+                                          $badgeClass = match($leaveType) {
+                                             'PDO' => 'badge bg-primary text-white',
+                                             'ML' => 'badge bg-info text-white',
+                                             'UL' => 'badge bg-warning text-dark',
+                                             'PH' => 'badge bg-success text-white',
+                                             default => 'badge bg-secondary text-white',
+                                          };
 
-                                    // Badge styling
-                                    $badgeClass = match($leaveType) {
-                                          'PDO' => 'badge bg-primary text-white',
-                                          'ML' => 'badge bg-info text-white',
-                                          'UL' => 'badge bg-warning text-dark',
-                                          'PH' => 'badge bg-success text-white',
-                                          default => 'badge bg-secondary text-white',
-                                    };
+                                          $leaveShort = '';
+                                          if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                          elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                          elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
 
-                                    // Label for half-day types
-                                    $leaveShort = '';
-                                    if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-                                    elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-                                    elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
-                                 @endphp
+                                          $parts = explode(' / ', $from);
+                                          $rowMonth = isset($parts[1]) ? (int) $parts[1] : null;
+                                          $rowYear = isset($parts[2]) ? (int) $parts[2] : null;
+                                       @endphp
 
-                                 <tr>
-                                    <td>
-                                          <span class="{{ $badgeClass }}">
-                                             {{ \Illuminate\Support\Str::replaceFirst('Custom', '', $leaveType) }}
-                                             @if ($leaveShort)
-                                                <small><strong>{{ $leaveShort }}</strong></small>
-                                             @endif
-                                          </span>
-                                    </td>
-                                    <td>{{ $from }}</td>
-                                    <td>{{ $to }}</td>
-                                    <td><span style="color:red;">{{ $days }}</span></td>
-                                 </tr>
-                              @endforeach
-
+                                       <tr data-month="{{ $rowMonth }}" data-year="{{ $rowYear }}">
+                                          <td>
+                                             <span class="{{ $badgeClass }}">
+                                                {{ \Illuminate\Support\Str::replaceFirst('Custom', '', $leaveType) }}
+                                                @if ($leaveShort)
+                                                   <small><strong>{{ $leaveShort }}</strong></small>
+                                                @endif
+                                             </span>
+                                          </td>
+                                          <td>{{ $from }}</td>
+                                          <td>{{ $to }}</td>
+                                          <td><span style="color:red;">{{ $days }}</span></td>
+                                       </tr>
+                                    @endforeach
                                  </tbody>
                               </table>
                            </div>
@@ -2664,34 +2858,34 @@
                         <div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
                            <div class="stats-box">
                               <div>
-                              @php
-                              $workingHourRows = 0;
-
-                              foreach ($dataTimesheet as $item) {
-                                 $record = json_decode($item->record ?? '{}', true);
-                                 if (isset($record['workingHours']) && is_numeric($record['workingHours'])) {
-                                    $workingHourRows++;
-                                 }
-                              }
-
-                              $totalCalculatedHours = $workingHourRows * 8;
-                              @endphp
-
-                              <div class="stats-number">{{ $totalCalculatedHours }}</div>
-                              <div class="stats-label">Hours Forecasted</div>
-                              </div>
-                              <div>
-                              @php
-                                 $totalWorkingHours = 0;
+                                 @php
+                                 $workingHourRows = 0;
 
                                  foreach ($dataTimesheet as $item) {
                                     $record = json_decode($item->record ?? '{}', true);
-                                    $hours = is_numeric($record['workingHours'] ?? null) ? (float) $record['workingHours'] : 0;
-                                    $totalWorkingHours += $hours;
+                                    if (isset($record['workingHours']) && is_numeric($record['workingHours'])) {
+                                       $workingHourRows++;
+                                    }
                                  }
+
+                                 $totalCalculatedHours = $workingHourRows * 8;
                                  @endphp
-                                 <div class="stats-number">{{ $totalWorkingHours }}</div>
-                                 <div class="stats-label">Hours Logged</div>
+
+                                 <div class="stats-number">{{ $totalCalculatedHours }}</div>
+                                 <div class="stats-label">Hours Forecasted</div>
+                                 </div>
+                                 <div>
+                                 @php
+                                    $totalWorkingHours = 0;
+
+                                    foreach ($dataTimesheet as $item) {
+                                       $record = json_decode($item->record ?? '{}', true);
+                                       $hours = is_numeric($record['workingHours'] ?? null) ? (float) $record['workingHours'] : 0;
+                                       $totalWorkingHours += $hours;
+                                    }
+                                    @endphp
+                                    <div class="stats-number">{{ $totalWorkingHours }}</div>
+                                    <div class="stats-label">Hours Logged</div>
                               </div>
                            </div>
                            <div class="bottom-stats">
@@ -2726,89 +2920,108 @@
                                  <div class="tab-pane fade show active" id="modal-leave" role="tabpanel">
                                     <div class="leave-log w-100">
                                        <table class="w-100">
-                                          <thead>
-                                             <tr>
-                                                <th>Type Of Leave</th>
-                                                <th>From</th>
-                                                <th>To</th>
-                                                <th>Days</th>
-                                             </tr>
-                                          </thead>
-                                          <tbody>
-                                             @foreach ($dataTimesheet as $entry)
-                                                @php
-                                                   $record = json_decode($entry->record);
+   <thead>
+      <tr>
+         <th>Type Of Leave</th>
+         <th>From</th>
+         <th>To</th>
+         <th>Days</th>
+      </tr>
+   </thead>
+   <tbody>
+      @foreach ($dataTimesheet as $entry)
+         @php
+            $record = json_decode($entry->record);
 
-                                                   // Skip if leaveType not set (e.g. workingHours)
-                                                   if (!isset($record->leaveType)) continue;
+            if (!isset($record->leaveType)) continue;
 
-                                                   $leaveType = $record->leaveType ?? '';
-                                                   $date = $record->date ?? '';
-                                                   $applyOnCell = $record->applyOnCell ?? '';
-                                                   $leaveHourId = $record->leaveHourId ?? '';
+            $leaveType = $record->leaveType ?? '';
+            $date = $record->date ?? '';
+            $applyOnCell = $record->applyOnCell ?? '';
+            $leaveHourId = $record->leaveHourId ?? '';
 
-                                                   $from = $to = '';
-                                                   $days = '1';
+            $from = $to = '';
+            $days = '1';
 
-                                                   // Case 1: If date is empty, fallback to applyOnCell
-                                                   if (empty($date) && !empty($applyOnCell)) {
-                                                         $from = $to = trim($applyOnCell);
-                                                         $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
+            if (empty($date) && !empty($applyOnCell)) {
+               $from = $to = trim($applyOnCell);
+               $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
 
-                                                   // Case 2: If date is a range
-                                                   } elseif (strpos($date, 'to') !== false) {
-                                                         [$from, $to] = array_map('trim', explode('to', $date));
+            } elseif (strpos($date, 'to') !== false) {
+               [$from, $to] = array_map('trim', explode('to', $date));
 
-                                                         if ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') {
-                                                            $days = '1/2';
-                                                         } else {
-                                                            try {
-                                                               $fromDate = \Carbon\Carbon::createFromFormat('d / m / Y', $from);
-                                                               $toDate = \Carbon\Carbon::createFromFormat('d / m / Y', $to);
-                                                               $days = $fromDate->diffInDays($toDate) + 1;
-                                                            } catch (\Exception $e) {
-                                                               $days = '1'; // fallback
-                                                            }
-                                                         }
+               if ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') {
+                  $days = '1/2';
+               } else {
+                  try {
+                     $fromDate = \Carbon\Carbon::createFromFormat('d / m / Y', $from);
+                     $toDate = \Carbon\Carbon::createFromFormat('d / m / Y', $to);
+                     $days = $fromDate->diffInDays($toDate) + 1;
+                  } catch (\Exception $e) {
+                     $days = '1';
+                  }
+               }
 
-                                                   // Case 3: Single date (not empty)
-                                                   } else {
-                                                         $from = $to = trim($date);
-                                                         $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
-                                                   }
+            } else {
+               $from = $to = trim($date);
+               $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
+            }
 
-                                                   // Badge styling
-                                                   $badgeClass = match($leaveType) {
-                                                         'PDO' => 'badge bg-primary text-white',
-                                                         'ML' => 'badge bg-info text-white',
-                                                         'UL' => 'badge bg-warning text-dark',
-                                                         'PH' => 'badge bg-success text-white',
-                                                         default => 'badge bg-secondary text-white',
-                                                   };
+            $badgeClass = match($leaveType) {
+               'PDO' => 'badge bg-primary text-white',
+               'ML' => 'badge bg-info text-white',
+               'UL' => 'badge bg-warning text-dark',
+               'PH' => 'badge bg-success text-white',
+               default => 'badge bg-secondary text-white',
+            };
 
-                                                   // Label for half-day types
-                                                   $leaveShort = '';
-                                                   if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-                                                   elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-                                                   elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
-                                                @endphp
+            $leaveShort = '';
+            if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+            elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+            elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
 
-                                                <tr>
-                                                   <td>
-                                                         <span class="{{ $badgeClass }}">
-                                                            {{ \Illuminate\Support\Str::replaceFirst('Custom', '', $leaveType) }}
-                                                            @if ($leaveShort)
-                                                               <small><strong>{{ $leaveShort }}</strong></small>
-                                                            @endif
-                                                         </span>
-                                                   </td>
-                                                   <td>{{ $from }}</td>
-                                                   <td>{{ $to }}</td>
-                                                   <td><span style="color:red;">{{ $days }}</span></td>
-                                                </tr>
-                                             @endforeach
-                                          </tbody>
-                                       </table>
+            $parts = explode(' / ', $from);
+            $rowMonth = isset($parts[1]) ? (int) $parts[1] : null;
+            $rowYear = isset($parts[2]) ? (int) $parts[2] : null;
+         @endphp
+
+         <tr data-month="{{ $rowMonth }}" data-year="{{ $rowYear }}">
+            <td>
+               <span class="{{ $badgeClass }}">
+                  {{ \Illuminate\Support\Str::replaceFirst('Custom', '', $leaveType) }}
+                  @if ($leaveShort)
+                     <small><strong>{{ $leaveShort }}</strong></small>
+                  @endif
+               </span>
+            </td>
+            <td>{{ $from }}</td>
+            <td>{{ $to }}</td>
+            <td><span style="color:red;">{{ $days }}</span></td>
+         </tr>
+      @endforeach
+   </tbody>
+</table>
+
+<!-- ✅ JavaScript Filter Logic -->
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+      const month = parseInt(localStorage.getItem("timesheetMonth")) + 1; // JS 0-indexed
+      const year = parseInt(localStorage.getItem("timesheetYear"));
+
+      const rows = document.querySelectorAll("table tbody tr");
+      rows.forEach(row => {
+         const rowMonth = parseInt(row.dataset.month);
+         const rowYear = parseInt(row.dataset.year);
+
+         if (rowMonth === month && rowYear === year) {
+            row.style.display = "";
+         } else {
+            row.style.display = "none";
+         }
+      });
+   });
+</script>
+
                                     </div>
                                  </div>
                                  <div class="tab-pane fade" id="modal-summary" role="tabpanel">
@@ -2865,7 +3078,7 @@
                                        <div class="stats_score">
                                           <span class="w_hrs">01.30</span>
                                           / <span class="tw_hrs">03</span>
-                                          <p>Total Work Hours</p>
+                                          <p>UL</p>
                                        </div>
                                        <div class="stats_score">
                                           <span class="w_hrs">0.30</span>
