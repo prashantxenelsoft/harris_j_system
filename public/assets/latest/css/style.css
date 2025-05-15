@@ -7698,4 +7698,8 @@ span.inactive-badge::before {
     padding: 10px;
     }
 
+    .timesheet-header .expand-btn img {
+    width: 35px;
+}
+ 
 /* Bom Reports Section End */
