@@ -2897,8 +2897,8 @@
                
             </div>
 
-            <div class="row mt-3 bottom-remark-timesheet-group">
-               <div class="col-lg-6 col-xl-4 mb-4 mb-xl-none">
+            <div class="row mt-2 bottom-remark-timesheet-group">
+               <div class="col-lg-6 col-xl-4 mb-4 mb-xl-none" id="bottom-box-1">
                   <div class="work-summary">
                      <!-- Expand Button -->
                      <button class="expand-btn" data-bs-toggle="modal" data-bs-target="#workSummaryModal">
@@ -2907,14 +2907,14 @@
                      <!-- Tabs -->
                      <ul class="nav nav-tabs" id="workTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                           <button class="nav-link" id="leave-tab" data-bs-toggle="tab" data-bs-target="#leave" type="button" role="tab">Leave Log</button>
+                           <button class="nav-link active" id="leave-tab" data-bs-toggle="tab" data-bs-target="#leave" type="button" role="tab">Leave Log</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                           <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab">Work summery</button>
+                           <button class="nav-link" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab">Work summery</button>
                         </li>
                      </ul>
                      <div class="tab-content tab_content_body border border-top-0 p-1 p-xxl-3" id="workTabsContent">
-                        <div class="tab-pane fade" id="leave" role="tabpanel" aria-labelledby="leave-tab">
+                        <div class="tab-pane fade show active" id="leave" role="tabpanel" aria-labelledby="leave-tab">
                            <div class="leave-log w-100">
                               <table class="w-100">
                                  <thead>
@@ -3000,7 +3000,7 @@
                               </table>
                            </div>
                         </div>
-                        <div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+                        <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
                            <div class="stats-box">
                               <div>
                                  <div class="stats-number" id="forecastedHours"></div>
@@ -3237,6 +3237,48 @@
                      </div>
                   </div>
                </div>
+               <script>
+               document.addEventListener("DOMContentLoaded", function () {
+                  const expandBtn = document.querySelector("#bottom-box-1 .expand-btn");
+
+                  expandBtn.addEventListener("click", function () {
+                     // Get the active tab in the small box
+                     const activeSmallTab = document.querySelector("#bottom-box-1 .nav-tabs .nav-link.active");
+                     const smallTabId = activeSmallTab?.id;
+
+                     // Map small tab IDs to modal tab button IDs
+                     const tabMap = {
+                        'leave-tab': 'modal-leave-tab',
+                        'summary-tab': 'modal-summary-tab'
+                     };
+
+                     // Modal tab buttons
+                     const modalLeaveTab = document.getElementById("modal-leave-tab");
+                     const modalSummaryTab = document.getElementById("modal-summary-tab");
+
+                     // Modal tab panes
+                     const modalLeavePane = document.getElementById("modal-leave");
+                     const modalSummaryPane = document.getElementById("modal-summary");
+
+                     // Remove active classes
+                     [modalLeaveTab, modalSummaryTab].forEach(btn => btn.classList.remove("active"));
+                     [modalLeavePane, modalSummaryPane].forEach(pane => {
+                        pane.classList.remove("show", "active");
+                     });
+
+                     // Determine which tab to activate
+                     const modalTargetTabId = tabMap[smallTabId] ?? 'modal-leave-tab';
+                     const modalTargetTab = document.getElementById(modalTargetTabId);
+                     const modalTargetPaneId = modalTargetTab?.getAttribute("data-bs-target")?.substring(1);
+                     const modalTargetPane = document.getElementById(modalTargetPaneId);
+
+                     // Activate correct tab
+                     modalTargetTab?.classList.add("active");
+                     modalTargetPane?.classList.add("show", "active");
+                  });
+               });
+               </script>
+
                <div class="col-lg-6 col-xl-4 mb-4 mb-xl-none">
                   <div class="remark-section card p-3">
                      <div class="d-flex justify-content-between align-items-center mb-2">
@@ -4184,7 +4226,7 @@
                                                          @if (!empty($extraHours))
                                                             <span class="fw-semibold">- {{ $extraHours }} hours off</span>
                                                          @elseif (!empty($record['workingHours']) && is_numeric($record['workingHours']))
-                                                            <span class="fw-semibold">- {{ $record['workingHours'] }} hours off</span>
+                                                            <span class="fw-semibold">- {{ $record['workingHours'] }} hours</span>
                                                          @endif
                                                       </div>
                                                 </div>
@@ -4229,89 +4271,89 @@
                                  <!-- Other tabs can be filled similarly -->
                                  <div class="tab-pane fade" id="modelextraTimeTab">
 
-                                     <div id="filteredTimeline">
-                                          @foreach ($dataTimesheet as $item)
-                                             @php
-                                                $record = json_decode($item->record ?? '{}', true);
-                                                $type = $record['type'] ?? null;
+                                         <div id="filteredTimeline">
+                                             @foreach ($dataTimesheet as $item)
+                                                @php
+                                                   $record = json_decode($item->record ?? '{}', true);
+                                                   $type = $record['type'] ?? null;
 
-                                                // Label map
-                                                $labelMap = [
-                                                      'comp_off' => ['label' => 'Comp - Off', 'color' => '#d35400'],
-                                                      'pay_off'  => ['label' => 'Pay - Off',  'color' => '#2980b9'],
-                                                      'ignore'   => ['label' => 'Ignored',    'color' => '#7f8c8d'],
-                                                ];
+                                                   // Label map
+                                                   $labelMap = [
+                                                         'comp_off' => ['label' => 'Comp - Off', 'color' => '#d35400'],
+                                                         'pay_off'  => ['label' => 'Pay - Off',  'color' => '#2980b9'],
+                                                         'ignore'   => ['label' => 'Ignored',    'color' => '#7f8c8d'],
+                                                   ];
 
-                                                // Extract date parts
-                                                $month = null;
-                                                $year = null;
-                                                if (!empty($record['applyOnCell'])) {
-                                                      try {
-                                                         $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
-                                                         $month = $dt->month;
-                                                         $year = $dt->year;
-                                                      } catch (\Exception $e) {}
-                                                }
-                                             @endphp
-
-                                             @if (isset($labelMap[$type]) && $month && $year)
-                                                <div class="timeline-item d-flex align-items-start mb-3"
-                                                      data-month="{{ $month }}"
-                                                      data-year="{{ $year }}">
-                                                      <div class="me-2">
-                                                         <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
-                                                         <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
-                                                      </div>
-                                                      <div>
-                                                         <div class="d-flex align-items-center mb-1 tl-header">
-                                                            <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                            <span style="color: {{ $labelMap[$type]['color'] }}; font-weight: bold;">
-                                                                  {{ $labelMap[$type]['label'] }}
-                                                            </span>
-                                                         </div>
-                                                         <div class="tl_details">
-                                                            <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
-                                                            <span class="badge" style="background-color: #ffe0b3; color: {{ $labelMap[$type]['color'] }}; font-weight: bold;">
-                                                                  {{ $labelMap[$type]['label'] }}
-                                                            </span>
-                                                            <span>- {{ str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
-                                                         </div>
-                                                      </div>
-                                                </div>
-                                             @endif
-                                          @endforeach
-                                    </div>
-                                    <div id="noEntriesMessage" class="text-muted text-center p-2 d-none">
-                                       <strong>No entries found for this month</strong>
-                                    </div>
-                                    <script>
-                                       document.addEventListener("DOMContentLoaded", function () {
-                                          setTimeout(() => {
-                                             const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
-                                             const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
-
-                                             const items = document.querySelectorAll("#filteredTimeline .timeline-item");
-                                             let visibleCount = 0;
-
-                                             items.forEach(item => {
-                                                   const month = parseInt(item.getAttribute("data-month"));
-                                                   const year = parseInt(item.getAttribute("data-year"));
-
-                                                   if (month === selectedMonth && year === selectedYear) {
-                                                      item.style.display = "";
-                                                      visibleCount++;
-                                                   } else {
-                                                      item.style.setProperty("display", "none", "important");
+                                                   // Extract date parts
+                                                   $month = null;
+                                                   $year = null;
+                                                   if (!empty($record['applyOnCell'])) {
+                                                         try {
+                                                            $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                                                            $month = $dt->month;
+                                                            $year = $dt->year;
+                                                         } catch (\Exception $e) {}
                                                    }
-                                             });
+                                                @endphp
 
-                                             const noMessage = document.getElementById("noEntriesMessage");
-                                             if (noMessage) {
-                                                   noMessage.classList.toggle("d-none", visibleCount > 0);
-                                             }
-                                          }, 200);
-                                       });
-                                    </script>
+                                                @if (isset($labelMap[$type]) && $month && $year)
+                                                   <div class="timeline-item d-flex align-items-start mb-3"
+                                                         data-month="{{ $month }}"
+                                                         data-year="{{ $year }}">
+                                                         <div class="me-2">
+                                                            <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
+                                                            <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
+                                                         </div>
+                                                         <div>
+                                                            <div class="d-flex align-items-center mb-1 tl-header">
+                                                               <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
+                                                               <span style="color: {{ $labelMap[$type]['color'] }}; font-weight: bold;">
+                                                                     {{ $labelMap[$type]['label'] }}
+                                                               </span>
+                                                            </div>
+                                                            <div class="tl_details">
+                                                               <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
+                                                               <span class="badge" style="background-color: #ffe0b3; color: {{ $labelMap[$type]['color'] }}; font-weight: bold;">
+                                                                     {{ $labelMap[$type]['label'] }}
+                                                               </span>
+                                                               <span>- {{ str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
+                                                            </div>
+                                                         </div>
+                                                   </div>
+                                                @endif
+                                             @endforeach
+                                       </div>
+                                       <div id="noEntriesMessage" class="text-muted text-center p-2 d-none">
+                                          <strong>No entries found for this month</strong>
+                                       </div>
+                                       <script>
+                                          document.addEventListener("DOMContentLoaded", function () {
+                                             setTimeout(() => {
+                                                const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                                const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+
+                                                const items = document.querySelectorAll("#filteredTimeline .timeline-item");
+                                                let visibleCount = 0;
+
+                                                items.forEach(item => {
+                                                      const month = parseInt(item.getAttribute("data-month"));
+                                                      const year = parseInt(item.getAttribute("data-year"));
+
+                                                      if (month === selectedMonth && year === selectedYear) {
+                                                         item.style.display = "";
+                                                         visibleCount++;
+                                                      } else {
+                                                         item.style.setProperty("display", "none", "important");
+                                                      }
+                                                });
+
+                                                const noMessage = document.getElementById("noEntriesMessage");
+                                                if (noMessage) {
+                                                      noMessage.classList.toggle("d-none", visibleCount > 0);
+                                                }
+                                             }, 200);
+                                          });
+                                          </script>
                                  
                                  </div>
                                  <div class="tab-pane fade" id="modelpayOffTab">

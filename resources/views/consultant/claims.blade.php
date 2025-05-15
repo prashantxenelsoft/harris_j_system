@@ -88,7 +88,7 @@
                         <div id="reporting_fileds_data" class="client-details-consultant">
                            <ul>
                                  <li>
-                                    <input type="text" placeholder="Enter Reporting Manager Name">
+                                    <input type="text" placeholder="Enter Corporate Email Of Consultant">
                                     </li>
 
                                     <li>

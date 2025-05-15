@@ -7694,8 +7694,8 @@ span.inactive-badge::before {
     font-size: var(--Font14px);
   }
 
-  /* .reports-inner-col table tbody tr td:nth-child(3){
-    width: 30%;
-  } */
+    .add_remark textarea{
+    padding: 10px;
+    }
 
 /* Bom Reports Section End */

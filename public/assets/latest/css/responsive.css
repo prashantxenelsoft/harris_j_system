@@ -231,8 +231,34 @@
     }
 
     .hj-right-col .hj-col-country-dropdown {
-        width: 25%;
+        width: 65%;
     }
+    
+    .hj-right-col .bell-icon-col i{
+        font-size: 25px;
+    }
+    
+    .claim-summary-dashboard-consultant .claim-header-consultant .view-all-cta a{
+        text-decoration: none;
+    }
+    
+    #consultantsconsultant .employee-details-consultant ul li h6 {
+    width: 90px;
+}
+
+#consultantsconsultant .client-details-consultant ul li input[type="text"]{
+    width: 215px;
+}
+
+.calendar-top-header-btn-group .save-btn img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+.calendar-top-header-btn-group .submit-btn{
+    padding: 5px 9px;
+}
 
     .hj-right-col {
         height: 100%;
@@ -546,11 +572,265 @@
     }
 }
 
+@media screen and (min-width: 992px) and (max-width: 1100px){
+    #consultantsconsultant .employee-details-consultant ul li h6 {
+       width: 80px !important;
+    }
+    
+    #consultantsconsultant .client-details-consultant ul li input[type="text"]{
+        width: 170px !important;
+    }
+    
+    #consultantsconsultant .client-details-consultant ul li input[type="text"] {
+    height: 25px;
+    }
+    
+    .calendar-top-header-btn-group .save-btn img {
+    width: 18px;
+    height: 18px;
+    }
+    
+    #consultantsconsultant .client-details-consultant ul li input[type="text"]::placeholder{
+        font-size: 9px;
+    }
+    
+    #consultantsconsultant .employee-details-consultant ul li:not(:last-child) {
+    margin-bottom: 14px;
+    }
+
+    #consultantsconsultant .login-dashboard-top-bar{
+      padding: 10px 15px;
+    }
+
+   #consultantsconsultant .employee-details-consultant ul li{
+     font-size: 9px;
+   }
+   
+   .calendar-top-header-btn-group .save-btn {
+       text-decoration: none;
+   }
+   
+   .calendar-top-header-btn-group .submit-btn{
+       text-decoration: none;
+   }
+   
+   .container {
+    max-width: 98%;
+}
+
+.timeline-container{
+    padding: 10px;
+}
+
+.timesheet-overview-consultant .timeline-item {
+    margin-top: 10px;
+}
+
+.calender-top-steps-wrapper{
+    padding: 5px 0px;
+}
+
+.login-as-consultant{
+    margin-top: 20px;
+}
+
+.graph-one-col-dashboard-consultant .total-label {
+    font-size: 13px;
+}
+
+.graph-two-col-dashboard-consultant .title{
+     font-size: 13px;
+}
+
+
+}
+
+@media screen and (min-width: 1200px) and (max-width: 1360px){
+    .hj-header .nav-tabs .nav-link {
+    padding: 10px 12px;
+        font-size: 12px;
+    }
+    
+    .hj-header .nav-tabs .nav-link.active {
+    padding: 12px 18px;
+    }
+    
+    #consultantsconsultant .employee-details-consultant ul li:not(:last-child) {
+    margin-bottom: 12px;
+}
+
+#consultantsconsultant .client-details-consultant ul li input[type="text"] {
+    height: 28px;
+}
+
+.calendar-top-header-btn-group .save-btn img {
+    width: 20px;
+    height: 20px;
+    
+}
+.calendar-cell{
+    min-height: 45px !important;
+}
+
+.calender-top-steps-wrapper{
+    padding: 7px 0px;
+}
+
+.progress-steps-calender ul li span {
+    width: 30px !important;
+    height: 30px !important;
+}
+.progress-steps-calender ul li span svg{
+          width: 18px !important;
+        height: 18px !important;
+}
+
+.day-label{
+    padding: 8px !important;
+}
+
+.calender-top-steps-wrapper .progress-steps-calender ul{
+    gap: 70px;
+}
+
+.calender-top-steps-wrapper .progress-steps-calender ul li:not(:last-child)::before {
+    width: 218%;
+    top: 50%;
+    left: 32px;
+}
+
+.timeline-dot.dot-blue{
+    left: -6.5%;
+}
+
+.timeline-container{
+    height: 210px;
+}
+
+.month-year-wrapper {
+    padding: 0 0px 0 4%;
+}
+
+.month-year-picker img {
+    width: 18px;
+}
+
+#backDateClaim{
+    height: 48px !important;
+    font-size: 16px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.graph-one-col-dashboard-consultant .total-label{
+    font-size: 16px;
+}
+
+.graph-two-col-dashboard-consultant .title{
+    font-size: 16px;
+}
+
+.claim-summary-dashboard-consultant .claim-header-consultant .view-all-cta a{
+    text-decoration: none;
+}
+
+.db_sidebar{
+    margin: 0 0 20px 0px;
+}
+
+.nav-tabs .tab_btn {
+   padding: 10px 15px;
+    
+}
+
+}
+
+@media screen and (min-width: 1361px) and (max-width: 1440px){
+    .calendar-cell{
+        min-height: 45px !important;
+    }
+    
+    #consultantsconsultant .employee-details-consultant ul li:not(:last-child) {
+    margin-bottom: 13px;
+}
+
+#consultantsconsultant .client-details-consultant ul li input[type="text"] {
+    height: 31px;
+    border-radius: 8px;
+    width: 259px;
+}
+
+.calender-top-steps-wrapper .progress-steps-calender ul{
+    gap: 75px;
+}
+
+.calender-top-steps-wrapper .progress-steps-calender ul li:not(:last-child)::before {
+    width: 239%;
+    left: 31px;
+}
+
+.hj-header .nav-tabs .nav-link.active {
+    padding: 14px 25px
+}
+
+.hj-header .nav-tabs .nav-link {
+    padding: 10px 14px;
+}
+
+.timesheet-overview-consultant .timeline-item {
+    margin-top: 15px;
+}
+
+.timeline-dot.dot-blue{
+    left: -5.8%;
+}
+
+.month-year-picker img {
+    width: 20px;
+}
+
+.month-year-wrapper {
+    padding: 0 0px 0 6%;
+}
+
+.timeline-container{
+    height: 222px;
+}
+
+}
+
+
+
+.calendar-top-header-btn-group .save-btn{
+    text-decoration: none;
+}
+
+.calendar-top-header-btn-group .submit-btn{
+    text-decoration: none;
+}
+
+.login-as-consultant{
+    margin-top: 20px;
+}
+
+.calendar-legend{
+    font-family: var(--Themefont);
+    font-size: var(--Font14px);
+}
+
+.swal2-popup{
+     font-family: var(--Themefont) !important;
+}
+
 /* Small screen desktop end*/
 
 /* Responsive of pop ups start */
 
 @media screen and (min-width:768px) {
+    #consultantsconsultant .login-dashboard-top-bar{
+        margin-top: 0;
+    }
 
     #medicalLeaveModal .modal-xl,
     #customLeaveModal .modal-xl,
@@ -636,6 +916,14 @@
 }
 
 @media screen and (min-width:1600px) {
+    
+    .timeline-dot.dot-blue{
+    left: -4%;
+}
+    
+    .timeline-container{
+        height: 335px;
+    }
 
     #consultantsconsultant .timeline-parent-col {
     height: 335px;
