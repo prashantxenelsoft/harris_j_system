@@ -2839,9 +2839,9 @@
                      </div>
                      <div class="edit-delete-popup d-none">
                         <ul>
-                           <li><img src="assets/images/black-edit-icon.png">Edit
+                           <li><img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}">Edit  
                            </li>
-                           <li><img src="assets/images/black-delete-icon.png">Delete
+                           <li><img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}">Delete
                            </li>
                         </ul>
                      </div>
@@ -2881,9 +2881,9 @@
 
                                        <div class="edit-delete-popup-expand d-none">
                                              <ul>
-                                                <li><img src="assets/images/black-edit-icon.png">Edit
+                                                 <li><img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}">Edit  
                                                 </li>
-                                                <li><img src="assets/images/black-delete-icon.png">Delete
+                                                <li><img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}">Delete
                                                 </li>
                                              </ul>
                                        </div>

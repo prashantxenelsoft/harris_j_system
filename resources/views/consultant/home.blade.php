@@ -91,7 +91,7 @@
                                 elseif ($lower === 'rejected') $rejectedCount++;
                             }
 
-                            $totalCount = count($monthStatusSummary);
+                            $totalCount = $submittedCount + $approvedCount + $rejectedCount;
                             @endphp
 
                             <script>

@@ -1,49 +1,114 @@
 
 
 
-const timesheet = document.getElementById('timesheetChart').getContext('2d');
-new Chart(timesheet, {
-  type: 'pie', // Ensure it's 'pie'
-  data: {
-    labels: ['Approved', 'Submitted (Unapproved)', 'Rejected'],
-    datasets: [{
-      data: [window.dashboardDataTimeSheet.approved, window.dashboardDataTimeSheet.submitted, window.dashboardDataTimeSheet.rejected],
-      backgroundColor: ['#2563eb', '#16a34a', '#ef4444'], // Blue, Green, Red
-      borderWidth: 2,
-      borderColor: '#fff'
-    }]
-  },
-  options: {
-    plugins: {
-      legend: {
-        display: false // Hide legend
+const approved = window.dashboardDataTimeSheet?.approved ?? 0;
+const submitted = window.dashboardDataTimeSheet?.submitted ?? 0;
+const rejected = window.dashboardDataTimeSheet?.rejected ?? 0;
+
+const isEmpty = (approved + submitted + rejected === 0);
+const ctx = document.getElementById('timesheetChart').getContext('2d');
+
+if (isEmpty) {
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['No data available'],
+      datasets: [{
+        data: [1],
+        backgroundColor: ['#e5e7eb'],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          enabled: false
+        }
       }
     }
-  }
-});
+  });
+} else {
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Approved', 'Submitted (Unapproved)', 'Rejected'],
+      datasets: [{
+        data: [approved, submitted, rejected],
+        backgroundColor: ['#2563eb', '#16a34a', '#ef4444'],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+}
 
 
+
+const logged = window.dashboardData?.totalLogged ?? 0;
+const forecasted = window.dashboardData?.totalForecasted ?? 0;
+
+const isWorkingChartEmpty = (logged + forecasted === 0);
 const ctxx = document.getElementById('workingChart').getContext('2d');
-new Chart(ctxx, {
-  type: 'pie', // Full circle pie chart
-  data: {
-    labels: ['Hours Logged', 'Remaining Hours'],
-    datasets: [{
-      data: [window.dashboardData.totalLogged, window.dashboardData.totalForecasted], // Customize these values
-      backgroundColor: ['#22c55e', '#f97316'], // Green and Orange
-      borderColor: '#fff',
-      borderWidth: 2
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false
+
+if (isWorkingChartEmpty) {
+  new Chart(ctxx, {
+    type: 'pie',
+    data: {
+      labels: ['No data available'],
+      datasets: [{
+        data: [1],
+        backgroundColor: ['#e5e7eb'], // grey fallback
+        borderColor: '#fff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          enabled: false
+        }
       }
     }
-  }
-});
+  });
+} else {
+  new Chart(ctxx, {
+    type: 'pie',
+    data: {
+      labels: ['Hours Logged', 'Remaining Hours'],
+      datasets: [{
+        data: [logged, forecasted],
+        backgroundColor: ['#22c55e', '#f97316'], // Green, Orange
+        borderColor: '#fff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+}
 
 
 
