@@ -2604,7 +2604,7 @@
 
                                        const formattedDate = `${day.padStart(2, '0')} / ${(parseInt(month) + 1).toString().padStart(2, '0')} / ${year}`;
                                        const label = tagElement.innerText.trim();
-                                       if (label.startsWith("ML") || label.startsWith("Custom")|| label.startsWith("AL")|| label.startsWith("COMP-OFF")|| label.startsWith("PDO")|| label.startsWith("UL")) return;
+                                       if (label.startsWith("ML") || label.startsWith("Custom")|| label.startsWith("AL")|| label.startsWith("COMP-OFF")|| label.startsWith("PDO")|| label.startsWith("UL") ||  (!isNaN(label) && parseFloat(label) > 8)) return;
 
                                        const recordData = {};
 

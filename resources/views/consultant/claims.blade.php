@@ -1447,7 +1447,7 @@
                   <div class="d-flex align-items-center justify-content-between">
                      <ul class="nav nav-tabs" id="clickTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                           <button class="nav-link tab_btn active" data-bs-toggle="tab" data-bs-target="#claimContent" type="button" role="tab">Claim</button>
+                           <button class="nav-link tab_btn active" data-bs-toggle="tab" data-bs-target="#claimContent123" type="button" role="tab">Claim</button>
                         </li>
                         <li class="nav-item" role="presentation">
                            <button class="nav-link tab_btn" data-bs-toggle="tab" data-bs-target="#gCopiesContent" type="button" role="tab">Get Copies</button>
@@ -1458,7 +1458,7 @@
                      </button>
                   </div>
                   <div class="tab-content tab_content_body" id="clickTabsContent">
-                     <div class="tab-pane fade show active" id="claimContent" role="tabpanel" aria-labelledby="claim-tab">
+                     <div class="tab-pane fade show active" id="claimContent123" role="tabpanel" aria-labelledby="claim-tab">
                         <div class="timeline">
 
                             @php
@@ -1495,10 +1495,10 @@
          $totalClaims = count($claims);
 
          $badgeClass = match(strtolower($statusRaw)) {
-            'submitted' => 'badge bg-warning text-dark',
-            'approved'  => 'badge bg-success',
+            'submitted' => 'badge submitted',
+            'approved'  => 'badge approved',
             'rejected'  => 'badge bg-danger',
-            'draft'     => 'badge bg-secondary',
+            'draft'     => 'badge draft',
             default     => 'badge bg-light text-dark',
          };
       @endphp
@@ -1519,7 +1519,7 @@
             </div>
             <div class="tl_details">
                <span>{{ $formattedDate }} -</span>
-               <span class="{{ $badgeClass }}"><span class="badge_dot"></span>{{ $status }}</span>
+               <span class="{{ $badgeClass }}">{{ $status }}</span>
                <span>- {{ $totalClaims }} individual {{ $totalClaims > 1 ? 'claims' : 'claim' }} -</span>
 
                @if ($certificate)

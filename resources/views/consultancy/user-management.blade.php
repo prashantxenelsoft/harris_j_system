@@ -1,10 +1,10 @@
 <div class="row filter-section-consultancy">
     <div class="col-lg-6 d-flex search-section">
-        <div class="search-bar-bom">
+        <div class="search-bar-hj">
             <input type="text" id="searchInput" placeholder="Search ..." />
         </div>
 
-        <div class="active-status-select-bom">
+        <div class="active-status-select-hj">
             <select id="statusFilter">
                 <option value="">All</option>
                 <option value="Active">Active</option>
@@ -14,7 +14,7 @@
             </select>
         </div>
 
-        <div class="active-status-select-bom consultancy-designation-filter">
+        <div class="active-status-select-hj consultancy-designation-filter">
             <select id="statusFilterDesignation">
                 <option value="">All Designations</option>
                 <option value="Finance">Finance</option>
@@ -26,7 +26,7 @@
     </div>
 
     <div class="col-lg-6">
-        <div class="bom-btn-group">
+        <div class="hj-btn-group">
             <div class="add-consultancy-btn">
                 <a href="#" class="show-add-user-form">
                     <img src="{{ asset('public/assets/latest/images/circle-add-button.png ') }}" class="img-fluid" />
@@ -38,7 +38,7 @@
     </div>
 </div>
 
-<div class="table-bom-list-section mt-5">
+<div class="table-hj-list-section mt-5">
     <div class="container p-0">
         <div class="col-md-12">
             
@@ -113,10 +113,10 @@
                         <tr>
                                     <td colspan="12" class="hiddenRow">
                                         <div class="accordion-body collapse" id="demo{{ $user->id }}">
-                                            <div class="bom-list-row-expand">
+                                            <div class="hj-list-row-expand">
                                                 <h5>Basic Details & Department</h5>
 
-                                                <div class="list-bom-cards">
+                                                <div class="list-hj-cards">
                                                     <p>Date of Birth : 08 / 04 / 1997</p>
                                                 </div>
 
@@ -141,7 +141,7 @@
 </div>
 
 <div class="add-user-form-section" style="display: none;">
-    <div class="bom-add-consultancy-screen">
+    <div class="hj-add-consultancy-screen">
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 d-flex align-items-center">
@@ -500,7 +500,7 @@
                 </div>
 
                <!-- Address Modal -->
-               <div class="bom-add-address-screen">
+               <div class="hj-add-address-screen">
                     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
@@ -663,7 +663,7 @@
 
 
         $(".show-add-user-form").on("click", function (e) {
-            $(".table-bom-list-section").hide();
+            $(".table-hj-list-section").hide();
             $(".filter-section-consultancy").hide();
             $(".add-user-form-section").show(); // use toggle() if you don’t want slide effect
         });

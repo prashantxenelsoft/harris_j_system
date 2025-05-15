@@ -1,7 +1,7 @@
 @extends('layouts.custom_layout') @section('content')
 <!-- Add Consultant Screen Start-->
 <section class="add-consultant-parent">
-    <header class="bom-header">
+    <header class="hj-header">
         <div class="container">
             <div class="row py-2">
                 <div class="col-lg-2">
@@ -65,13 +65,13 @@
                     </div>
 
                 <div class="col-lg-3">
-                    <div class="bom-right-col">
+                    <div class="hj-right-col">
                         <div class="bell-icon-col">
                             <i class="fa-solid fa-bell"></i>
                             <span>1</span>
                         </div>
 
-                        <div class="bom-col-country-dropdown">
+                        <div class="hj-col-country-dropdown">
                             <select id="action-dropdown" onchange="handleDropdown(this)">
                                 <option selected disabled>{{ Auth::user()->name }}</option>
                                 <option data-url="#">Profile</option>
@@ -100,7 +100,7 @@
                             </script>
                         </div>
 
-                        <div class="bom-profile-col">
+                        <div class="hj-profile-col">
                             <img src="{{ asset('public/assets/latest/images/profile.png') }}" class="img-fluid" />
                         </div>
                     </div>
