@@ -1,7 +1,7 @@
 @extends('layouts.custom_layout') @section('content')
 
-<section class="bom-screen-parent">
-    <header class="bom-header">
+<section class="hj-screen-parent">
+    <header class="hj-header">
         <div class="container">
             <div class="row py-2">
                 <div class="col-lg-2">
@@ -11,7 +11,7 @@
                 </div>
 
                 <div class="col-lg-7">
-                    <div class="tabs-bom">
+                    <div class="tabs-hj">
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
@@ -33,13 +33,13 @@
                 </div>
 
                 <div class="col-lg-3">
-                    <div class="bom-right-col">
+                    <div class="hj-right-col">
                         <div class="bell-icon-col">
                             <i class="fa-solid fa-bell"></i>
                             <span>1</span>
                         </div>
 
-                        <div class="bom-col-country-dropdown">
+                        <div class="hj-col-country-dropdown">
                             <select id="action-dropdown" onchange="handleDropdown(this)">
                                 <option selected disabled>{{ Auth::user()->name }}</option>
                                 <option data-url="#">Profile</option>
@@ -69,7 +69,7 @@
 
                         </div>
 
-                        <div class="bom-profile-col">
+                        <div class="hj-profile-col">
                             <img src="{{ asset('public/assets/latest/images/profile.png ') }}" class="img-fluid" />
                         </div>
                     </div>
@@ -87,11 +87,11 @@
                     <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                         <div class="row">
                             <div class="col-lg-6 d-flex search-section">
-                                <div class="search-bar-bom">
+                                <div class="search-bar-hj">
                                     <input type="text" id="searchInput" placeholder="Search ..." />
                                 </div>
 
-                                <div class="active-status-select-bom">
+                                <div class="active-status-select-hj">
                                     <select id="statusFilter">
                                         <option value="">All</option>
                                         <option value="active">Active</option>
@@ -101,7 +101,7 @@
                             </div>
 
                             <div class="col-lg-6">
-                                <div class="bom-btn-group">
+                                <div class="hj-btn-group">
                                     <div class="add-consultancy-btn">
                                         <a href="#" class="show-consultancy-form">
                                             <img src="{{ asset('public/assets/latest/images/circle-add-button.png ') }}" class="img-fluid" />
@@ -109,7 +109,7 @@
                                         </a>
                                     </div>
 
-                                    <!-- <div class="data-access-btn-bom">
+                                    <!-- <div class="data-access-btn-hj">
                                         <img src="{{ asset('public/assets/latest/images/file-spreadsheet.png ') }}" class="img-fluid" />
                                         <p>Data Access</p>
                                     </div> -->
@@ -117,7 +117,7 @@
                             </div>
                         </div>
 
-                        <div class="table-bom-list-section mt-5">
+                        <div class="table-hj-list-section mt-5">
                             <div class="container p-0">
                                 <div class="col-md-12">
                                     <table class="table table-condensed table-striped">
@@ -215,12 +215,12 @@
                                             <tr>
                                                 <td colspan="12" class="hiddenRow">
                                                     <div class="accordion-body collapse" id="demo{{ $key }}">
-                                                        <div class="bom-list-row-expand">
+                                                        <div class="hj-list-row-expand">
                                                             <h5>Contact & Address Information</h5>
-                                                            <div class="list-bom-cards">
+                                                            <div class="list-hj-cards">
                                                                 <ul>
                                                                     <li>
-                                                                        <div class="bom-expand-card">
+                                                                        <div class="hj-expand-card">
                                                                             <h3>Primary Contact Person</h3>
                                                                             <h4>{{ $consultancy['primary_contact'] ?? '-' }}</h4>
                                                                             <ul>
@@ -236,7 +236,7 @@
                                                                         </div>
                                                                     </li>
                                                                     <li>
-                                                                        <div class="bom-expand-card">
+                                                                        <div class="hj-expand-card">
                                                                             <h3>Secondary Contact Person</h3>
                                                                             <h4>{{ $consultancy['secondary_contact'] ?? '-' }}</h4>
                                                                             <ul>
@@ -253,7 +253,7 @@
                                                                     </li>
 
                                                                     <li>
-                                                                        <div class="bom-expand-card">
+                                                                        <div class="hj-expand-card">
                                                                             <h3>Admin Information</h3>
                                                                             <ul class="mt-3">
                                                                                 <li>
@@ -265,7 +265,7 @@
                                                                     </li>
 
                                                                     <li>
-                                                                        <div class="bom-expand-card">
+                                                                        <div class="hj-expand-card">
                                                                             <h3>Address Information</h3>
                                                                             <ul class="mt-3">
                                                                                 <li>
@@ -317,7 +317,7 @@
                         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
 
                         <div class="consultancy-form-section" style="display: none;">
-                            <div class="bom-add-consultancy-screen">
+                            <div class="hj-add-consultancy-screen">
                                 <div class="container">
                                     <div class="row">
                                         <div class="col-lg-4 d-flex align-items-center">
@@ -516,7 +516,7 @@
                                         </div>
 
                                         <!-- Address Modal -->
-                                        <div class="bom-add-address-screen">
+                                        <div class="hj-add-address-screen">
                                             <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                                 <div class="modal-dialog modal-dialog-centered">
                                                     <div class="modal-content">
@@ -902,7 +902,7 @@
             $("#state-select").empty().append('<option value="" selected disabled>Select State / Province *</option>');
 
             // Hide other sections
-            $(".table-bom-list-section").hide();
+            $(".table-hj-list-section").hide();
             document.querySelector(".search-section").setAttribute("style", "display: none !important;");
             $(".bom-btn-group").hide();
             let select = $('select[name="last_paid_status"]');

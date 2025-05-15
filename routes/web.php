@@ -9,6 +9,7 @@ use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\BomController;
 use App\Http\Controllers\ConsultancyController;
 use App\Http\Controllers\ConsultantController;
+use App\Http\Controllers\HrController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ConsultancyApiController;
 use App\Http\Controllers\Api\ConsultanctApiController;
@@ -26,10 +27,8 @@ use App\Http\Controllers\Api\ConsultanctApiController;
 
 Route::group(['prefix' => 'api'], function () {
 
-    // 🔓 Public Route
     Route::post('auth/login', [AuthController::class, 'apiLogin']);
 
-    // 🔒 Protected Routes
     Route::middleware('auth:api')->group(function () {
         Route::get('getConsultancy', [ConsultancyApiController::class, 'getConsultancy']);
         Route::post('add-consultancy', [ConsultancyApiController::class, 'add_consultancy']); 
@@ -38,12 +37,15 @@ Route::group(['prefix' => 'api'], function () {
         Route::get('countries', [ConsultancyApiController::class, 'countries']);
         Route::get('/states', [ConsultancyApiController::class, 'getStates']);
         Route::post('consultant/update-basic', [ConsultanctApiController::class, 'apiUpdateBasicDetailsConsultant']);
+        Route::post('/consultant/dashboard/timeline', [ConsultanctApiController::class, 'getDashboardTimelineData']);
+
     });
 
 });
 
+
+
 Route::get('/', function () {
-    //return view('welcome');
     return redirect()->route('login');
 });
 
@@ -113,4 +115,9 @@ Route::middleware('auth')->group(function () {
 
 
 
+});
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('hr/dashboard', [HrController::class, 'index'])->name('hr.dashboard');
 });
