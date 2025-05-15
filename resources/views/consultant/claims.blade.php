@@ -131,7 +131,7 @@
                                  <div class="modal-header">
                                     <div class="model_employee">
                                        <div class="model_emp_img">
-                                          <!-- <img src="assets/images/emp-icon1.png" alt="" /> -->
+                                          <!-- <img src="assets{{ asset('public/assets/images/emp-icon1.png" alt="" /> -->
                                        </div>
                                        <span class="model_emp_name">{{ $consultant->emp_name ?? 'N/A' }}</span>
                                     </div>
@@ -1345,7 +1345,7 @@ foreach ($dataClaims as $entry) {
                               <div class="emp_n_c_form">
                                  <div class="model_employee">
                                     <div class="model_emp_img">
-                                       <!-- <img src="assets/images/emp-icon1.png" alt=""> -->
+                                       <!-- <img src="assets{{ asset('public/assets/images/emp-icon1.png" alt=""> -->
                                        <!-- <img src="{{ asset('public/assets/latest/images/emp-icon1.png') }}" /> -->
                                     </div>
                                     <div class="name_n_id">

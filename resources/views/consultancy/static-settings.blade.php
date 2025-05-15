@@ -72,7 +72,7 @@
                             <div class="system-properties-screens-parent">
                                 <div class="static-tab-content-inner">
                                 <!-- <div class="add-lockup-btn-wrapper"><a href="#">Edit/Update</a></div> -->
-                                    <div class="bom-add-consultancy-screen">
+                                    <div class="hj-add-consultancy-screen">
                                         <div class="container p-0">
                                             <div class="row add-consultancy-form">
                                                 <div class="col-lg-12">
@@ -254,14 +254,14 @@
                             </div>
 
                             <div class="static-tab-content-inner">
-                                <div class="bom-add-lookup">
+                                <div class="hj-add-lookup">
                                     <div class="row">
                                         <div class="col-lg-6">
                                             <div class="table-half-lookup">
                                                 <div class="search-bar-lookup">
                                                     <input type="text" placeholder="Search..." />
                                                 </div>
-                                                <div class="table-bom-list-section mt-3">
+                                                <div class="table-hj-list-section mt-3">
                                                     <div class="container p-0">
                                                         <div class="col-md-12"></div>
                                                     </div>
@@ -276,7 +276,7 @@
                                                 <div class="search-bar-lookup">
                                                     <input type="text" placeholder="Search..." />
                                                 </div>
-                                                <div class="table-bom-list-section mt-3">
+                                                <div class="table-hj-list-section mt-3">
                                                     <div class="container p-0">
                                                         <div class="col-md-12"></div>
                                                     </div>
@@ -296,14 +296,14 @@
                             </div>
 
                             <div class="static-tab-content-inner">
-                                <div class="bom-add-lookup">
+                                <div class="hj-add-lookup">
                                     <div class="row">
                                         <div class="col-lg-6">
                                             <div class="table-half-lookup">
                                                 <div class="search-bar-lookup">
                                                     <input type="text" placeholder="Search..." />
                                                 </div>
-                                                <div class="table-bom-list-section mt-3">
+                                                <div class="table-hj-list-section mt-3">
                                                     <div class="container p-0">
                                                         <div class="col-md-12"></div>
                                                     </div>
@@ -318,7 +318,7 @@
                                                 <div class="search-bar-lookup">
                                                     <input type="text" placeholder="Search..." />
                                                 </div>
-                                                <div class="table-bom-list-section mt-3">
+                                                <div class="table-hj-list-section mt-3">
                                                     <div class="container p-0">
                                                         <div class="col-md-12"></div>
                                                     </div>
@@ -338,14 +338,14 @@
                             </div>
 
                             <div class="static-tab-content-inner">
-                                <div class="bom-add-lookup">
+                                <div class="hj-add-lookup">
                                     <div class="row">
                                         <div class="col-lg-6">
                                             <div class="table-half-lookup">
                                                 <div class="search-bar-lookup">
                                                     <input type="text" placeholder="Search..." />
                                                 </div>
-                                                <div class="table-bom-list-section mt-3">
+                                                <div class="table-hj-list-section mt-3">
                                                     <div class="container p-0">
                                                         <div class="col-md-12"></div>
                                                     </div>
@@ -360,7 +360,7 @@
                                                 <div class="search-bar-lookup">
                                                     <input type="text" placeholder="Search..." />
                                                 </div>
-                                                <div class="table-bom-list-section mt-3">
+                                                <div class="table-hj-list-section mt-3">
                                                     <div class="container p-0">
                                                         <div class="col-md-12"></div>
                                                     </div>

@@ -1,10 +1,10 @@
 <div class="row filter-client-section-consultancy">
     <div class="col-lg-6 d-flex search-section">
-        <div class="search-bar-bom">
+        <div class="search-bar-hj">
             <input type="text" id="searchInput" placeholder="Search ..." />
         </div>
 
-        <div class="active-status-select-bom">
+        <div class="active-status-select-hj">
             <select id="statusFilter">
                 <option value="">All</option>
                 <option value="active">Active</option>
@@ -14,7 +14,7 @@
             </select>
         </div>
 
-        <!-- <div class="active-status-select-bom consultancy-designation-filter">
+        <!-- <div class="active-status-select-hj consultancy-designation-filter">
             <select id="statusFilter">
                 <option value="">Client Type</option>
                 <option value="active">Client Type 1</option>
@@ -24,7 +24,7 @@
     </div>
 
     <div class="col-lg-6">
-        <div class="bom-btn-group">
+        <div class="hj-btn-group">
             <div class="add-consultancy-btn">
                 <a href="#" class="show-add-client-form">
                     <img src="{{ asset('public/assets/latest/images/circle-add-button.png ') }}" class="img-fluid" />
@@ -35,7 +35,7 @@
     </div>
 </div>
 
-<div class="table-bom-list-section client-list-consultancy-flow mt-5">
+<div class="table-hj-list-section client-list-consultancy-flow mt-5">
     <div class="container p-0">
         <div class="col-md-12">
             <table class="table table-condensed table-striped">
@@ -122,10 +122,10 @@
                         <tr>
                             <td colspan="12" class="hiddenRow">
                                 <div class="accordion-body collapse" id="demo{{ $item['id'] }}">
-                                    <div class="bom-list-row-expand">
+                                    <div class="hj-list-row-expand">
                                         <h5>Consultant Information</h5>
 
-                                        <div class="table-bom-list-section mt-5">
+                                        <div class="table-hj-list-section mt-5">
                                             <div class="container p-0">
                                                 <div class="col-md-12">
 
@@ -149,7 +149,6 @@
                                                             <td>01</td>
                                                             <td>
                                                                 <div class="d-flex align-items-center">
-                                                                    <!-- <img src="assets/images/user1.jpg" alt="Desirae" class="rounded-circle me-2" width="30" height="30"> -->
                                                                     <span>Desirae Press</span>
                                                                 </div>
                                                             </td>
@@ -170,7 +169,6 @@
                                                             <td>02</td>
                                                             <td>
                                                                 <div class="d-flex align-items-center">
-                                                                    <!-- <img src="assets/images/user2.jpg" alt="Maren" class="rounded-circle me-2" width="30" height="30"> -->
                                                                     <span>Maren Carder</span>
                                                                 </div>
                                                             </td>
@@ -191,7 +189,6 @@
                                                             <td>03</td>
                                                             <td>
                                                                 <div class="d-flex align-items-center">
-                                                                    <!-- <img src="assets/images/user3.jpg" alt="Jaxson" class="rounded-circle me-2" width="30" height="30"> -->
                                                                     <span>Jaxson Saris</span>
                                                                 </div>
                                                             </td>
@@ -231,7 +228,7 @@
 </div>
 
 <div class="add-clinet-form-section" style="display: none;">
-    <div class="bom-add-consultancy-screen">
+    <div class="hj-add-consultancy-screen">
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 d-flex align-items-center">
@@ -396,7 +393,7 @@
 
 
                 <!-- Address Modal -->
-                <div class="bom-add-address-screen">
+                <div class="hj-add-address-screen">
                     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">

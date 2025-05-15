@@ -85,7 +85,7 @@
 
                                 <div class="view-all-cta">
                                     <a href="#">
-                                        <!-- <img src="assets/images/save-icon-circle.png"> -->
+                                        <!-- <img src="assets{{ asset('public/assets/images/save-icon-circle.png"> -->
                                         View All
                                     </a>
                                 </div>
