@@ -4,7 +4,7 @@
     <header class="hj-header">
         <div class="container">
             <div class="row py-2">
-                <div class="col-lg-2">
+                <div class="col-lg-2 col-md-2">
                     <div class="header-logo">
                         <h2>LOGO</h2>
                     </div>
@@ -13,7 +13,7 @@
                 
 
                 @php $activeTab = request('tab', 'timesheet'); @endphp
-                <div class="col-lg-7">
+                <div class="col-lg-7 col-md-7">
                     <div class="tabs-hj">
                             <ul class="nav nav-tabs" id="AddConsultantTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
@@ -70,7 +70,7 @@
                         </div>
                     </div>
 
-                <div class="col-lg-3">
+                <div class="col-lg-3 col-md-3">
                     <div class="hj-right-col">
                         <div class="bell-icon-col">
                             <i class="fa-solid fa-bell"></i>
