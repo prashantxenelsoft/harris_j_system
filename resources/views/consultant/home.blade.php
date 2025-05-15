@@ -1,48 +1,7 @@
 <section class="add-consultant-parent">
     <section class="login-as-consultant">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="login-dashboard-top-bar">
-                        <div class="left-col-top-bar">
-                            <div class="employee-details-consultant">
-                                <ul>
-                                    <li>
-                                        <h6>Employee ID</h6>
-                                        <p>:Emp14982</p>
-                                    </li>
-                                    <li>
-                                        <h6>Employee Name</h6>
-                                        <p>: Bruce Lee</p>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div class="client-details-consultant">
-                                <ul>
-                                    <li>
-                                        <h6>Client Name</h6>
-                                        <p>:Encore Films</p>
-                                    </li>
-                                    <li>
-                                        <h6>Reporting Manager</h6>
-                                        <p>:Miss.Tiana Calzoni (tiana@gmail.com)</p>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="right-col-top-bar">
-                            <div class="date-container">
-                                <input id="date" type="text" />
-                                <i class="date-icon fa fa-calendar" aria-hidden="true"></i>
-                                <span class="date-text">August - 2024</span>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+           
 
             <div class="row pb-5">
                 <div class="col-lg-9 col-xxl-8">
