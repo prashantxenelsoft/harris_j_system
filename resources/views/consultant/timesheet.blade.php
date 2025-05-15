@@ -92,7 +92,7 @@
                         <div id="reporting_fileds_data" class="client-details-consultant">
                            <ul>
                                  <li>
-                                    <input type="text" placeholder="Enter Reporting Manager Name">
+                                    <input type="text" placeholder="Enter Corporate Email Of Consultant">
                                     </li>
 
                                     <li>
@@ -2715,7 +2715,7 @@
             
 
 
-           <div class="col-xl-4">
+           <div class="col-xl-4 col-lg-3">
                <div class="timesheet-overview-consultant">
                   <div class="timeline-container">
                      <div class="timeline-title">
