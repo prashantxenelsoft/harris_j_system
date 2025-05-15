@@ -509,6 +509,8 @@ if ($existing) {
             return false;
         })->values();
 
+        //echo "<pre>";print_r($dataTimesheet);die;
+
         // ❌ Return 404 if any of the required parts are missing
         if ($dataTimesheet->isEmpty() || !$consultant || $publicHolidays->isEmpty()) {
             abort(404);

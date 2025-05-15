@@ -2805,6 +2805,96 @@
                      @endif
                   </div>
                </div>
+               <div class="col-lg-12 col-xl-12 mb-4 mb-xl-none position-relative mt-4">
+                     <div class="work-summary write-summary">
+                        <!-- Expand Button -->
+                        <button class="expand-btn" data-bs-toggle="modal" data-bs-target="#workSummaryModalclaim">
+                           <img src="{{ asset('public/assets/latest/images/expand-icon.png') }}" class="img-fluid" />
+                        </button>
+
+                        <div class="remark-bottom-col">
+                           <div class="remark-heading">
+                                 <span></span>
+                                 <h4>Feedbacks</h4>
+                           </div>
+
+                           <div class="remark-item">
+                                 <p>
+                                    This platform is very useful in tracking the timesheets and logs.
+                                 </p>
+
+                                 <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtn">
+                                    <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid" />
+                                 </a>
+
+
+
+                           </div>
+
+                           <div class="write-remark">
+                                 <input type="text" placeholder="Write your remarks here...">
+                           </div>
+                        </div>
+
+                     </div>
+                     <div class="edit-delete-popup d-none">
+                        <ul>
+                           <li><img src="assets/images/black-edit-icon.png">Edit
+                           </li>
+                           <li><img src="assets/images/black-delete-icon.png">Delete
+                           </li>
+                        </ul>
+                     </div>
+
+                     <!-- Modal -->
+                     <div class="modal fade" id="workSummaryModalclaim" tabindex="-1" aria-labelledby="workSummaryModalLabel" aria-hidden="true" style="display: none;">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                           <div class="modal-content">
+                                 <div class="modal-header ">
+                                    <button type="button" class="btn-close popup-expand-btn " data-bs-dismiss="modal" aria-label="Close">
+                                       <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                                    </button>
+                                 </div>
+                                 <div class="modal-body ">
+                                    <div class="write-summary-popup-body">
+                                       <h4>Remarks</h4>
+                                       <div class="write-summary-expand-row mt-2">
+                                             <div class="write-summary-expand-item">
+                                                <p>
+                                                   I have been working with
+                                                   the production team and
+                                                   supporting
+                                                   in the release
+                                                   activities. This was an
+                                                   unexpected support call
+                                                </p>
+
+                                                <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtnexpand">
+                                                   <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid" />
+                                                </a>
+                                             </div>
+
+                                             <div class="write-remark mt-4">
+                                                <input type="text" placeholder="Write your remarks here...">
+                                             </div>
+                                       </div>
+
+                                       <div class="edit-delete-popup-expand d-none">
+                                             <ul>
+                                                <li><img src="assets/images/black-edit-icon.png">Edit
+                                                </li>
+                                                <li><img src="assets/images/black-delete-icon.png">Delete
+                                                </li>
+                                             </ul>
+                                       </div>
+                                    </div>
+                                 </div>
+                           </div>
+                        </div>
+                     </div>
+
+               </div>
+               
             </div>
 
             <div class="row mt-3 bottom-remark-timesheet-group">
@@ -3162,126 +3252,126 @@
                         </div>
                      </div>
                     <div class="remark-timeline" id="remarkTimeline">
-                        @php
-                           
-                           $timelineItems = [];
+                           @php
+                              
+                              $timelineItems = [];
 
-                           // ✅ Sort by updated_at DESC (latest activity first)
-                           $sortedTimesheet = $dataTimesheet->sortByDesc('updated_at');
+                              // ✅ Sort by updated_at DESC (latest activity first)
+                              $sortedTimesheet = $dataTimesheet->sortByDesc('updated_at');
 
-                           foreach ($sortedTimesheet as $entry) {
-                                 $record = json_decode($entry->record, true);
-                                 $leaveType = $record['leaveType'] ?? null;
-                                 $workingHours = $record['workingHours'] ?? null;
-                                 $leaveHourId = $record['leaveHourId'] ?? null;
-                                 $applyOnCell = $record['applyOnCell'] ?? null;
-                                 $dateRange = $record['date'] ?? '';
-                                 $remarks = $record['remarks'] ?? null;
+                              foreach ($sortedTimesheet as $entry) {
+                                    $record = json_decode($entry->record, true);
+                                    $leaveType = $record['leaveType'] ?? null;
+                                    $workingHours = $record['workingHours'] ?? null;
+                                    $leaveHourId = $record['leaveHourId'] ?? null;
+                                    $applyOnCell = $record['applyOnCell'] ?? null;
+                                    $dateRange = $record['date'] ?? '';
+                                    $remarks = $record['remarks'] ?? null;
 
-                                 $leaveShort = '';
-                                 if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-                                 elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-                                 elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+                                    $leaveShort = '';
+                                    if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                    elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                    elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
 
-                                 $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
+                                    $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
 
-                                 $dates = [];
+                                    $dates = [];
 
-                                 if ($dateRange && str_contains($dateRange, 'to')) {
-                                    try {
-                                       [$start, $end] = array_map('trim', explode('to', $dateRange));
-                                       $startDate = Carbon::createFromFormat('d / m / Y', $start);
-                                       $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                                    if ($dateRange && str_contains($dateRange, 'to')) {
+                                       try {
+                                          [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                          $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                          $endDate = Carbon::createFromFormat('d / m / Y', $end);
 
-                                       while ($startDate->lte($endDate)) {
-                                             $dates[] = $startDate->copy();
-                                             $startDate->addDay();
-                                       }
-                                    } catch (\Exception $e) {}
-                                 } elseif ($applyOnCell) {
-                                    try {
-                                       $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-                                    } catch (\Exception $e) {}
-                                 }
+                                          while ($startDate->lte($endDate)) {
+                                                $dates[] = $startDate->copy();
+                                                $startDate->addDay();
+                                          }
+                                       } catch (\Exception $e) {}
+                                    } elseif ($applyOnCell) {
+                                       try {
+                                          $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                       } catch (\Exception $e) {}
+                                    }
 
-                                 foreach ($dates as $date) {
-                                    if (in_array($date->dayOfWeek, [0, 6])) continue;
+                                    foreach ($dates as $date) {
+                                       if (in_array($date->dayOfWeek, [0, 6])) continue;
 
-                                    $timelineItems[] = [
-                                       'date' => $date,
-                                       'formatted' => $date->format('D, d M Y'),
-                                       'badge' => $badgeText,
-                                       'workingHours' => $workingHours,
-                                       'leaveType' => $leaveType,
-                                       'remarks' => $remarks,
-                                       'month' => $date->month,
-                                       'year' => $date->year
-                                    ];
-                                 }
-                           }
-                        @endphp
+                                       $timelineItems[] = [
+                                          'date' => $date,
+                                          'formatted' => $date->format('D, d M Y'),
+                                          'badge' => $badgeText,
+                                          'workingHours' => $workingHours,
+                                          'leaveType' => $leaveType,
+                                          'remarks' => $remarks,
+                                          'month' => $date->month,
+                                          'year' => $date->year
+                                       ];
+                                    }
+                              }
+                           @endphp
 
-                        <div id="timelineContainer" class="remark-container">
-                           @foreach ($timelineItems as $item)
-                                 <div class="remark-item mb-3" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
-                                    <div class="d-flex align-items-start">
-                                       <div class="me-2 text-primary">
-                                             <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                             <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                       </div>
-                                       <div>
-                                             <div class="d-flex align-items-center mb-1">
-                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
-                                                <small class="text-muted">
-                                                   {{ $item['formatted'] }} -
-                                                   @if ($item['badge'])
-                                                         <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
-                                                   @elseif ($item['workingHours'])
-                                                         {{ $item['workingHours'] }} hours
-                                                   @endif
-                                                </small>
-                                             </div>
+                           <div id="timelineContainer" class="remark-container">
+                              @foreach ($timelineItems as $item)
+                                    <div class="remark-item mb-3" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
+                                       <div class="d-flex align-items-start">
+                                          <div class="me-2 text-primary">
+                                                <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                                <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
+                                          </div>
+                                          <div>
+                                                <div class="d-flex align-items-center mb-1">
+                                                   <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
+                                                   <small class="text-muted">
+                                                      {{ $item['formatted'] }} -
+                                                      @if ($item['badge'])
+                                                            <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
+                                                      @elseif ($item['workingHours'])
+                                                            {{ $item['workingHours'] }} hours
+                                                      @endif
+                                                   </small>
+                                                </div>
 
-                                             @if ($item['leaveType'] === 'ML')
-                                                <p>{{ $consultant->emp_name }} has applied for medical leave</p>
-                                             @elseif (!empty($item['remarks']))
-                                                <p>{{ $item['remarks'] }}</p>
-                                             @endif
+                                                @if ($item['leaveType'] === 'ML')
+                                                   <p>{{ $consultant->emp_name }} has applied for medical leave</p>
+                                                @elseif (!empty($item['remarks']))
+                                                   <p>{{ $item['remarks'] }}</p>
+                                                @endif
+                                          </div>
                                        </div>
                                     </div>
+                              @endforeach
+
+                                 <div id="noRemarksMessage" class="text-center text-muted p-3 d-none">
+                                       <strong>Remarks not found</strong>
                                  </div>
-                           @endforeach
-
-                           <div id="noRemarksMessage" class="text-center text-muted p-3 d-none">
-                                 <strong>Remarks not found</strong>
+                              </div>
                            </div>
-                        </div>
-                     </div>
 
-                     <script>
-                     document.addEventListener("DOMContentLoaded", function () {
-                        const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
-                        const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+                           <script>
+                           document.addEventListener("DOMContentLoaded", function () {
+                              const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                              const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
 
-                        const remarkItems = document.querySelectorAll("#timelineContainer .remark-item");
-                        let visibleCount = 0;
+                              const remarkItems = document.querySelectorAll("#timelineContainer .remark-item");
+                              let visibleCount = 0;
 
-                        remarkItems.forEach(item => {
-                           const month = parseInt(item.getAttribute("data-month"));
-                           const year = parseInt(item.getAttribute("data-year"));
+                              remarkItems.forEach(item => {
+                                 const month = parseInt(item.getAttribute("data-month"));
+                                 const year = parseInt(item.getAttribute("data-year"));
 
-                           if (month === selectedMonth && year === selectedYear) {
-                                 item.style.display = "";
-                                 visibleCount++;
-                           } else {
-                                 item.style.display = "none";
-                           }
-                        });
+                                 if (month === selectedMonth && year === selectedYear) {
+                                       item.style.display = "";
+                                       visibleCount++;
+                                 } else {
+                                       item.style.display = "none";
+                                 }
+                              });
 
-                        const noRemarks = document.getElementById("noRemarksMessage");
-                        noRemarks.classList.toggle("d-none", visibleCount > 0);
-                     });
-                     </script>
+                              const noRemarks = document.getElementById("noRemarksMessage");
+                              noRemarks.classList.toggle("d-none", visibleCount > 0);
+                           });
+                           </script>
 
 
                   </div>
@@ -3629,6 +3719,8 @@
 
                                                 @if (!empty($extraHours))
                                                    <span class="fw-semibold">- {{ $extraHours }} hours off</span>
+                                                @elseif (!empty($record['workingHours']) && is_numeric($record['workingHours']))
+                                                   <span class="fw-semibold">- {{ $record['workingHours'] }} hours</span>
                                                 @endif
                                              </div>
                                        </div>
@@ -4091,6 +4183,8 @@
 
                                                          @if (!empty($extraHours))
                                                             <span class="fw-semibold">- {{ $extraHours }} hours off</span>
+                                                         @elseif (!empty($record['workingHours']) && is_numeric($record['workingHours']))
+                                                            <span class="fw-semibold">- {{ $record['workingHours'] }} hours off</span>
                                                          @endif
                                                       </div>
                                                 </div>
