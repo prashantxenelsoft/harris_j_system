@@ -964,7 +964,7 @@
     }
 
     .calender-top-steps-wrapper .progress-steps-calender ul{
-        gap: 120px;
+        gap: 100px;
     }
 
     .calender-top-steps-wrapper .progress-steps-calender ul li:not(:last-child)::before {

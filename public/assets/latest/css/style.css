@@ -6936,6 +6936,7 @@ span.inactive-badge::before {
     border-radius: 50%;
     background: #fff;
     border: 2px solid grey;
+    position: relative;
 }
 
 .progress-steps-calender ul li span i {
