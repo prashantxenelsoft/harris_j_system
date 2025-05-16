@@ -7714,3 +7714,11 @@ span.inactive-badge::before {
 #modelcopiesTab .tl-header img{
     height: 30px;
 }
+
+.workSummaryNum .w_hrs{
+    color: #008631 !important;
+}
+
+.workSummaryNum .tw_hrs{
+    color: var(--Themeorange) !important;
+}
