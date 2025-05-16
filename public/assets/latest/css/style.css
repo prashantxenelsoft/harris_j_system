@@ -7703,3 +7703,14 @@ span.inactive-badge::before {
 }
  
 /* Bom Reports Section End */
+#copiesTab .timeline .dot::before{
+    display: none;
+}
+ 
+#copiesTab .tl-header img{
+    height: 30px;
+}
+
+#modelcopiesTab .tl-header img{
+    height: 30px;
+}

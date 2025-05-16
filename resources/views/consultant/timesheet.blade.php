@@ -8,8 +8,35 @@
          localStorage.setItem("timesheetMonth", now.getMonth()); // 0-based (Jan = 0)
          localStorage.setItem("timesheetYear", now.getFullYear());
       }
+
+   
+   
+       const mainTabs = document.querySelectorAll("#timesheetTabsMain .nav-link");
+
+         mainTabs.forEach(tab => {
+            tab.addEventListener("click", function () {
+               const targetId = tab.getAttribute("data-bs-target"); // e.g. "#overviewTab"
+               const suffix = targetId.replace("#", "").replace("Tab", ""); // e.g. "overview"
+               const modalTarget = `#model${suffix}Tab`;
+
+               // Set modal tab as active immediately
+               document.querySelectorAll("#timesheetTabsModal .nav-link").forEach(btn => {
+                  const isActive = btn.getAttribute("data-bs-target") === modalTarget;
+                  btn.classList.toggle("active", isActive);
+               });
+
+               // Set modal tab-pane as active immediately
+               document.querySelectorAll("#timesheetModal .tab-pane").forEach(pane => {
+                  const isVisible = `#${pane.id}` === modalTarget;
+                  pane.classList.toggle("show", isVisible);
+                  pane.classList.toggle("active", isVisible);
+               });
+            });
+         });
+
    });
 </script>
+
 <script>
    const timesheetData = @json($dataTimesheet);
 
@@ -2015,142 +2042,136 @@
 
 
                                          if (["PH"].includes(item.label)) {
-   const formattedDate = `${String(date.getDate()).padStart(2, '0')} / ${String(date.getMonth() + 1).padStart(2, '0')} / ${date.getFullYear()}`;
+                                             const formattedDate = `${String(date.getDate()).padStart(2, '0')} / ${String(date.getMonth() + 1).padStart(2, '0')} / ${date.getFullYear()}`;
 
-   const overlay = document.createElement("div");
-   overlay.style.position = "fixed";
-   overlay.style.top = "0";
-   overlay.style.left = "0";
-   overlay.style.width = "100vw";
-   overlay.style.height = "100vh";
-   overlay.style.backgroundColor = "rgba(0,0,0,0.4)";
-   overlay.style.display = "flex";
-   overlay.style.justifyContent = "center";
-   overlay.style.alignItems = "center";
-   overlay.style.zIndex = "9999";
+                                             const overlay = document.createElement("div");
+                                             overlay.style.position = "fixed";
+                                             overlay.style.top = "0";
+                                             overlay.style.left = "0";
+                                             overlay.style.width = "100vw";
+                                             overlay.style.height = "100vh";
+                                             overlay.style.backgroundColor = "rgba(0,0,0,0.4)";
+                                             overlay.style.display = "flex";
+                                             overlay.style.justifyContent = "center";
+                                             overlay.style.alignItems = "center";
+                                             overlay.style.zIndex = "9999";
 
-   const popup = document.createElement("div");
-   popup.style.background = "#fff";
-   popup.style.padding = "25px 30px";
-   popup.style.borderRadius = "12px";
-   popup.style.boxShadow = "0 4px 20px rgba(0,0,0,0.25)";
-   popup.style.width = "400px";
-   popup.style.maxWidth = "95%";
+                                             const popup = document.createElement("div");
+                                             popup.style.background = "#fff";
+                                             popup.style.padding = "25px 30px";
+                                             popup.style.borderRadius = "12px";
+                                             popup.style.boxShadow = "0 4px 20px rgba(0,0,0,0.25)";
+                                             popup.style.width = "400px";
+                                             popup.style.maxWidth = "95%";
 
-   popup.innerHTML = `
-      <div style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">
-         Enter Remark for <span style="color:#dc3545;">PH</span>
-      </div>
-      <textarea id="phPopupRemark" placeholder="Type your remark..." rows="4"
-         style="
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid #ced4da;
-            border-radius: 8px;
-            font-size: 15px;
-            resize: none;
-            outline: none;
-            transition: border-color 0.2s;
-         "></textarea>
-      <div id="phPopupError" style="color: red; font-size: 13px; margin-top: 6px; display: none;">
-         Remark is required.
-      </div>
-      <div style="margin-top: 20px; text-align: right;">
-         <button id="phSubmitBtn" style="
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-right: 10px;
-            cursor: pointer;
-         ">Submit</button>
-         <button id="phCancelBtn" style="
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-         ">Cancel</button>
-      </div>
-   `;
+                                             popup.innerHTML = `
+                                                <div style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">
+                                                   Enter Remark for <span style="color:#dc3545;">PH</span>
+                                                </div>
+                                                <textarea id="phPopupRemark" placeholder="Type your remark..." rows="4"
+                                                   style="
+                                                      width: 100%;
+                                                      padding: 12px 14px;
+                                                      border: 2px solid #ced4da;
+                                                      border-radius: 8px;
+                                                      font-size: 15px;
+                                                      resize: none;
+                                                      outline: none;
+                                                      transition: border-color 0.2s;
+                                                   "></textarea>
+                                                <div id="phPopupError" style="color: red; font-size: 13px; margin-top: 6px; display: none;">
+                                                   Remark is required.
+                                                </div>
+                                                <div style="margin-top: 20px; text-align: right;">
+                                                   <button id="phSubmitBtn" style="
+                                                      background-color: #28a745;
+                                                      color: white;
+                                                      border: none;
+                                                      padding: 8px 20px;
+                                                      border-radius: 6px;
+                                                      font-size: 14px;
+                                                      margin-right: 10px;
+                                                      cursor: pointer;
+                                                   ">Submit</button>
+                                                   <button id="phCancelBtn" style="
+                                                      background-color: #6c757d;
+                                                      color: white;
+                                                      border: none;
+                                                      padding: 8px 20px;
+                                                      border-radius: 6px;
+                                                      font-size: 14px;
+                                                      cursor: pointer;
+                                                   ">Cancel</button>
+                                                </div>
+                                             `;
 
-   overlay.appendChild(popup);
-   document.body.appendChild(overlay);
+                                             overlay.appendChild(popup);
+                                             document.body.appendChild(overlay);
 
-   // Hide placeholder on focus
-   const remarkInput = popup.querySelector("#phPopupRemark");
-   remarkInput.addEventListener("focus", () => {
-      remarkInput.placeholder = "";
-   });
-   remarkInput.addEventListener("blur", () => {
-      if (!remarkInput.value.trim()) {
-         remarkInput.placeholder = "Type your remark...";
-      }
-   });
+                                             // Hide placeholder on focus
+                                             const remarkInput = popup.querySelector("#phPopupRemark");
+                                             remarkInput.addEventListener("focus", () => {
+                                                remarkInput.placeholder = "";
+                                             });
+                                             remarkInput.addEventListener("blur", () => {
+                                                if (!remarkInput.value.trim()) {
+                                                   remarkInput.placeholder = "Type your remark...";
+                                                }
+                                             });
 
-   document.getElementById("phSubmitBtn").onclick = function () {
-      const remarkVal = remarkInput.value.trim();
-      const errorDiv = document.getElementById("phPopupError");
+                                             document.getElementById("phSubmitBtn").onclick = function () {
+                                                const remarkVal = remarkInput.value.trim();
+                                                const errorDiv = document.getElementById("phPopupError");
 
-      if (!remarkVal) {
-         errorDiv.style.display = "block";
-         return;
-      }
+                                                if (!remarkVal) {
+                                                   errorDiv.style.display = "block";
+                                                   return;
+                                                }
 
-      errorDiv.style.display = "none";
+                                                errorDiv.style.display = "none";
 
-      const recordData = {
-         date: formattedDate,
-         applyOnCell: formattedDate,
-         leaveType: "PH",
-         leaveHour: "Full Day",
-         leaveHourId: "fullDay",
-         remarks: remarkVal
-      };
+                                                const recordData = {
+                                                   date: formattedDate,
+                                                   applyOnCell: formattedDate,
+                                                   leaveType: "PH",
+                                                   leaveHour: "Full Day",
+                                                   leaveHourId: "fullDay",
+                                                   remarks: remarkVal
+                                                };
 
-      const formData = new FormData();
-      formData.append("type", "timesheet");
-      formData.append("user_id", "{{ $userData['id'] ?? '' }}");
-      formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
-      formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
-      formData.append("record", JSON.stringify(recordData));
-      formData.append('status', "Draft");
+                                                const formData = new FormData();
+                                                formData.append("type", "timesheet");
+                                                formData.append("user_id", "{{ $userData['id'] ?? '' }}");
+                                                formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+                                                formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+                                                formData.append("record", JSON.stringify(recordData));
+                                                formData.append('status', "Draft");
 
-      fetch("{{ route('consultant.data.save') }}", {
-         method: "POST",
-         headers: {
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-         },
-         body: formData
-      })
-      .then(res => res.json())
-      .then(data => {
-         console.log("Saved:", data);
-        // document.body.removeChild(overlay);
-         location.reload();
-      })
-      .catch(err => {
-         alert("Failed to save: " + err.message);
-      });
-   };
+                                                fetch("{{ route('consultant.data.save') }}", {
+                                                   method: "POST",
+                                                   headers: {
+                                                      "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                                   },
+                                                   body: formData
+                                                })
+                                                .then(res => res.json())
+                                                .then(data => {
+                                                   console.log("Saved:", data);
+                                                // document.body.removeChild(overlay);
+                                                   location.reload();
+                                                })
+                                                .catch(err => {
+                                                   alert("Failed to save: " + err.message);
+                                                });
+                                             };
 
-   document.getElementById("phCancelBtn").onclick = function () {
-      document.body.removeChild(overlay);
-   };
+                                             document.getElementById("phCancelBtn").onclick = function () {
+                                                document.body.removeChild(overlay);
+                                             };
 
-   return;
-}
-
-
-
-
-
-
-                           
+                                             return;
+                                          }
+                          
                                                
                                                dropdown.remove();
                                            };
@@ -2165,15 +2186,30 @@
                                  val = val.trim();
                                  const hourVal = parseInt(val, 10);
 
+                                    const today = new Date(); // today
+                                    const selectedDate = new Date(date); // 'date' is assumed to be defined earlier in scope
+                                    selectedDate.setHours(0, 0, 0, 0); // ignore time part
+                                    today.setHours(0, 0, 0, 0);
+
                                  // Invalid input or above 24
-                                 if (isNaN(hourVal) || hourVal > 24 || hourVal < 0) {
+                               if (isNaN(hourVal) || hourVal > 24 || hourVal < 0 || selectedDate > today) {
                                     if (!alertShown) {
-                                          alert("Only numbers 0 to 24 are allowed for working hours.");
-                                          alertShown = true;
+                                       let message = '';
+
+                                       if (isNaN(hourVal) || hourVal > 24 || hourVal < 0) {
+                                          message = 'Only numbers 0 to 24 are allowed for working hours.';
+                                       } else if (selectedDate > today) {
+                                          message = 'Working hours cannot be added for a future date.';
+                                       }
+
+                                       alert(message);
+                                       alertShown = true;
                                     }
+
                                     location.reload();
                                     return false;
                                  }
+
 
                                  // Valid, reset alert
                                  alertShown = false;
@@ -2297,7 +2333,7 @@
                             tag.innerHTML = label;
                            
                             // Style the tag
-                            tag.style.fontSize = "15px";
+                            tag.style.fontSize = "13px";
                             tag.style.margin = "0";
                             tag.style.padding = "0";
                             tag.style.lineHeight = "1";
@@ -2823,7 +2859,7 @@
                                     This platform is very useful in tracking the timesheets and logs.
                                  </p>
 
-                                 <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtn">
+                                 <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtnFeedback">
                                     <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid" />
                                  </a>
 
@@ -2837,7 +2873,7 @@
                         </div>
 
                      </div>
-                     <div class="edit-delete-popup d-none">
+                     <div class="edit-delete-popup d-none edit-feedback">
                         <ul>
                            <li><img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}">Edit  
                            </li>
@@ -2845,6 +2881,26 @@
                            </li>
                         </ul>
                      </div>
+
+                     <script>
+                     document.addEventListener("DOMContentLoaded", function () {
+                        const toggleBtn = document.getElementById("toggleBtnFeedback");
+                        const popup = document.querySelector(".edit-feedback");
+
+                        toggleBtn.addEventListener("click", function (e) {
+                           e.stopPropagation(); // Prevent outside click from firing immediately
+                           popup.classList.toggle("d-none");
+                        });
+
+                        // Optional: hide popup if clicking outside
+                        document.addEventListener("click", function (e) {
+                           if (!popup.contains(e.target) && e.target !== toggleBtn) {
+                              popup.classList.add("d-none");
+                           }
+                        });
+                     });
+                  </script>
+
 
                      <!-- Modal -->
                      <div class="modal fade" id="workSummaryModalclaim" tabindex="-1" aria-labelledby="workSummaryModalLabel" aria-hidden="true" style="display: none;">
@@ -2869,7 +2925,7 @@
                                                    unexpected support call
                                                 </p>
 
-                                                <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtnexpand">
+                                                <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtnexpandFeedback">
                                                    <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid" />
                                                 </a>
                                              </div>
@@ -2879,7 +2935,7 @@
                                              </div>
                                        </div>
 
-                                       <div class="edit-delete-popup-expand d-none">
+                                       <div class="edit-delete-popup-expand feedback-expend d-none">
                                              <ul>
                                                  <li><img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}">Edit  
                                                 </li>
@@ -2887,6 +2943,24 @@
                                                 </li>
                                              </ul>
                                        </div>
+                                       <script>
+                                          document.addEventListener("DOMContentLoaded", function () {
+                                             const toggleBtn2 = document.getElementById("toggleBtnexpandFeedback");
+                                             const popup2 = document.querySelector(".feedback-expend");
+
+                                             toggleBtn2.addEventListener("click", function (e) {
+                                                e.stopPropagation(); // Prevent the document click from hiding it immediately
+                                                popup2.classList.toggle("d-none");
+                                             });
+
+                                             // Optional: hide when clicking outside
+                                             document.addEventListener("click", function (e) {
+                                                if (!popup2.contains(e.target) && e.target !== toggleBtn2) {
+                                                   popup2.classList.add("d-none");
+                                                }
+                                             });
+                                          });
+                                       </script>
                                     </div>
                                  </div>
                            </div>
@@ -2922,10 +2996,12 @@
                                        <th>Type Of Leave</th>
                                        <th>From</th>
                                        <th>To</th>
-                                       <th>Days</th>
+                                       <th>Days/Hours</th>
                                     </tr>
                                  </thead>
-                                <tbody>
+                                 <tbody>
+                                    @php $hasData = false; @endphp
+
                                     @foreach ($dataTimesheet as $entry)
                                        @php
                                           $record = json_decode($entry->record);
@@ -2943,10 +3019,8 @@
                                           if (empty($date) && !empty($applyOnCell)) {
                                              $from = $to = trim($applyOnCell);
                                              $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
-
                                           } elseif (strpos($date, 'to') !== false) {
                                              [$from, $to] = array_map('trim', explode('to', $date));
-
                                              if ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') {
                                                 $days = '1/2';
                                              } else {
@@ -2958,7 +3032,6 @@
                                                    $days = '1';
                                                 }
                                              }
-
                                           } else {
                                              $from = $to = trim($date);
                                              $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
@@ -2980,6 +3053,8 @@
                                           $parts = explode(' / ', $from);
                                           $rowMonth = isset($parts[1]) ? (int) $parts[1] : null;
                                           $rowYear = isset($parts[2]) ? (int) $parts[2] : null;
+
+                                          $hasData = true;
                                        @endphp
 
                                        <tr data-month="{{ $rowMonth }}" data-year="{{ $rowYear }}">
@@ -2996,8 +3071,15 @@
                                           <td><span style="color:red;">{{ $days }}</span></td>
                                        </tr>
                                     @endforeach
+
+                                    @if (!$hasData)
+                                       <tr data-month="{{ request('month') ?? date('n') }}" data-year="{{ request('year') ?? date('Y') }}">
+                                          <td colspan="4" class="text-center text-muted">No entries found for this month</td>
+                                       </tr>
+                                    @endif
                                  </tbody>
                               </table>
+
                            </div>
                         </div>
                         <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
@@ -3088,10 +3170,12 @@
                                                 <th>Type Of Leave</th>
                                                 <th>From</th>
                                                 <th>To</th>
-                                                <th>Days</th>
+                                                <th>Days/Hours</th>
                                              </tr>
                                           </thead>
                                           <tbody>
+                                             @php $hasData = false; @endphp
+
                                              @foreach ($dataTimesheet as $entry)
                                                 @php
                                                    $record = json_decode($entry->record);
@@ -3109,10 +3193,8 @@
                                                    if (empty($date) && !empty($applyOnCell)) {
                                                       $from = $to = trim($applyOnCell);
                                                       $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
-
                                                    } elseif (strpos($date, 'to') !== false) {
                                                       [$from, $to] = array_map('trim', explode('to', $date));
-
                                                       if ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') {
                                                          $days = '1/2';
                                                       } else {
@@ -3124,7 +3206,6 @@
                                                             $days = '1';
                                                          }
                                                       }
-
                                                    } else {
                                                       $from = $to = trim($date);
                                                       $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
@@ -3146,6 +3227,8 @@
                                                    $parts = explode(' / ', $from);
                                                    $rowMonth = isset($parts[1]) ? (int) $parts[1] : null;
                                                    $rowYear = isset($parts[2]) ? (int) $parts[2] : null;
+
+                                                   $hasData = true;
                                                 @endphp
 
                                                 <tr data-month="{{ $rowMonth }}" data-year="{{ $rowYear }}">
@@ -3162,10 +3245,16 @@
                                                    <td><span style="color:red;">{{ $days }}</span></td>
                                                 </tr>
                                              @endforeach
+
+                                             @if (!$hasData)
+                                                <tr data-month="{{ request('month') ?? date('n') }}" data-year="{{ request('year') ?? date('Y') }}">
+                                                   <td colspan="4" class="text-center text-muted">No entries found for this month</td>
+                                                </tr>
+                                             @endif
                                           </tbody>
                                        </table>
 
-                                       <!-- ✅ JavaScript Filter Logic -->
+                                       
                                        <script>
                                           document.addEventListener("DOMContentLoaded", function () {
                                              const month = parseInt(localStorage.getItem("timesheetMonth")) + 1; // JS 0-indexed
@@ -3195,19 +3284,19 @@
                                        <div>
                                           
                                           <div class="stats-number" id="base_w_h"></div>
-                                          <div class="stats-label">Base Work Hours</div>
+                                          <div class="stats-label">Hours Forecasted</div>
                                        </div>
                                        <div>
                                        
                                           <div class="stats-number" id="total_b_w_h"></div>
-                                          <div class="stats-label">Total Billed Work Hours</div>
+                                          <div class="stats-label">Hours Logged</div>
                                        </div>
                                     </div>
                                     <div class="bottom-stats">
                                        <div class="stats_score">
                                           <span class="w_hrs">06.30</span>
                                           / <span class="tw_hrs">15</span>
-                                          <p>Total Work Hours</p>
+                                          <p>Leave Log</p>
                                        </div>
                                        <div class="stats_score">
                                           <span class="w_hrs">05.30</span>
@@ -3221,13 +3310,18 @@
                                        </div>
                                        <div class="stats_score">
                                           <span class="w_hrs">01.30</span>
-                                          / <span class="tw_hrs">03</span>
+                                          / <span class="tw_hrs">15</span>
                                           <p>UL</p>
                                        </div>
                                        <div class="stats_score">
                                           <span class="w_hrs">0.30</span>
-                                          / <span class="tw_hrs">02</span>
+                                          / <span class="tw_hrs">15</span>
                                           <p>PDO</p>
+                                       </div>
+                                       <div class="stats_score">
+                                          <span class="w_hrs">0.30</span>
+                                          / <span class="tw_hrs">15</span>
+                                          <p>Comp Off</p>
                                        </div>
                                     </div>
                                  </div>
@@ -3385,7 +3479,7 @@
                               @endforeach
 
                                  <div id="noRemarksMessage" class="text-center text-muted p-3 d-none">
-                                       <strong>Remarks not found</strong>
+                                       <strong>No entries found for this month</strong>
                                  </div>
                               </div>
                            </div>
@@ -3488,7 +3582,7 @@
                                        }
                                     @endphp
 
-                                    <div id="timelineContainer" class="remark-container">
+                                    <div id="timelineContainer123" class="remark-container">
                                        @foreach ($timelineItems as $item)
                                              <div class="remark-item mb-3" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
                                                 <div class="d-flex align-items-start">
@@ -3519,8 +3613,8 @@
                                              </div>
                                        @endforeach
 
-                                       <div id="noRemarksMessage" class="text-center text-muted p-3 d-none">
-                                             <strong>Remarks not found</strong>
+                                       <div id="remarksEmptyMsg" class="text-center text-muted p-3 d-none">
+                                             <strong>No entries found for this month</strong>
                                        </div>
                                     </div>
                                  </div>
@@ -3530,7 +3624,7 @@
                                        const month = parseInt(localStorage.getItem("timesheetMonth")) + 1;
                                        const year = parseInt(localStorage.getItem("timesheetYear"));
 
-                                       const remarkRows = document.querySelectorAll("#timelineRemarksContainer .remark-item");
+                                       const remarkRows = document.querySelectorAll("#timelineContainer123 .remark-item");
                                        const emptyMsg = document.getElementById("remarksEmptyMsg");
 
                                        let visibleCount = 0;
@@ -3618,7 +3712,7 @@
                   <div class="timesheet-section card p-2">
                      <!-- Tabs -->
                      <div class="timesheet-header d-flex justify-content-between align-items-start">
-                        <ul class="nav nav-tabs" id="timesheetTabs">
+                        <ul class="nav nav-tabs" id="timesheetTabsMain">
                            <li class="nav-item">
                               <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#overviewTab">Timesheet Overview</button>
                            </li>
@@ -3700,78 +3794,79 @@
                                  }
                               @endphp
 
-                              <div class="timeline-wrapper">
+                              
                                 @foreach ($dataTimesheet->sortByDesc('updated_at') as $entry)
-                                    @php
-                                       $record = json_decode($entry->record, true);
-                                       $leaveType = $record['leaveType'] ?? null;
-                                       $subType = $record['type'] ?? null;
-                                       $extraHours = $record['extraHours'] ?? null;
-                                       $applyOnCell = $record['applyOnCell'] ?? null;
+                                       @php
+                                          $record = json_decode($entry->record, true);
+                                          $leaveType = $record['leaveType'] ?? null;
+                                          $subType = $record['type'] ?? null;
+                                          $extraHours = $record['extraHours'] ?? null;
+                                          $applyOnCell = $record['applyOnCell'] ?? null;
 
-                                       try {
-                                             $date = \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-                                             $formattedDate = $date->format('D, d M');
-                                             $month = $date->month;
-                                             $year = $date->year;
-                                       } catch (\Exception $e) {
-                                             continue;
-                                       }
+                                          try {
+                                                $date = \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                                $formattedDate = $date->format('D, d M');
+                                                $month = $date->month;
+                                                $year = $date->year;
+                                          } catch (\Exception $e) {
+                                                continue;
+                                          }
 
-                                       $labelMap = [
-                                             'PH' => 'Public Holiday',
-                                             'ML' => 'Medical Leave',
-                                             'AL' => 'Annual Leave',
-                                             'UL' => 'Unpaid Leave',
-                                             'PDO' => 'Paid day off',
-                                             'Custom COMP-OFF' => 'Comp off',
-                                             'pay_off' => 'Pay off',
-                                             'comp_off' => 'Comp off',
-                                             'ignore' => 'Ignore',
-                                       ];
+                                          $labelMap = [
+                                                'PH' => 'Public Holiday',
+                                                'ML' => 'Medical Leave',
+                                                'AL' => 'Annual Leave',
+                                                'UL' => 'Unpaid Leave',
+                                                'PDO' => 'Paid day off',
+                                                'Custom COMP-OFF' => 'Comp off',
+                                                'pay_off' => 'Pay off',
+                                                'comp_off' => 'Comp off',
+                                                'ignore' => 'Ignore',
+                                          ];
 
-                                       $topLabel = $leaveType ?? ucfirst(str_replace('_', ' ', $subType));
-                                       $mainLabel = $labelMap[$leaveType] ?? $labelMap[$subType] ?? null;
-                                    @endphp
+                                          $topLabel = $leaveType ?? ucfirst(str_replace('_', ' ', $subType));
+                                          $mainLabel = $labelMap[$leaveType] ?? $labelMap[$subType] ?? null;
+                                       @endphp
 
-                                    <div id="littletimesheet" class="timeline-item d-flex align-items-start mb-3"
-                                          data-month="{{ $month }}"
-                                          data-year="{{ $year }}">
-                                       <div class="me-2">
-                                             <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                             <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
+                                       <div id="littletimesheet" class="timeline-item d-flex align-items-start mb-3"
+                                             data-month="{{ $month }}"
+                                             data-year="{{ $year }}">
+                                          <div class="me-2">
+                                                <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                                <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
+                                          </div>
+
+                                          <div>
+                                                {{-- 🔷 TOP ROW: Image + leaveType --}}
+                                                <div class="d-flex align-items-center mb-1">
+                                                   <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" width="24" height="24" />
+                                                   <span class="fw-bold text-primary" style="font-size: 14px;">
+                                                      {{ strtoupper($topLabel) }} - (1)
+                                                   </span>
+                                                </div>
+
+                                                {{-- 🧾 SECOND ROW: Date + Label + Hours --}}
+                                                <div class="d-flex align-items-center flex-wrap gap-2 ms-4">
+                                                   <span>{{ $formattedDate }}</span>
+
+                                                   @if ($mainLabel)
+                                                      <span class="badge bg-info text-white">{{ $mainLabel }}</span>
+                                                   @endif
+
+                                                   @if (!empty($extraHours))
+                                                      <span class="fw-semibold">- {{ $extraHours }} hours off</span>
+                                                   @elseif (!empty($record['workingHours']) && is_numeric($record['workingHours']))
+                                                      <span class="fw-semibold">- {{ $record['workingHours'] }} hours</span>
+                                                   @endif
+                                                </div>
+                                          </div>
                                        </div>
-
-                                       <div>
-                                             {{-- 🔷 TOP ROW: Image + leaveType --}}
-                                             <div class="d-flex align-items-center mb-1">
-                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" width="24" height="24" />
-                                                <span class="fw-bold text-primary" style="font-size: 14px;">
-                                                   {{ strtoupper($topLabel) }} - (1)
-                                                </span>
-                                             </div>
-
-                                             {{-- 🧾 SECOND ROW: Date + Label + Hours --}}
-                                             <div class="d-flex align-items-center flex-wrap gap-2 ms-4">
-                                                <span>{{ $formattedDate }}</span>
-
-                                                @if ($mainLabel)
-                                                   <span class="badge bg-info text-white">{{ $mainLabel }}</span>
-                                                @endif
-
-                                                @if (!empty($extraHours))
-                                                   <span class="fw-semibold">- {{ $extraHours }} hours off</span>
-                                                @elseif (!empty($record['workingHours']) && is_numeric($record['workingHours']))
-                                                   <span class="fw-semibold">- {{ $record['workingHours'] }} hours</span>
-                                                @endif
-                                             </div>
-                                       </div>
-                                    </div>
                                  @endforeach
-                                 <div id="noTimelineMessage" class="text-center text-muted p-3 d-none">
+                                 
+                                 <div id="noTimelineMessage" class="text-center text-muted p-2 d-none">
                                        <strong>No entries found for this month</strong>
                                  </div>
-                              </div>
+                              
                            </div>
 
                            <script>
@@ -3810,7 +3905,6 @@
                         <!-- Other tabs can be filled similarly -->
                         <div class="tab-pane fade" id="extraTimeTab">
 
-                        
                             <div id="filteredTimeline">
                                  @foreach ($dataTimesheet as $item)
                                     @php
@@ -3865,7 +3959,7 @@
                             </div>
                             <div id="noEntriesMessage" class="text-muted text-center p-2 d-none">
                               <strong>No entries found for this month</strong>
-                           </div>
+                            </div>
                            <script>
                               document.addEventListener("DOMContentLoaded", function () {
                                  setTimeout(() => {
@@ -3893,16 +3987,13 @@
                                     }
                                  }, 200);
                               });
-                              </script>
+                           </script>
 
-
-
-                           
                         </div>
                         <div class="tab-pane fade" id="payOffTab">
                            <div class="timeline">
 
-                           <div id="payoffTimeline">
+                              <div id="payoffTimeline">
                               @foreach ($dataTimesheet as $item)
                                  @php
                                     $record = json_decode($item->record ?? '{}', true);
@@ -3979,98 +4070,147 @@
                         <div class="tab-pane fade" id="compOffTab">
                            <div class="timeline">
 
-                           <div id="compOffTimeline">
-                           @foreach ($dataTimesheet as $item)
-                              @php
-                                 $record = json_decode($item->record ?? '{}', true);
+                              <div id="compOffTimeline">
+                              @foreach ($dataTimesheet as $item)
+                                 @php
+                                    $record = json_decode($item->record ?? '{}', true);
 
-                                 $month = null;
-                                 $year = null;
-                                 if (!empty($record['applyOnCell'])) {
-                                       try {
-                                          $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
-                                          $month = $dt->month;
-                                          $year = $dt->year;
-                                       } catch (\Exception $e) {}
-                                 }
+                                    $month = null;
+                                    $year = null;
+                                    if (!empty($record['applyOnCell'])) {
+                                          try {
+                                             $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                                             $month = $dt->month;
+                                             $year = $dt->year;
+                                          } catch (\Exception $e) {}
+                                    }
 
-                                 $leaveType = $record['leaveType'] ?? '';
-                                 $extraHours = (int) ($record['extraHours'] ?? 0);
-                                 $leaveHour = $record['leaveHour'] ?? '';
+                                    $leaveType = $record['leaveType'] ?? '';
+                                    $extraHours = (int) ($record['extraHours'] ?? 0);
+                                    $leaveHour = $record['leaveHour'] ?? '';
 
-                                 $subLabel = '';
-                                 if (Str::contains($leaveHour, 'HD1')) {
-                                       $subLabel = 'HD1';
-                                 } elseif (Str::contains($leaveHour, 'HD2')) {
-                                       $subLabel = 'HD2';
-                                 }
+                                    $subLabel = '';
+                                    if (Str::contains($leaveHour, 'HD1')) {
+                                          $subLabel = 'HD1';
+                                    } elseif (Str::contains($leaveHour, 'HD2')) {
+                                          $subLabel = 'HD2';
+                                    }
 
-                                 $displayLabel = 'Comp - Off' . ($subLabel ? " $subLabel" : '');
-                              @endphp
+                                    $displayLabel = 'Comp - Off' . ($subLabel ? " $subLabel" : '');
+                                 @endphp
 
-                              @if ($leaveType === 'Custom COMP-OFF' && $month && $year)
-                                 <div class="timeline-item d-flex align-items-start mb-3"
-                                       data-month="{{ $month }}"
-                                       data-year="{{ $year }}">
-                                       <div class="me-2">
-                                          <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
-                                          <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
-                                       </div>
-                                       <div>
-                                          <div class="d-flex align-items-center mb-1 tl-header">
-                                             <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                             <div class="comp_off_log d-flex align-items-center flex-wrap gap-2">
-                                                   <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
-                                                   <span class="badge" style="background-color:#f9e79f; color:#d35400; font-weight: bold;">
-                                                      {{ $displayLabel }}
-                                                   </span>
-                                                   @if ($extraHours > 0)
-                                                      <span>{{ str_pad($extraHours, 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
-                                                   @endif
+                                 @if ($leaveType === 'Custom COMP-OFF' && $month && $year)
+                                    <div class="timeline-item d-flex align-items-start mb-3"
+                                          data-month="{{ $month }}"
+                                          data-year="{{ $year }}">
+                                          <div class="me-2">
+                                             <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
+                                             <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
+                                          </div>
+                                          <div>
+                                             <div class="d-flex align-items-center mb-1 tl-header">
+                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
+                                                <div class="comp_off_log d-flex align-items-center flex-wrap gap-2">
+                                                      <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
+                                                      <span class="badge" style="background-color:#f9e79f; color:#d35400; font-weight: bold;">
+                                                         {{ $displayLabel }}
+                                                      </span>
+                                                      @if ($extraHours > 0)
+                                                         <span>{{ str_pad($extraHours, 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
+                                                      @endif
+                                                </div>
                                              </div>
                                           </div>
-                                       </div>
-                                 </div>
-                              @endif
-                           @endforeach
-                           </div>
+                                    </div>
+                                 @endif
+                              @endforeach
+                              </div>
 
-                           <div id="noCompOffMessage" class="text-muted text-center p-2 d-none">
-                              <strong>No entries found for this month</strong>
-                           </div>
+                              <div id="noCompOffMessage" class="text-muted text-center p-2 d-none">
+                                 <strong>No entries found for this month</strong>
+                              </div>
 
-                           <script>
-                           document.addEventListener("DOMContentLoaded", function () {
-                              setTimeout(() => {
-                                 const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
-                                 const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+                              <script>
+                              document.addEventListener("DOMContentLoaded", function () {
+                                 setTimeout(() => {
+                                    const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                    const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
 
-                                 const items = document.querySelectorAll("#compOffTimeline .timeline-item");
-                                 let visibleCount = 0;
+                                    const items = document.querySelectorAll("#compOffTimeline .timeline-item");
+                                    let visibleCount = 0;
 
-                                 items.forEach(item => {
-                                       const month = parseInt(item.getAttribute("data-month"));
-                                       const year = parseInt(item.getAttribute("data-year"));
+                                    items.forEach(item => {
+                                          const month = parseInt(item.getAttribute("data-month"));
+                                          const year = parseInt(item.getAttribute("data-year"));
 
-                                       if (month === selectedMonth && year === selectedYear) {
-                                          item.style.display = "";
-                                          visibleCount++;
-                                       } else {
-                                          item.style.setProperty("display", "none", "important");
-                                       }
-                                 });
+                                          if (month === selectedMonth && year === selectedYear) {
+                                             item.style.display = "";
+                                             visibleCount++;
+                                          } else {
+                                             item.style.setProperty("display", "none", "important");
+                                          }
+                                    });
 
-                                 const noMessage = document.getElementById("noCompOffMessage");
-                                 if (noMessage) {
-                                       noMessage.classList.toggle("d-none", visibleCount > 0);
-                                 }
-                              }, 200);
-                           });
-                           </script>
+                                    const noMessage = document.getElementById("noCompOffMessage");
+                                    if (noMessage) {
+                                          noMessage.classList.toggle("d-none", visibleCount > 0);
+                                    }
+                                 }, 200);
+                              });
+                              </script>
 
                            </div>
                         </div>
-                        <div class="tab-pane fade" id="copiesTab">Get Copies Content</div>
+                        <div class="tab-pane fade" id="copiesTab">
+                            <div class="timeline">
+                              <div class="timeline-item d-flex mb-3">
+                                    <div class="me-2">
+                                       <div class="dot bg-primary rounded-circle"
+                                          style="width:10px; height:10px;"></div>
+                                       <div class="line bg-primary"></div>
+                                    </div>
+                                    <div class="w-100 d-flex">
+                                       <div class="d-flex mb-1 tl-header">
+                                          <img src="https://i.pravatar.cc/24"
+                                                class="rounded-circle me-2">
+
+                                       </div>
+                                       <div class="tl_details w-100">
+                                          <span class=" text-primary">Timesheet Overview</span>
+                                          <div class=" d-flex justify-content-between mt-2">
+                                                <span>12/08/2024</span>
+                                                <a href="#" class="badge_icon"><i
+                                                      class="fa-solid fa-cloud-arrow-down"></i></a>
+                                          </div>
+                                       </div>
+
+                                    </div>
+                              </div>
+                              <div class="timeline-item d-flex mb-3">
+                                    <div class="me-2">
+                                       <div class="dot bg-primary rounded-circle"
+                                          style="width:10px; height:10px;"></div>
+                                       <div class="line bg-primary"></div>
+                                    </div>
+                                    <div class="w-100 d-flex">
+                                       <div class="d-flex mb-1 tl-header">
+                                          <img src="https://i.pravatar.cc/24"
+                                                class="rounded-circle me-2">
+
+                                       </div>
+                                       <div class="tl_details w-100">
+                                          <span class=" text-primary">Timesheet Overview</span>
+                                          <div class=" d-flex justify-content-between mt-2">
+                                                <span>12/08/2024</span>
+                                                <a href="#" class="badge_icon"><i
+                                                      class="fa-solid fa-cloud-arrow-down"></i></a>
+                                          </div>
+                                       </div>
+
+                                    </div>
+                              </div>
+                            </div>
+                        </div>
                      </div>
                   </div>
                   <!-- Modal for Expanded View -->
@@ -4086,7 +4226,7 @@
                               <!-- You can repeat the same timeline markup from above here -->
                               <!-- Tabs -->
                               <div class="timesheet-header d-flex justify-content-between align-items-center">
-                                 <ul class="nav nav-tabs popup_tabs" id="timesheetTabs">
+                                 <ul class="nav nav-tabs popup_tabs" id="timesheetTabsModal">
                                     <li class="nav-item">
                                        <button class="nav-link tab_btn active" data-bs-toggle="tab" data-bs-target="#modeloverviewTab">Timesheet Overview</button>
                                     </li>
@@ -4232,7 +4372,7 @@
                                                 </div>
                                              </div>
                                           @endforeach
-                                          <div id="noTimelineMessage" class="text-center text-muted p-3 d-none">
+                                          <div id="noTimelineMessage12" class="text-center text-muted p-2 d-none">
                                                 <strong>No entries found for this month</strong>
                                           </div>
                                        </div>
@@ -4260,7 +4400,7 @@
                                                 }
                                              });
 
-                                             const noMessage = document.querySelector("#noTimelineMessage");
+                                             const noMessage = document.querySelector("#noTimelineMessage12");
                                              if (noMessage) {
                                                 noMessage.classList.toggle("d-none", visibleCount > 0);
                                              }
@@ -4271,7 +4411,7 @@
                                  <!-- Other tabs can be filled similarly -->
                                  <div class="tab-pane fade" id="modelextraTimeTab">
 
-                                         <div id="filteredTimeline">
+                                       <div id="filteredTimeline">
                                              @foreach ($dataTimesheet as $item)
                                                 @php
                                                    $record = json_decode($item->record ?? '{}', true);
@@ -4323,7 +4463,7 @@
                                                 @endif
                                              @endforeach
                                        </div>
-                                       <div id="noEntriesMessage" class="text-muted text-center p-2 d-none">
+                                       <div id="noEntriesMessage354" class="text-muted text-center p-2 d-none">
                                           <strong>No entries found for this month</strong>
                                        </div>
                                        <script>
@@ -4347,19 +4487,19 @@
                                                       }
                                                 });
 
-                                                const noMessage = document.getElementById("noEntriesMessage");
+                                                const noMessage = document.getElementById("noEntriesMessage354");
                                                 if (noMessage) {
                                                       noMessage.classList.toggle("d-none", visibleCount > 0);
                                                 }
                                              }, 200);
                                           });
-                                          </script>
+                                       </script>
                                  
                                  </div>
                                  <div class="tab-pane fade" id="modelpayOffTab">
                                     <div class="timeline">
 
-                                    <div id="payoffTimeline">
+                                       <div id="payoffTimeline">
                                        @foreach ($dataTimesheet as $item)
                                           @php
                                              $record = json_decode($item->record ?? '{}', true);
@@ -4398,7 +4538,7 @@
                                        </div>
 
                                        {{-- Hidden "no data" message --}}
-                                       <div id="noPayoffMessage" class="text-muted text-center p-2 d-none">
+                                       <div id="noPayoffMessage12" class="text-muted text-center p-2 d-none">
                                           <strong>No entries found for this month</strong>
                                        </div>
 
@@ -4423,7 +4563,7 @@
                                                       }
                                                 });
 
-                                                const noMessage = document.getElementById("noPayoffMessage");
+                                                const noMessage = document.getElementById("noPayoffMessage12");
                                                 if (noMessage) {
                                                       noMessage.classList.toggle("d-none", visibleCount > 0);
                                                 }
@@ -4492,7 +4632,7 @@
                                        @endforeach
                                        </div>
 
-                                       <div id="noCompOffMessage" class="text-muted text-center p-2 d-none">
+                                       <div id="noCompOffMessage12" class="text-muted text-center p-2 d-none">
                                           <strong>No entries found for this month</strong>
                                        </div>
 
@@ -4517,7 +4657,7 @@
                                                    }
                                              });
 
-                                             const noMessage = document.getElementById("noCompOffMessage");
+                                             const noMessage = document.getElementById("noCompOffMessage12");
                                              if (noMessage) {
                                                    noMessage.classList.toggle("d-none", visibleCount > 0);
                                              }
@@ -4528,24 +4668,51 @@
                                  </div>
                                  <div class="tab-pane fade" id="modelcopiesTab">
                                     <div class="timeline">
-                                       <div class="timeline-item d-flex align-items-start mb-3">
-                                          <div class="me-2">
-                                             <div class="dot rounded-circle" style="width: 10px; height: 10px;"></div>
-                                             <div class="line" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                          </div>
-                                          <div>
-                                             <div class="d-flex align-items-center mb-1 tl-header">
-                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                <span class="text-primary">PH - (1)</span>
+                                       <div class="timeline-item d-flex mb-3">
+                                             <div class="me-2">
+                                                <div class="dot bg-primary rounded-circle"
+                                                   style="width:10px; height:10px;"></div>
+                                                <div class="line bg-primary"></div>
                                              </div>
-                                             <div class="tl_details">
-                                                <span>Sat, 15 Aug - </span>
-                                                <span class="badge">PH</span>
-                                                <span>-</span>
-                                                <span class="text-primary badge badge bold_text"> Paid day off</span>
-                                                <span> - 3 hours off</span>
+                                             <div class="w-100 d-flex">
+                                                <div class="d-flex mb-1 tl-header">
+                                                   <img src="https://i.pravatar.cc/24"
+                                                         class="rounded-circle me-2">
+
+                                                </div>
+                                                <div class="tl_details w-100">
+                                                   <span class=" text-primary">Timesheet Overview</span>
+                                                   <div class=" d-flex justify-content-between mt-2">
+                                                         <span>12/08/2024</span>
+                                                         <a href="#" class="badge_icon"><i
+                                                               class="fa-solid fa-cloud-arrow-down"></i></a>
+                                                   </div>
+                                                </div>
+
                                              </div>
-                                          </div>
+                                       </div>
+                                       <div class="timeline-item d-flex mb-3">
+                                             <div class="me-2">
+                                                <div class="dot bg-primary rounded-circle"
+                                                   style="width:10px; height:10px;"></div>
+                                                <div class="line bg-primary"></div>
+                                             </div>
+                                             <div class="w-100 d-flex">
+                                                <div class="d-flex mb-1 tl-header">
+                                                   <img src="https://i.pravatar.cc/24"
+                                                         class="rounded-circle me-2">
+
+                                                </div>
+                                                <div class="tl_details w-100">
+                                                   <span class=" text-primary">Timesheet Overview</span>
+                                                   <div class=" d-flex justify-content-between mt-2">
+                                                         <span>12/08/2024</span>
+                                                         <a href="#" class="badge_icon"><i
+                                                               class="fa-solid fa-cloud-arrow-down"></i></a>
+                                                   </div>
+                                                </div>
+
+                                             </div>
                                        </div>
                                     </div>
                                  </div>
@@ -4561,3 +4728,5 @@
    </div>
    <div class="tab-pane fade" id="claims" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
 </div>
+
+
