@@ -4179,8 +4179,11 @@
                                           <span class=" text-primary">Timesheet Overview</span>
                                           <div class=" d-flex justify-content-between mt-2">
                                                 <span>12/08/2024</span>
-                                                <a href="#" class="badge_icon"><i
-                                                      class="fa-solid fa-cloud-arrow-down"></i></a>
+                                               <a href="{{ url('/download-pdf') }}" class="badge_icon">
+                                                   <i class="fa-solid fa-cloud-arrow-down"></i>
+                                                </a>
+
+
                                           </div>
                                        </div>
 
@@ -4202,8 +4205,9 @@
                                           <span class=" text-primary">Timesheet Overview</span>
                                           <div class=" d-flex justify-content-between mt-2">
                                                 <span>12/08/2024</span>
-                                                <a href="#" class="badge_icon"><i
-                                                      class="fa-solid fa-cloud-arrow-down"></i></a>
+                                                  <a href="{{ url('/download-pdf') }}" class="badge_icon">
+                                                   <i class="fa-solid fa-cloud-arrow-down"></i>
+                                                </a>
                                           </div>
                                        </div>
 

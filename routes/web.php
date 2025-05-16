@@ -46,7 +46,12 @@ Route::get('/', function () {
     //return view('welcome');
     return redirect()->route('login');
 });
-
+Route::get('/download-pdf', function () {
+    $url = 'https://morth.nic.in/sites/default/files/dd12-13_0.pdf';
+    return response()->streamDownload(function () use ($url) {
+        echo file_get_contents($url);
+    }, 'dd12-13_0.pdf');
+});
 // Admin Login Routes
 Route::get('login', [AdminController::class, 'showLoginForm'])->name('login'); // Required by auth middleware
 Route::post('admin/login', [AdminController::class, 'login'])->name('admin.login.submit');
