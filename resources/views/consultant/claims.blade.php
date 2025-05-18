@@ -577,7 +577,7 @@
                                 })
                                 .then(res => res.json())
                                 .then(data => {
-                                   // console.log("Saved:", data);
+                                    console.log("Saved:", data);
                                     uploadedFile = null;
                                     uploadedFileURL = null;
                                     applyTag(lastClickedCell, type, "#007bff");
@@ -629,6 +629,7 @@
                                    e.preventDefault();
                                    ensurePreviewModalExists();
                                    const url = e.target.closest(".preview-attach").dataset.img;
+                                   console.log("asdasda",url);
                                    if (url) {
                                        document.getElementById("previewImgTag").src = url;
                                        document.getElementById("imagePreviewModal").style.display = "flex";
@@ -1463,114 +1464,114 @@
                         <div class="timeline">
 
                             @php
-   $claimsByDate = [];
+                              $claimsByDate = [];
 
-   foreach ($dataClaims as $entry) {
-      $record = json_decode($entry->record ?? '{}', true);
-      $date = $record['date'] ?? '';
-      $claim_no = $record['claim_no'] ?? '';
-      $record['certificate_path'] = $record['certificate_path'] ?? '';
-      $status = strtolower($entry->status ?? 'draft');
+                              foreach ($dataClaims as $entry) {
+                                 $record = json_decode($entry->record ?? '{}', true);
+                                 $date = $record['date'] ?? '';
+                                 $claim_no = $record['claim_no'] ?? '';
+                                 $record['certificate_path'] = $record['certificate_path'] ?? '';
+                                 $status = strtolower($entry->status ?? 'draft');
 
-      if ($date && $claim_no) {
-         $claimsByDate[$date][$claim_no][] = [
-            'record' => $record,
-            'status' => $status,
-         ];
-      }
-   }
-@endphp
+                                 if ($date && $claim_no) {
+                                    $claimsByDate[$date][$claim_no][] = [
+                                       'record' => $record,
+                                       'status' => $status,
+                                    ];
+                                 }
+                              }
+                           @endphp
 
-@foreach ($claimsByDate as $date => $claimsGroup)
-   @foreach ($claimsGroup as $claimNo => $claims)
-      @php
-         $parsedDate = \Carbon\Carbon::parse($date);
-         $formattedDate = $parsedDate->format('d/m/Y');
-         $month = $parsedDate->month;
-         $year = $parsedDate->year;
+                           @foreach ($claimsByDate as $date => $claimsGroup)
+                              @foreach ($claimsGroup as $claimNo => $claims)
+                                 @php
+                                    $parsedDate = \Carbon\Carbon::parse($date);
+                                    $formattedDate = $parsedDate->format('d/m/Y');
+                                    $month = $parsedDate->month;
+                                    $year = $parsedDate->year;
 
-         $firstClaim = $claims[0]['record'];
-         $certificate = $firstClaim['certificate_path'] ?? null;
-         $statusRaw = $claims[0]['status'] ?? 'draft';
-         $status = ucfirst($statusRaw);
-         $totalClaims = count($claims);
+                                    $firstClaim = $claims[0]['record'];
+                                    $certificate = $firstClaim['certificate_path'] ?? null;
+                                    $statusRaw = $claims[0]['status'] ?? 'draft';
+                                    $status = ucfirst($statusRaw);
+                                    $totalClaims = count($claims);
 
-         $badgeClass = match(strtolower($statusRaw)) {
-            'submitted' => 'badge submitted',
-            'approved'  => 'badge approved',
-            'rejected'  => 'badge bg-danger',
-            'draft'     => 'badge draft',
-            default     => 'badge bg-light text-dark',
-         };
-      @endphp
+                                    $badgeClass = match(strtolower($statusRaw)) {
+                                       'submitted' => 'badge submitted',
+                                       'approved'  => 'badge approved',
+                                       'rejected'  => 'badge bg-danger',
+                                       'draft'     => 'badge draft',
+                                       default     => 'badge bg-light text-dark',
+                                    };
+                                 @endphp
 
-      <div id="ctab" class="timeline-item d-flex mb-3"
-         data-month="{{ $month }}"
-         data-year="{{ $year }}">
-         <div class="me-2">
-            <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-            <div class="line bg-primary"></div>
-         </div>
-         <div>
-            <div class="d-flex align-items-center mb-1 tl-header">
-               <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-               <span class="text-primary fw-bold">
-                  Claim No # - {{ strtoupper($claimNo) }}
-               </span>
-            </div>
-            <div class="tl_details">
-               <span>{{ $formattedDate }} -</span>
-               <span class="{{ $badgeClass }}">{{ $status }}</span>
-               <span>- {{ $totalClaims }} individual {{ $totalClaims > 1 ? 'claims' : 'claim' }} -</span>
+                                 <div id="ctab" class="timeline-item d-flex mb-3"
+                                    data-month="{{ $month }}"
+                                    data-year="{{ $year }}">
+                                    <div class="me-2">
+                                       <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                       <div class="line bg-primary"></div>
+                                    </div>
+                                    <div>
+                                       <div class="d-flex align-items-center mb-1 tl-header">
+                                          <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
+                                          <span class="text-primary fw-bold">
+                                             Claim No # - {{ strtoupper($claimNo) }}
+                                          </span>
+                                       </div>
+                                       <div class="tl_details">
+                                          <span>{{ $formattedDate }} -</span>
+                                          <span class="{{ $badgeClass }}">{{ $status }}</span>
+                                          <span>- {{ $totalClaims }} individual {{ $totalClaims > 1 ? 'claims' : 'claim' }} -</span>
 
-               @if ($certificate)
-                  <a href="{{ asset($certificate) }}" download class="badge_icon">
-                     <i class="fa-solid fa-cloud-arrow-down"></i>
-                  </a>
-               @endif
+                                          @if ($certificate)
+                                             <a href="{{ url('/download-pdf') }}" download class="badge_icon">
+                                                <i class="fa-solid fa-cloud-arrow-down"></i>
+                                             </a>
+                                          @endif
 
-               <a href="#"
-                  class="badge_icon open-claim-modal"
-                  data-bs-toggle="modal"
-                  data-bs-target="#claimModal"
-                  data-applyoncell="{{ $firstClaim['applyOnCell'] ?? '' }}">
-                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
-               </a>
-            </div>
-         </div>
-      </div>
-   @endforeach
-@endforeach
+                                          <a href="#"
+                                             class="badge_icon open-claim-modal"
+                                             data-bs-toggle="modal"
+                                             data-bs-target="#claimModal"
+                                             data-applyoncell="{{ $firstClaim['applyOnCell'] ?? '' }}">
+                                             <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                          </a>
+                                       </div>
+                                    </div>
+                                 </div>
+                              @endforeach
+                           @endforeach
 
-{{-- ✅ Always render this hidden by default --}}
-<p id="noClaimMessage" class="text-muted px-3 py-2 d-none">No entries found for this month</p>
+                           {{-- ✅ Always render this hidden by default --}}
+                           <p id="noClaimMessage" class="text-muted px-3 py-2 d-none">No entries found for this month</p>
 
-<script>
-   document.addEventListener("DOMContentLoaded", function () {
-      setTimeout(() => {
-         const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
-         const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+                           <script>
+                              document.addEventListener("DOMContentLoaded", function () {
+                                 setTimeout(() => {
+                                    const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                    const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
 
-         const items = document.querySelectorAll("#ctab");
-         let visibleCount = 0;
+                                    const items = document.querySelectorAll("#ctab");
+                                    let visibleCount = 0;
 
-         items.forEach(item => {
-            const month = parseInt(item.getAttribute("data-month"));
-            const year = parseInt(item.getAttribute("data-year"));
+                                    items.forEach(item => {
+                                       const month = parseInt(item.getAttribute("data-month"));
+                                       const year = parseInt(item.getAttribute("data-year"));
 
-            if (month === selectedMonth && year === selectedYear) {
-               item.style.display = "";
-               visibleCount++;
-            } else {
-               item.style.setProperty("display", "none", "important");
-            }
-         });
+                                       if (month === selectedMonth && year === selectedYear) {
+                                          item.style.display = "";
+                                          visibleCount++;
+                                       } else {
+                                          item.style.setProperty("display", "none", "important");
+                                       }
+                                    });
 
-         const noMsg = document.getElementById("noClaimMessage");
-         if (noMsg) noMsg.classList.toggle("d-none", visibleCount > 0);
-      }, 200);
-   });
-</script>
+                                    const noMsg = document.getElementById("noClaimMessage");
+                                    if (noMsg) noMsg.classList.toggle("d-none", visibleCount > 0);
+                                 }, 200);
+                              });
+                           </script>
 
 
                         </div>
@@ -1586,48 +1587,45 @@
                               const applyOnCell = this.dataset.applyoncell;
                               const container = document.querySelector('#claimModal .modal_body_inner .container-fluid');
                               
-
-                                 
-
                               // Clear old content
                               container.innerHTML = '';
 
                               // ✅ Filter claims
-const claims = window.allClaims.filter(item => {
-   try {
-      const record = JSON.parse(item.record || '{}');
-      return record.applyOnCell === applyOnCell;
-   } catch (e) {
-      return false;
-   }
-});
+                              const claims = window.allClaims.filter(item => {
+                                 try {
+                                    const record = JSON.parse(item.record || '{}');
+                                    return record.applyOnCell === applyOnCell;
+                                 } catch (e) {
+                                    return false;
+                                 }
+                              });
 
-// ✅ Now add the dynamic header update here
-const first = claims[0] || {};
-const record = JSON.parse(first.record || '{}');
-const claimNo = record.claim_no || 'N/A';
-const claimStatus = (first.status || 'Draft').toLowerCase();
-const claimCount = claims.length;
+                              // ✅ Now add the dynamic header update here
+                              const first = claims[0] || {};
+                              const record = JSON.parse(first.record || '{}');
+                              const claimNo = record.claim_no || 'N/A';
+                              const claimStatus = (first.status || 'Draft').toLowerCase();
+                              const claimCount = claims.length;
 
-// 🔄 Update claim number
-document.querySelector('.model_c_form h4').textContent = 'Claim Form';
-document.querySelector('.model_c_form span').textContent = claimNo;
+                              // 🔄 Update claim number
+                              document.querySelector('.model_c_form h4').textContent = 'Claim Form';
+                              document.querySelector('.model_c_form span').textContent = claimNo;
 
-// 🔄 Update status button
-const statusBtn = document.querySelector('.modal-header .draft_btn');
-if (statusBtn) {
-   const colorMap = {
-      draft: { text: 'Draft', bg: '#007bff' },
-      submitted: { text: 'Submitted', bg: '#f1c40f' },
-      approved: { text: 'Approved', bg: '#28a745' },
-      rejected: { text: 'Rejected', bg: '#dc3545' }
-   };
-   const color = colorMap[claimStatus] || colorMap['draft'];
-   statusBtn.innerHTML = `<span class="dot" style="background-color:${color.bg}"></span> ${color.text}`;
-}
+                              // 🔄 Update status button
+                              const statusBtn = document.querySelector('.modal-header .draft_btn');
+                              if (statusBtn) {
+                                 const colorMap = {
+                                    draft: { text: 'Draft', bg: '#007bff' },
+                                    submitted: { text: 'Submitted', bg: '#f1c40f' },
+                                    approved: { text: 'Approved', bg: '#28a745' },
+                                    rejected: { text: 'Rejected', bg: '#dc3545' }
+                                 };
+                                 const color = colorMap[claimStatus] || colorMap['draft'];
+                                 statusBtn.innerHTML = `<span class="dot" style="background-color:${color.bg}"></span> ${color.text}`;
+                              }
 
-// 🔄 Update claim count
-document.querySelector('.claim_hour_title .text-danger').textContent = `Individual Claims ( ${claimCount} )`;
+                              // 🔄 Update claim count
+                              document.querySelector('.claim_hour_title .text-danger').textContent = `Individual Claims ( ${claimCount} )`;
 
                               // Update count
                               document.querySelector('.claim_hour_title .text-danger').innerHTML = `Individual Claims ( ${claims.length} )`;
@@ -1654,7 +1652,7 @@ document.querySelector('.claim_hour_title .text-danger').textContent = `Individu
                                                 <span class="fw-bold">Amount</span>
                                                 <span>$ ${r.amount || '0.00'}</span>
                                              </div>
-                                             <div class="u_icons">
+                                             <div class="u_icons" style="display:none;">
                                                 <a href="#" class="badge_icon"><i class="fa-solid fa-pen-nib"></i></a>
                                                 <a href="#" class="badge_icon"><i class="fa-solid fa-trash-can"></i></a>
                                              </div>
@@ -1720,19 +1718,65 @@ document.querySelector('.claim_hour_title .text-danger').textContent = `Individu
                               <div class="select_box">
                                  <input type="checkbox" value="" />
                               </div>
-                              <div class="timeline_right">
-                                 <div class="d-flex align-items-center mb-3 tl-header">
-                                    <span class="c_form_no">Claim Form : #2948</span>
-                                    <span class="c_amount">Amount : $ 1800.00</span>
+                              @php
+                                 $groupedClaims = [];
+
+                                 foreach ($dataClaims as $claim) {
+                                    $record = json_decode($claim->record ?? '{}', true);
+                                    $claimNo = $record['claim_no'] ?? null;
+
+                                    if ($claimNo) {
+                                       if (!isset($groupedClaims[$claimNo])) {
+                                          $groupedClaims[$claimNo] = [
+                                             'claim_no' => $claimNo,
+                                             'amount' => 0,
+                                             'certificate' => $record['certificate_path'] ?? null,
+                                             'items' => []
+                                          ];
+                                       }
+
+                                       $groupedClaims[$claimNo]['amount'] += (float) ($record['amount'] ?? 0);
+                                       $groupedClaims[$claimNo]['items'][] = $record;
+                                    }
+                                 }
+                              @endphp
+
+                              @if(count($groupedClaims) === 0)
+                                 <p class="text-muted px-3 py-2">No entries found for this month</p>
+                              @endif
+
+                              @foreach($groupedClaims as $claim)
+                                 @php
+                                    $claimNo = $claim['claim_no'];
+                                    $amount = number_format($claim['amount'], 2);
+                                    $certificate = $claim['certificate'];
+                                    $count = str_pad(count($claim['items']), 2, '0', STR_PAD_LEFT);
+                                 @endphp
+
+                                 <div class="timeline_right">
+                                    <div class="d-flex align-items-center mb-3 tl-header">
+                                       <span class="c_form_no">Claim Form : #{{ strtoupper($claimNo) }}</span>
+                                       <span class="c_amount">Amount : $ {{ $amount }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center tl-header">
+                                       <span class="ind_claim">individual claims ( {{ $count }} )</span>
+                                       <span>
+                                          @if ($certificate)
+                                             <a href="{{ url('/download-pdf') }}" class="badge_icon" download>
+                                                <i class="fa-solid fa-cloud-arrow-down"></i>
+                                             </a>
+                                          @endif
+                                          <a href="javascript:void(0)" class="badge_icon open-claim-modal"
+                                             data-bs-toggle="modal"
+                                             data-bs-target="#claimModal"
+                                             data-claim="{{ $claimNo }}">
+                                             <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                          </a>
+                                       </span>
+                                    </div>
                                  </div>
-                                 <div class="d-flex align-items-center tl-header">
-                                    <span class="ind_claim">individual claims ( 03 )</span>
-                                    <span>
-                                    <a href="#" class="badge_icon"><i class="fa-solid fa-cloud-arrow-down"></i></a>
-                                    <a href="#" class="badge_icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                                    </span>
-                                 </div>
-                              </div>
+                              @endforeach
+
                            </div>
                         </div>
                         <div class="g_cpoies_submit_btn r_update_btn">
@@ -2093,8 +2137,91 @@ document.querySelector('.claim_hour_title .text-danger').textContent = `Individu
                         }, 200);
                      });
                      </script>
+                  </div>
+                  <div class="modal fade" id="remarksModal" tabindex="-1" aria-labelledby="remarksModalLabel" aria-hidden="true">
+                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                        <div class="modal-content">
+                           <div class="modal-header">
+                              <h5 class="modal-title" id="remarksModalLabel">Remarks</h5>
+                              <button type="button" class="btn-close popup-expand-btn" data-bs-dismiss="modal" aria-label="Close">
+                              <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                              </button>
+                           </div>
+                           <div class="modal-body">
+                                <div class="timeline" id="remarkTimeline123">
+                                    @php
+                                       $hasData = false;
+                                    @endphp
 
+                                    @foreach ($dataClaims as $item)
+                                       @php
+                                          $record = json_decode($item->record ?? '{}', true);
+                                          $date = $record['date'] ?? null;
+                                          $parsed = $date ? \Carbon\Carbon::parse($date) : null;
+                                       @endphp
 
+                                       @if ($parsed)
+                                          @php
+                                             $hasData = true;
+                                             $month = $parsed->month;
+                                             $year = $parsed->year;
+                                          @endphp
+
+                                          <div class="remark-item mb-3"
+                                             data-month="{{ $month }}"
+                                             data-year="{{ $year }}">
+                                             <div class="d-flex">
+                                                <div class="me-2 text-primary">
+                                                   <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                                   <div class="line bg-primary"></div>
+                                                </div>
+                                                <div>
+                                                   <div class="d-flex align-items-center mb-1">
+                                                      <img src="{{ $item->profile_image ?? 'https://i.pravatar.cc/24' }}" class="rounded-circle me-2" title="{{ $item->user_name ?? 'User' }}" />
+                                                      <small class="text-muted">
+                                                         Claim No # - {{ $record['claim_no'] ?? '' }} On {{ $parsed->format('d/m/Y') }}
+                                                      </small>
+                                                   </div>
+                                                   <p>{{ $record['remarks'] ?? '' }}</p>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       @endif
+                                    @endforeach
+
+                                    <p id="noRemarksMessage123" class="text-muted px-3 py-2 d-none">No entries found for this month</p>
+                                 </div>
+
+                                 <script>
+                                 document.addEventListener("DOMContentLoaded", function () {
+                                    setTimeout(() => {
+                                       const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                       const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+
+                                       const items = document.querySelectorAll("#remarkTimeline123 .remark-item");
+                                       let visibleCount = 0;
+
+                                       items.forEach(item => {
+                                          const month = parseInt(item.getAttribute("data-month"));
+                                          const year = parseInt(item.getAttribute("data-year"));
+
+                                          if (month === selectedMonth && year === selectedYear) {
+                                             item.style.display = "";
+                                             visibleCount++;
+                                          } else {
+                                             item.style.setProperty("display", "none", "important");
+                                          }
+                                       });
+
+                                       const msg = document.getElementById("noRemarksMessage123");
+                                       if (msg) msg.classList.toggle("d-none", visibleCount > 0);
+                                    }, 200);
+                                 });
+                                 </script>
+                                   
+                           </div>
+                        </div>
+                     </div>
                   </div>
                </div>
             </div>

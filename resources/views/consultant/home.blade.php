@@ -130,83 +130,80 @@
                             </div>
 
                             @php
-    $firstClaim = $dataClaims->first();
-    $record = $firstClaim ? json_decode($firstClaim->record, true) : null;
-@endphp
+                                $firstClaim = $dataClaims->first();
+                                $record = $firstClaim ? json_decode($firstClaim->record, true) : null;
+                            @endphp
 
-@if($record)
-<div class="claim-form-conusltant-dashboard">
-    <div class="heading-wrap-claim">
-        <h3>Claim Form</h3>
-        <h6>#{{ $record['claim_no'] ?? 'N/A' }}</h6>
-    </div>
+                            @if($record)
+                            <div class="claim-form-conusltant-dashboard">
+                                <div class="heading-wrap-claim">
+                                    <h3>Claim Form</h3>
+                                    <h6>#{{ $record['claim_no'] ?? 'N/A' }}</h6>
+                                </div>
 
-    <div class="draft-badge-wrap">
-        <div class="draft-badge">
-            <span></span>
-            {{ ucfirst($firstClaim->status ?? 'Draft') }}
-        </div>
-    </div>
+                                <div class="draft-badge-wrap">
+                                    <div class="draft-badge">
+                                        <span></span>
+                                        {{ ucfirst($firstClaim->status ?? 'Draft') }}
+                                    </div>
+                                </div>
 
-    <div class="claim-tab-dummy-consulatnt">
-        <a href="#">
-            Individual Claims ( {{ str_pad($dataClaims->count(), 2, '0', STR_PAD_LEFT) }} )
-        </a>
+                                <div class="claim-tab-dummy-consulatnt">
+                                    <a href="#">
+                                        Individual Claims ( {{ str_pad($dataClaims->count(), 2, '0', STR_PAD_LEFT) }} )
+                                    </a>
 
-        <a href="#">
-            Base Work Hours
-        </a>
-    </div>
-</div>
+                                    <a href="#">
+                                        Base Work Hours
+                                    </a>
+                                </div>
+                            </div>
 
-<div class="table-dashboard-consultant">
-    <div class="expense-card">
-        <div class="expense-header">
-            <div class="expense-item">
-                <strong>Date & Time</strong>
-                <span>{{ \Carbon\Carbon::parse($record['date'])->format('l, jS M, Y') }}</span>
-            </div>
-            <div class="expense-item">
-                <strong>Expense Type</strong>
-                <span>{{ $record['expenseType'] ?? '-' }}</span>
-            </div>
-            <div class="expense-item">
-                <strong>Amount</strong>
-                <span>$ {{ number_format((float)($record['amount'] ?? 0), 2) }}</span>
-            </div>
-            <div class="actions"></div>
-        </div>
+                            <div class="table-dashboard-consultant">
+                                <div class="expense-card">
+                                    <div class="expense-header">
+                                        <div class="expense-item">
+                                            <strong>Date & Time</strong>
+                                            <span>{{ \Carbon\Carbon::parse($record['date'])->format('l, jS M, Y') }}</span>
+                                        </div>
+                                        <div class="expense-item">
+                                            <strong>Expense Type</strong>
+                                            <span>{{ $record['expenseType'] ?? '-' }}</span>
+                                        </div>
+                                        <div class="expense-item">
+                                            <strong>Amount</strong>
+                                            <span>$ {{ number_format((float)($record['amount'] ?? 0), 2) }}</span>
+                                        </div>
+                                        <div class="actions"></div>
+                                    </div>
 
-        <div class="expense-body">
-            <div class="expense-item">
-                <strong>Particulars</strong>
-                <span>{{ $record['particulars'] ?? '-' }}</span>
-            </div>
-            @if (!empty($record['locationFrom']))
-            <div class="expense-item">
-                <strong>Location From</strong>
-                <span>{{ $record['locationFrom'] }}</span>
-            </div>
-            @endif
-            @if (!empty($record['locationTo']))
-            <div class="expense-item">
-                <strong>Location To</strong>
-                <span>{{ $record['locationTo'] }}</span>
-            </div>
-            @endif
-            <div class="actions"></div>
-        </div>
-    </div>
+                                    <div class="expense-body">
+                                        <div class="expense-item">
+                                            <strong>Particulars</strong>
+                                            <span>{{ $record['particulars'] ?? '-' }}</span>
+                                        </div>
+                                        @if (!empty($record['locationFrom']))
+                                        <div class="expense-item">
+                                            <strong>Location From</strong>
+                                            <span>{{ $record['locationFrom'] }}</span>
+                                        </div>
+                                        @endif
+                                        @if (!empty($record['locationTo']))
+                                        <div class="expense-item">
+                                            <strong>Location To</strong>
+                                            <span>{{ $record['locationTo'] }}</span>
+                                        </div>
+                                        @endif
+                                        <div class="actions"></div>
+                                    </div>
+                                </div>
 
-    <div class="dashboard-remark-section">
-        <h4>Remarks</h4>
-        <p>{{ $record['remarks'] ?? '-' }}</p>
-    </div>
-</div>
-@endif
-
-
-
+                                <div class="dashboard-remark-section">
+                                    <h4>Remarks</h4>
+                                    <p>{{ $record['remarks'] ?? '-' }}</p>
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
