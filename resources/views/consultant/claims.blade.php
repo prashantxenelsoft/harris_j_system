@@ -17,6 +17,7 @@
       const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
       const submitBtn = document.getElementById("submit_icon");
       const save_icon = document.getElementById("save_icon");
+      const edit_icon =  document.getElementById("edit_icon");
       const reporting_fileds_data = document.getElementById("reporting_fileds_data");
       
 
@@ -44,7 +45,7 @@
          }
       });
 
-      if (submitBtn) {
+     if (submitBtn) {
          if (!hasData || hasDraft) {
             submitBtn.style.display = "grid"; 
             reporting_fileds_data.style.display = "block"; 
@@ -53,6 +54,7 @@
             submitBtn.style.display = "none"; 
             reporting_fileds_data.style.display = "none"; 
             save_icon.style.display = "none"; 
+            edit_icon.style.display = "none"; 
          }
       }
    });
@@ -575,7 +577,7 @@
                                 })
                                 .then(res => res.json())
                                 .then(data => {
-                                    console.log("Saved:", data);
+                                   // console.log("Saved:", data);
                                     uploadedFile = null;
                                     uploadedFileURL = null;
                                     applyTag(lastClickedCell, type, "#007bff");
@@ -627,7 +629,6 @@
                                    e.preventDefault();
                                    ensurePreviewModalExists();
                                    const url = e.target.closest(".preview-attach").dataset.img;
-                                   console.log("asdasda",url);
                                    if (url) {
                                        document.getElementById("previewImgTag").src = url;
                                        document.getElementById("imagePreviewModal").style.display = "flex";

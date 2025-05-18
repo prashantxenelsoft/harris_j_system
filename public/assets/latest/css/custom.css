@@ -558,4 +558,22 @@ div#home_page_timesheet .timeline-container{
  }
 
 }
-
+    .write-summary .remark-bottom-col .write-remark input[type="text"] 
+{
+    background-image:none;
+}
+.write-remark input[type="text"]
+{
+    background-image:none;
+}
+.edit-delete-popup ul li
+{padding: 7px;}
+.edit-delete-popup{
+    top: 41px;
+        right: 0px;
+}
+.edit-delete-popup-expand
+{
+     top: 60px;
+        right: 0px;
+}

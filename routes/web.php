@@ -11,6 +11,7 @@ use App\Http\Controllers\ConsultancyController;
 use App\Http\Controllers\ConsultantController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ConsultancyApiController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\Api\ConsultanctApiController;
 
 // Route::group(['prefix' => 'api'], function () {
@@ -118,6 +119,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/get-claim-status', [ConsultantController::class, 'getClaimStatus'])->name('get-claim-status');
     Route::post('/consultant/update-basic-details', [ConsultantController::class, 'updateBasicDetailsConsultant'])->name('consultant.update.basic.details');
   
+  Route::post('/feedback/save', [FeedbackController::class, 'store'])->name('feedback.save');
+  Route::post('/feedback/delete', [FeedbackController::class, 'destroy'])->name('feedback.delete');
+  Route::get('/feedback/all', [FeedbackController::class, 'all'])->name('feedback.all');
+
+
 
 
 });

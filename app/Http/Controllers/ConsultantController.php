@@ -21,6 +21,14 @@ class ConsultantController extends Controller
         //echo "<pre>";print_r($userData);die;
         if($userData['role_id'] == 11)
         {
+          $feedbacksgData = DB::table('feedbacks')
+          ->where('sender_id', $userId)
+          ->get();
+
+          $leaveLogData = DB::table('leave_log')
+          ->where('user_id', $userId)
+          ->first();
+
             $dataTimesheet = DB::table('consultant_dashboard')
             ->where('user_id', $userId)
             ->where('type', 'timesheet')
@@ -34,7 +42,10 @@ class ConsultantController extends Controller
             ->orderBy('id', 'desc')
             ->get();
             $publicHolidays = DB::table('public_holidays')->get();
-            return view('consultant.dashboard',compact('consultant','userData','dataTimesheet','dataClaims','publicHolidays'));
+
+            //echo "<pre>";print_r($feedbacksgData);die;
+            
+            return view('consultant.dashboard',compact('consultant','userData','dataTimesheet','dataClaims','publicHolidays','leaveLogData','feedbacksgData'));
         }
         else
         {

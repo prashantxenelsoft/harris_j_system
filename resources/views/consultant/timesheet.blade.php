@@ -340,183 +340,172 @@
                         </div>
 
                         <script>
-(function () {
-    const modal = document.getElementById("extralogmodal");
-    if (!modal) return;
+                           (function () {
+                              const modal = document.getElementById("extralogmodal");
+                              if (!modal) return;
 
-    const rangeInput = modal.querySelectorAll(".range-input input");
-    const range = modal.querySelector(".range-selected");
-    const minTooltip = modal.querySelector(".min-tooltip");
-    const maxTooltip = modal.querySelector(".max-tooltip");
-    const dateRange = modal.querySelector("#dateRange");
-    const clockItBtn = modal.querySelector(".ml_clockit_btn");
-    const leaveTypeButtons = modal.querySelectorAll(".leave_type_options a");
-    const selectedLeaveTypeInput = modal.querySelector("#selectedLeaveType");
-    const remarkInput = modal.querySelector("#customRemark");
-    const displayDate = modal.querySelector("#extralogDisplay");
+                              const rangeInput = modal.querySelectorAll(".range-input input");
+                              const range = modal.querySelector(".range-selected");
+                              const minTooltip = modal.querySelector(".min-tooltip");
+                              const maxTooltip = modal.querySelector(".max-tooltip");
+                              const dateRange = modal.querySelector("#dateRange");
+                              const clockItBtn = modal.querySelector(".ml_clockit_btn");
+                              const leaveTypeButtons = modal.querySelectorAll(".leave_type_options a");
+                              const selectedLeaveTypeInput = modal.querySelector("#selectedLeaveType");
+                              const remarkInput = modal.querySelector("#customRemark");
+                              const displayDate = modal.querySelector("#extralogDisplay");
 
-    const timeLabels = Array.from({ length: 48 }, (_, i) => {
-        const hours = Math.floor(i / 2);
-        const minutes = i % 2 === 0 ? "00" : "30";
-        const suffix = hours >= 12 ? "PM" : "AM";
-        const displayHours = hours % 12 === 0 ? 12 : hours % 12;
-        return `${displayHours}:${minutes} ${suffix}`;
-    });
+                              const timeLabels = Array.from({ length: 48 }, (_, i) => {
+                                 const hours = Math.floor(i / 2);
+                                 const minutes = i % 2 === 0 ? "00" : "30";
+                                 const suffix = hours >= 12 ? "PM" : "AM";
+                                 const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+                                 return `${displayHours}:${minutes} ${suffix}`;
+                              });
 
-    function setSlider(minIndex, maxIndex, disable = true) {
-        rangeInput[0].value = minIndex;
-        rangeInput[1].value = maxIndex;
-        updateSlider();
-        rangeInput.forEach(input => input.disabled = disable);
-        range.style.pointerEvents = disable ? "none" : "auto";
-    }
+                              function setSlider(minIndex, maxIndex, disable = true) {
+                                 rangeInput[0].value = minIndex;
+                                 rangeInput[1].value = maxIndex;
+                                 updateSlider();
+                                 rangeInput.forEach(input => input.disabled = disable);
+                                 range.style.pointerEvents = disable ? "none" : "auto";
+                              }
 
-    function updateSlider() {
-        let minVal = parseInt(rangeInput[0].value);
-        let maxVal = parseInt(rangeInput[1].value);
-        if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
-        const percent1 = (minVal / 47) * 100;
-        const percent2 = (maxVal / 47) * 100;
-        range.style.left = percent1 + "%";
-        range.style.width = percent2 - percent1 + "%";
-        minTooltip.style.left = percent1 + "%";
-        minTooltip.textContent = timeLabels[minVal];
-        maxTooltip.style.left = percent2 + "%";
-        maxTooltip.textContent = timeLabels[maxVal];
-        if (parseInt(modal.getAttribute("data-full-hour") || "0") === 24) {
-            maxTooltip.textContent = "12:00 AM"; // 👈 manually override
-         }
-    }
+                              function updateSlider() {
+                                 let minVal = parseInt(rangeInput[0].value);
+                                 let maxVal = parseInt(rangeInput[1].value);
+                                 if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
+                                 const percent1 = (minVal / 47) * 100;
+                                 const percent2 = (maxVal / 47) * 100;
+                                 range.style.left = percent1 + "%";
+                                 range.style.width = percent2 - percent1 + "%";
+                                 minTooltip.style.left = percent1 + "%";
+                                 minTooltip.textContent = timeLabels[minVal];
+                                 maxTooltip.style.left = percent2 + "%";
+                                 maxTooltip.textContent = timeLabels[maxVal];
+                                 if (parseInt(modal.getAttribute("data-full-hour") || "0") === 24) {
+                                       maxTooltip.textContent = "12:00 AM"; // 👈 manually override
+                                    }
+                              }
 
-    modal.addEventListener("shown.bs.modal", function () {
-      const clickedDate = modal.getAttribute("data-date")?.trim() || "";
-      const fullHour = parseInt(modal.getAttribute("data-full-hour") || "0");
+                              modal.addEventListener("shown.bs.modal", function () {
+                                 const clickedDate = modal.getAttribute("data-date")?.trim() || "";
+                                 const fullHour = parseInt(modal.getAttribute("data-full-hour") || "0");
 
-      displayDate.innerText = clickedDate;
-      dateRange.value = clickedDate;
-      dateRange.setAttribute("readonly", true);
-      dateRange.style.cursor = "not-allowed";
-      dateRange.style.backgroundColor = "#f9f9f9";
+                                 displayDate.innerText = clickedDate;
+                                 dateRange.value = clickedDate;
+                                 dateRange.setAttribute("readonly", true);
+                                 dateRange.style.cursor = "not-allowed";
+                                 dateRange.style.backgroundColor = "#f9f9f9";
 
-      // ✅ Set slider dynamically based on fullHour
-      if (fullHour > 0) {
-         const startIndex = 18;
-         const endIndex = Math.min(47, startIndex + fullHour * 2);
-         setSlider(startIndex, endIndex, true);
-      } else {
-         setSlider(15, 32, false); // fallback
-      }
+                                 // ✅ Set slider dynamically based on fullHour
+                                 if (fullHour > 0) {
+                                    const startIndex = 18;
+                                    const endIndex = Math.min(47, startIndex + fullHour * 2);
+                                    setSlider(startIndex, endIndex, true);
+                                 } else {
+                                    setSlider(15, 32, false); // fallback
+                                 }
 
-      // ✅ Auto-select "Custom" leave hour when fullHour is passed
-      if (fullHour > 8) {
-         const customRadio = modal.querySelector('#customDay');
-         if (customRadio) customRadio.checked = true;
-      }
-   });
-
-
-
-    leaveTypeButtons.forEach(btn => {
-        btn.addEventListener("click", function (e) {
-            e.preventDefault();
-            leaveTypeButtons.forEach(b => b.classList.remove("active"));
-            this.classList.add("active");
-            selectedLeaveTypeInput.value = this.dataset.type;
-        });
-    });
-
-    if (clockItBtn) {
-    clockItBtn.addEventListener("click", function () {
-        const selectedDate = dateRange.value.trim();
-        const remark = remarkInput.value.trim();
-        const fullHour = modal.getAttribute("data-full-hour") || "";
-
-        if (!selectedDate) return alert("Date is missing.");
-
-        // ✅ Validate leave type selection
-        const selectedLeaveType = modal.querySelector(".leave_type_options a.active");
-        if (!selectedLeaveType) {
-            alert("Please select a leave type.");
-            return;
-        }
-
-        // ✅ Validate remarks input
-        if (!remark) {
-            alert("Please enter a remark.");
-            remarkInput.focus();
-            return;
-        }
-
-         const extraHours = fullHour > 8 ? fullHour - 8 : 0;
-
-         const recordData = {
-            date: "",
-            workingHours: fullHour,
-            applyOnCell: modal.getAttribute("data-date"),
-            remarks: remark,
-            type: selectedLeaveType.dataset.type,
-            extraHours: extraHours
-         };
-
-        const formData = new FormData();
-        formData.append("type", "timesheet");
-        formData.append("user_id", "{{ $userData['id'] ?? '' }}");
-        formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
-        formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
-        formData.append("record", JSON.stringify(recordData));
-        formData.append('status', "Draft");
-
-        for (let pair of formData.entries()) {
-            console.log(`${pair[0]}:`, pair[1]);
-        }
-
-        fetch("{{ route('consultant.data.save') }}", {
-            method: "POST",
-            headers: {
-                "X-CSRF-TOKEN": document.querySelector('meta[name=\"csrf-token\"]').getAttribute("content")
-            },
-            body: formData
-        })
-        .then(res => {
-            if (!res.ok) throw new Error("Server error");
-            return res.json();
-        })
-        .then(data => {
-            console.log("Saved:", data);
-            location.reload();
-        })
-        .catch(error => {
-            console.error("Failed to save:", error);
-            alert("Failed to save working hours.");
-        });
-    });
-}
-
-
-    // Active style
-    const style = document.createElement("style");
-    style.textContent = `
-        .leave_type_options a.active {
-            background-color: #007bff;
-            color: white;
-            border-radius: 6px;
-            padding: 4px 10px;
-        }
-    `;
-    document.head.appendChild(style);
-})();
-</script>
+                                 // ✅ Auto-select "Custom" leave hour when fullHour is passed
+                                 if (fullHour > 8) {
+                                    const customRadio = modal.querySelector('#customDay');
+                                    if (customRadio) customRadio.checked = true;
+                                 }
+                              });
 
 
 
+                              leaveTypeButtons.forEach(btn => {
+                                 btn.addEventListener("click", function (e) {
+                                       e.preventDefault();
+                                       leaveTypeButtons.forEach(b => b.classList.remove("active"));
+                                       this.classList.add("active");
+                                       selectedLeaveTypeInput.value = this.dataset.type;
+                                 });
+                              });
+
+                              if (clockItBtn) {
+                              clockItBtn.addEventListener("click", function () {
+                                 const selectedDate = dateRange.value.trim();
+                                 const remark = remarkInput.value.trim();
+                                 const fullHour = modal.getAttribute("data-full-hour") || "";
+
+                                 if (!selectedDate) return alert("Date is missing.");
+
+                                 // ✅ Validate leave type selection
+                                 const selectedLeaveType = modal.querySelector(".leave_type_options a.active");
+                                 if (!selectedLeaveType) {
+                                       alert("Please select a leave type.");
+                                       return;
+                                 }
+
+                                 // ✅ Validate remarks input
+                                 if (!remark) {
+                                       alert("Please enter a remark.");
+                                       remarkInput.focus();
+                                       return;
+                                 }
+
+                                    const extraHours = fullHour > 8 ? fullHour - 8 : 0;
+
+                                    const recordData = {
+                                       date: "",
+                                       workingHours: fullHour,
+                                       applyOnCell: modal.getAttribute("data-date"),
+                                       remarks: remark,
+                                       type: selectedLeaveType.dataset.type,
+                                       extraHours: extraHours
+                                    };
+
+                                 const formData = new FormData();
+                                 formData.append("type", "timesheet");
+                                 formData.append("user_id", "{{ $userData['id'] ?? '' }}");
+                                 formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+                                 formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+                                 formData.append("record", JSON.stringify(recordData));
+                                 formData.append('status', "Draft");
+
+                                 for (let pair of formData.entries()) {
+                                       console.log(`${pair[0]}:`, pair[1]);
+                                 }
+
+                                 fetch("{{ route('consultant.data.save') }}", {
+                                       method: "POST",
+                                       headers: {
+                                          "X-CSRF-TOKEN": document.querySelector('meta[name=\"csrf-token\"]').getAttribute("content")
+                                       },
+                                       body: formData
+                                 })
+                                 .then(res => {
+                                       if (!res.ok) throw new Error("Server error");
+                                       return res.json();
+                                 })
+                                 .then(data => {
+                                       console.log("Saved:", data);
+                                       location.reload();
+                                 })
+                                 .catch(error => {
+                                       console.error("Failed to save:", error);
+                                       alert("Failed to save working hours.");
+                                 });
+                              });
+                           }
 
 
-
-
-
-
-
-
+                              // Active style
+                              const style = document.createElement("style");
+                              style.textContent = `
+                                 .leave_type_options a.active {
+                                       background-color: #007bff;
+                                       color: white;
+                                       border-radius: 6px;
+                                       padding: 4px 10px;
+                                 }
+                              `;
+                              document.head.appendChild(style);
+                           })();
+                        </script>
 
                         <div class="modal fade" id="medicalLeave" tabindex="-1" aria-labelledby="medicalLeaveModalLabel" aria-hidden="true">
                            <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -2764,6 +2753,7 @@
                         use Carbon\Carbon;
 
                         $monthGroups = [];
+                        $monthLatestDates = [];
 
                         foreach ($dataTimesheet as $item) {
                            $record = json_decode($item->record ?? '{}', true);
@@ -2775,6 +2765,24 @@
                            [$day, $month, $year] = $parts;
                            $key = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
                            $monthGroups[$key][] = strtolower(trim($item->status));
+
+                           // Track last updated applyOnCell per month
+                           if (!isset($monthLatestDates[$key])) {
+                              $monthLatestDates[$key] = [
+                                 'updated_at' => $item->updated_at,
+                                 'applyOnCell' => $record['applyOnCell'],
+                              ];
+                           } else {
+                              $curr = Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                              $prev = Carbon::createFromFormat('d / m / Y', $monthLatestDates[$key]['applyOnCell']);
+
+                              if ($curr->gt($prev)) {
+                                 $monthLatestDates[$key] = [
+                                    'updated_at' => $item->updated_at,
+                                    'applyOnCell' => $record['applyOnCell'],
+                                 ];
+                              }
+                           }
                         }
 
                         $monthlyStatus = [];
@@ -2827,6 +2835,12 @@
                                  'submitted' => '<i class="fa-solid fa-xmark"></i>',
                                  default => '',
                               };
+
+                              // ✅ Get final date for non-draft status
+                              $finalDate = '';
+                              if ($statusLower !== 'draft' && isset($monthLatestDates[$monthKey]['updated_at'])) {
+                                 $finalDate = Carbon::parse($monthLatestDates[$monthKey]['updated_at'])->format('D, d M Y');
+                              }
                            @endphp
 
                            <div class="timeline-item">
@@ -2835,142 +2849,378 @@
                               <div class="timeline-content">
                                  <h4>Timesheet Overview ({{ $monthTitle }})</h4>
                                  <div class="{{ $badgeClass }}">{{ ucwords($status) }}</div>
+                                 @if ($finalDate)
+                                    <span>{{ $finalDate }}</span>
+                                 @endif
                               </div>
                            </div>
                         @endforeach
                      @else
                         <p class="text-muted" style="padding: 0.5rem 1rem;">Timesheet Overview not found</p>
                      @endif
+
                   </div>
                </div>
                <div class="col-lg-12 col-xl-12 mb-4 mb-xl-none position-relative mt-4">
-                     <div class="work-summary write-summary">
-                        <!-- Expand Button -->
-                        <button class="expand-btn" data-bs-toggle="modal" data-bs-target="#workSummaryModalclaim">
-                           <img src="{{ asset('public/assets/latest/images/expand-icon.png') }}" class="img-fluid" />
-                        </button>
+                  <div class="work-summary write-summary">
+                     <!-- Expand Button -->
+                     <button class="expand-btn" data-bs-toggle="modal" data-bs-target="#workSummaryModalclaim">
+                        <img src="{{ asset('public/assets/latest/images/expand-icon.png') }}" class="img-fluid" />
+                     </button>
 
-                        <div class="remark-bottom-col">
-                           <div class="remark-heading">
-                                 <span></span>
-                                 <h4>Feedbacks</h4>
-                           </div>
-
-                           <div class="remark-item">
-                                 <p>
-                                    This platform is very useful in tracking the timesheets and logs.
-                                 </p>
-
-                                 <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtnFeedback">
-                                    <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid" />
-                                 </a>
-
-
-
-                           </div>
-
-                           <div class="write-remark">
-                                 <input type="text" placeholder="Write your remarks here...">
-                           </div>
+                     <div class="remark-bottom-col">
+                        <div class="remark-heading">
+                              <span></span>
+                              <h4>Feedbacks</h4>
                         </div>
 
-                     </div>
-                     <div class="edit-delete-popup d-none edit-feedback">
-                        <ul>
-                           <li><img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}">Edit  
-                           </li>
-                           <li><img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}">Delete
-                           </li>
-                        </ul>
-                     </div>
+                       <div class="remark-item">
+                           @if ($feedbacksgData->isNotEmpty())
+                              @php $latest = $feedbacksgData->last(); @endphp
+                              <p>{{ $latest->message }}</p>
+                              <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtnFeedback">
+                                 <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid" />
+                              </a>
+                              <div class="edit-delete-popup d-none edit-feedback">
+                                 <ul>
+                                    <li onclick="editFeedback({{ $latest->id }}, '{{ addslashes($latest->message) }}')">
+                                       <img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}"> Edit
+                                    </li>
+                                    <li onclick="deleteFeedback({{ $latest->id }})">
+                                       <img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}"> Delete
+                                    </li>
+                                 </ul>
+                              </div>
+                           @else
+                              <p>Share your feedback here</p>
+                           @endif
+                        </div>
 
-                     <script>
-                     document.addEventListener("DOMContentLoaded", function () {
+                        
+
+                        <div class="write-remark" style="position: relative;">
+                           <input type="text" id="feedbackInput" placeholder="Write your remarks here..." style="padding-right: 35px;" />
+
+                           <!-- Send Icon (Clickable) -->
+                           <img src="{{ asset('public/assets/latest/images/send-icon.png') }}"
+                              id="sendIcon"
+                              style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; cursor: pointer;" />
+                        </div>
+
+                        
+                     </div>
+                  </div>
+              
+
+                <script>
+                  document.addEventListener("DOMContentLoaded", function () {
+                     const sendIcon = document.getElementById("sendIcon");
+                     const input = document.getElementById("feedbackInput");
+                     const feedbackList = document.querySelector(".remark-item");
+                     const placeholder = `<p>Share your feedback here</p>`;
+                     let editingId = null;
+
+                     function renderFeedback(data) {
+                        feedbackList.innerHTML = `
+                           <p>${data.message}</p>
+                           <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtnFeedback">
+                              <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid" />
+                           </a>
+                           <div class="edit-delete-popup d-none edit-feedback">
+                              <ul>
+                                 <li onclick="editFeedback(${data.id}, '${data.message.replace(/'/g, "\\'")}')">
+                                    <img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}"> Edit
+                                 </li>
+                                 <li onclick="deleteFeedback(${data.id})">
+                                    <img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}"> Delete
+                                 </li>
+                              </ul>
+                           </div>
+                        `;
+                        bindToggle(); // Rebind toggle
+                     }
+
+                     function submitFeedback() {
+                        const message = input.value.trim();
+                        if (!message) return;
+
+                        const formData = new FormData();
+                        formData.append("sender_id", {{ $userData['id'] }});
+                        formData.append("receiver_id", 1);
+                        formData.append("message", message);
+                        if (editingId) formData.append("id", editingId);
+
+                        fetch("{{ route('feedback.save') }}", {
+                           method: "POST",
+                           headers: {
+                              "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                           },
+                           body: formData
+                        })
+                        .then(res => {
+                           if (!res.ok) throw new Error("Server error");
+                           return res.json();
+                        })
+                        .then(response => {
+                           editingId = null;
+                           input.value = "";
+                           renderFeedback(response);
+                        })
+                        .catch(err => {
+                           console.error(err);
+                           alert("Error saving feedback");
+                        });
+                     }
+
+                     window.editFeedback = function(id, oldMessage) {
+                        input.value = oldMessage;
+                        input.focus();
+                        editingId = id;
+                     };
+
+                     window.deleteFeedback = function(id) {
+                        if (!confirm("Are you sure you want to delete this feedback?")) return;
+
+                        const formData = new FormData();
+                        formData.append("delete_id", id);
+
+                        fetch("{{ route('feedback.delete') }}", {
+                           method: "POST",
+                           headers: {
+                              "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                           },
+                           body: formData
+                        })
+                        .then(res => {
+                           if (!res.ok) throw new Error("Server error");
+                           return res.json();
+                        })
+                        .then(() => {
+                           // Fetch all feedbacks after deletion
+                           fetch("{{ url('/feedback/all') }}") // You'll create this route
+                              .then(res => res.json())
+                              .then(data => {
+                                 if (data.length > 0) {
+                                    const latest = data[data.length - 1];
+                                    renderFeedback(latest);
+                                 } else {
+                                    feedbackList.innerHTML = placeholder;
+                                 }
+                              });
+                        })
+
+                        .catch(err => {
+                           console.error(err);
+                           alert("Error deleting feedback: " + err.message);
+                        });
+                     };
+
+                     if (sendIcon) {
+                        sendIcon.addEventListener("click", submitFeedback);
+                     }
+
+                     if (input) {
+                        input.addEventListener("keypress", function (e) {
+                           if (e.key === "Enter") {
+                              submitFeedback();
+                           }
+                        });
+                     }
+
+                     function bindToggle() {
                         const toggleBtn = document.getElementById("toggleBtnFeedback");
                         const popup = document.querySelector(".edit-feedback");
 
-                        toggleBtn.addEventListener("click", function (e) {
-                           e.stopPropagation(); // Prevent outside click from firing immediately
-                           popup.classList.toggle("d-none");
-                        });
+                        if (toggleBtn && popup) {
+                           toggleBtn.addEventListener("click", function (e) {
+                              e.stopPropagation();
+                              popup.classList.toggle("d-none");
+                           });
 
-                        // Optional: hide popup if clicking outside
-                        document.addEventListener("click", function (e) {
-                           if (!popup.contains(e.target) && e.target !== toggleBtn) {
-                              popup.classList.add("d-none");
-                           }
-                        });
-                     });
-                  </script>
+                           document.addEventListener("click", function (e) {
+                              if (!popup.contains(e.target) && e.target !== toggleBtn) {
+                                 popup.classList.add("d-none");
+                              }
+                           });
+                        }
+                     }
+
+                     bindToggle(); // bind for initial state
+                  });
+               </script>
 
 
-                     <!-- Modal -->
-                     <div class="modal fade" id="workSummaryModalclaim" tabindex="-1" aria-labelledby="workSummaryModalLabel" aria-hidden="true" style="display: none;">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                           <div class="modal-content">
-                                 <div class="modal-header ">
-                                    <button type="button" class="btn-close popup-expand-btn " data-bs-dismiss="modal" aria-label="Close">
-                                       <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
-                                    </button>
-                                 </div>
-                                 <div class="modal-body ">
-                                    <div class="write-summary-popup-body">
-                                       <h4>Remarks</h4>
-                                       <div class="write-summary-expand-row mt-2">
-                                             <div class="write-summary-expand-item">
-                                                <p>
-                                                   I have been working with
-                                                   the production team and
-                                                   supporting
-                                                   in the release
-                                                   activities. This was an
-                                                   unexpected support call
-                                                </p>
 
-                                                <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtnexpandFeedback">
+
+
+
+                  <!-- Modal -->
+                  <div class="modal fade" id="workSummaryModalclaim" tabindex="-1" aria-labelledby="workSummaryModalLabel" aria-hidden="true" style="display: none;">
+                     <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                              <div class="modal-header ">
+                                 <button type="button" class="btn-close popup-expand-btn " data-bs-dismiss="modal" aria-label="Close">
+                                    <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                                 </button>
+                              </div>
+                              <div class="modal-body ">
+                                 <div class="write-summary-popup-body">
+                                    <h4>Remarks</h4>
+                                    
+
+                                   <div style="max-height: 350px; overflow-y: auto;" id="scrollableFeedbackWrapper">
+                                       <div class="write-summary-expand-row" id="feedbackHistoryContainer">
+                                          <!-- dynamic feedback goes here -->
+                                       </div>
+                                    </div>
+                                    <div class="write-remark mt-3" style="position: relative;">
+                                       <input type="text" id="modalFeedbackInput" placeholder="Write your remarks here..." style="padding-right: 35px;" />
+                                       <img src="{{ asset('public/assets/latest/images/send-icon.png') }}"
+                                          id="modalSendIcon"
+                                          style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; cursor: pointer;" />
+                                    </div>
+                                    <script>
+                                       document.addEventListener("DOMContentLoaded", function () {
+                                          const modal = document.getElementById('workSummaryModalclaim');
+                                          const feedbackContainer = document.getElementById('feedbackHistoryContainer');
+                                          const modalInput = document.getElementById("modalFeedbackInput");
+                                          const modalSend = document.getElementById("modalSendIcon");
+                                          let editingId = null;
+
+                                          // ✅ Fetch all feedbacks on modal open
+                                          modal.addEventListener('show.bs.modal', function () {
+                                             loadFeedbacks();
+                                          });
+
+                                          // ✅ Add feedback inside modal
+                                          if (modalSend && modalInput) {
+                                             modalSend.addEventListener("click", sendModalFeedback);
+                                             modalInput.addEventListener("keypress", function (e) {
+                                                if (e.key === "Enter") sendModalFeedback();
+                                             });
+                                          }
+
+                                          function sendModalFeedback() {
+                                             const message = modalInput.value.trim();
+                                             if (!message) return;
+
+                                             const formData = new FormData();
+                                             formData.append("sender_id", {{ $userData['id'] }});
+                                             formData.append("receiver_id", 1);
+                                             formData.append("message", message);
+                                             if (editingId) formData.append("id", editingId);
+
+                                             fetch("{{ route('feedback.save') }}", {
+                                                method: "POST",
+                                                headers: {
+                                                   "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                                },
+                                                body: formData
+                                             })
+                                             .then(res => res.json())
+                                             .then(response => {
+                                                modalInput.value = "";
+                                                editingId = null;
+                                                loadFeedbacks(); // Refresh the list
+                                             })
+                                             .catch(err => {
+                                                console.error("Modal add failed:", err);
+                                                alert("Error saving feedback.");
+                                             });
+                                          }
+
+                                          function loadFeedbacks() {
+                                             fetch("{{ url('/feedback/all') }}")
+                                                .then(res => res.json())
+                                                .then(data => {
+                                                   if (!data.length) {
+                                                      feedbackContainer.innerHTML = "<p>No feedback found.</p>";
+                                                      return;
+                                                   }
+
+                                                   feedbackContainer.innerHTML = "";
+                                                   data.reverse().forEach(item => appendToModalHistory(item));
+                                                });
+                                          }
+
+                                          function appendToModalHistory(item) {
+                                             const box = document.createElement("div");
+                                             box.className = "write-summary-expand-item mb-3";
+
+                                             box.innerHTML = `
+                                                <p>${item.message}</p>
+                                                <a href="javascript:void(0)" class="remark-pop-btn toggleBtn-${item.id}">
                                                    <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid" />
                                                 </a>
-                                             </div>
+                                                <div class="edit-delete-popup-expand d-none popup-${item.id}">
+                                                   <ul>
+                                                      <li onclick="editFeedback(${item.id}, '${item.message.replace(/'/g, "\\'")}')">
+                                                         <img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}"> Edit
+                                                      </li>
+                                                      <li onclick="deleteFeedback(${item.id})">
+                                                         <img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}"> Delete
+                                                      </li>
+                                                   </ul>
+                                                </div>
+                                             `;
 
-                                             <div class="write-remark mt-4">
-                                                <input type="text" placeholder="Write your remarks here...">
-                                             </div>
-                                       </div>
+                                             feedbackContainer.appendChild(box);
 
-                                       <div class="edit-delete-popup-expand feedback-expend d-none">
-                                             <ul>
-                                                 <li><img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}">Edit  
-                                                </li>
-                                                <li><img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}">Delete
-                                                </li>
-                                             </ul>
-                                       </div>
-                                       <script>
-                                          document.addEventListener("DOMContentLoaded", function () {
-                                             const toggleBtn2 = document.getElementById("toggleBtnexpandFeedback");
-                                             const popup2 = document.querySelector(".feedback-expend");
+                                             const toggleBtn = box.querySelector(`.toggleBtn-${item.id}`);
+                                             const popup = box.querySelector(`.popup-${item.id}`);
 
-                                             toggleBtn2.addEventListener("click", function (e) {
-                                                e.stopPropagation(); // Prevent the document click from hiding it immediately
-                                                popup2.classList.toggle("d-none");
+                                             toggleBtn.addEventListener("click", function (e) {
+                                                e.stopPropagation();
+                                                popup.classList.toggle("d-none");
                                              });
 
-                                             // Optional: hide when clicking outside
                                              document.addEventListener("click", function (e) {
-                                                if (!popup2.contains(e.target) && e.target !== toggleBtn2) {
-                                                   popup2.classList.add("d-none");
+                                                if (!popup.contains(e.target) && e.target !== toggleBtn) {
+                                                   popup.classList.add("d-none");
                                                 }
                                              });
-                                          });
+                                          }
+
+                                          // ✅ Global functions for reuse
+                                          window.editFeedback = function (id, message) {
+                                             modalInput.value = message;
+                                             modalInput.focus();
+                                             editingId = id;
+                                          };
+
+                                          window.deleteFeedback = function (id) {
+                                             if (!confirm("Are you sure you want to delete this feedback?")) return;
+
+                                             const formData = new FormData();
+                                             formData.append("delete_id", id);
+
+                                             fetch("{{ route('feedback.delete') }}", {
+                                                method: "POST",
+                                                headers: {
+                                                   "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                                },
+                                                body: formData
+                                             })
+                                             .then(res => res.json())
+                                             .then(() => {
+                                                loadFeedbacks(); // Reload after delete
+                                             })
+                                             .catch(err => {
+                                                console.error("Delete failed:", err);
+                                                alert("Error deleting feedback.");
+                                             });
+                                          };
+                                       });
                                        </script>
-                                    </div>
+
+
                                  </div>
-                           </div>
+                              </div>
                         </div>
                      </div>
-
+                  </div>
                </div>
-               
+
             </div>
 
             <div class="row mt-2 bottom-remark-timesheet-group">
@@ -3001,13 +3251,10 @@
                                        <th>Days/Hours</th>
                                     </tr>
                                  </thead>
-                                 <tbody>
-                                    @php $hasData = false; @endphp
-
+                                 <tbody id="leaveLogTableBody">
                                     @foreach ($dataTimesheet as $entry)
                                        @php
                                           $record = json_decode($entry->record);
-
                                           if (!isset($record->leaveType)) continue;
 
                                           $leaveType = $record->leaveType ?? '';
@@ -3055,11 +3302,9 @@
                                           $parts = explode(' / ', $from);
                                           $rowMonth = isset($parts[1]) ? (int) $parts[1] : null;
                                           $rowYear = isset($parts[2]) ? (int) $parts[2] : null;
-
-                                          $hasData = true;
                                        @endphp
 
-                                       <tr data-month="{{ $rowMonth }}" data-year="{{ $rowYear }}">
+                                       <tr class="leave-log-row" data-month="{{ $rowMonth }}" data-year="{{ $rowYear }}">
                                           <td>
                                              <span class="{{ $badgeClass }}">
                                                 {{ \Illuminate\Support\Str::replaceFirst('Custom', '', $leaveType) }}
@@ -3074,13 +3319,44 @@
                                        </tr>
                                     @endforeach
 
-                                    @if (!$hasData)
-                                       <tr data-month="{{ request('month') ?? date('n') }}" data-year="{{ request('year') ?? date('Y') }}">
-                                          <td colspan="4" class="text-center text-muted">No entries found for this month</td>
-                                       </tr>
-                                    @endif
+                                    {{-- Always rendered row — shown only when no match via JS --}}
+                                    <tr id="leaveLogEmptyRow" style="display: none;">
+                                       <td colspan="4" class="text-center text-muted">
+                                          No entries found for this month
+                                       </td>
+                                    </tr>
                                  </tbody>
                               </table>
+
+                              <script>
+                              document.addEventListener("DOMContentLoaded", function () {
+                                 setTimeout(() => {
+                                    const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                    const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+
+                                    const rows = document.querySelectorAll('#leaveLogTableBody .leave-log-row');
+                                    let visibleCount = 0;
+
+                                    rows.forEach(row => {
+                                       const m = parseInt(row.getAttribute('data-month'));
+                                       const y = parseInt(row.getAttribute('data-year'));
+
+                                       if (m === selectedMonth && y === selectedYear) {
+                                          row.style.display = '';
+                                          visibleCount++;
+                                       } else {
+                                          row.style.display = 'none';
+                                       }
+                                    });
+
+                                    const emptyRow = document.getElementById('leaveLogEmptyRow');
+                                    if (emptyRow) {
+                                       emptyRow.style.display = visibleCount === 0 ? '' : 'none';
+                                    }
+                                 }, 200);
+                              });
+                              </script>
+
 
                            </div>
                         </div>
@@ -3135,29 +3411,67 @@
                            </script>
 
 
-                           <div class="bottom-stats">
-                              <div class="stats_score">
-                                 <div class="workSummaryNum">
-                                    <span class="w_hrs">06.30</span>
-                                    / <span class="tw_hrs">15</span>
-                                 </div> 
-                                 <p>Leave Log</p>
-                              </div>
-                              <div class="stats_score">
-                                 <div class="workSummaryNum">
-                                    <span class="w_hrs">06.30</span>
-                                    / <span class="tw_hrs">15</span>
-                                 </div> 
-                                 <p>AL</p>
-                              </div>
-                              <div class="stats_score">
-                                 <div class="workSummaryNum">
-                                    <span class="w_hrs">06.30</span>
-                                    / <span class="tw_hrs">15</span>
-                                 </div> 
-                                 <p>ML</p>
-                              </div>
+                          @php
+
+                           // Initialize counters
+                           $used = [
+                              'AL' => 0,
+                              'ML' => 0,
+                              'UL' => 0,
+                              'PDO' => 0,
+                              'Comp Off' => 0,
+                           ];
+
+                           $totalUsed = 0;
+
+                           foreach ($dataTimesheet as $entry) {
+                              $record = json_decode($entry->record ?? '{}', true);
+                              if (!isset($record['leaveType'])) continue;
+
+                              $type = trim($record['leaveType']);
+                              $hourId = $record['leaveHourId'] ?? '';
+
+                              $value = 1;
+                              if (in_array($hourId, ['fHalfDay', 'sHalfDay'])) {
+                                 $value = 0.5;
+                              }
+
+                              if (array_key_exists($type, $used)) {
+                                 $used[$type] += $value;
+                                 $totalUsed += $value;
+                              }
+                           }
+
+                           foreach ($used as $key => $val) {
+                              $used[$key] = number_format($val, 2);
+                           }
+                           $totalUsedFormatted = number_format($totalUsed, 2);
+                        @endphp
+
+                        <div class="bottom-stats">
+                           <div class="stats_score">
+                              <div class="workSummaryNum">
+                                 <span class="w_hrs">{{ $totalUsedFormatted }}</span>
+                                 / <span class="tw_hrs">{{ $leaveLogData->assign_total_leave_log ?? '0' }}</span>
+                              </div> 
+                              <p>Leave Log</p>
                            </div>
+                           <div class="stats_score">
+                              <div class="workSummaryNum">
+                                 <span class="w_hrs">{{ $used['AL'] ?? '00.00' }}</span>
+                                 / <span class="tw_hrs">{{ $leaveLogData->assign_al ?? '0' }}</span>
+                              </div> 
+                              <p>AL</p>
+                           </div>
+                           <div class="stats_score">
+                              <div class="workSummaryNum">
+                                 <span class="w_hrs">{{ $used['ML'] ?? '00.00' }}</span>
+                                 / <span class="tw_hrs">{{ $leaveLogData->assign_ml ?? '0' }}</span>
+                              </div> 
+                              <p>ML</p>
+                           </div>
+                        </div>
+
                         </div>
                      </div>
                   </div>
@@ -3192,13 +3506,10 @@
                                                 <th>Days/Hours</th>
                                              </tr>
                                           </thead>
-                                          <tbody>
-                                             @php $hasData = false; @endphp
-
+                                          <tbody id="customLeaveLogTableBody">
                                              @foreach ($dataTimesheet as $entry)
                                                 @php
                                                    $record = json_decode($entry->record);
-
                                                    if (!isset($record->leaveType)) continue;
 
                                                    $leaveType = $record->leaveType ?? '';
@@ -3246,11 +3557,9 @@
                                                    $parts = explode(' / ', $from);
                                                    $rowMonth = isset($parts[1]) ? (int) $parts[1] : null;
                                                    $rowYear = isset($parts[2]) ? (int) $parts[2] : null;
-
-                                                   $hasData = true;
                                                 @endphp
 
-                                                <tr data-month="{{ $rowMonth }}" data-year="{{ $rowYear }}">
+                                                <tr class="custom-leave-log-row" data-month="{{ $rowMonth }}" data-year="{{ $rowYear }}">
                                                    <td>
                                                       <span class="{{ $badgeClass }}">
                                                          {{ \Illuminate\Support\Str::replaceFirst('Custom', '', $leaveType) }}
@@ -3265,32 +3574,41 @@
                                                 </tr>
                                              @endforeach
 
-                                             @if (!$hasData)
-                                                <tr data-month="{{ request('month') ?? date('n') }}" data-year="{{ request('year') ?? date('Y') }}">
-                                                   <td colspan="4" class="text-center text-muted">No entries found for this month</td>
-                                                </tr>
-                                             @endif
+                                             <tr id="customLeaveLogEmptyRow" style="display: none;">
+                                                <td colspan="4" class="text-center text-muted">
+                                                   No entries found for this month
+                                                </td>
+                                             </tr>
                                           </tbody>
                                        </table>
 
-                                       
                                        <script>
-                                          document.addEventListener("DOMContentLoaded", function () {
-                                             const month = parseInt(localStorage.getItem("timesheetMonth")) + 1; // JS 0-indexed
-                                             const year = parseInt(localStorage.getItem("timesheetYear"));
+                                       document.addEventListener("DOMContentLoaded", function () {
+                                          setTimeout(() => {
+                                             const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
+                                             const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
 
-                                             const rows = document.querySelectorAll("table tbody tr");
+                                             const rows = document.querySelectorAll('#customLeaveLogTableBody .custom-leave-log-row');
+                                             let visibleCount = 0;
+
                                              rows.forEach(row => {
-                                                const rowMonth = parseInt(row.dataset.month);
-                                                const rowYear = parseInt(row.dataset.year);
+                                                const m = parseInt(row.getAttribute('data-month'));
+                                                const y = parseInt(row.getAttribute('data-year'));
 
-                                                if (rowMonth === month && rowYear === year) {
-                                                   row.style.display = "";
+                                                if (m === selectedMonth && y === selectedYear) {
+                                                   row.style.display = '';
+                                                   visibleCount++;
                                                 } else {
-                                                   row.style.display = "none";
+                                                   row.style.display = 'none';
                                                 }
                                              });
-                                          });
+
+                                             const emptyRow = document.getElementById('customLeaveLogEmptyRow');
+                                             if (emptyRow) {
+                                                emptyRow.style.display = visibleCount === 0 ? '' : 'none';
+                                             }
+                                          }, 200);
+                                       });
                                        </script>
 
                                     </div>
@@ -3311,38 +3629,78 @@
                                           <div class="stats-label">Hours Logged</div>
                                        </div>
                                     </div>
+                                    @php
+                                       use Illuminate\Support\Str;
+
+                                       // Initialize counters
+                                       $used = [
+                                          'AL' => 0,
+                                          'ML' => 0,
+                                          'UL' => 0,
+                                          'PDO' => 0,
+                                          'Comp Off' => 0,
+                                       ];
+
+                                       $totalUsed = 0;
+
+                                       foreach ($dataTimesheet as $entry) {
+                                          $record = json_decode($entry->record ?? '{}', true);
+                                          if (!isset($record['leaveType'])) continue;
+
+                                          $type = trim($record['leaveType']);
+                                          $hourId = $record['leaveHourId'] ?? '';
+
+                                          $value = 1;
+                                          if (in_array($hourId, ['fHalfDay', 'sHalfDay'])) {
+                                             $value = 0.5;
+                                          }
+
+                                          if (array_key_exists($type, $used)) {
+                                             $used[$type] += $value;
+                                             $totalUsed += $value;
+                                          }
+                                       }
+
+                                       foreach ($used as $key => $val) {
+                                          $used[$key] = number_format($val, 2);
+                                       }
+                                       $totalUsedFormatted = number_format($totalUsed, 2);
+                                    @endphp
+
                                     <div class="bottom-stats">
                                        <div class="stats_score">
-                                          <span class="w_hrs">06.30</span>
-                                          / <span class="tw_hrs">15</span>
+                                          <span class="w_hrs">{{ $totalUsedFormatted }}</span>
+                                          / <span class="tw_hrs text-danger">{{ $leaveLogData->assign_total_leave_log ?? '0' }}</span>
                                           <p>Leave Log</p>
                                        </div>
                                        <div class="stats_score">
-                                          <span class="w_hrs">05.30</span>
-                                          / <span class="tw_hrs">15</span>
+                                          <span class="w_hrs">{{ $used['AL'] ?? '00.00' }}</span>
+                                          / <span class="tw_hrs text-danger">{{ $leaveLogData->assign_al ?? '0' }}</span>
                                           <p>AL</p>
                                        </div>
                                        <div class="stats_score">
-                                          <span class="w_hrs">01.45</span>
-                                          / <span class="tw_hrs">14</span>
+                                          <span class="w_hrs">{{ $used['ML'] ?? '00.00' }}</span>
+                                          / <span class="tw_hrs text-danger">{{ $leaveLogData->assign_ml ?? '0' }}</span>
                                           <p>ML</p>
                                        </div>
                                        <div class="stats_score">
-                                          <span class="w_hrs">01.30</span>
-                                          / <span class="tw_hrs">15</span>
+                                          <span class="w_hrs">{{ $used['UL'] ?? '00.00' }}</span>
+                                          / <span class="tw_hrs text-danger">{{ $leaveLogData->assign_ul ?? '0' }}</span>
                                           <p>UL</p>
                                        </div>
                                        <div class="stats_score">
-                                          <span class="w_hrs">0.30</span>
-                                          / <span class="tw_hrs">15</span>
+                                          <span class="w_hrs">{{ $used['PDO'] ?? '00.00' }}</span>
+                                          / <span class="tw_hrs text-danger">{{ $leaveLogData->assign_pdo ?? '0' }}</span>
                                           <p>PDO</p>
                                        </div>
                                        <div class="stats_score">
-                                          <span class="w_hrs">0.30</span>
-                                          / <span class="tw_hrs">15</span>
+                                          <span class="w_hrs">{{ $used['Comp Off'] ?? '00.00' }}</span>
+                                          / <span class="tw_hrs text-danger">{{ $leaveLogData->assign_comp_off ?? '0' }}</span>
                                           <p>Comp Off</p>
                                        </div>
                                     </div>
+
+
                                  </div>
                               </div>
                            </div>

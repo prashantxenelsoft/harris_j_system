@@ -5626,8 +5626,7 @@ span.inactive-badge::before {
     border-radius: 12px;
     font-family: var(--Themefont);
     font-size: var(--Font14px);
-    background-image: url(../images/send-icon.png);
-    background-size: 15px;
+    /* background-image: url(../images/send-icon.png); */
     background-position: 95%;
     background-repeat: no-repeat;
 }
