@@ -3980,8 +3980,9 @@
 
                                                 @if ($item['leaveType'] === 'ML')
                                                    <p>{{ $consultant->emp_name }} has applied for medical leave</p>
+                                                   <p>{!! $item['remarks'] !!}</p>
                                                 @elseif (!empty($item['remarks']))
-                                                   <p>{{ $item['remarks'] }}</p>
+                                                   <p>{!! $item['remarks'] !!}</p>
                                                 @endif
                                           </div>
                                        </div>
