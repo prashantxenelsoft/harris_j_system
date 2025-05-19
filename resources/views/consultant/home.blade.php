@@ -153,9 +153,9 @@
                                         Individual Claims ( {{ str_pad($dataClaims->count(), 2, '0', STR_PAD_LEFT) }} )
                                     </a>
 
-                                    <a href="#">
+                                    <!-- <a href="#">
                                         Base Work Hours
-                                    </a>
+                                    </a> -->
                                 </div>
                             </div>
 

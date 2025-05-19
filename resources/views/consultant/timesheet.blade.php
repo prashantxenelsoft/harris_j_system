@@ -302,6 +302,26 @@
                                              </div>
                                              <div class="leave_slot_selector">
                                                 <span>Select Leave Slot :</span>
+                                                 <div class="day_and_night_selector">
+                                                   <div class="day_night">
+                                                      <span>Mid - Night</span>
+                                                      <div class="mid_night_img">
+                                                         <img src="{{ asset('public/assets/latest/images/moon.png') }}" alt="" />
+                                                      </div>
+                                                   </div>
+                                                   <div class="day_night">
+                                                      <span>Noon</span>
+                                                      <div class="mid_night_img">
+                                                         <img src="{{ asset('public/assets/latest/images/sun.png') }}" alt="" />
+                                                      </div>
+                                                   </div>
+                                                   <div class="day_night">
+                                                      <span>Mid - Night</span>
+                                                      <div class="mid_night_img">
+                                                         <img src="{{ asset('public/assets/latest/images/moon.png') }}" alt="" />
+                                                      </div>
+                                                   </div>
+                                                </div>
                                                 <div class="range_selector">
                                                    <div class="range">
                                                       <div class="range-slider">
@@ -1195,6 +1215,26 @@
                                              </div>
                                              <div class="leave_slot_selector">
                                                 <span>Select Leave Slot :</span>
+                                                 <div class="day_and_night_selector">
+                                                   <div class="day_night">
+                                                      <span>Mid - Night</span>
+                                                      <div class="mid_night_img">
+                                                         <img src="{{ asset('public/assets/latest/images/moon.png') }}" alt="" />
+                                                      </div>
+                                                   </div>
+                                                   <div class="day_night">
+                                                      <span>Noon</span>
+                                                      <div class="mid_night_img">
+                                                         <img src="{{ asset('public/assets/latest/images/sun.png') }}" alt="" />
+                                                      </div>
+                                                   </div>
+                                                   <div class="day_night">
+                                                      <span>Mid - Night</span>
+                                                      <div class="mid_night_img">
+                                                         <img src="{{ asset('public/assets/latest/images/moon.png') }}" alt="" />
+                                                      </div>
+                                                   </div>
+                                                </div>
                                                 <div class="range_selector">
                                                    <div class="range">
                                                       <div class="range-slider">
@@ -2883,10 +2923,10 @@
                               </a>
                               <div class="edit-delete-popup d-none edit-feedback">
                                  <ul>
-                                    <li onclick="editFeedback({{ $latest->id }}, '{{ addslashes($latest->message) }}')">
+                                    <li onclick="editFeedback123({{ $latest->id }}, '{{ addslashes($latest->message) }}')">
                                        <img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}"> Edit
                                     </li>
-                                    <li onclick="deleteFeedback({{ $latest->id }})">
+                                    <li onclick="deleteFeedback123({{ $latest->id }})">
                                        <img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}"> Delete
                                     </li>
                                  </ul>
@@ -2928,10 +2968,10 @@
                            </a>
                            <div class="edit-delete-popup d-none edit-feedback">
                               <ul>
-                                 <li onclick="editFeedback(${data.id}, '${data.message.replace(/'/g, "\\'")}')">
+                                 <li onclick="editFeedback123(${data.id}, '${data.message.replace(/'/g, "\\'")}')">
                                     <img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}"> Edit
                                  </li>
-                                 <li onclick="deleteFeedback(${data.id})">
+                                 <li onclick="deleteFeedback123(${data.id})">
                                     <img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}"> Delete
                                  </li>
                               </ul>
@@ -2972,13 +3012,13 @@
                         });
                      }
 
-                     window.editFeedback = function(id, oldMessage) {
+                     window.editFeedback123 = function(id, oldMessage) {
                         input.value = oldMessage;
                         input.focus();
                         editingId = id;
                      };
 
-                     window.deleteFeedback = function(id) {
+                     window.deleteFeedback123 = function(id) {
                         if (!confirm("Are you sure you want to delete this feedback?")) return;
 
                         const formData = new FormData();
@@ -3243,33 +3283,81 @@
                         <div class="tab-pane fade show active" id="leave" role="tabpanel" aria-labelledby="leave-tab">
                            <div class="leave-log w-100">
                               <table class="w-100">
-                                 <thead>
-                                    <tr>
-                                       <th>Type Of Leave</th>
-                                       <th>From</th>
-                                       <th>To</th>
-                                       <th>Days/Hours</th>
-                                    </tr>
-                                 </thead>
-                                 <tbody id="leaveLogTableBody">
-                                    @foreach ($dataTimesheet as $entry)
-                                       @php
-                                          $record = json_decode($entry->record);
-                                          if (!isset($record->leaveType)) continue;
+                              <thead>
+                                 <tr>
+                                    <th>Type Of Leave</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Days/Hours</th>
+                                 </tr>
+                              </thead>
+                              <tbody id="leaveLogTableBody">
+                                 @foreach ($dataTimesheet as $entry)
+                                    @php
+                                       $record = json_decode($entry->record);
+                                       if (!isset($record->leaveType)) continue;
 
-                                          $leaveType = $record->leaveType ?? '';
-                                          $date = $record->date ?? '';
-                                          $applyOnCell = $record->applyOnCell ?? '';
-                                          $leaveHourId = $record->leaveHourId ?? '';
+                                       $leaveType = $record->leaveType ?? '';
+                                       $date = $record->date ?? '';
+                                       $applyOnCell = $record->applyOnCell ?? '';
+                                       $leaveHourId = $record->leaveHourId ?? '';
+                                       $rangeMin = $record->rangeMin ?? '';
+                                       $rangeMax = $record->rangeMax ?? '';
 
-                                          $from = $to = '';
-                                          $days = '1';
+                                       $from = $to = '';
+                                       $days = '1';
 
-                                          if (empty($date) && !empty($applyOnCell)) {
-                                             $from = $to = trim($applyOnCell);
-                                             $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
-                                          } elseif (strpos($date, 'to') !== false) {
-                                             [$from, $to] = array_map('trim', explode('to', $date));
+                                       if (empty($date) && !empty($applyOnCell)) {
+                                          $from = $to = trim($applyOnCell);
+                                       } elseif (strpos($date, 'to') !== false) {
+                                          [$from, $to] = array_map('trim', explode('to', $date));
+                                       } else {
+                                          $from = $to = trim($date);
+                                       }
+
+                                       // Compute $days/hours based on rangeMin/rangeMax if available
+                                       if ($rangeMin && $rangeMax) {
+                                          // Case: Time format like "8:00 AM"
+                                          if (preg_match('/\d{1,2}:\d{2} (AM|PM)/', $rangeMin) && preg_match('/\d{1,2}:\d{2} (AM|PM)/', $rangeMax)) {
+                                             try {
+                                                $min = \Carbon\Carbon::createFromFormat('g:i A', $rangeMin);
+                                                $max = \Carbon\Carbon::createFromFormat('g:i A', $rangeMax);
+                                                $minutes = $min->diffInMinutes($max);
+                                                $hours = round($minutes / 60, 2);
+
+                                                if ($hours <= 9) {
+                                                   $days = "{$hours} hour" . ($hours == 1 ? '' : 's');
+                                                } else {
+                                                   $extra = $hours - 9;
+                                                   $days = "1 day";
+                                                   if ($extra > 0) {
+                                                      $days .= " (" . intval($extra) . " hours)";
+                                                   }
+                                                }
+                                             } catch (\Exception $e) {
+                                                $days = '1';
+                                             }
+
+                                          // Case: Slider format (numeric values like 16, 44)
+                                          } elseif (is_numeric($rangeMin) && is_numeric($rangeMax)) {
+                                             $startMinutes = (int)$rangeMin * 30;
+                                             $endMinutes = (int)$rangeMax * 30;
+                                             $durationMinutes = $endMinutes - $startMinutes;
+                                             $totalHours = round($durationMinutes / 60, 2);
+
+                                             if ($totalHours <= 9) {
+                                                $days = "{$totalHours} hour" . ($totalHours == 1 ? '' : 's');
+                                             } else {
+                                                $extra = $totalHours - 9;
+                                                $days = "1 day";
+                                                if ($extra > 0) {
+                                                   $days .= " (" . intval($extra) . " hours)";
+                                                }
+                                             }
+                                          }
+                                       } else {
+                                          // fallback if no rangeMin/rangeMax
+                                          if (strpos($date, 'to') !== false) {
                                              if ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') {
                                                 $days = '1/2';
                                              } else {
@@ -3282,51 +3370,51 @@
                                                 }
                                              }
                                           } else {
-                                             $from = $to = trim($date);
                                              $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
                                           }
+                                       }
 
-                                          $badgeClass = match($leaveType) {
-                                             'PDO' => 'badge bg-primary text-white',
-                                             'ML' => 'badge bg-info text-white',
-                                             'UL' => 'badge bg-warning text-dark',
-                                             'PH' => 'badge bg-success text-white',
-                                             default => 'badge bg-secondary text-white',
-                                          };
+                                       $badgeClass = match($leaveType) {
+                                          'PDO' => 'badge bg-primary text-white',
+                                          'ML' => 'badge bg-info text-white',
+                                          'UL' => 'badge bg-warning text-dark',
+                                          'PH' => 'badge bg-success text-white',
+                                          default => 'badge bg-secondary text-white',
+                                       };
 
-                                          $leaveShort = '';
-                                          if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-                                          elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-                                          elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+                                       $leaveShort = '';
+                                       if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                       elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                       elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
 
-                                          $parts = explode(' / ', $from);
-                                          $rowMonth = isset($parts[1]) ? (int) $parts[1] : null;
-                                          $rowYear = isset($parts[2]) ? (int) $parts[2] : null;
-                                       @endphp
+                                       $parts = explode(' / ', $from);
+                                       $rowMonth = isset($parts[1]) ? (int) $parts[1] : null;
+                                       $rowYear = isset($parts[2]) ? (int) $parts[2] : null;
+                                    @endphp
 
-                                       <tr class="leave-log-row" data-month="{{ $rowMonth }}" data-year="{{ $rowYear }}">
-                                          <td>
-                                             <span class="{{ $badgeClass }}">
-                                                {{ \Illuminate\Support\Str::replaceFirst('Custom', '', $leaveType) }}
-                                                @if ($leaveShort)
-                                                   <small><strong>{{ $leaveShort }}</strong></small>
-                                                @endif
-                                             </span>
-                                          </td>
-                                          <td>{{ $from }}</td>
-                                          <td>{{ $to }}</td>
-                                          <td><span style="color:red;">{{ $days }}</span></td>
-                                       </tr>
-                                    @endforeach
-
-                                    {{-- Always rendered row — shown only when no match via JS --}}
-                                    <tr id="leaveLogEmptyRow" style="display: none;">
-                                       <td colspan="4" class="text-center text-muted">
-                                          No entries found for this month
+                                    <tr class="leave-log-row" data-month="{{ $rowMonth }}" data-year="{{ $rowYear }}">
+                                       <td>
+                                          <span class="{{ $badgeClass }}">
+                                             {{ \Illuminate\Support\Str::replaceFirst('Custom', '', $leaveType) }}
+                                             @if ($leaveShort)
+                                                <small><strong>{{ $leaveShort }}</strong></small>
+                                             @endif
+                                          </span>
                                        </td>
+                                       <td>{{ $from }}</td>
+                                       <td>{{ $to }}</td>
+                                       <td><span style="color:red;">{{ $days }}</span></td>
                                     </tr>
-                                 </tbody>
-                              </table>
+                                 @endforeach
+
+                                 <tr id="leaveLogEmptyRow" style="display: none;">
+                                    <td colspan="4" class="text-center text-muted">
+                                       No entries found for this month
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+
 
                               <script>
                               document.addEventListener("DOMContentLoaded", function () {
@@ -3516,29 +3604,76 @@
                                                    $date = $record->date ?? '';
                                                    $applyOnCell = $record->applyOnCell ?? '';
                                                    $leaveHourId = $record->leaveHourId ?? '';
+                                                   $rangeMin = $record->rangeMin ?? '';
+                                                   $rangeMax = $record->rangeMax ?? '';
 
                                                    $from = $to = '';
                                                    $days = '1';
 
                                                    if (empty($date) && !empty($applyOnCell)) {
                                                       $from = $to = trim($applyOnCell);
-                                                      $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
                                                    } elseif (strpos($date, 'to') !== false) {
                                                       [$from, $to] = array_map('trim', explode('to', $date));
-                                                      if ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') {
-                                                         $days = '1/2';
-                                                      } else {
+                                                   } else {
+                                                      $from = $to = trim($date);
+                                                   }
+
+                                                   if ($rangeMin && $rangeMax) {
+                                                      // If time format (e.g., "8:00 AM")
+                                                      if (preg_match('/\d{1,2}:\d{2} (AM|PM)/', $rangeMin) && preg_match('/\d{1,2}:\d{2} (AM|PM)/', $rangeMax)) {
                                                          try {
-                                                            $fromDate = \Carbon\Carbon::createFromFormat('d / m / Y', $from);
-                                                            $toDate = \Carbon\Carbon::createFromFormat('d / m / Y', $to);
-                                                            $days = $fromDate->diffInDays($toDate) + 1;
+                                                            $min = \Carbon\Carbon::createFromFormat('g:i A', $rangeMin);
+                                                            $max = \Carbon\Carbon::createFromFormat('g:i A', $rangeMax);
+                                                            $minutes = $min->diffInMinutes($max);
+                                                            $hours = round($minutes / 60, 2);
+
+                                                            if ($hours <= 9) {
+                                                               $days = "{$hours} hour" . ($hours == 1 ? '' : 's');
+                                                            } else {
+                                                               $extra = $hours - 9;
+                                                               $days = "1 day";
+                                                               if ($extra > 0) {
+                                                                  $days .= " (" . intval($extra) . " hours)";
+                                                               }
+                                                            }
                                                          } catch (\Exception $e) {
                                                             $days = '1';
                                                          }
+
+                                                      // If numeric slider values (e.g., 16, 44)
+                                                      } elseif (is_numeric($rangeMin) && is_numeric($rangeMax)) {
+                                                         $startMinutes = (int)$rangeMin * 30;
+                                                         $endMinutes = (int)$rangeMax * 30;
+                                                         $durationMinutes = $endMinutes - $startMinutes;
+                                                         $totalHours = round($durationMinutes / 60, 2);
+
+                                                         if ($totalHours <= 9) {
+                                                            $days = "{$totalHours} hour" . ($totalHours == 1 ? '' : 's');
+                                                         } else {
+                                                            $extra = $totalHours - 9;
+                                                            $days = "1 day";
+                                                            if ($extra > 0) {
+                                                               $days .= " (" . intval($extra) . " hours)";
+                                                            }
+                                                         }
                                                       }
                                                    } else {
-                                                      $from = $to = trim($date);
-                                                      $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
+                                                      // Fallback logic if no rangeMin/rangeMax
+                                                      if (strpos($date, 'to') !== false) {
+                                                         if ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') {
+                                                            $days = '1/2';
+                                                         } else {
+                                                            try {
+                                                               $fromDate = \Carbon\Carbon::createFromFormat('d / m / Y', $from);
+                                                               $toDate = \Carbon\Carbon::createFromFormat('d / m / Y', $to);
+                                                               $days = $fromDate->diffInDays($toDate) + 1;
+                                                            } catch (\Exception $e) {
+                                                               $days = '1';
+                                                            }
+                                                         }
+                                                      } else {
+                                                         $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
+                                                      }
                                                    }
 
                                                    $badgeClass = match($leaveType) {
@@ -3581,6 +3716,7 @@
                                              </tr>
                                           </tbody>
                                        </table>
+
 
                                        <script>
                                        document.addEventListener("DOMContentLoaded", function () {

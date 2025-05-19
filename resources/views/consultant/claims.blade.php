@@ -1713,11 +1713,8 @@
                            <span>Total Work Hours</span>
                            <span>Total Work Hours</span>
                         </div>
-                        <div class="timeline tile_shape_box">
-                           <div class="timeline-item d-flex mb-3">
-                              <div class="select_box">
-                                 <input type="checkbox" value="" />
-                              </div>
+                        <form id="claimDownloadForm">
+                           <div class="timeline tile_shape_box">
                               @php
                                  $groupedClaims = [];
 
@@ -1730,7 +1727,6 @@
                                           $groupedClaims[$claimNo] = [
                                              'claim_no' => $claimNo,
                                              'amount' => 0,
-                                             'certificate' => $record['certificate_path'] ?? null,
                                              'items' => []
                                           ];
                                        }
@@ -1749,39 +1745,67 @@
                                  @php
                                     $claimNo = $claim['claim_no'];
                                     $amount = number_format($claim['amount'], 2);
-                                    $certificate = $claim['certificate'];
                                     $count = str_pad(count($claim['items']), 2, '0', STR_PAD_LEFT);
                                  @endphp
 
-                                 <div class="timeline_right">
-                                    <div class="d-flex align-items-center mb-3 tl-header">
-                                       <span class="c_form_no">Claim Form : #{{ strtoupper($claimNo) }}</span>
-                                       <span class="c_amount">Amount : $ {{ $amount }}</span>
+                                 <div class="timeline-item d-flex mb-3">
+                                    <div class="select_box">
+                                       <input type="checkbox"
+                                          class="claim-checkbox"
+                                          value="{{ $claimNo }}">
                                     </div>
-                                    <div class="d-flex align-items-center tl-header">
-                                       <span class="ind_claim">individual claims ( {{ $count }} )</span>
-                                       <span>
-                                          @if ($certificate)
-                                             <a href="{{ url('/download-pdf') }}" class="badge_icon" download>
+
+                                    <div class="timeline_right">
+                                       <div class="d-flex align-items-center mb-3 tl-header">
+                                          <span class="c_form_no">Claim Form : #{{ strtoupper($claimNo) }}</span>
+                                          <span class="c_amount">Amount : $ {{ $amount }}</span>
+                                       </div>
+                                       <div class="d-flex align-items-center tl-header">
+                                          <span class="ind_claim">individual claims ( {{ $count }} )</span>
+                                          <span>
+                                             <a href="{{ url('/download-pdf') }}?claim={{ $claimNo }}" class="badge_icon" download>
                                                 <i class="fa-solid fa-cloud-arrow-down"></i>
                                              </a>
-                                          @endif
-                                          <a href="javascript:void(0)" class="badge_icon open-claim-modal"
-                                             data-bs-toggle="modal"
-                                             data-bs-target="#claimModal"
-                                             data-claim="{{ $claimNo }}">
-                                             <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                          </a>
-                                       </span>
+                                             <!-- <a href="javascript:void(0)" class="badge_icon open-claim-modal"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#claimModal"
+                                                data-claim="{{ $claimNo }}">
+                                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                             </a> -->
+                                          </span>
+                                       </div>
                                     </div>
                                  </div>
                               @endforeach
-
                            </div>
-                        </div>
-                        <div class="g_cpoies_submit_btn r_update_btn">
-                           <button type="submit">Submit</button>
-                        </div>
+
+                           <div class="g_cpoies_submit_btn r_update_btn">
+                              <button type="button" id="downloadSelected">Submit</button>
+                           </div>
+                        </form>
+
+                        <script>
+                           document.getElementById('downloadSelected').addEventListener('click', function () {
+                              const checkboxes = document.querySelectorAll('.claim-checkbox:checked');
+
+                              if (checkboxes.length === 0) {
+                                 alert("Please select claims.");
+                                 return;
+                              }
+
+                              checkboxes.forEach(checkbox => {
+                                 const claimNo = checkbox.value;
+
+                                 const link = document.createElement("a");
+                                 link.href = `{{ url('/download-pdf') }}?claim=${claimNo}`;
+                                 link.download = '';
+                                 document.body.appendChild(link);
+                                 link.click();
+                                 document.body.removeChild(link);
+                              });
+                           });
+                        </script>
+
                      </div>
                   </div>
                   <!-- claim modal -->
