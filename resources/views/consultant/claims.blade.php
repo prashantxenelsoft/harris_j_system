@@ -96,7 +96,7 @@
                                     </li>
 
                                     <li>
-                                    <input type="text" placeholder="Enter Reporting Manager Email Id">
+                                    <input type="text" placeholder="Enter Reporting Manager Email-Id">
                                     </li>
                               
                            </ul>
