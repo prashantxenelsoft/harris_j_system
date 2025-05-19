@@ -879,8 +879,8 @@
                                    const today = new Date();
                                        today.setHours(0, 0, 0, 0); // Normalize time
                            
-                                      // if (day === 0 || day === 6 || !calendarEnabled) {
-                                       if (day === 0 || day === 6 ) {
+                                       if (day === 0 || day === 6 || !calendarEnabled) {
+                                     //  if (day === 0 || day === 6 ) {
                                  
                                           cell.classList.add("disabled");
                                        } else {
