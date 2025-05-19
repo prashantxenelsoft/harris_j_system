@@ -514,6 +514,8 @@ div#home_page_timesheet{
 
 div#home_page_timesheet .timeline-container{
     height: 100%;
+    overflow-x: hidden;
+    padding-bottom: 35%;
 }
 
 /* .calender-custom .calendar{
@@ -576,4 +578,52 @@ div#home_page_timesheet .timeline-container{
 {
      top: 60px;
         right: 0px;
+}
+
+.timesheet-yet-submitted {
+    background-color: #FAFAFA;
+    box-shadow: 0px 0px 4px 0px #00000040;
+    border-radius: 5px 0px 0px 5px;
+    position: absolute;
+    width: 100%;
+    left: 23px;
+    bottom: 20px;
+    padding: 7px 8px;
+}
+ 
+.timesheet-yet-submitted p {
+    color: #007AFF;
+    font-weight: 500;
+    font-family: var(--Themefont);
+    font-size: var(--Font14px);
+}
+ 
+.timesheet-yet-submitted h6 {
+    font-weight: 500;
+    padding: 5px;
+    background: linear-gradient(0deg, rgba(0, 133, 255, 0.1), rgba(0, 133, 255, 0.1));
+    color: #007AFF;
+    font-family: var(--Themefont);
+    border-radius: 5px;
+    font-size: var(--Font14px);
+    width: fit-content;
+    margin-top: 10px;
+}
+
+.timeline-container{
+    position: relative;
+}
+
+.timeline-item span{
+    font-family: var(--Themefont);
+}
+
+#home_page_timesheet .timeline-dot.dot-blue{
+    top: 0;
+}
+
+@media screen and (min-width: 1200px) and (max-width: 1360px) {
+    #home_page_timesheet .timeline-dot.dot-blue {
+        left: -9.5%;
+    }
 }
