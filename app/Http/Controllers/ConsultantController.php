@@ -326,27 +326,27 @@ class ConsultantController extends Controller
             $finalStatus =  $status;
         
           // Step 1: Fetch existing record first
-$existing = DB::table('consultant_dashboard')->where('id', $match->id)->first();
+            $existing = DB::table('consultant_dashboard')->where('id', $match->id)->first();
 
-if ($existing) {
-    $existingRecord = json_decode($existing->record, true) ?? [];
+            if ($existing) {
+                $existingRecord = json_decode($existing->record, true) ?? [];
 
-    // Step 2: Preserve original claim_no if it exists
-    if (isset($existingRecord['claim_no'])) {
-        $recordData['claim_no'] = $existingRecord['claim_no'];
-    }
+                // Step 2: Preserve original claim_no if it exists
+                if (isset($existingRecord['claim_no'])) {
+                    $recordData['claim_no'] = $existingRecord['claim_no'];
+                }
 
-    // Step 3: Save updated record
-    DB::table('consultant_dashboard')
-        ->where('id', $match->id)
-        ->update([
-            'record' => json_encode($recordData),
-            'client_id' => $request->client_id,
-            'client_name' => $request->client_name,
-            'status' => $finalStatus,
-            'updated_at' => now()
-        ]);
-}
+                // Step 3: Save updated record
+                DB::table('consultant_dashboard')
+                    ->where('id', $match->id)
+                    ->update([
+                        'record' => json_encode($recordData),
+                        'client_id' => $request->client_id,
+                        'client_name' => $request->client_name,
+                        'status' => $finalStatus,
+                        'updated_at' => now()
+                    ]);
+            }
 
         
             // ✅ If this record is marked as Submitted, then apply it to all records of the same month

@@ -117,25 +117,28 @@
 
                         <div class="claim-summary-dashboard-consultant">
                             <div class="claim-header-consultant">
-                                <h4>
-                                    Claims Summary
-                                </h4>
+                                @php
+                                    $firstClaim = $dataClaims->first();
+                                    $record = $firstClaim ? json_decode($firstClaim->record, true) : null;
+                                @endphp
+                                @if($record)
+                                    <h4>
+                                        Claims Summary
+                                    </h4>
 
-                                <div class="view-all-cta">
+                                    <div class="view-all-cta">
+                                        
                                     
-                                    @php
-                                        $firstClaim = $dataClaims->first();
-                                        $record = $firstClaim ? json_decode($firstClaim->record, true) : null;
-                                    @endphp
 
-                                    <a href="javascript:void(0);"
-                                    class="open-claim-modal"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#claimModal"
-                                    data-applyoncell="{{ $record['applyOnCell'] ?? '' }}">
-                                    View All
-                                    </a>
-                                </div>
+                                        <a href="javascript:void(0);"
+                                        class="open-claim-modal"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#claimModal"
+                                        data-applyoncell="{{ $record['applyOnCell'] ?? '' }}">
+                                        View All
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                             @php
                                 $firstClaim = $dataClaims->first();
@@ -455,90 +458,115 @@
                             <i class="fa-solid fa-caret-down"></i> {{ $consultant->client_name ?? 'N/A' }}
                         </div>
 
-                        @php
-                            use Carbon\Carbon;
+                         @php
+                        use Carbon\Carbon;
 
-                            $monthGroups = [];
+                        $monthGroups = [];
+                        $monthLatestDates = [];
 
-                            foreach ($dataTimesheet as $item) {
-                            $record = json_decode($item->record ?? '{}', true);
-                            if (!isset($record['applyOnCell'])) continue;
+                        foreach ($dataTimesheet as $item) {
+                           $record = json_decode($item->record ?? '{}', true);
+                           if (!isset($record['applyOnCell'])) continue;
 
-                            $parts = explode(' / ', $record['applyOnCell']);
-                            if (count($parts) !== 3) continue;
+                           $parts = explode(' / ', $record['applyOnCell']);
+                           if (count($parts) !== 3) continue;
 
-                            [$day, $month, $year] = $parts;
-                            $key = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
-                            $monthGroups[$key][] = strtolower(trim($item->status));
-                            }
+                           [$day, $month, $year] = $parts;
+                           $key = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
+                           $monthGroups[$key][] = strtolower(trim($item->status));
 
-                            $monthlyStatus = [];
-                            foreach ($monthGroups as $monthKey => $statuses) {
-                            if (in_array('draft', $statuses)) {
-                                $monthlyStatus[$monthKey] = 'Draft';
-                            } elseif (count(array_unique($statuses)) === 1) {
-                                $monthlyStatus[$monthKey] = ucfirst($statuses[0]);
-                            } else {
-                                $monthlyStatus[$monthKey] = 'Mixed';
-                            }
-                            }
+                           // Track last updated applyOnCell per month
+                           if (!isset($monthLatestDates[$key])) {
+                              $monthLatestDates[$key] = [
+                                 'updated_at' => $item->updated_at,
+                                 'applyOnCell' => $record['applyOnCell'],
+                              ];
+                           } else {
+                              $curr = Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                              $prev = Carbon::createFromFormat('d / m / Y', $monthLatestDates[$key]['applyOnCell']);
 
-                            krsort($monthlyStatus);
-                            $monthlyStatus = array_slice($monthlyStatus, 0, 6, true);
-                        @endphp
+                              if ($curr->gt($prev)) {
+                                 $monthLatestDates[$key] = [
+                                    'updated_at' => $item->updated_at,
+                                    'applyOnCell' => $record['applyOnCell'],
+                                 ];
+                              }
+                           }
+                        }
 
-                        @if (!empty($monthlyStatus))
-                            @foreach ($monthlyStatus as $monthKey => $status)
-                            @php
-                                $statusLower = strtolower($status);
+                        $monthlyStatus = [];
+                        foreach ($monthGroups as $monthKey => $statuses) {
+                           if (in_array('draft', $statuses)) {
+                              $monthlyStatus[$monthKey] = 'Draft';
+                           } elseif (count(array_unique($statuses)) === 1) {
+                              $monthlyStatus[$monthKey] = ucfirst($statuses[0]);
+                           } else {
+                              $monthlyStatus[$monthKey] = 'Mixed';
+                           }
+                        }
 
-                                $dotClass = match($statusLower) {
-                                    'draft' => 'dot-blue',
-                                    'submitted' => 'dot-yellow',
-                                    'auto approved', 'approved' => 'dot-green',
-                                    'rejected' => 'dot-red',
-                                    default => 'dot-gray',
-                                };
+                        krsort($monthlyStatus);
+                        $monthlyStatus = array_slice($monthlyStatus, 0, 6, true);
+                     @endphp
 
-                                $lineClass = match($statusLower) {
-                                    'draft' => 'blue-timeline',
-                                    'submitted' => 'yellow-timeline',
-                                    'auto approved', 'approved' => 'green-timeline',
-                                    'rejected' => 'red-timeline',
-                                    default => 'gray-timeline',
-                                };
+                     @if (!empty($monthlyStatus))
+                        @foreach ($monthlyStatus as $monthKey => $status)
+                           @php
+                              $monthTitle = Carbon::createFromFormat('Y-m', $monthKey)->format('F - Y');
+                              $statusLower = strtolower($status);
 
-                                $badgeClass = match($statusLower) {
-                                    'draft' => 'badge blue',
-                                    'submitted' => 'badge yellow',
-                                    'auto approved', 'approved' => 'badge green',
-                                    'rejected' => 'badge red',
-                                    default => 'badge gray',
-                                };
+                              $dotClass = match($statusLower) {
+                                 'draft' => 'dot-blue',
+                                 'submitted' => 'dot-yellow',
+                                 'auto approved', 'approved' => 'dot-green',
+                                 'rejected' => 'dot-red',
+                                 default => 'dot-gray',
+                              };
 
-                                $icon = match($statusLower) {
-                                    'auto approved', 'approved' => '<i class="fa-solid fa-check"></i>',
-                                    'submitted' => '<i class="fa-solid fa-xmark"></i>',
-                                    default => '',
-                                };
-                            @endphp
+                              $lineClass = match($statusLower) {
+                                 'draft' => 'blue-timeline',
+                                 'submitted' => 'yellow-timeline',
+                                 'auto approved', 'approved' => 'green-timeline',
+                                 'rejected' => 'red-timeline',
+                                 default => 'gray-timeline',
+                              };
 
-                            <div class="timeline-item">
-                                <div class="timeline-dot {{ $dotClass }}">{!! $icon !!}</div>
+                              $badgeClass = match($statusLower) {
+                                 'draft' => 'badge blue',
+                                 'submitted' => 'badge yellow',
+                                 'auto approved', 'approved' => 'badge green',
+                                 'rejected' => 'badge red',
+                                 default => 'badge gray',
+                              };
 
-                                @unless ($loop->last)
-                                    <div class="timeline-line {{ $lineClass }}"></div>
-                                @endunless
+                              $icon = match($statusLower) {
+                                 'auto approved', 'approved' => '<i class="fa-solid fa-check"></i>',
+                                 'submitted' => '<i class="fa-solid fa-xmark"></i>',
+                                 default => '',
+                              };
 
-                                <div class="timeline-content">
-                                    <h4>Timesheet Overview</h4>
-                                    <div class="{{ $badgeClass }}">{{ ucwords($status) }}</div>
-                                </div>
-                            </div>
-                            @endforeach
-                        @else
-                            <p class="text-muted" style="padding: 0.5rem 1rem;">Timesheet Overview not found</p>
-                        @endif
+                              // ✅ Get final date for non-draft status
+                              $finalDate = '';
+                              if ($statusLower !== 'draft' && isset($monthLatestDates[$monthKey]['updated_at'])) {
+                                 $finalDate = Carbon::parse($monthLatestDates[$monthKey]['updated_at'])->format('D, d M Y');
+                              }
+                           @endphp
+
+                           <div class="timeline-item">
+                              <div class="timeline-dot {{ $dotClass }}">{!! $icon !!}</div>
+                              <div class="timeline-line {{ $lineClass }}"></div>
+                              <div class="timeline-content">
+                                 <h4>Timesheet Overview ({{ $monthTitle }})</h4>
+                                 <div class="{{ $badgeClass }}">{{ ucwords($status) }}</div>
+                                 @if ($finalDate)
+                                    <span>{{ $finalDate }}</span>
+                                 @endif
+                              </div>
+                           </div>
+                        @endforeach
+                     @else
+                        <p class="text-muted" style="padding: 0.5rem 1rem;">Timesheet Overview not found</p>
+                     @endif
                     </div>
                 </div>
                 </div>
