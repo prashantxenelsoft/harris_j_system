@@ -121,7 +121,7 @@
                         <div id="reporting_fileds_data" class="client-details-consultant">
                            <ul>
                                  <li>
-                                    <input type="text" placeholder="Enter Corporate Email Of Consultant">
+                                    <input type="text" placeholder="Enter Your Corporate Email-id">
                                     </li>
 
                                     <li>
