@@ -1764,10 +1764,7 @@
                                     applyTag(cell, "8", "#000000"); 
                                  }
 
-                                 //if (dayOfWeek === 0 || dayOfWeek === 6 || !calendarEditable) {
-
-                                  if (dayOfWeek === 0 || dayOfWeek === 6 ) {
-                                 // if (dayOfWeek === 0 || dayOfWeek === 6  ) {
+                                 if (dayOfWeek === 0 || dayOfWeek === 6 || !calendarEditable) {
                                     cell.classList.add("disabled");
                                  } else {
                                     cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
