@@ -3464,6 +3464,25 @@
                                  const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")); // 0-based
                                  const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
 
+                                         const calendarCells = document.querySelectorAll("#calendarDays .calendar-cell");
+
+                                          let day = 1;
+                                          let count123 = 0;
+
+                                          calendarCells.forEach((cell, index) => {
+                                             const date = new Date(selectedYear, selectedMonth, day);
+                                             
+                                             // Skip cells that are not part of this month (e.g., leading/trailing blanks)
+                                             if (date.getMonth() !== selectedMonth) return;
+
+                                             const weekday = date.getDay(); // 0=Sun, 6=Sat
+                                             if (weekday >= 1 && weekday <= 5) {
+                                                   count123++;
+                                             }
+
+                                             day++;
+                                          });
+
                                  let totalHours = 0;
                                  let countRows = 0;
 
@@ -3488,9 +3507,9 @@
                                  });
 
                                  // ✅ Update values in DOM
-                                 document.getElementById("forecastedHours").innerText = countRows * 8;
+                                 document.getElementById("forecastedHours").innerText = count123 * 8;
                                  document.getElementById("loggedHours").innerText = totalHours.toFixed(0);
-                                 document.getElementById("base_w_h").innerText = countRows * 8;
+                                 document.getElementById("base_w_h").innerText = count123 * 8;
                                  document.getElementById("total_b_w_h").innerText = totalHours.toFixed(0);
                               });
                            </script>

@@ -12,7 +12,7 @@
 
                 
 
-                @php $activeTab = request('tab', 'timesheet'); @endphp
+                @php $activeTab = request('tab', 'home'); @endphp
                 <div class="col-lg-7 col-md-7">
                     <div class="tabs-hj">
                             <ul class="nav nav-tabs" id="AddConsultantTabs" role="tablist">
