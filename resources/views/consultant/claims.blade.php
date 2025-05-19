@@ -21,6 +21,8 @@
       const reporting_fileds_data = document.getElementById("reporting_fileds_data");
       
 
+      
+
       let hasData = false;
       let hasDraft = false;
 
@@ -931,8 +933,19 @@
                                        const opt = document.createElement("div");
                                        opt.innerHTML = `<span style="margin-right: 8px;">${item.icon}</span>${item.label}`;
                                        opt.onclick = () => {
+                                         
                                        document.getElementById("claimForm").reset();
-                                        const formattedDate = new Date(date);
+                                       const formattedDate = new Date(date);
+                                       const today = new Date();
+                                       today.setHours(0, 0, 0, 0);
+                                       formattedDate.setHours(0, 0, 0, 0);
+
+                                       // ✅ Prevent future date
+                                       if (formattedDate > today) {
+                                          alert("Claims cannot be added for a future date.");
+                                          return;
+                                       }
+
                                         const day = String(formattedDate.getDate()).padStart(2, "0");
                                         const month = String(formattedDate.getMonth() + 1).padStart(2, "0");
                                         const year = formattedDate.getFullYear();
@@ -1275,7 +1288,6 @@
 
                            function updateMonthYearLabel() {
                               const label = document.getElementById("monthYearLabel");
-                              console.log(label);
                               label.textContent = `${monthNames[currentDate.getMonth()]} - ${currentDate.getFullYear()}`;
                            }
 
