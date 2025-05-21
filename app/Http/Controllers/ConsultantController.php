@@ -459,83 +459,142 @@ if (array_keys($records) !== range(0, count($records) - 1)) {
         }
     }
    if ($status === 'Submitted') {
+
         $to = $request->reporting_manager_email;
+
         $cc = $request->corporate_email;
     
         if (!empty($to)) {
+
             try {
+
                 $consultant = \App\Models\Consultant::where('user_id', $userId)->first();
+
                 $token = $consultant->token ?? null;
+
                 $selectedYear = $request->input('selectedYear');
+
                 $selectedMonth = $request->input('selectedMonth');
     
                 // Generate PDF for record
+
                 $data = [
+
                     'type' => 'Timesheet Submission',
+
                     'token' => $token,
+
                     'consultant' => $consultant,
+
                     'client' => DB::table('clients')->where('id', $consultant->client_id)->first(),
+
                     'consultancy' => DB::table('users')->where('id', $consultant->client_id)->first(),
+
                     'dashboards' => DB::table('consultant_dashboard')
+
                         ->where('user_id', $consultant->user_id)
+
                         ->where('type', 'timesheet')
+
                         ->where('status', 'Submitted')
+
                         ->get(),
+
                     'selectedYear' => $selectedYear,
+
                     'selectedMonth' => $selectedMonth,
+
                     'totalWorkingHours' => 0,
+
                     'isPdf' => true
+
                 ];
     
                 foreach ($data['dashboards'] as $dashboard) {
+
                     $record = json_decode($dashboard->record, true);
+
                     if (!empty($record['workingHours'])) {
+
                         $data['totalWorkingHours'] += floatval($record['workingHours']);
+
                     }
+
                 }
     
                 $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.reporting_manager', $data);
     
                 $fileName = 'timesheet_' . $consultant->id . '_' . time() . '.pdf';
+
                 $folder = storage_path('app/public/consultant/timesheets');
+
                 if (!\File::exists($folder)) {
+
                     \File::makeDirectory($folder, 0755, true);
+
                 }
     
                 $filePath = $folder . '/' . $fileName;
+
                 file_put_contents($filePath, $pdf->output());
+
                 $pdfLink = 'storage/consultant/timesheets/' . $fileName;
     
                 $givenBy = !empty($givenBy) ? $givenBy : null;
     
                 DB::table('remarks')->insert([
+
                     'remark' => 'Harris J system update - Successfully submitted timesheet. You can track request via status bar.',
+
                     'pdf_link' => $pdfLink,
+
                     'month_of' => $selectedMonth."-".$selectedYear,
+
                     'consultant_id' => 1,
+
                     'given_by' => $givenBy,
+
                     'given_by_type' => 'system',
+
                     'created_at' => now(),
+
                     'updated_at' => now()
+
                 ]);
     
     
                 // Send mail
+
                 \Mail::to($to)
+
                     ->cc(!empty($cc) ? [$cc] : [])
+
                     ->send(new \App\Mail\ReportingManagerMail(
+
                         'Timesheet Submitted',
+
                         'Consultant has submitted their record.',
+
                         $token,
+
                         $selectedYear,
+
                         $selectedMonth
+
                     ));
+
             } catch (\Exception $e) {
+
                 \Log::error("Mail sending failed to Reporting Manager: " . $e->getMessage());
+
                 return;
+
             }
+
         }
+
     }
+ 
 
     return response()->json(['success' => true, 'message' => 'Data saved successfully!']);
 }
