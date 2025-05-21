@@ -621,6 +621,9 @@ div#home_page_timesheet .timeline-container{
 #home_page_timesheet .timeline-dot.dot-blue{
     top: 0;
 }
+.fs-12{
+    font-size: 12px;
+}
 
 @media screen and (min-width: 1200px) and (max-width: 1360px) {
     #home_page_timesheet .timeline-dot.dot-blue {

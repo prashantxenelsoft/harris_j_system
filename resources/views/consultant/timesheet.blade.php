@@ -3982,7 +3982,7 @@
                                        </div>
                                  @endforeach
                                  
-                                 <div id="noTimelineMessage" class="text-center text-muted p-2 d-none">
+                                 <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2 d-none">
                                        <strong>No entries found for this month</strong>
                                  </div>
                               
@@ -4058,7 +4058,7 @@
                                     @endif
                                  @endforeach
                             </div>
-                            <div id="noEntriesMessage" class="text-muted text-center p-2 d-none">
+                            <div id="noEntriesMessage" class="fs-12 text-muted text-center p-2 d-none">
                               <strong>No entries found for this month</strong>
                             </div>
                            <script>
@@ -4125,7 +4125,7 @@
                                  @endif
                               @endforeach
                               </div> {{-- Hidden "no data" message --}}
-                              <div id="noPayoffMessage" class="text-muted text-center p-2 d-none">
+                              <div id="noPayoffMessage" class="fs-12 text-muted text-center p-2 d-none">
                                  <strong>No entries found for this month</strong>
                               </div>
                               <script>
@@ -4213,7 +4213,7 @@
                               @endforeach
                               </div>
 
-                              <div id="noCompOffMessage" class="text-muted text-center p-2 d-none">
+                              <div id="noCompOffMessage" class="fs-12 text-muted text-center p-2 d-none">
                                  <strong>No entries found for this month</strong>
                               </div>
 
@@ -4486,7 +4486,7 @@
                                                 </div>
                                              </div>
                                           @endforeach
-                                          <div id="noTimelineMessage12" class="text-center text-muted p-2 d-none">
+                                          <div id="noTimelineMessage12" class="fs-12 text-center text-muted p-2 d-none">
                                                 <strong>No entries found for this month</strong>
                                           </div>
                                        </div>
@@ -4564,7 +4564,7 @@
                                                 @endif
                                              @endforeach
                                        </div>
-                                       <div id="noEntriesMessage354" class="text-muted text-center p-2 d-none">
+                                       <div id="noEntriesMessage354" class="fs-12 text-muted text-center p-2 d-none">
                                           <strong>No entries found for this month</strong>
                                        </div>
                                        <script>
@@ -4634,7 +4634,7 @@
                                        </div>
 
                                        {{-- Hidden "no data" message --}}
-                                       <div id="noPayoffMessage12" class="text-muted text-center p-2 d-none">
+                                       <div id="noPayoffMessage12" class="fs-12 text-muted text-center p-2 d-none">
                                           <strong>No entries found for this month</strong>
                                        </div>
                                        <script>
@@ -4716,7 +4716,7 @@
                                        @endforeach
                                        </div>
 
-                                       <div id="noCompOffMessage12" class="text-muted text-center p-2 d-none">
+                                       <div id="noCompOffMessage12" class="fs-12 text-muted text-center p-2 d-none">
                                           <strong>No entries found for this month</strong>
                                        </div>
                                        <script>

@@ -167,53 +167,75 @@ class ConsultanctApiController extends Controller {
 
 
 
+public function getLeaveLog(Request $request)
+{
+    $user = auth()->user();
+    $month = $request->input('month');
+    $year = $request->input('year');
 
-    public function getLeaveLog(Request $request)
-    {
-        $user = auth()->user();
-        $month = $request->input('month');
-        $year = $request->input('year');
-
-        if (!$user || !$month || !$year) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Missing required parameters.',
-            ], 400);
-        }
-
-        $data = DB::table('consultant_dashboard')
-            ->where('user_id', $user->id)
-            ->where('type', 'timesheet')
-            ->get();
-
-        $filtered = $data->filter(function ($item) use ($month, $year) {
-            $record = json_decode($item->record ?? '{}', true);
-
-            if (
-                !isset($record['applyOnCell']) ||
-                !isset($record['leaveType']) // ✅ Only include if leaveType exists
-            ) {
-                return false;
-            }
-
-            $parts = explode(' / ', $record['applyOnCell']);
-            if (count($parts) !== 3) return false;
-
-            return $parts[1] == str_pad($month, 2, '0', STR_PAD_LEFT) && $parts[2] == $year;
-        })->values();
-
-        if ($filtered->isEmpty()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'No leaveType records found for given month and year.',
-            ]);
-        }
-
+    if (!$user || !$month || !$year) {
         return response()->json([
-            'status' => true,
-            'data' => $filtered,
-        ]);
+            'status' => false,
+            'message' => 'Missing required parameters.',
+        ], 400);
     }
+
+    $data = DB::table('consultant_dashboard')
+        ->where('user_id', $user->id)
+        ->where('type', 'timesheet')
+        ->get();
+
+    // === LEAVE LOG ===
+    $leaveLog = $data->filter(function ($item) use ($month, $year) {
+        $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+        if (!isset($record['applyOnCell']) || !isset($record['leaveType'])) return false;
+
+        $parts = explode(' / ', $record['applyOnCell']);
+        return count($parts) === 3 && $parts[1] == str_pad($month, 2, '0', STR_PAD_LEFT) && $parts[2] == $year;
+    })->map(function ($item) {
+        $item->record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+        return $item;
+    })->values();
+
+    // === FORECASTED HOURS ===
+    $forecastedDays = 0;
+    $daysInMonth = Carbon::createFromDate($year, $month, 1)->daysInMonth;
+    for ($day = 1; $day <= $daysInMonth; $day++) {
+        $date = Carbon::createFromDate($year, $month, $day);
+        if (!$date->isWeekend()) {
+            $forecastedDays++;
+        }
+    }
+    $forecastedHours = $forecastedDays * 8;
+
+    // === LOGGED HOURS ===
+    $loggedHours = $data->reduce(function ($carry, $item) use ($month, $year) {
+        $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+
+        if (!isset($record['applyOnCell']) || !isset($record['workingHours'])) return $carry;
+
+        $parts = explode(' / ', $record['applyOnCell']);
+        if (count($parts) !== 3) return $carry;
+
+        if ($parts[1] == str_pad($month, 2, '0', STR_PAD_LEFT) && $parts[2] == $year) {
+            return $carry + (is_numeric($record['workingHours']) ? (float)$record['workingHours'] : 0);
+        }
+
+        return $carry;
+    }, 0);
+
+    // === RESPONSE ===
+    return response()->json([
+        'status' => true,
+        'leave_log' => $leaveLog,
+        'work_log' => [
+            'forecasted_hours' => $forecastedHours,
+            'logged_hours' => round($loggedHours, 2),
+        ],
+    ]);
+}
+
+
 
 
 }
