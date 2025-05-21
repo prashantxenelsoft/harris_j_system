@@ -1,5 +1,4 @@
 @extends('layouts.custom_layout') @section('content')
-<!-- Add Consultant Screen Start-->
 <section class="add-consultant-parent">
     <header class="hj-header">
         <div class="container">
@@ -37,7 +36,6 @@
                                                 <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M1.5124 9.97792H8.66498V11H0V1.02208H1.33502V9.81518C1.33502 9.90518 1.41504 9.97792 1.5124 9.97792ZM10 0V9.6512H1.68978V0H10ZM3.78501 3.20926C3.78501 3.69626 3.9864 4.18325 4.38784 4.55559C4.78928 4.92793 5.31742 5.11287 5.84423 5.11287C6.37103 5.11287 6.89784 4.9267 7.30061 4.55559C7.70339 4.18325 7.90344 3.69626 7.90344 3.20926C7.90344 2.72226 7.70205 2.23526 7.30061 1.86292C6.89784 1.49059 6.37103 1.30565 5.84423 1.30565C5.31742 1.30565 4.79061 1.49182 4.38784 1.86292C3.98506 2.23526 3.78501 2.72226 3.78501 3.20926ZM8.28221 8.18281C8.28221 8.0928 8.20352 8.01883 8.10483 8.01883H3.58229C3.48493 8.01883 3.40491 8.09157 3.40491 8.18281C3.40491 8.27281 3.4836 8.34678 3.58229 8.34678H8.10483C8.20352 8.34555 8.28221 8.27281 8.28221 8.18281ZM8.28221 7.09662C8.28221 7.00661 8.20352 6.93264 8.10483 6.93264H3.58229C3.48493 6.93264 3.40491 7.00538 3.40491 7.09662C3.40491 7.18662 3.4836 7.26059 3.58229 7.26059H8.10483C8.20352 7.26059 8.28221 7.18785 8.28221 7.09662ZM8.28221 6.01166C8.28221 5.92165 8.20352 5.84768 8.10483 5.84768H3.58229C3.48493 5.84768 3.40491 5.92042 3.40491 6.01166C3.40491 6.10166 3.4836 6.17563 3.58229 6.17563H8.10483C8.20352 6.17563 8.28221 6.10166 8.28221 6.01166ZM4.60256 3.20926C4.60256 3.11926 4.52387 3.04528 4.42518 3.04528H4.14777C4.18645 2.6976 4.35049 2.35978 4.63857 2.09348C4.92665 1.82717 5.29208 1.67552 5.66818 1.63977V1.90114C5.66818 1.99115 5.74687 2.06512 5.84556 2.06512C5.94292 2.06512 6.02294 1.99238 6.02294 1.90114V1.641C6.39904 1.67675 6.76447 1.8284 7.05255 2.09471C7.34062 2.36102 7.50467 2.69883 7.54335 3.04651H7.26594C7.16858 3.04651 7.08856 3.11926 7.08856 3.21049C7.08856 3.30049 7.16724 3.37447 7.26594 3.37447H7.54335C7.50467 3.72215 7.34062 4.05996 7.05255 4.32627C6.76447 4.59258 6.39904 4.74423 6.02294 4.77998V4.52354C6.02294 4.43354 5.94425 4.35956 5.84556 4.35956C5.7482 4.35956 5.66818 4.4323 5.66818 4.52354V4.77998C5.29208 4.74423 4.92665 4.59258 4.63857 4.32627C4.35049 4.05996 4.18778 3.72215 4.14777 3.37447H4.42518C4.52254 3.37323 4.60256 3.29926 4.60256 3.20926ZM5.66951 3.20926C5.66951 3.29926 5.7482 3.37323 5.84689 3.37323H6.40971C6.50707 3.37323 6.58709 3.30049 6.58709 3.20926C6.58709 3.11926 6.5084 3.04528 6.40971 3.04528H6.02427V2.45102C6.02427 2.36102 5.94559 2.28704 5.84689 2.28704C5.74953 2.28704 5.66951 2.35978 5.66951 2.45102V3.20926Z" fill="#A6A9B5"/>
                                                 </svg>
-
                                            </span>
                                             Timesheet
                                         </button>
@@ -62,7 +60,6 @@
                                                     </clipPath>
                                                     </defs>
                                                 </svg>
-
                                               </span>
                                             Claims
                                         </button>
@@ -71,43 +68,34 @@
                             </ul>
                         </div>
                     </div>
-
                 <div class="col-lg-3 col-md-3">
                     <div class="hj-right-col">
                         <div class="bell-icon-col">
                             <i class="fa-solid fa-bell"></i>
                             <span>1</span>
                         </div>
-
                         <div class="hj-col-country-dropdown">
                             <select id="action-dropdown" onchange="handleDropdown(this)">
                                 <option selected disabled>{{ Auth::user()->name }}</option>
                                 <option data-url="#">Profile</option>
                                 <option data-url="logout">Logout</option>
                             </select>
-
-                            <!-- Hidden logout form -->
                             <form id="logout-form" method="POST" action="{{ route('admin.logout') }}" style="display: none;">
                                 @csrf
                             </form>
-
                             <script>
                                 function handleDropdown(select) {
                                     const selectedOption = select.options[select.selectedIndex];
                                     const action = selectedOption.getAttribute("data-url");
-
                                     if (action === "logout") {
-                                        document.getElementById("logout-form").submit(); // submit logout form
+                                        document.getElementById("logout-form").submit(); 
                                     } else if (action && action !== "#") {
-                                        window.location.href = action; // for other links
+                                        window.location.href = action; 
                                     }
-
-                                    // Reset dropdown to default
                                     select.selectedIndex = 0;
                                 }
                             </script>
                         </div>
-
                         <div class="hj-profile-col">
                             <img src="{{ asset('public/assets/latest/images/profile.png') }}" class="img-fluid" />
                         </div>
@@ -116,7 +104,6 @@
             </div>
         </div>
     </header>
-
     <section class="login-consultant">
         <div class="tab-content">
             @if ($activeTab == 'home') @include('consultant.home')
@@ -126,6 +113,5 @@
         </div>
     </section>
 </section>
-<!-- Add Consultant Screen End-->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 @endsection

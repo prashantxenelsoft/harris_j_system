@@ -149,7 +149,6 @@
                                                             <td>01</td>
                                                             <td>
                                                                 <div class="d-flex align-items-center">
-                                                                    <!-- <img src="assets/images/user1.jpg" alt="Desirae" class="rounded-circle me-2" width="30" height="30"> -->
                                                                     <span>Desirae Press</span>
                                                                 </div>
                                                             </td>
@@ -170,7 +169,6 @@
                                                             <td>02</td>
                                                             <td>
                                                                 <div class="d-flex align-items-center">
-                                                                    <!-- <img src="assets/images/user2.jpg" alt="Maren" class="rounded-circle me-2" width="30" height="30"> -->
                                                                     <span>Maren Carder</span>
                                                                 </div>
                                                             </td>
@@ -191,7 +189,6 @@
                                                             <td>03</td>
                                                             <td>
                                                                 <div class="d-flex align-items-center">
-                                                                    <!-- <img src="assets/images/user3.jpg" alt="Jaxson" class="rounded-circle me-2" width="30" height="30"> -->
                                                                     <span>Jaxson Saris</span>
                                                                 </div>
                                                             </td>

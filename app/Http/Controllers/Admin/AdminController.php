@@ -52,8 +52,9 @@ class AdminController extends Controller
             } elseif ($user->role_id == 7) {
                 return redirect()->intended(route('consultancy.dashboard'));
             }  elseif ($user->role_id == 11) {
-                // return redirect()->intended(route('consultant.dashboard'));
                 return redirect()->intended(route('consultant.information'));
+            }  elseif ($user->role_id == 8) {
+                return redirect()->intended(route('hr.dashboard'));
             } else {
                 Auth::logout();
                 return back()->with('error', 'Unauthorized access');
