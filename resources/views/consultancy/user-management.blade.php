@@ -1344,7 +1344,7 @@
         $('select[name="designation"]').val($(this).data("designation"));
         $('select[name="status"]').val($(this).data("status"));
 
-        $(".table-bom-list-section").hide();
+        $(".table-hj-list-section").hide();
         $(".filter-section-consultancy").hide();
         $(".add-user-form-section").show(); // use toggle() if you don’t want slide effect
 
