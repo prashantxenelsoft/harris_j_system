@@ -624,6 +624,12 @@ div#home_page_timesheet .timeline-container{
 .fs-12{
     font-size: 12px;
 }
+.ph-remark-modal{
+    font-family: var(--Themefont);
+    font-size: var(--Font14px);
+    font-weight: 700;
+    color: #000;
+}
 
 @media screen and (min-width: 1200px) and (max-width: 1360px) {
     #home_page_timesheet .timeline-dot.dot-blue {

@@ -461,9 +461,7 @@ if (array_keys($records) !== range(0, count($records) - 1)) {
    if ($status === 'Submitted') {
 
         $to = $request->reporting_manager_email;
-
         $cc = $request->corporate_email;
-    
         if (!empty($to)) {
 
             try {

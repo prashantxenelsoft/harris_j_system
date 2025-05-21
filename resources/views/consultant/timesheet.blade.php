@@ -1832,6 +1832,7 @@
                                              overlay.style.zIndex = "9999";
 
                                              const popup = document.createElement("div");
+                                             popup.classList.add("ph-remark-modal");
                                              popup.style.background = "#fff";
                                              popup.style.padding = "25px 30px";
                                              popup.style.borderRadius = "12px";
@@ -1840,7 +1841,7 @@
                                              popup.style.maxWidth = "95%";
 
                                              popup.innerHTML = `
-                                                <div style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">
+                                                <div style="font-size: var(--Font16px); font-weight: 600; margin-bottom: 16px;">
                                                    Enter Remark for <span style="color:#dc3545;">PH</span>
                                                 </div>
                                                 <textarea id="phPopupRemark" placeholder="Type your remark..." rows="4"
@@ -1849,7 +1850,7 @@
                                                       padding: 12px 14px;
                                                       border: 2px solid #ced4da;
                                                       border-radius: 8px;
-                                                      font-size: 15px;
+                                                      font-size: var(--Font14px);
                                                       resize: none;
                                                       outline: none;
                                                       transition: border-color 0.2s;
@@ -1859,7 +1860,7 @@
                                                 </div>
                                                 <div style="margin-top: 20px; text-align: right;">
                                                    <button id="phSubmitBtn" style="
-                                                      background-color: #28a745;
+                                                      background-color: var(--Themeorange);;
                                                       color: white;
                                                       border: none;
                                                       padding: 8px 20px;
@@ -1957,7 +1958,7 @@
                                let alertShown = false; 
                               function saveWorkingHour(val) {
                                  val = val.trim();
-                                 const hourVal = parseInt(val, 10);
+                                 const hourVal = Number(val); 
 
                                     const today = new Date(); // today
                                     const selectedDate = new Date(date); // 'date' is assumed to be defined earlier in scope
@@ -1965,24 +1966,34 @@
                                     today.setHours(0, 0, 0, 0);
 
                                  // Invalid input or above 24
-                               if (isNaN(hourVal) || hourVal > 24 || hourVal < 0 || selectedDate > today) {
-                                    if (!alertShown) {
-                                       let message = '';
+                               if (
+                                 isNaN(hourVal) || 
+                                 hourVal > 24 || 
+                                 hourVal < 0 || 
+                                 hourVal == 0 || 
+                                 !Number.isInteger(Number(hourVal)) || 
+                                 selectedDate > today
+                              ) {
+                                 if (!alertShown) {
+                                    let message = '';
 
-                                       if (isNaN(hourVal) || hourVal > 24 || hourVal < 0) {
-                                          message = 'Only numbers 0 to 24 are allowed for working hours.';
-                                       } else if (selectedDate > today) {
-                                          message = 'Working hours cannot be added for a future date.';
-                                       }
-
-                                       alert(message);
-                                       alertShown = true;
+                                    if (hourVal == 0) {
+                                       message = '0 not allowed.';
+                                    } else if (!Number.isInteger(Number(hourVal))) {
+                                       message = 'Decimal number not allowed.';
+                                    } else if (isNaN(hourVal) || hourVal > 24 || hourVal < 0) {
+                                       message = 'Only numbers 1 to 24 are allowed for working hours.';
+                                    } else if (selectedDate > today) {
+                                       message = 'Working hours cannot be added for a future date.';
                                     }
 
-                                    location.reload();
-                                    return false;
+                                    alert(message);
+                                    alertShown = true;
                                  }
 
+                                 location.reload();
+                                 return false;
+                              }
 
                                  // Valid, reset alert
                                  alertShown = false;
