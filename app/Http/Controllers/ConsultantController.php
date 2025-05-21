@@ -19,11 +19,14 @@ class ConsultantController extends Controller {
             $dataTimesheet = DB::table('consultant_dashboard')->where('user_id', $userId)->where('type', 'timesheet')->orderBy('id', 'desc')->get();
             $dataClaims = DB::table('consultant_dashboard')->where('user_id', $userId)->where('type', 'claims')->orderBy('id', 'desc')->get();
             $publicHolidays = DB::table('public_holidays')->get();
+             $leaveLogData = DB::table('leave_log')
+            ->where('user_id', $userId)
+            ->first();
             $token = $consultant->token ?? null;
              $feedbacksgData = DB::table('feedbacks')
             ->where('sender_id', $userId)
             ->get();
-            return view('consultant.dashboard', compact('consultant','feedbacksgData', 'userData', 'dataTimesheet', 'dataClaims', 'publicHolidays', 'token'));
+            return view('consultant.dashboard', compact('consultant','feedbacksgData', 'userData', 'dataTimesheet', 'dataClaims', 'publicHolidays','leaveLogData', 'token'));
         }
         else {
             return view('errors.404');

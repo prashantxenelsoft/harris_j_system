@@ -8,8 +8,6 @@
          localStorage.setItem("timesheetYear", now.getFullYear());
       }
 
-   
-   
        const mainTabs = document.querySelectorAll("#timesheetTabsMain .nav-link");
 
          mainTabs.forEach(tab => {
@@ -38,62 +36,34 @@
    const timesheetData = @json($dataTimesheet);
    document.addEventListener("DOMContentLoaded", function () {
       const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
-      
       const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
       const submitBtn = document.getElementById("submit_icon");
       const save_icon = document.getElementById("save_icon");
-      const edit_icon =  document.getElementById("edit_icon");
+      const edit_icon = document.getElementById("edit_icon");
       const reporting_fileds_data = document.getElementById("reporting_fileds_data");
-      
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1;
-      const currentYear = currentDate.getFullYear();
+      const timelineContainer = document.getElementById("timelineContainerNew");
 
-      if (
-      selectedYear < currentYear ||
-      (selectedYear === currentYear && selectedMonth <= currentMonth)
-      ) {
-         let foundStatus = null;
-
-         // Search for status for selected month/year
-         timesheetData.forEach(item => {
-            const record = JSON.parse(item.record || '{}');
-            const applyOnCell = record.applyOnCell || '';
-            const status = item.status || '';
-
-            const parts = applyOnCell.split(" / ");
-            if (parts.length === 3) {
-               const month = parseInt(parts[1]);
-               const year = parseInt(parts[2]);
-
-               if (month === selectedMonth && year === selectedYear) {
-               foundStatus = status; // found any status
-               }
-            }
-         });
-
-         if (!foundStatus) {
-            console.log("Month:", selectedMonth);
-            console.log("Year:", selectedYear);
-            console.log("Sheet Status: Not Found");
-            setTimeout(function () {
-               saveCalendarDataNew('Draft');
-            }, 50); 
-         }
-      }
-
+      const monthNames = [
+         "January", "February", "March", "April", "May", "June",
+         "July", "August", "September", "October", "November", "December"
+      ];
+      const monthLabel = monthNames[selectedMonth - 1] + ' - ' + selectedYear;
 
       let hasData = false;
       let hasDraft = false;
+
       timesheetData.forEach(item => {
          const record = JSON.parse(item.record || '{}');
          const applyOnCell = record.applyOnCell || '';
          const status = item.status?.toLowerCase() || '';
          if (!applyOnCell || !status) return;
+
          const parts = applyOnCell.split(" / ");
          if (parts.length !== 3) return;
+
          const month = parseInt(parts[1]);
          const year = parseInt(parts[2]);
+
          if (month === selectedMonth && year === selectedYear) {
             hasData = true;
             if (status === 'draft') {
@@ -101,6 +71,7 @@
             }
          }
       });
+
       if (submitBtn) {
          if (!hasData || hasDraft) {
             submitBtn.style.display = "grid"; 
@@ -112,6 +83,21 @@
             save_icon.style.display = "none"; 
             edit_icon.style.display = "none"; 
          }
+      }
+
+      // ✅ Inject dummy "Draft" timeline block if data not found
+      if (!hasData && timelineContainer) {
+         const html = `
+            <div class="timeline-item">
+               <div class="timeline-dot dot-blue"></div>
+               <div class="timeline-line blue-timeline"></div>
+               <div class="timeline-content">
+                  <h4>Timesheet Overview (${monthLabel})</h4>
+                  <div class="badge blue">Draft</div>
+               </div>
+            </div>
+         `;
+         timelineContainer.insertAdjacentHTML("beforeend", html);
       }
    });
 </script>
@@ -2509,7 +2495,7 @@
             </div>
            <div class="col-xl-4 col-lg-3">
                <div class="timesheet-overview-consultant">
-                  <div class="timeline-container">
+                  <div class="timeline-container" id="timelineContainerNew">
                      <div class="timeline-title">
                         <i class="fa-solid fa-caret-down"></i> {{ $consultant->client_name ?? 'N/A' }}
                      </div>
@@ -2608,8 +2594,6 @@
                               </div>
                            </div>
                         @endforeach
-                     @else
-                        <p class="text-muted" style="padding: 0.5rem 1rem;">Timesheet Overview not found</p>
                      @endif
 
                   </div>
@@ -3016,7 +3000,6 @@
                                           $from = $to = trim($date);
                                        }
 
-                                       // Compute $days/hours based on rangeMin/rangeMax if available
                                        if ($rangeMin && $rangeMax) {
                                           // Case: Time format like "8:00 AM"
                                           if (preg_match('/\d{1,2}:\d{2} (AM|PM)/', $rangeMin) && preg_match('/\d{1,2}:\d{2} (AM|PM)/', $rangeMax)) {
@@ -3030,10 +3013,7 @@
                                                    $days = "{$hours} hour" . ($hours == 1 ? '' : 's');
                                                 } else {
                                                    $extra = $hours - 9;
-                                                   $days = "1 day";
-                                                   if ($extra > 0) {
-                                                      $days .= " (" . intval($extra) . " hours)";
-                                                   }
+                                                   $days = (intval($extra) === 0) ? "1" : "1 day (" . intval($extra) . " hours)";
                                                 }
                                              } catch (\Exception $e) {
                                                 $days = '1';
@@ -3050,10 +3030,7 @@
                                                 $days = "{$totalHours} hour" . ($totalHours == 1 ? '' : 's');
                                              } else {
                                                 $extra = $totalHours - 9;
-                                                $days = "1 day";
-                                                if ($extra > 0) {
-                                                   $days .= " (" . intval($extra) . " hours)";
-                                                }
+                                                $days = (intval($extra) === 0) ? "1" : "1 day (" . intval($extra) . " hours)";
                                              }
                                           }
                                        } else {
@@ -3114,6 +3091,7 @@
                                     </td>
                                  </tr>
                               </tbody>
+
                            </table>
 
 
@@ -3310,6 +3288,7 @@
                                                 @php
                                                    $record = json_decode($entry->record);
                                                    if (!isset($record->leaveType)) continue;
+
                                                    $leaveType = $record->leaveType ?? '';
                                                    $date = $record->date ?? '';
                                                    $applyOnCell = $record->applyOnCell ?? '';
@@ -3319,6 +3298,7 @@
 
                                                    $from = $to = '';
                                                    $days = '1';
+
                                                    if (empty($date) && !empty($applyOnCell)) {
                                                       $from = $to = trim($applyOnCell);
                                                    } elseif (strpos($date, 'to') !== false) {
@@ -3328,7 +3308,7 @@
                                                    }
 
                                                    if ($rangeMin && $rangeMax) {
-                                                      // If time format (e.g., "8:00 AM")
+                                                      // AM/PM format
                                                       if (preg_match('/\d{1,2}:\d{2} (AM|PM)/', $rangeMin) && preg_match('/\d{1,2}:\d{2} (AM|PM)/', $rangeMax)) {
                                                          try {
                                                             $min = \Carbon\Carbon::createFromFormat('g:i A', $rangeMin);
@@ -3340,17 +3320,14 @@
                                                                $days = "{$hours} hour" . ($hours == 1 ? '' : 's');
                                                             } else {
                                                                $extra = $hours - 9;
-                                                               $days = "1 day";
-                                                               if ($extra > 0) {
-                                                                  $days .= " (" . intval($extra) . " hours)";
-                                                               }
+                                                               $days = (intval($extra) === 0) ? "1" : "1 day (" . intval($extra) . " hours)";
                                                             }
                                                          } catch (\Exception $e) {
                                                             $days = '1';
                                                          }
-
-                                                      // If numeric slider values (e.g., 16, 44)
-                                                      } elseif (is_numeric($rangeMin) && is_numeric($rangeMax)) {
+                                                      }
+                                                      // Slider format
+                                                      elseif (is_numeric($rangeMin) && is_numeric($rangeMax)) {
                                                          $startMinutes = (int)$rangeMin * 30;
                                                          $endMinutes = (int)$rangeMax * 30;
                                                          $durationMinutes = $endMinutes - $startMinutes;
@@ -3360,14 +3337,11 @@
                                                             $days = "{$totalHours} hour" . ($totalHours == 1 ? '' : 's');
                                                          } else {
                                                             $extra = $totalHours - 9;
-                                                            $days = "1 day";
-                                                            if ($extra > 0) {
-                                                               $days .= " (" . intval($extra) . " hours)";
-                                                            }
+                                                            $days = (intval($extra) === 0) ? "1" : "1 day (" . intval($extra) . " hours)";
                                                          }
                                                       }
                                                    } else {
-                                                      // Fallback logic if no rangeMin/rangeMax
+                                                      // Fallback: full day or date range
                                                       if (strpos($date, 'to') !== false) {
                                                          if ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') {
                                                             $days = '1/2';
@@ -3384,6 +3358,7 @@
                                                          $days = ($leaveHourId === 'fHalfDay' || $leaveHourId === 'sHalfDay') ? '1/2' : '1';
                                                       }
                                                    }
+
                                                    $badgeClass = match($leaveType) {
                                                       'PDO' => 'badge bg-primary text-white',
                                                       'ML' => 'badge bg-info text-white',
@@ -3391,10 +3366,12 @@
                                                       'PH' => 'badge bg-success text-white',
                                                       default => 'badge bg-secondary text-white',
                                                    };
+
                                                    $leaveShort = '';
                                                    if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
                                                    elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
                                                    elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+
                                                    $parts = explode(' / ', $from);
                                                    $rowMonth = isset($parts[1]) ? (int) $parts[1] : null;
                                                    $rowYear = isset($parts[2]) ? (int) $parts[2] : null;
@@ -3402,7 +3379,8 @@
 
                                                 <tr class="custom-leave-log-row" data-month="{{ $rowMonth }}" data-year="{{ $rowYear }}">
                                                    <td>
-                                                      <span class="{{ $badgeClass }}"> {{ \Illuminate\Support\Str::replaceFirst('Custom', '', $leaveType) }}
+                                                      <span class="{{ $badgeClass }}">
+                                                         {{ \Illuminate\Support\Str::replaceFirst('Custom', '', $leaveType) }}
                                                          @if ($leaveShort)
                                                             <small><strong>{{ $leaveShort }}</strong></small>
                                                          @endif
@@ -3420,6 +3398,7 @@
                                                 </td>
                                              </tr>
                                           </tbody>
+
                                        </table>
 
 
