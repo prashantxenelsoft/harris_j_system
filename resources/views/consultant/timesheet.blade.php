@@ -19,7 +19,6 @@
                const suffix = targetId.replace("#", "").replace("Tab", ""); // e.g. "overview"
                const modalTarget = `#model${suffix}Tab`;
 
-               // Set modal tab as active immediately
                document.querySelectorAll("#timesheetTabsModal .nav-link").forEach(btn => {
                   const isActive = btn.getAttribute("data-bs-target") === modalTarget;
                   btn.classList.toggle("active", isActive);
@@ -33,7 +32,6 @@
                });
             });
          });
-
    });
 </script>
 
@@ -48,6 +46,43 @@
       const edit_icon =  document.getElementById("edit_icon");
       const reporting_fileds_data = document.getElementById("reporting_fileds_data");
       
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+
+      if (
+      selectedYear < currentYear ||
+      (selectedYear === currentYear && selectedMonth <= currentMonth)
+      ) {
+         let foundStatus = null;
+
+         // Search for status for selected month/year
+         timesheetData.forEach(item => {
+            const record = JSON.parse(item.record || '{}');
+            const applyOnCell = record.applyOnCell || '';
+            const status = item.status || '';
+
+            const parts = applyOnCell.split(" / ");
+            if (parts.length === 3) {
+               const month = parseInt(parts[1]);
+               const year = parseInt(parts[2]);
+
+               if (month === selectedMonth && year === selectedYear) {
+               foundStatus = status; // found any status
+               }
+            }
+         });
+
+         if (!foundStatus) {
+            console.log("Month:", selectedMonth);
+            console.log("Year:", selectedYear);
+            console.log("Sheet Status: Not Found");
+            setTimeout(function () {
+               saveCalendarDataNew('Draft');
+            }, 50); 
+         }
+      }
+
 
       let hasData = false;
       let hasDraft = false;
@@ -89,7 +124,6 @@
 </script>
 
 
-
 <div class="tab-content" id="pills-tabContent">
    <div class="tab-pane fade" id="homeconsultant" role="tabpanel" aria-labelledby="pills-home-tab">...</div>
    <div class="tab-pane fade show active" id="consultantsconsultant" role="tabpanel" aria-labelledby="pills-profile-tab">
@@ -121,12 +155,12 @@
                         <div id="reporting_fileds_data" class="client-details-consultant">
                            <ul>
                                  <li>
-                                    <input type="text" placeholder="Enter Your Corporate Email-id">
-                                    </li>
+                                 <input type="text" placeholder="Enter Your Corporate Email-id">
+                                 </li>
 
-                                    <li>
-                                    <input type="text" placeholder="Enter Reporting Manager Email-Id">
-                                    </li>
+                                 <li>
+                                 <input type="text" placeholder="Enter Reporting Manager Email-Id">
+                                 </li>
                               
                            </ul>
                         </div>
@@ -2650,6 +2684,78 @@
                            
                            populateMonthYearSelectors();
                            renderCalendar();
+                           function saveCalendarDataNew(statusValue = 'Submitted') {
+                              const cells = document.querySelectorAll(".calendar-cell");
+                              const promises = [];
+                              let hasData = false; // ← to check if there's anything to save
+
+                              cells.forEach(cell => {
+                                 const dateElement = cell.querySelector(".cell-date");
+                                 const tagElement = cell.querySelector(".tag");
+
+                                 if (dateElement && tagElement) {
+                                       hasData = true; // ✔️ At least one cell has data
+
+                                       const day = dateElement.innerText.trim();
+                                       const month = monthSelect.value; // 0-based
+                                       const year = yearSelect.value;
+
+                                       const formattedDate = `${day.padStart(2, '0')} / ${(parseInt(month) + 1).toString().padStart(2, '0')} / ${year}`;
+                                       const label = tagElement.innerText.trim();
+                                       if (label.startsWith("ML") || label.startsWith("Custom")|| label.startsWith("AL")|| label.startsWith("COMP-OFF")|| label.startsWith("PDO")|| label.startsWith("UL") ||  (!isNaN(label) && parseFloat(label) > 8)) return;
+
+                                       const recordData = {};
+
+                                       if (["PH"].includes(label)) {
+                                          recordData.date = '';
+                                          recordData.leaveType = label;
+                                          recordData.applyOnCell = formattedDate;
+                                       } else {
+                                          recordData.date = '';
+                                          recordData.workingHours = label;
+                                          recordData.applyOnCell = formattedDate;
+                                       }
+
+                                       const formData = new FormData();
+                                       formData.append('type', 'timesheet');
+                                       formData.append('record', JSON.stringify(recordData));
+                                       formData.append('user_id', "{{ $userData['id'] ?? '' }}");
+                                       formData.append('client_id', "{{ $consultant->client_id ?? '' }}");
+                                       formData.append('client_name', "{{ $consultant->client_name ?? '' }}");
+                                       formData.append('status', statusValue);
+
+                                       const promise = fetch("{{ route('consultant.data.save') }}", {
+                                          method: "POST",
+                                          headers: {
+                                             "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                          },
+                                          body: formData
+                                       })
+                                       .then(response => {
+                                          if (!response.ok) throw new Error('Server error');
+                                          return response.json();
+                                       });
+
+                                       promises.push(promise);
+                                 }
+                              });
+
+                              
+                              if (!hasData) {
+                                 Swal.fire("No Data!", "Does not have data for this month", "info");
+                                 return;
+                              }
+
+                              // ✅ Proceed to submit if data found
+                              Promise.all(promises)
+                                 .then(results => {
+                                       location.reload();
+                                 })
+                                 .catch(error => {
+                                       console.error("Error saving records:", error);
+                                       alert("Failed to save some records.");
+                                 });
+                           }
                            function saveCalendarData(statusValue = 'Submitted') {
                               const cells = document.querySelectorAll(".calendar-cell");
                               const promises = [];
@@ -2728,23 +2834,19 @@
                                  });
                            }
 
-                           
-                           // 🔵 Submit button (Submitted status)
                            document.getElementById("submit_icon").addEventListener("click", function (e) {
                                e.preventDefault();
                                saveCalendarData('Submitted');
                            });
                            
-                           // 🟠 Save button (Draft status or Submitted as per your wish)
                            document.getElementById("save_icon").addEventListener("click", function (e) {
                               e.preventDefault();
-                              saveCalendarData('Draft'); // 👉 If you want save to keep editable, use 'Draft' here
+                              saveCalendarData('Draft'); 
                            });
 
                            document.getElementById("edit_icon").addEventListener("click", function (e) {
                               e.preventDefault();
 
-                              // 🌀 Show loader
                               Swal.fire({
                                  title: 'Please wait...',
                                  text: 'Enabling edit mode',
@@ -2754,7 +2856,6 @@
                                  }
                               });
 
-                              // ✅ Wait 2 seconds, then enable editing
                               setTimeout(() => {
                                  calendarEditable = true;
                                  renderCalendar();
@@ -2933,8 +3034,6 @@
                            @endif
                         </div>
 
-                        
-
                         <div class="write-remark" style="position: relative;">
                            <input type="text" id="feedbackInput" placeholder="Write your remarks here..." style="padding-right: 35px;" />
 
@@ -2943,8 +3042,6 @@
                               id="sendIcon"
                               style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; cursor: pointer;" />
                         </div>
-
-                        
                      </div>
                   </div>
               
@@ -3085,11 +3182,6 @@
                      bindToggle(); // bind for initial state
                   });
                </script>
-
-
-
-
-
 
                   <!-- Modal -->
                   <div class="modal fade" id="workSummaryModalclaim" tabindex="-1" aria-labelledby="workSummaryModalLabel" aria-hidden="true" style="display: none;">
