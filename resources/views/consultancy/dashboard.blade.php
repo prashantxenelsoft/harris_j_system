@@ -10,7 +10,7 @@
                     <div class="col-lg-2">
                         <div class="header-logo">
                             
-                            <img src="{{ asset('/' . $dataConsultancy->consultancy_logo) }}" alt="Consultancy Logo" width="60" />
+                            <!-- <img src="{{ asset('/' . $dataConsultancy->consultancy_logo) }}" alt="Consultancy Logo" width="60" /> -->
                            
                         </div>
                     </div>
