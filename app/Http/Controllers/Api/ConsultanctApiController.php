@@ -195,8 +195,38 @@ public function getConsultantAllDetails(Request $request)
         return count($parts) === 3 && $parts[1] == str_pad($month, 2, '0', STR_PAD_LEFT) && $parts[2] == $year;
     })->map(function ($item) {
         $item->record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+
+        $dateField = $item->record['date'] ?? '';
+        $applyOnCell = $item->record['applyOnCell'] ?? '';
+
+        $from = $to = $applyOnCell;
+        $count = 1;
+
+        if ($dateField && Str::contains($dateField, 'to')) {
+            try {
+                [$start, $end] = array_map('trim', explode('to', $dateField));
+                $from = $start;
+                $to = $end;
+
+                $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                $count = $startDate->diffInDays($endDate) + 1;
+            } catch (\Exception $e) {}
+        } elseif ($dateField) {
+            $from = $to = $dateField;
+            $count = 1;
+        } elseif ($applyOnCell) {
+            $from = $to = $applyOnCell;
+            $count = 1;
+        }
+
+        $item->record['from'] = $from;
+        $item->record['to'] = $to;
+        $item->record['count'] = "$count days";
+
         return $item;
     })->values();
+
 
     // === FORECASTED HOURS ===
     $forecastedDays = 0;
