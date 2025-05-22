@@ -39,7 +39,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::get('/states', [ConsultancyApiController::class, 'getStates']);
         Route::post('consultant/update-basic', [ConsultanctApiController::class, 'apiUpdateBasicDetailsConsultant']);
         Route::post('/consultant/dashboard/timeline', [ConsultanctApiController::class, 'getDashboardTimelineData']);
-        Route::post('/consultant/get-leaveLog', [ConsultanctApiController::class, 'getLeaveLog']);
+        Route::post('/consultant/get-consultant-details', [ConsultanctApiController::class, 'getConsultantAllDetails']);
         Route::get('/consultant/get-work-summary', [ConsultanctApiController::class, 'getWorkSummary']);
 
     });

@@ -3457,7 +3457,6 @@
                                     @php
                                        use Illuminate\Support\Str;
 
-                                       // Initialize counters
                                        $used = [
                                           'AL' => 0,
                                           'ML' => 0,
@@ -3465,24 +3464,74 @@
                                           'PDO' => 0,
                                           'Comp Off' => 0,
                                        ];
-
                                        $totalUsed = 0;
 
                                        foreach ($dataTimesheet as $entry) {
                                           $record = json_decode($entry->record ?? '{}', true);
-                                          if (!isset($record['leaveType'])) continue;
+                                          if (!$record || !isset($record['leaveType'])) continue;
 
-                                          $type = trim($record['leaveType']);
+                                          $originalType = trim($record['leaveType']);
+                                          $workingHours = isset($record['workingHours']) && is_numeric($record['workingHours']) ? floatval($record['workingHours']) : 0;
                                           $hourId = $record['leaveHourId'] ?? '';
+                                          $applyOnCell = $record['applyOnCell'] ?? '';
+                                          $dateRange = $record['date'] ?? '';
 
-                                          $value = 1;
+                                          // ✅ Normalize the leaveType
+                                          $mapTypes = [
+                                             'Custom AL' => 'AL',
+                                             'Custom ML' => 'ML',
+                                             'Custom UL' => 'UL',
+                                             'Custom PDO' => 'PDO',
+                                             'Custom COMP-OFF' => 'Comp Off',
+                                          ];
+                                          $type = $mapTypes[$originalType] ?? $originalType;
+
+                                          // Value per day
+                                          $perDayValue = 1;
                                           if (in_array($hourId, ['fHalfDay', 'sHalfDay'])) {
-                                             $value = 0.5;
+                                             $perDayValue = 0.5;
                                           }
 
-                                          if (array_key_exists($type, $used)) {
-                                             $used[$type] += $value;
-                                             $totalUsed += $value;
+                                          $dates = [];
+
+                                          if ($dateRange && Str::contains($dateRange, 'to')) {
+                                             try {
+                                                [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                                $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                                $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                                                while ($startDate->lte($endDate)) {
+                                                   $dates[] = $startDate->copy();
+                                                   $startDate->addDay();
+                                                }
+                                             } catch (\Exception $e) {}
+                                          } elseif ($applyOnCell) {
+                                             try {
+                                                $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                             } catch (\Exception $e) {}
+                                          }
+
+                                          foreach ($dates as $d) {
+                                             if (in_array($d->dayOfWeek, [0, 6])) continue;
+
+                                             if (in_array($type, ['AL', 'ML', 'UL', 'PDO'])) {
+                                                $used[$type] += $perDayValue;
+                                                $totalUsed += $perDayValue;
+                                             } elseif ($type === 'Comp Off') {
+                                                if ($workingHours > 8) {
+                                                   // Case 1: overtime-based comp-off
+                                                   $extra = $workingHours - 8;
+                                                   $compVal = $extra / 8;
+                                                   $used['Comp Off'] += $compVal;
+                                                   $totalUsed += $compVal;
+                                                } else {
+                                                   // Case 2: leave-based comp-off (like AL/ML)
+                                                   $val = 1;
+                                                   if (in_array($hourId, ['fHalfDay', 'sHalfDay'])) $val = 0.5;
+                                                   $used['Comp Off'] += $val;
+                                                   $totalUsed += $val;
+                                                }
+                                             }
+
                                           }
                                        }
 
@@ -3524,7 +3573,6 @@
                                           <p>Comp Off</p>
                                        </div>
                                     </div>
-
 
                                  </div>
                               </div>
@@ -3880,124 +3928,117 @@
                         <div class="tab-pane fade show active" id="overviewTab">
                           <div class="timeline">
                               @php
+
                                  $timelineItems = [];
+                                 $labelMap = [
+                                    'PH' => 'Public Holiday',
+                                    'ML' => 'Medical Leave',
+                                    'AL' => 'Annual Leave',
+                                    'UL' => 'Unpaid Leave',
+                                    'PDO' => 'Paid day off',
+                                    'Custom COMP-OFF' => 'Comp off',
+                                    'pay_off' => 'Pay off',
+                                    'comp_off' => 'Comp off',
+                                    'ignore' => 'Ignore',
+                                 ];
+
                                  $sortedTimesheet = $dataTimesheet->sortByDesc('updated_at');
+
                                  foreach ($sortedTimesheet as $entry) {
-                                       $record = json_decode($entry->record, true);
-                                       $leaveType = $record['leaveType'] ?? null;
-                                       $workingHours = $record['workingHours'] ?? null;
-                                       $leaveHourId = $record['leaveHourId'] ?? null;
-                                       $applyOnCell = $record['applyOnCell'] ?? null;
-                                       $dateRange = $record['date'] ?? '';
-                                       $leaveShort = '';
-                                       if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-                                       elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-                                       elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
-                                       $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
-                                       $dates = [];
-                                       if ($dateRange && str_contains($dateRange, 'to')) {
-                                          try {
-                                             [$start, $end] = array_map('trim', explode('to', $dateRange));
-                                             $startDate = Carbon::createFromFormat('d / m / Y', $start);
-                                             $endDate = Carbon::createFromFormat('d / m / Y', $end);
-                                             while ($startDate->lte($endDate)) {
-                                                   $dates[] = $startDate->copy();
-                                                   $startDate->addDay();
-                                             }
-                                          } catch (\Exception $e) {}
-                                       } elseif ($applyOnCell) {
-                                          try {
-                                             $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-                                          } catch (\Exception $e) {}
-                                       }
-                                       foreach ($dates as $date) {
-                                          if (in_array($date->dayOfWeek, [0, 6])) continue;
-                                          $timelineItems[] = [
-                                             'date' => $date,
-                                             'formatted' => $date->format('D, d M Y'),
-                                             'badge' => $badgeText,
-                                             'workingHours' => $workingHours,
-                                             'month' => $date->month,
-                                             'year' => $date->year
-                                          ];
-                                       }
+                                    $record = json_decode($entry->record, true);
+                                    $leaveType = $record['leaveType'] ?? null;
+                                    $workingHours = $record['workingHours'] ?? null;
+                                    $leaveHourId = $record['leaveHourId'] ?? null;
+                                    $applyOnCell = $record['applyOnCell'] ?? null;
+                                    $dateRange = $record['date'] ?? '';
+                                    $extraHours = $record['extraHours'] ?? null;
+                                    $subType = $record['type'] ?? null;
+
+                                    $leaveShort = '';
+                                    if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                    elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                    elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+
+                                    $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
+                                    $mainLabel = $labelMap[$leaveType] ?? $labelMap[$subType] ?? null;
+                                    $topLabel = $leaveType ?? ucfirst(str_replace('_', ' ', $subType));
+                                    $dates = [];
+
+                                    if ($dateRange && str_contains($dateRange, 'to')) {
+                                       try {
+                                          [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                          $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                          $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                                          while ($startDate->lte($endDate)) {
+                                             $dates[] = $startDate->copy();
+                                             $startDate->addDay();
+                                          }
+                                       } catch (\Exception $e) {}
+                                    } elseif ($applyOnCell) {
+                                       try {
+                                          $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                       } catch (\Exception $e) {}
+                                    }
+
+                                    foreach ($dates as $date) {
+                                       if (in_array($date->dayOfWeek, [0, 6])) continue;
+
+                                       $timelineItems[] = [
+                                          'date' => $date,
+                                          'formattedDate' => $date->format('D, d M'),
+                                          'month' => $date->month,
+                                          'year' => $date->year,
+                                          'topLabel' => strtoupper($topLabel),
+                                          'mainLabel' => $mainLabel,
+                                          'badge' => $badgeText,
+                                          'workingHours' => $workingHours,
+                                          'extraHours' => $extraHours
+                                       ];
+                                    }
                                  }
                               @endphp
 
-                              
-                                @foreach ($dataTimesheet->sortByDesc('updated_at') as $entry)
-                                       @php
-                                          $record = json_decode($entry->record, true);
-                                          $leaveType = $record['leaveType'] ?? null;
-                                          $subType = $record['type'] ?? null;
-                                          $extraHours = $record['extraHours'] ?? null;
-                                          $applyOnCell = $record['applyOnCell'] ?? null;
+                              @forelse (collect($timelineItems)->sortByDesc('date') as $item)
+                                 <div id="littletimesheet" class="timeline-item d-flex align-items-start mb-3"
+                                    data-month="{{ $item['month'] }}"
+                                    data-year="{{ $item['year'] }}">
+                                    <div class="me-2">
+                                       <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                       <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
+                                    </div>
 
-                                          try {
-                                                $date = \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-                                                $formattedDate = $date->format('D, d M');
-                                                $month = $date->month;
-                                                $year = $date->year;
-                                          } catch (\Exception $e) {
-                                                continue;
-                                          }
-
-                                          $labelMap = [
-                                                'PH' => 'Public Holiday',
-                                                'ML' => 'Medical Leave',
-                                                'AL' => 'Annual Leave',
-                                                'UL' => 'Unpaid Leave',
-                                                'PDO' => 'Paid day off',
-                                                'Custom COMP-OFF' => 'Comp off',
-                                                'pay_off' => 'Pay off',
-                                                'comp_off' => 'Comp off',
-                                                'ignore' => 'Ignore',
-                                          ];
-
-                                          $topLabel = $leaveType ?? ucfirst(str_replace('_', ' ', $subType));
-                                          $mainLabel = $labelMap[$leaveType] ?? $labelMap[$subType] ?? null;
-                                       @endphp
-
-                                       <div id="littletimesheet" class="timeline-item d-flex align-items-start mb-3"
-                                             data-month="{{ $month }}"
-                                             data-year="{{ $year }}">
-                                          <div class="me-2">
-                                                <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                                <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                          </div>
-
-                                          <div>
-                                                {{-- 🔷 TOP ROW: Image + leaveType --}}
-                                                <div class="d-flex align-items-center mb-1">
-                                                   <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" width="24" height="24" />
-                                                   <span class="fw-bold text-primary" style="font-size: 14px;">
-                                                      {{ strtoupper($topLabel) }} - (1)
-                                                   </span>
-                                                </div>
-
-                                                {{-- 🧾 SECOND ROW: Date + Label + Hours --}}
-                                                <div class="d-flex align-items-center flex-wrap gap-2 ms-4">
-                                                   <span>{{ $formattedDate }}</span>
-
-                                                   @if ($mainLabel)
-                                                      <span class="badge bg-info text-white">{{ $mainLabel }}</span>
-                                                   @endif
-
-                                                   @if (!empty($extraHours))
-                                                      <span class="fw-semibold">- {{ $extraHours }} hours off</span>
-                                                   @elseif (!empty($record['workingHours']) && is_numeric($record['workingHours']))
-                                                      <span class="fw-semibold">- {{ $record['workingHours'] }} hours</span>
-                                                   @endif
-                                                </div>
-                                          </div>
+                                    <div>
+                                       {{-- 🔷 TOP ROW: Image + leaveType --}}
+                                       <div class="d-flex align-items-center mb-1">
+                                          <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" width="24" height="24" />
+                                          <span class="fw-bold text-primary" style="font-size: 14px;">
+                                             {{ $item['topLabel'] }} - (1)
+                                          </span>
                                        </div>
-                                 @endforeach
-                                 
-                                 <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2 d-none">
-                                       <strong>No entries found for this month</strong>
+
+                                       {{-- 🧾 SECOND ROW: Date + Label + Hours --}}
+                                       <div class="d-flex align-items-center flex-wrap gap-2 ms-4">
+                                          <span>{{ $item['formattedDate'] }}</span>
+
+                                          @if ($item['mainLabel'])
+                                             <span class="badge bg-info text-white">{{ $item['mainLabel'] }}</span>
+                                          @endif
+
+                                          @if (!empty($item['extraHours']))
+                                             <span class="fw-semibold">- {{ $item['extraHours'] }} hours off</span>
+                                          @elseif (!empty($item['workingHours']) && is_numeric($item['workingHours']))
+                                             <span class="fw-semibold">- {{ $item['workingHours'] }} hours</span>
+                                          @endif
+                                       </div>
+                                    </div>
                                  </div>
-                              
+                              @empty
+                                 <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2">
+                                    <strong>No entries found for this month</strong>
+                                 </div>
+                              @endforelse
                            </div>
+
                            <script>
                               document.addEventListener("DOMContentLoaded", function () {
                                  setTimeout(function () {
@@ -4173,32 +4214,50 @@
                                  @php
                                     $record = json_decode($item->record ?? '{}', true);
 
-                                    $month = null;
-                                    $year = null;
-                                    if (!empty($record['applyOnCell'])) {
-                                          try {
-                                             $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
-                                             $month = $dt->month;
-                                             $year = $dt->year;
-                                          } catch (\Exception $e) {}
-                                    }
-
                                     $leaveType = $record['leaveType'] ?? '';
                                     $extraHours = (int) ($record['extraHours'] ?? 0);
                                     $leaveHour = $record['leaveHour'] ?? '';
+                                    $applyOnCell = $record['applyOnCell'] ?? '';
+                                    $dateRange = $record['date'] ?? '';
 
                                     $subLabel = '';
                                     if (Str::contains($leaveHour, 'HD1')) {
-                                          $subLabel = 'HD1';
+                                       $subLabel = 'HD1';
                                     } elseif (Str::contains($leaveHour, 'HD2')) {
-                                          $subLabel = 'HD2';
+                                       $subLabel = 'HD2';
                                     }
 
                                     $displayLabel = 'Comp - Off' . ($subLabel ? " $subLabel" : '');
+
+                                    $dates = [];
+
+                                    if ($dateRange && Str::contains($dateRange, 'to')) {
+                                       try {
+                                          [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                          $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                          $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                                          while ($startDate->lte($endDate)) {
+                                             $dates[] = $startDate->copy();
+                                             $startDate->addDay();
+                                          }
+                                       } catch (\Exception $e) {}
+                                    } elseif ($applyOnCell) {
+                                       try {
+                                          $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                       } catch (\Exception $e) {}
+                                    }
                                  @endphp
 
-                                 @if ($leaveType === 'Custom COMP-OFF' && $month && $year)
-                                    <div class="timeline-item d-flex align-items-start mb-3"
+                                 @if ($leaveType === 'Custom COMP-OFF' && count($dates))
+                                    @foreach ($dates as $date)
+                                       @php
+                                          if (in_array($date->dayOfWeek, [0, 6])) continue; // Skip weekends
+                                          $month = $date->month;
+                                          $year = $date->year;
+                                          $formattedDate = $date->format('D, d M');
+                                       @endphp
+
+                                       <div class="timeline-item d-flex align-items-start mb-3"
                                           data-month="{{ $month }}"
                                           data-year="{{ $year }}">
                                           <div class="me-2">
@@ -4209,17 +4268,18 @@
                                              <div class="d-flex align-items-center mb-1 tl-header">
                                                 <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
                                                 <div class="comp_off_log d-flex align-items-center flex-wrap gap-2">
-                                                      <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
-                                                      <span class="badge" style="background-color:#f9e79f; color:#d35400; font-weight: bold;">
-                                                         {{ $displayLabel }}
-                                                      </span>
-                                                      @if ($extraHours > 0)
-                                                         <span>{{ str_pad($extraHours, 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
-                                                      @endif
+                                                   <span>{{ $formattedDate }}</span>
+                                                   <span class="badge" style="background-color:#f9e79f; color:#d35400; font-weight: bold;">
+                                                      {{ $displayLabel }}
+                                                   </span>
+                                                   @if ($extraHours > 0)
+                                                      <span>{{ str_pad($extraHours, 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
+                                                   @endif
                                                 </div>
                                              </div>
                                           </div>
-                                    </div>
+                                       </div>
+                                    @endforeach
                                  @endif
                               @endforeach
                               </div>
@@ -4261,7 +4321,7 @@
                         </div>
                         <div class="tab-pane fade" id="copiesTab">
                             <div class="timeline">
-                              <div class="timeline-item d-flex mb-3">
+                              <div class="timeline-item d-flex mb-3 fs-12">
 
 
                                           @php
@@ -4397,111 +4457,118 @@
                                  <div class="tab-pane fade show active" id="modeloverviewTab">
                                     <div class="timeline">
                                        @php
+
                                           $timelineItems = [];
+                                          $labelMap = [
+                                             'PH' => 'Public Holiday',
+                                             'ML' => 'Medical Leave',
+                                             'AL' => 'Annual Leave',
+                                             'UL' => 'Unpaid Leave',
+                                             'PDO' => 'Paid day off',
+                                             'Custom COMP-OFF' => 'Comp off',
+                                             'pay_off' => 'Pay off',
+                                             'comp_off' => 'Comp off',
+                                             'ignore' => 'Ignore',
+                                          ];
+
                                           $sortedTimesheet = $dataTimesheet->sortByDesc('updated_at');
+
                                           foreach ($sortedTimesheet as $entry) {
-                                                $record = json_decode($entry->record, true);
-                                                $leaveType = $record['leaveType'] ?? null;
-                                                $workingHours = $record['workingHours'] ?? null;
-                                                $leaveHourId = $record['leaveHourId'] ?? null;
-                                                $applyOnCell = $record['applyOnCell'] ?? null;
-                                                $dateRange = $record['date'] ?? '';
-                                                $leaveShort = '';
-                                                if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-                                                elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-                                                elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
-                                                $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
-                                                $dates = [];
-                                                if ($dateRange && str_contains($dateRange, 'to')) {
-                                                   try {
-                                                      [$start, $end] = array_map('trim', explode('to', $dateRange));
-                                                      $startDate = Carbon::createFromFormat('d / m / Y', $start);
-                                                      $endDate = Carbon::createFromFormat('d / m / Y', $end);
-                                                      while ($startDate->lte($endDate)) {
-                                                            $dates[] = $startDate->copy();
-                                                            $startDate->addDay();
-                                                      }
-                                                   } catch (\Exception $e) {}
-                                                } elseif ($applyOnCell) {
-                                                   try {
-                                                      $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-                                                   } catch (\Exception $e) {}
-                                                }
-                                                foreach ($dates as $date) {
-                                                   if (in_array($date->dayOfWeek, [0, 6])) continue;
-                                                   $timelineItems[] = [
-                                                      'date' => $date,
-                                                      'formatted' => $date->format('D, d M Y'),
-                                                      'badge' => $badgeText,
-                                                      'workingHours' => $workingHours,
-                                                      'month' => $date->month,
-                                                      'year' => $date->year
-                                                   ];
-                                                }
+                                             $record = json_decode($entry->record, true);
+                                             $leaveType = $record['leaveType'] ?? null;
+                                             $subType = $record['type'] ?? null;
+                                             $workingHours = $record['workingHours'] ?? null;
+                                             $extraHours = $record['extraHours'] ?? null;
+                                             $leaveHourId = $record['leaveHourId'] ?? null;
+                                             $applyOnCell = $record['applyOnCell'] ?? null;
+                                             $dateRange = $record['date'] ?? '';
+
+                                             $leaveShort = '';
+                                             if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                             elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                             elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+
+                                             $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
+                                             $mainLabel = $labelMap[$leaveType] ?? $labelMap[$subType] ?? null;
+                                             $topLabel = $leaveType ?? ucfirst(str_replace('_', ' ', $subType));
+
+                                             $dates = [];
+                                             if ($dateRange && str_contains($dateRange, 'to')) {
+                                                try {
+                                                   [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                                   $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                                   $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                                                   while ($startDate->lte($endDate)) {
+                                                      $dates[] = $startDate->copy();
+                                                      $startDate->addDay();
+                                                   }
+                                                } catch (\Exception $e) {}
+                                             } elseif ($applyOnCell) {
+                                                try {
+                                                   $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                                } catch (\Exception $e) {}
+                                             }
+
+                                             foreach ($dates as $date) {
+                                                if (in_array($date->dayOfWeek, [0, 6])) continue;
+
+                                                $timelineItems[] = [
+                                                   'date' => $date,
+                                                   'formatted' => $date->format('D, d M'),
+                                                   'month' => $date->month,
+                                                   'year' => $date->year,
+                                                   'topLabel' => strtoupper($topLabel),
+                                                   'mainLabel' => $mainLabel,
+                                                   'badge' => $badgeText,
+                                                   'workingHours' => $workingHours,
+                                                   'extraHours' => $extraHours,
+                                                ];
+                                             }
                                           }
                                        @endphp
+
                                        <div class="timeline-wrapper">
-                                       @foreach ($dataTimesheet->sortByDesc('updated_at') as $entry)
-                                             @php
-                                                $record = json_decode($entry->record, true);
-                                                $leaveType = $record['leaveType'] ?? null;
-                                                $subType = $record['type'] ?? null;
-                                                $extraHours = $record['extraHours'] ?? null;
-                                                $applyOnCell = $record['applyOnCell'] ?? null;
-                                                try {
-                                                      $date = \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-                                                      $formattedDate = $date->format('D, d M');
-                                                      $month = $date->month;
-                                                      $year = $date->year;
-                                                } catch (\Exception $e) {
-                                                      continue;
-                                                }
-                                                $labelMap = [
-                                                      'PH' => 'Public Holiday',
-                                                      'ML' => 'Medical Leave',
-                                                      'AL' => 'Annual Leave',
-                                                      'UL' => 'Unpaid Leave',
-                                                      'PDO' => 'Paid day off',
-                                                      'Custom COMP-OFF' => 'Comp off',
-                                                      'pay_off' => 'Pay off',
-                                                      'comp_off' => 'Comp off',
-                                                      'ignore' => 'Ignore',
-                                                ];
-                                                $topLabel = $leaveType ?? ucfirst(str_replace('_', ' ', $subType));
-                                                $mainLabel = $labelMap[$leaveType] ?? $labelMap[$subType] ?? null;
-                                             @endphp
+                                          @forelse (collect($timelineItems)->sortByDesc('date') as $item)
                                              <div id="littletimesheet" class="timeline-item d-flex align-items-start mb-3"
-                                                   data-month="{{ $month }}"
-                                                   data-year="{{ $year }}">
+                                                data-month="{{ $item['month'] }}"
+                                                data-year="{{ $item['year'] }}">
                                                 <div class="me-2">
-                                                      <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                                      <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
+                                                   <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                                   <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
                                                 </div>
-                                                <div> {{-- 🔷 TOP ROW: Image + leaveType --}}
-                                                      <div class="d-flex align-items-center mb-1">
-                                                         <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" width="24" height="24" />
-                                                         <span class="fw-bold text-primary" style="font-size: 14px;"> {{ strtoupper($topLabel) }} - (1)
-                                                         </span>
-                                                      </div> {{-- 🧾 SECOND ROW: Date + Label + Hours --}}
-                                                      <div class="d-flex align-items-center flex-wrap gap-2 ms-4">
-                                                         <span>{{ $formattedDate }}</span>
-                                                         @if ($mainLabel)
-                                                            <span class="badge bg-info text-white">{{ $mainLabel }}</span>
-                                                         @endif
-                                                         @if (!empty($extraHours))
-                                                            <span class="fw-semibold">- {{ $extraHours }} hours off</span>
-                                                         @elseif (!empty($record['workingHours']) && is_numeric($record['workingHours']))
-                                                            <span class="fw-semibold">- {{ $record['workingHours'] }} hours</span>
-                                                         @endif
-                                                      </div>
+                                                <div>
+                                                   {{-- 🔷 TOP ROW: Image + leaveType --}}
+                                                   <div class="d-flex align-items-center mb-1">
+                                                      <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" width="24" height="24" />
+                                                      <span class="fw-bold text-primary" style="font-size: 14px;">
+                                                         {{ $item['topLabel'] }} - (1)
+                                                      </span>
+                                                   </div>
+
+                                                   {{-- 🧾 SECOND ROW: Date + Label + Hours --}}
+                                                   <div class="d-flex align-items-center flex-wrap gap-2 ms-4">
+                                                      <span>{{ $item['formatted'] }}</span>
+
+                                                      @if ($item['mainLabel'])
+                                                         <span class="badge bg-info text-white">{{ $item['mainLabel'] }}</span>
+                                                      @endif
+
+                                                      @if (!empty($item['extraHours']))
+                                                         <span class="fw-semibold">- {{ $item['extraHours'] }} hours off</span>
+                                                      @elseif (!empty($item['workingHours']) && is_numeric($item['workingHours']))
+                                                         <span class="fw-semibold">- {{ $item['workingHours'] }} hours</span>
+                                                      @endif
+                                                   </div>
                                                 </div>
                                              </div>
-                                          @endforeach
-                                          <div id="noTimelineMessage12" class="fs-12 text-center text-muted p-2 d-none">
+                                          @empty
+                                             <div id="noTimelineMessage12" class="fs-12 text-center text-muted p-2">
                                                 <strong>No entries found for this month</strong>
-                                          </div>
+                                             </div>
+                                          @endforelse
                                        </div>
                                     </div>
+
                                     <script>
                                        document.addEventListener("DOMContentLoaded", function () {
                                           setTimeout(function () {
@@ -4677,54 +4744,79 @@
                                  </div>
                                  <div class="tab-pane fade" id="modelcompOffTab">
                                     <div class="timeline">
-                                        <div id="compOffTimeline">
-                                       @foreach ($dataTimesheet as $item)
-                                          @php
-                                             $record = json_decode($item->record ?? '{}', true);
-                                             $month = null;
-                                             $year = null;
-                                             if (!empty($record['applyOnCell'])) {
-                                                   try {
-                                                      $dt = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
-                                                      $month = $dt->month;
-                                                      $year = $dt->year;
-                                                   } catch (\Exception $e) {}
-                                             }
-                                             $leaveType = $record['leaveType'] ?? '';
-                                             $extraHours = (int) ($record['extraHours'] ?? 0);
-                                             $leaveHour = $record['leaveHour'] ?? '';
-                                             $subLabel = '';
-                                             if (Str::contains($leaveHour, 'HD1')) {
+                                       <div id="compOffTimeline">
+                                         @foreach ($dataTimesheet as $item)
+                                             @php
+                                                $record = json_decode($item->record ?? '{}', true);
+
+                                                $leaveType = $record['leaveType'] ?? '';
+                                                $extraHours = (int) ($record['extraHours'] ?? 0);
+                                                $leaveHour = $record['leaveHour'] ?? '';
+                                                $applyOnCell = $record['applyOnCell'] ?? '';
+                                                $dateRange = $record['date'] ?? '';
+
+                                                $subLabel = '';
+                                                if (Str::contains($leaveHour, 'HD1')) {
                                                    $subLabel = 'HD1';
-                                             } elseif (Str::contains($leaveHour, 'HD2')) {
+                                                } elseif (Str::contains($leaveHour, 'HD2')) {
                                                    $subLabel = 'HD2';
-                                             }
-                                             $displayLabel = 'Comp - Off' . ($subLabel ? " $subLabel" : '');
-                                          @endphp
-                                          @if ($leaveType === 'Custom COMP-OFF' && $month && $year)
-                                             <div class="timeline-item d-flex align-items-start mb-3"
-                                                   data-month="{{ $month }}"
-                                                   data-year="{{ $year }}">
-                                                   <div class="me-2">
-                                                      <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
-                                                      <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
-                                                   </div>
-                                                   <div>
-                                                      <div class="d-flex align-items-center mb-1 tl-header">
-                                                         <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
-                                                         <div class="comp_off_log d-flex align-items-center flex-wrap gap-2">
-                                                               <span>{{ $record['applyOnCell'] ?? '--/--/----' }} - </span>
-                                                               <span class="badge" style="background-color:#f9e79f; color:#d35400; font-weight: bold;"> {{ $displayLabel }}
+                                                }
+
+                                                $displayLabel = 'Comp - Off' . ($subLabel ? " $subLabel" : '');
+
+                                                $dates = [];
+
+                                                if ($dateRange && Str::contains($dateRange, 'to')) {
+                                                   try {
+                                                      [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                                      $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                                      $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                                                      while ($startDate->lte($endDate)) {
+                                                         $dates[] = $startDate->copy();
+                                                         $startDate->addDay();
+                                                      }
+                                                   } catch (\Exception $e) {}
+                                                } elseif ($applyOnCell) {
+                                                   try {
+                                                      $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                                   } catch (\Exception $e) {}
+                                                }
+                                             @endphp
+
+                                             @if ($leaveType === 'Custom COMP-OFF' && count($dates))
+                                                @foreach ($dates as $date)
+                                                   @php
+                                                      if (in_array($date->dayOfWeek, [0, 6])) continue; // Skip weekends
+                                                      $month = $date->month;
+                                                      $year = $date->year;
+                                                      $formattedDate = $date->format('D, d M');
+                                                   @endphp
+
+                                                   <div class="timeline-item d-flex align-items-start mb-3"
+                                                      data-month="{{ $month }}"
+                                                      data-year="{{ $year }}">
+                                                      <div class="me-2">
+                                                         <div class="dot rounded-circle" style="width: 10px; height: 10px; background-color: #007bff;"></div>
+                                                         <div class="line" style="width: 2px; height: 100%; margin-left: 4px; background-color: #007bff;"></div>
+                                                      </div>
+                                                      <div>
+                                                         <div class="d-flex align-items-center mb-1 tl-header">
+                                                            <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
+                                                            <div class="comp_off_log d-flex align-items-center flex-wrap gap-2">
+                                                               <span>{{ $formattedDate }}</span>
+                                                               <span class="badge" style="background-color:#f9e79f; color:#d35400; font-weight: bold;">
+                                                                  {{ $displayLabel }}
                                                                </span>
                                                                @if ($extraHours > 0)
                                                                   <span>{{ str_pad($extraHours, 2, '0', STR_PAD_LEFT) }} : 00 hours</span>
                                                                @endif
+                                                            </div>
                                                          </div>
                                                       </div>
                                                    </div>
-                                             </div>
-                                          @endif
-                                       @endforeach
+                                                @endforeach
+                                             @endif
+                                          @endforeach
                                        </div>
 
                                        <div id="noCompOffMessage12" class="fs-12 text-muted text-center p-2 d-none">
@@ -4759,103 +4851,89 @@
                                  </div>
                                  <div class="tab-pane fade" id="modelcopiesTab">
                                     <div class="timeline">
-                                       <div class="timeline-item d-flex mb-3">
-                                              @php
+                                       <div class="timeline-item d-flex mb-3 fs-12">
+                                          @php
                                           $monthGroups = [];
-
                                           foreach ($dataTimesheet as $item) {
-                                             $record = json_decode($item->record ?? '{}', true);
-                                             if (!isset($record['applyOnCell'])) continue;
-
-                                             $parts = explode(' / ', $record['applyOnCell']);
-                                             if (count($parts) !== 3) continue;
-
-                                             [$day, $month, $year] = $parts;
-                                             $key = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
-                                             $monthGroups[$key][] = strtolower(trim($item->status));
+                                          $record = json_decode($item->record ?? '{}', true);
+                                          if (!isset($record['applyOnCell'])) continue;
+                                          $parts = explode(' / ', $record['applyOnCell']);
+                                          if (count($parts) !== 3) continue;
+                                          [$day, $month, $year] = $parts;
+                                          $key = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
+                                          $monthGroups[$key][] = strtolower(trim($item->status));
                                           }
-
                                           $monthlyStatus = [];
                                           foreach ($monthGroups as $monthKey => $statuses) {
-                                             if (in_array('draft', $statuses)) {
-                                                $monthlyStatus[$monthKey] = 'Draft';
-                                             } elseif (count(array_unique($statuses)) === 1) {
-                                                $monthlyStatus[$monthKey] = ucfirst($statuses[0]);
-                                             } else {
-                                                $monthlyStatus[$monthKey] = 'Mixed';
-                                             }
+                                          if (in_array('draft', $statuses)) {
+                                          $monthlyStatus[$monthKey] = 'Draft';
+                                          } elseif (count(array_unique($statuses)) === 1) {
+                                          $monthlyStatus[$monthKey] = ucfirst($statuses[0]);
+                                          } else {
+                                          $monthlyStatus[$monthKey] = 'Mixed';
                                           }
-
+                                          }
                                           // Keep only latest 6 months
                                           krsort($monthlyStatus);
                                           $monthlyStatus = array_slice($monthlyStatus, 0, 6, true);
-
                                           // ✅ Filter only submitted entries
                                           $submittedOnly = array_filter($monthlyStatus, fn($status) => strtolower($status) === 'submitted');
-                                       @endphp
-
-                                       @if (!empty($submittedOnly))
+                                          @endphp
+                                          @if (!empty($submittedOnly))
                                           @foreach ($submittedOnly as $monthKey => $status)
-                                             @php
-                                                $monthTitle = \Carbon\Carbon::createFromFormat('Y-m', $monthKey)->format('F - Y');
-                                                $statusLower = strtolower($status);
-
-                                                $dotClass = match($statusLower) {
-                                                   'draft' => 'dot-blue',
-                                                   'submitted' => 'dot-yellow',
-                                                   'auto approved', 'approved' => 'dot-green',
-                                                   'rejected' => 'dot-red',
-                                                   default => 'dot-gray',
-                                                };
-
-                                                $lineClass = match($statusLower) {
-                                                   'draft' => 'blue-timeline',
-                                                   'submitted' => 'yellow-timeline',
-                                                   'auto approved', 'approved' => 'green-timeline',
-                                                   'rejected' => 'red-timeline',
-                                                   default => 'gray-timeline',
-                                                };
-
-                                                $badgeClass = match($statusLower) {
-                                                   'draft' => 'badge blue',
-                                                   'submitted' => 'badge yellow',
-                                                   'auto approved', 'approved' => 'badge green',
-                                                   'rejected' => 'badge red',
-                                                   default => 'badge gray',
-                                                };
-
-                                                $icon = match($statusLower) {
-                                                   'auto approved', 'approved' => '<i class="fa-solid fa-check"></i>',
-                                                   'submitted' => '<i class="fa-solid fa-xmark"></i>',
-                                                   default => '',
-                                                };
-                                             @endphp
-
-                                              <div class="me-2">
-                                                <div class="dot bg-primary rounded-circle"
-                                                   style="width:10px; height:10px;"></div>
-                                                <div class="line bg-primary"></div>
+                                          @php
+                                          $monthTitle = \Carbon\Carbon::createFromFormat('Y-m', $monthKey)->format('F - Y');
+                                          $statusLower = strtolower($status);
+                                          $dotClass = match($statusLower) {
+                                          'draft' => 'dot-blue',
+                                          'submitted' => 'dot-yellow',
+                                          'auto approved', 'approved' => 'dot-green',
+                                          'rejected' => 'dot-red',
+                                          default => 'dot-gray',
+                                          };
+                                          $lineClass = match($statusLower) {
+                                          'draft' => 'blue-timeline',
+                                          'submitted' => 'yellow-timeline',
+                                          'auto approved', 'approved' => 'green-timeline',
+                                          'rejected' => 'red-timeline',
+                                          default => 'gray-timeline',
+                                          };
+                                          $badgeClass = match($statusLower) {
+                                          'draft' => 'badge blue',
+                                          'submitted' => 'badge yellow',
+                                          'auto approved', 'approved' => 'badge green',
+                                          'rejected' => 'badge red',
+                                          default => 'badge gray',
+                                          };
+                                          $icon = match($statusLower) {
+                                          'auto approved', 'approved' => '<i class="fa-solid fa-check"></i>',
+                                          'submitted' => '<i class="fa-solid fa-xmark"></i>',
+                                          default => '',
+                                          };
+                                          @endphp
+                                          <div class="me-2">
+                                             <div class="dot bg-primary rounded-circle"
+                                                style="width:10px; height:10px;"></div>
+                                             <div class="line bg-primary"></div>
+                                          </div>
+                                          <div class="w-100 d-flex">
+                                             <div class="d-flex mb-1 tl-header">
+                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2">
                                              </div>
-                                             <div class="w-100 d-flex">
-                                                <div class="d-flex mb-1 tl-header">
-                                                   <img src="https://i.pravatar.cc/24"
-                                                         class="rounded-circle me-2">
-
+                                             <div class="tl_details w-100">
+                                                <span class="text-primary">Timesheet Overview</span>
+                                                <div class="d-flex justify-content-between mt-2">
+                                                   <span>({{ $monthTitle }})</span>
+                                                   <a href="{{ url('/download-pdf') }}" class="badge_icon">
+                                                   <i class="fa-solid fa-cloud-arrow-down"></i>
+                                                   </a>
                                                 </div>
-                                                <div class="tl_details w-100">
-                                                   <span class="text-primary">Timesheet Overview</span>
-                                                      <div class="d-flex justify-content-between mt-2">
-                                                         <span>({{ $monthTitle }})</span>
-                                                         <a href="{{ url('/download-pdf') }}" class="badge_icon">
-                                                            <i class="fa-solid fa-cloud-arrow-down"></i>
-                                                         </a>
-                                                      </div> 
-                                                </div>
-                                                @endforeach
-                                                @else
-                                                   <p class="text-muted" style="padding: 0.5rem 1rem;">No submitted timesheets found</p>
-                                                @endif
                                              </div>
+                                             @endforeach
+                                             @else
+                                             <p class="text-muted" style="padding: 0.5rem 1rem;">No submitted timesheets found</p>
+                                             @endif
+                                          </div>
                                        </div>
                                     </div>
                                  </div>
