@@ -445,7 +445,7 @@ public function getConsultantAllDetails(Request $request)
 
 
 
-    // === RESPONSE ===
+    // === RESPONSE === 
     return response()->json([
         'status' => true,
         'leave_log' => $leaveLog,
