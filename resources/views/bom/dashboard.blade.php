@@ -933,7 +933,7 @@
 
             if (confirm("Are you sure you want to delete this consultancy?")) {
                 $.ajax({
-                    url: "{{ route('consultancy.delete', '') }}/" + consultancyId,
+                    url: "{{ route('consultancy.delete', ':id') }}".replace(':id', consultancyId),
                     type: "POST",
                     data: {
                         _method: "DELETE",

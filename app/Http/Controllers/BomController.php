@@ -13,6 +13,7 @@ class BomController extends Controller
     public function dashboard()
     {
         $userData = Session::get('user_data');
+        //echo "<pre>";print_r($userData);die;
         if($userData['role_id'] == 6)
         {
             $consultancies = Consultancy::orderBy('id', 'desc')->get();
@@ -32,7 +33,7 @@ class BomController extends Controller
             ->whereNull('lookup_header')
             ->orderBy('id', 'desc')
             ->get();
-        // echo "<pre>";print_r($consultancies);die;
+            //echo "<pre>";print_r($consultancies);die;
             return view('bom.dashboard', compact('user', 'menus','consultancies','bom_static_settings','bom_static_settings_header_option'));
         }
         else
