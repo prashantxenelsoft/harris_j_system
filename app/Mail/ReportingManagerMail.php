@@ -79,7 +79,7 @@ class ReportingManagerMail extends Mailable
         $data['isPdf'] = true;
         $pdf = Pdf::loadView('emails.reporting_manager', $data);
         $data['isPdf'] = false;
-        return $this->view('emails.reporting_manager')
+        return $this->view('emails.reporting_manager_body')
             ->subject($this->subjectText)
             ->with($data)
             ->attachData($pdf->output(), 'Timesheet.pdf', [

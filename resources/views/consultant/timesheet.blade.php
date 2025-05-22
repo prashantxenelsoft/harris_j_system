@@ -2442,6 +2442,15 @@
                               formData.append('corporate_email', corporateEmail?.value.trim() || '');
                               formData.append('reporting_manager_email', reportingManagerEmail?.value.trim() || '');
 
+                              Swal.fire({
+                                 title: 'Please wait...',
+                                 text: 'Sending timesheet...',
+                                 allowOutsideClick: false,
+                                 didOpen: () => {
+                                    Swal.showLoading();
+                                 }
+                              });
+
                               fetch("{{ route('consultant.data.save') }}", {
                                  method: "POST",
                                  headers: {
@@ -2454,7 +2463,7 @@
                                  return response.json();
                               })
                               .then(result => {
-                                 Swal.close();
+                                 Swal.close(); // hide loader
                                  if (statusValue === 'Submitted') {
                                     Swal.fire("Submitted!", "All details submitted successfully!", "success").then(() => location.reload());
                                  } else {
@@ -2462,9 +2471,11 @@
                                  }
                               })
                               .catch(error => {
+                                 Swal.close(); // hide loader on failure too
                                  console.error("Error_saving_records: " + error);
-                                 alert("Failed to save records.");
+                                 Swal.fire("Error", "Failed to save records.", "error");
                               });
+
                            }
 
 

@@ -26,8 +26,15 @@ class ConsultantController extends Controller {
              $feedbacksgData = DB::table('feedbacks')
             ->where('sender_id', $userId)
             ->get();
-            //echo "<pre>";print_r($leaveLogData);die;
-            return view('consultant.dashboard', compact('consultant','feedbacksgData', 'userData', 'dataTimesheet', 'dataClaims', 'publicHolidays','leaveLogData', 'token'));
+          $remarksData = DB::table('consultants as c')
+            ->join('remarks as r', 'c.id', '=', 'r.consultant_id')
+            ->where('c.user_id', $userId)
+            ->select('r.*')
+            ->orderBy('r.id', 'desc')
+            ->get();
+
+            //echo "<pre>";print_r($remarksData);die;
+            return view('consultant.dashboard', compact('consultant','remarksData','feedbacksgData', 'userData', 'dataTimesheet', 'dataClaims', 'publicHolidays','leaveLogData', 'token'));
         }
         else {
             return view('errors.404');
