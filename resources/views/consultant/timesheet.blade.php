@@ -4331,8 +4331,7 @@
                            </div>
                         </div>
                         <div class="tab-pane fade" id="copiesTab">
-                            <div class="timeline">
-                              <div class="timeline-item d-flex mb-3 fs-12">
+                            
 
 
                                           @php
@@ -4406,6 +4405,9 @@
                                                 };
                                              @endphp
 
+                                             <div class="timeline">
+                                              <div class="timeline-item d-flex mb-3 fs-12">
+
                                               <div class="me-2">
                                                 <div class="dot bg-primary rounded-circle"
                                                    style="width:10px; height:10px;"></div>
@@ -4426,12 +4428,13 @@
                                                          </a>
                                                       </div> 
                                                 </div>
+                                                 </div>
+                                                </div>
                                                 @endforeach
                                                 @else
                                                    <p class="text-muted" style="padding: 0.5rem 1rem;">No submitted timesheets found</p>
                                                 @endif
-                                             </div>
-                              </div>
+                                            
                             </div>
                         </div>
                      </div>
@@ -4861,8 +4864,7 @@
                                     </div>
                                  </div>
                                  <div class="tab-pane fade" id="modelcopiesTab">
-                                    <div class="timeline">
-                                       <div class="timeline-item d-flex mb-3 fs-12">
+                                 
                                           @php
                                           $monthGroups = [];
                                           foreach ($dataTimesheet as $item) {
@@ -4922,6 +4924,8 @@
                                           default => '',
                                           };
                                           @endphp
+                                             <div class="timeline">
+                                       <div class="timeline-item d-flex mb-3 fs-12">
                                           <div class="me-2">
                                              <div class="dot bg-primary rounded-circle"
                                                 style="width:10px; height:10px;"></div>
@@ -4940,12 +4944,13 @@
                                                    </a>
                                                 </div>
                                              </div>
+                                             </div>
+                                       </div>
                                              @endforeach
                                              @else
                                              <p class="text-muted" style="padding: 0.5rem 1rem;">No submitted timesheets found</p>
                                              @endif
-                                          </div>
-                                       </div>
+                                        
                                     </div>
                                  </div>
                               </div>
