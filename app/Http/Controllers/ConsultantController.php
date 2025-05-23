@@ -33,7 +33,7 @@ class ConsultantController extends Controller {
             ->orderBy('r.id', 'desc')
             ->get();
 
-            //echo "<pre>";print_r($remarksData);die;
+            //echo "<pre>";print_r($leaveLogData);die;
             return view('consultant.dashboard', compact('consultant','remarksData','feedbacksgData', 'userData', 'dataTimesheet', 'dataClaims', 'publicHolidays','leaveLogData', 'token'));
         }
         else {
@@ -120,6 +120,7 @@ class ConsultantController extends Controller {
         }
         return response()->json(['status' => null]);
     }
+
     public function getClaimStatus(Request $request) {
         $userId = auth()->id();
         $month = (int)$request->query('month') + 1;
@@ -144,6 +145,38 @@ class ConsultantController extends Controller {
         }
         return response()->json(['status' => null]);
     }
+
+    public function addNewClaim(Request $request) {
+        $recordData = json_decode($request->record, true);
+        if (!is_array($recordData)) {
+            return response()->json(['success' => false, 'message' => 'Invalid record.']);
+        }
+
+        if ($request->hasFile('certificate')) {
+            $image = $request->file('certificate');
+            $fileName = time() . '_' . $image->getClientOriginalName();
+            $image->storeAs('consultant', $fileName);
+            $recordData['certificate_path'] = 'storage/app/public/consultant/' . $fileName;
+        } else {
+            $recordData['certificate_path'] = null;
+        }
+
+        DB::table('consultant_dashboard')->insert([
+            'type' => $request->type,
+            'record' => json_encode($recordData),
+            'user_id' => $request->user_id,
+            'client_id' => $request->client_id,
+            'client_name' => $request->client_name,
+            'status' => $request->status ?? 'Draft',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'New claim added.']);
+    }
+
+
+
     /*public function addConsultantData(Request $request) {
         $recordData = json_decode($request->record, true);
         $applyOnCell = $recordData['applyOnCell'] ?? null;

@@ -462,142 +462,139 @@
                            
                            // Form submit
                             document.getElementById("claimForm").addEventListener("submit", function (e) {
-                                e.preventDefault();
+                              e.preventDefault();
 
-                                const date = document.getElementById("eDate").value;
-                                const type = document.getElementById("expenseType").value;
-                                const particulars = document.getElementById("eParticulars").value.trim();
-                                const amount = document.getElementById("eAmount").value.trim();
-                                const remarks = document.getElementById("customRemark").value.trim();
-                                const locationFrom = document.getElementById("eLocationFrom")?.value.trim() || "";
-                                const locationTo = document.getElementById("eLocationTo")?.value.trim() || "";
-                                const otherExpense = document.getElementById("otherExpense")?.value.trim() || "";
-                                const applyOnCell = document.getElementById("showCellDate").innerText.trim();
-                                const fileInput = document.getElementById("uploadFile");
+                              const date = document.getElementById("eDate").value;
+                              const type = document.getElementById("expenseType").value;
+                              const particulars = document.getElementById("eParticulars").value.trim();
+                              const amount = document.getElementById("eAmount").value.trim();
+                              const remarks = document.getElementById("customRemark").value.trim();
+                              const locationFrom = document.getElementById("eLocationFrom")?.value.trim() || "";
+                              const locationTo = document.getElementById("eLocationTo")?.value.trim() || "";
+                              const otherExpense = document.getElementById("otherExpense")?.value.trim() || "";
+                              const applyOnCell = document.getElementById("showCellDate").innerText.trim();
+                              const fileInput = document.getElementById("uploadFile");
 
-                                // ✅ Basic validations
-                                if (!date) return alert("Please select a date.");
-                                if (!type) return alert("Please select an expense type.");
-                                if (!particulars) return alert("Please enter particulars.");
-                                if (!amount || isNaN(amount) || parseFloat(amount) <= 0) return alert("Please enter a valid amount.");
-                                if (!remarks) return alert("Please enter remarks.");
+                              if (!date) return alert("Please select a date.");
+                              if (!type) return alert("Please select an expense type.");
+                              if (!particulars) return alert("Please enter particulars.");
+                              if (!amount || isNaN(amount) || parseFloat(amount) <= 0) return alert("Please enter a valid amount.");
+                              if (!remarks) return alert("Please enter remarks.");
+                              
+                              const remarksWordCount = remarks.trim().split(/\s+/).length;
+                              if (remarksWordCount > 200) return alert("Remarks cannot exceed 200 words.");
 
-                                // ✅ Remarks word count check (max 200 words)
-                                const remarksWordCount = remarks.trim().split(/\s+/).length;
-                                if (remarksWordCount > 200) return alert("Remarks cannot exceed 200 words.");
+                              if (!fileInput || fileInput.files.length === 0) {
+                                 return alert("Please upload an invoice or receipt (PNG, JPG, PDF, max 1MB).");
+                              }
 
-                                // ✅ File upload validation
-                                if (!fileInput || fileInput.files.length === 0) {
-                                    return alert("Please upload an invoice or receipt (PNG, JPG, PDF, max 1MB).");
-                                }
+                              const file = fileInput.files[0];
+                              const allowedTypes = ["image/png", "image/jpeg", "application/pdf"];
+                              if (!allowedTypes.includes(file.type)) {
+                                 return alert("Only PNG, JPG, or PDF files are allowed.");
+                              }
+                              if (file.size > 1048576) {
+                                 return alert("File size must be less than or equal to 1MB.");
+                              }
 
-                                const file = fileInput.files[0];
-                                const allowedTypes = ["image/png", "image/jpeg", "application/pdf"];
-                                if (!allowedTypes.includes(file.type)) {
-                                    return alert("Only PNG, JPG, or PDF files are allowed.");
-                                }
-                                if (file.size > 1048576) {
-                                    return alert("File size must be less than or equal to 1MB.");
-                                }
+                              uploadedFile = file;
+                              uploadedFileURL = URL.createObjectURL(file);
 
-                                uploadedFile = file;
-                                uploadedFileURL = URL.createObjectURL(file);
+                              if (type === "Others") {
+                                 if (!otherExpense) return alert("Please specify the other expense type.");
+                                 if (!locationFrom || !locationTo) return alert("Please enter both From and To locations.");
+                              }
 
-                                // ✅ Optional: validate "Others" fields
-                                if (type === "Others") {
-                                    if (!otherExpense) return alert("Please specify the other expense type.");
-                                    if (!locationFrom || !locationTo) return alert("Please enter both From and To locations.");
-                                }
+                              const claimHTML = `
+                                 <div class="tab_lists" data-type="${type}" data-applyoncell="${applyOnCell}">
+                                       <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
+                                          <span class="list_date"><i class="fa-solid fa-calendar-days me-2"></i>${date}</span>
+                                          <span class="list_e_type">Expenses Type : ${type}</span>
+                                       </div>
+                                       <div class="flex-wrap d-flex align-items-center justify-content-between mb-2">
+                                          <span class="list_particulars">Particulars : ${particulars}</span>
+                                          <span class="list_e_amount">Amount : $ ${parseFloat(amount).toFixed(2)}</span>
+                                       </div>
+                                       <div class="d-flex align-items-center justify-content-end">
+                                          <span class="list_icons">
+                                             <a href="#" class="badge_icon preview-attach" data-img="${uploadedFileURL || ""}">
+                                                   <i class="fa-solid fa-paperclip"></i>
+                                             </a>
+                                             <a href="#" class="badge_icon edit-claim"
+                                                   data-date="${date}" data-type="${type}" data-particulars="${particulars}"
+                                                   data-amount="${amount}" data-remarks="${remarks}"
+                                                   data-locationfrom="${locationFrom}" data-locationto="${locationTo}" data-otherexpense="${otherExpense}">
+                                                   <i class="fa-solid fa-pen-nib"></i>
+                                             </a>
+                                             <a href="#" class="badge_icon delete-claim"><i class="fa-solid fa-trash-can"></i></a>
+                                          </span>
+                                       </div>
+                                 </div>
+                              `;
 
-                                // ✅ Add to right panel
-                                const claimHTML = `
-                                    <div class="tab_lists" data-type="${type}" data-applyoncell="${applyOnCell}">
-                                        <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
-                                            <span class="list_date"><i class="fa-solid fa-calendar-days me-2"></i>${date}</span>
-                                            <span class="list_e_type">Expenses Type : ${type}</span>
-                                        </div>
-                                        <div class="flex-wrap d-flex align-items-center justify-content-between mb-2">
-                                            <span class="list_particulars">Particulars : ${particulars}</span>
-                                            <span class="list_e_amount">Amount : $ ${parseFloat(amount).toFixed(2)}</span>
-                                        </div>
-                                        <div class="d-flex align-items-center justify-content-end">
-                                            <span class="list_icons">
-                                                <a href="#" class="badge_icon preview-attach" data-img="${uploadedFileURL || ""}">
-                                                    <i class="fa-solid fa-paperclip"></i>
-                                                </a>
-                                                <a href="#" class="badge_icon edit-claim"
-                                                    data-date="${date}" data-type="${type}" data-particulars="${particulars}"
-                                                    data-amount="${amount}" data-remarks="${remarks}"
-                                                    data-locationfrom="${locationFrom}" data-locationto="${locationTo}" data-otherexpense="${otherExpense}">
-                                                    <i class="fa-solid fa-pen-nib"></i>
-                                                </a>
-                                                <a href="#" class="badge_icon delete-claim"><i class="fa-solid fa-trash-can"></i></a>
-                                            </span>
-                                        </div>
-                                    </div>
-                                `;
+                              const listContainer = document.querySelector(".tab_type_list");
 
-                                const listContainer = document.querySelector(".tab_type_list");
-                                const existingCard = listContainer.querySelector(`.tab_lists[data-type="${type}"][data-applyoncell="${applyOnCell}"]`);
+                              if (editMode && editTarget) {
+                                 editTarget.outerHTML = claimHTML;
+                              } else {
+                                 listContainer.insertAdjacentHTML("beforeend", claimHTML);
+                              }
 
-                                if (existingCard) {
-                                    existingCard.outerHTML = claimHTML;
-                                } else {
-                                    listContainer.insertAdjacentHTML("beforeend", claimHTML);
-                                }
+                              const claim_no = document.querySelector("#otherModal .ml_duty_time span span")?.textContent.trim() || "";
 
-                                // ✅ Prepare & send to backend
-                                const claim_no = document.querySelector("#otherModal .ml_duty_time span span")?.textContent.trim() || "";
-                                const formData = new FormData();
-                                formData.append("type", "claims");
-                                formData.append("user_id", "{{ $userData['id'] ?? '' }}");
-                                formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
-                                formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+                              const formData = new FormData();
+                              formData.append("type", "claims");
+                              formData.append("user_id", "{{ $userData['id'] ?? '' }}");
+                              formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+                              formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
 
-                                const recordData = {
-                                    date,
-                                    expenseType: type,
-                                    claim_no,
-                                    applyOnCell,
-                                    particulars,
-                                    amount: parseFloat(amount).toFixed(2),
-                                    remarks,
-                                    locationFrom,
-                                    locationTo,
-                                    otherExpense
-                                };
+                              const recordData = {
+                                 date,
+                                 expenseType: type,
+                                 claim_no,
+                                 applyOnCell,
+                                 particulars,
+                                 amount: parseFloat(amount).toFixed(2),
+                                 remarks,
+                                 locationFrom,
+                                 locationTo,
+                                 otherExpense
+                              };
 
-                                formData.append("record", JSON.stringify(recordData));
-                                formData.append("certificate", uploadedFile);
+                              formData.append("record", JSON.stringify(recordData));
+                              formData.append("certificate", uploadedFile);
 
-                                fetch("{{ route('consultant.data.save') }}", {
-                                    method: "POST",
-                                    headers: {
-                                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-                                    },
-                                    body: formData
-                                })
-                                .then(res => res.json())
-                                .then(data => {
-                                    console.log("Saved:", data);
-                                    uploadedFile = null;
-                                    uploadedFileURL = null;
-                                    applyTag(lastClickedCell, type, "#007bff");
-                                    document.getElementById("eParticulars").value = "";
-                                    document.getElementById("eAmount").value = "";
-                                    document.getElementById("customRemark").value = "";
-                                    document.getElementById("uploadFile").value = "";
-                                    
-                                })
-                                .catch(err => console.error("Error:", err));
+                              const routeURL = (editMode && editTarget)
+                                 ? "{{ route('consultant.data.save') }}"
+                                 : "{{ route('consultant.claim.add') }}";
 
-                                editMode = false;
-                                editTarget = null;
-                                document.getElementById("claimForm").style.boxShadow = "";
-                                document.getElementById("claimForm").style.border = "";
-                            });
+                              fetch(routeURL, {
+                                 method: "POST",
+                                 headers: {
+                                       "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                 },
+                                 body: formData
+                              })
+                              .then(res => res.json())
+                              .then(data => {
+                                 console.log("Saved:", data);
+                                 uploadedFile = null;
+                                 uploadedFileURL = null;
+                                 applyTag(lastClickedCell, type, "#007bff");
 
-                           
+                                 document.getElementById("eParticulars").value = "";
+                                 document.getElementById("eAmount").value = "";
+                                 document.getElementById("customRemark").value = "";
+                                 document.getElementById("uploadFile").value = "";
+
+                                 editMode = false;
+                                 editTarget = null;
+                                 document.getElementById("claimForm").style.boxShadow = "";
+                                 document.getElementById("claimForm").style.border = "";
+                              })
+                              .catch(err => console.error("Error:", err));
+                           });
+
                            // Handle edit, delete, preview
                            document.querySelector(".tab_type_list").addEventListener("click", function (e) {
                                if (e.target.closest(".delete-claim")) {

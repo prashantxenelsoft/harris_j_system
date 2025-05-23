@@ -116,6 +116,7 @@ Route::middleware('auth')->group(function () {
     Route::get('consultancy/dashboard', [ConsultancyController::class, 'index'])->name('consultancy.dashboard');
     Route::delete('consultancies/delete-client/{id}', [ConsultancyController::class, 'deleteClient']);
 
+    Route::post('/consultant/data/claim/add', [ConsultantController::class, 'addNewClaim'])->name('consultant.claim.add');
 
     Route::post('/save-consultant-data', [ConsultantController::class, 'addConsultantData'])->name('consultant.data.save');
     Route::post('/delete-consultant-claim', [ConsultantController::class, 'deleteClaim'])->name('consultant.claim.delete');
