@@ -41,6 +41,10 @@ Route::group(['prefix' => 'api'], function () {
         Route::post('/consultant/dashboard/timeline', [ConsultanctApiController::class, 'getDashboardTimelineData']);
         Route::post('/consultant/get-consultant-details', [ConsultanctApiController::class, 'getConsultantAllDetails']);
         Route::get('/consultant/get-work-summary', [ConsultanctApiController::class, 'getWorkSummary']);
+        Route::post('consultant/feedback/store', [ConsultanctApiController::class, 'ConsultantFeedBack']); 
+        Route::get('consultant/feedback/all', [ConsultanctApiController::class, 'ConsultantFeedBack']);
+        Route::put('consultant/feedback/update/{id}', [ConsultanctApiController::class, 'ConsultantFeedBack']);
+        Route::delete('consultant/feedback/delete/{id}', [ConsultanctApiController::class, 'ConsultantFeedBack']);
 
     });
 
@@ -128,7 +132,7 @@ Route::middleware('auth')->group(function () {
   Route::post('/feedback/delete', [FeedbackController::class, 'destroy'])->name('feedback.delete');
   Route::get('/feedback/all', [FeedbackController::class, 'all'])->name('feedback.all');
 
-
+ 
 
 
 });

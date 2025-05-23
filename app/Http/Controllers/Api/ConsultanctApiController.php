@@ -19,20 +19,22 @@ use App\Mail\TestMail;
 use DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Carbon;
-class ConsultanctApiController extends Controller {
-    public function apiUpdateBasicDetailsConsultant(Request $request) {
+class ConsultanctApiController extends Controller
+{
+    public function apiUpdateBasicDetailsConsultant(Request $request)
+    {
         $userData = User::findOrFail($request->user_id);
         $consultant = Consultant::where('login_email', $userData->email)->first();
         if (!$consultant) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Consultant not found for this user.',
-            ], 404);
+            return response()->json(
+                [
+                    'status' => false,
+                    'message' => 'Consultant not found for this user.',
+                ],
+                404
+            );
         }
-        $consultant->fill($request->only([
-            'first_name', 'middle_name', 'last_name', 'dob',
-            'citizen', 'nationality', 'address_by_user', 'mobile_number'
-        ]));
+        $consultant->fill($request->only(['first_name', 'middle_name', 'last_name', 'dob', 'citizen', 'nationality', 'address_by_user', 'mobile_number']));
         if ($request->hasFile('profile_image')) {
             if ($consultant->profile_image && file_exists(public_path('storage/' . $consultant->profile_image))) {
                 unlink(public_path('storage/' . $consultant->profile_image));
@@ -55,10 +57,11 @@ class ConsultanctApiController extends Controller {
         return response()->json([
             'status' => true,
             'message' => 'Consultant details updated successfully',
-            'data' => $consultant
+            'data' => $consultant,
         ]);
     }
-    public function getDashboardTimelineData(Request $request) {
+    public function getDashboardTimelineData(Request $request)
+    {
         $user = $request->user();
         $rawRecords = DB::table('consultant_dashboard')
             ->where('user_id', $user->id)
@@ -68,7 +71,9 @@ class ConsultanctApiController extends Controller {
         foreach ($rawRecords as $item) {
             $record = json_decode($item->record, true);
             $applyDate = trim($record['applyOnCell'] ?? '');
-            if (empty($applyDate)) continue;
+            if (empty($applyDate)) {
+                continue;
+            }
             try {
                 $dates = [];
                 if (!empty($record['date']) && str_contains($record['date'], 'to')) {
@@ -89,7 +94,9 @@ class ConsultanctApiController extends Controller {
                     $record['leaveType'] = 'AL';
                 }
                 foreach ($dates as $date) {
-                    if ($date->isFuture()) continue;
+                    if ($date->isFuture()) {
+                        continue;
+                    }
                     $monthKey = $date->format('Y-m');
                     $day = $date->day;
                     if (!isset($grouped[$monthKey])) {
@@ -101,7 +108,7 @@ class ConsultanctApiController extends Controller {
                         'client_id' => $item->client_id,
                         'type' => $item->type,
                         'details' => $record,
-                        'status' => $item->status
+                        'status' => $item->status,
                     ];
                 }
             } catch (\Exception $e) {
@@ -114,9 +121,14 @@ class ConsultanctApiController extends Controller {
             $daysInMonth = $carbon->daysInMonth;
             $daysList = [];
             for ($i = 1; $i <= $daysInMonth; $i++) {
-                $fullDate = $carbon->copy()->day($i)->format('d / m / Y');
+                $fullDate = $carbon
+                    ->copy()
+                    ->day($i)
+                    ->format('d / m / Y');
                 $fullCarbonDate = \Carbon\Carbon::createFromFormat('d / m / Y', $fullDate);
-                if ($fullCarbonDate->isFuture()) continue;
+                if ($fullCarbonDate->isFuture()) {
+                    continue;
+                }
                 if (isset($days[$i])) {
                     if (empty($days[$i]['details']['date'])) {
                         $days[$i]['details']['date'] = $fullDate;
@@ -128,7 +140,7 @@ class ConsultanctApiController extends Controller {
                         'client_id' => $days[$i]['client_id'],
                         'type' => $days[$i]['type'],
                         'details' => $days[$i]['details'],
-                        'status' => $days[$i]['status']
+                        'status' => $days[$i]['status'],
                     ];
                 } else {
                     $daysList[] = [
@@ -143,9 +155,9 @@ class ConsultanctApiController extends Controller {
                             'leaveType' => null,
                             'date_range' => null,
                             'applyOnCell' => null,
-                            'certificate_path' => null
+                            'certificate_path' => null,
                         ],
-                        'status' => 'AutoFilled'
+                        'status' => 'AutoFilled',
                     ];
                 }
             }
@@ -154,344 +166,438 @@ class ConsultanctApiController extends Controller {
                     'month' => $carbon->format('F Y'),
                     'start_date' => $carbon->startOfMonth()->toDateString(),
                     'end_date' => $carbon->endOfMonth()->toDateString(),
-                    'days' => $daysList
+                    'days' => $daysList,
                 ];
             }
         }
         return response()->json([
             'success' => true,
             'message' => 'Timeline data compiled successfully.',
-            'data' => $finalData
+            'data' => $finalData,
         ]);
     }
 
+    public function getConsultantAllDetails(Request $request)
+    {
+        $user = auth()->user();
+        $month = $request->input('month');
+        $year = $request->input('year');
 
-
-
-public function getConsultantAllDetails(Request $request)
-{
-    $user = auth()->user();
-    $month = $request->input('month');
-    $year = $request->input('year');
-
-    if (!$user || !$month || !$year) {
-        return response()->json([
-            'status' => false,
-            'message' => 'Missing required parameters.',
-        ], 400);
-    }
-
-    $data = DB::table('consultant_dashboard')
-        ->where('user_id', $user->id)
-        ->where('type', 'timesheet')
-        ->get();
-
-    // === LEAVE LOG ===
-    $leaveLog = $data->filter(function ($item) use ($month, $year) {
-        $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
-        if (!isset($record['applyOnCell']) || !isset($record['leaveType'])) return false;
-
-        $parts = explode(' / ', $record['applyOnCell']);
-        return count($parts) === 3 && $parts[1] == str_pad($month, 2, '0', STR_PAD_LEFT) && $parts[2] == $year;
-    })->map(function ($item) {
-        $item->record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
-
-        $dateField = $item->record['date'] ?? '';
-        $applyOnCell = $item->record['applyOnCell'] ?? '';
-
-        $from = $to = $applyOnCell;
-        $count = 1;
-
-        if ($dateField && Str::contains($dateField, 'to')) {
-            try {
-                [$start, $end] = array_map('trim', explode('to', $dateField));
-                $from = $start;
-                $to = $end;
-
-                $startDate = Carbon::createFromFormat('d / m / Y', $start);
-                $endDate = Carbon::createFromFormat('d / m / Y', $end);
-                $count = $startDate->diffInDays($endDate) + 1;
-            } catch (\Exception $e) {}
-        } elseif ($dateField) {
-            $from = $to = $dateField;
-            $count = 1;
-        } elseif ($applyOnCell) {
-            $from = $to = $applyOnCell;
-            $count = 1;
+        if (!$user || !$month || !$year) {
+            return response()->json(
+                [
+                    'status' => false,
+                    'message' => 'Missing required parameters.',
+                ],
+                400
+            );
         }
 
-        $item->record['from'] = $from;
-        $item->record['to'] = $to;
-        $item->record['count'] = "$count days";
+        $data = DB::table('consultant_dashboard')
+            ->where('user_id', $user->id)
+            ->where('type', 'timesheet')
+            ->get();
 
-        return $item;
-    })->values();
-
-
-    // === FORECASTED HOURS ===
-    $forecastedDays = 0;
-    $daysInMonth = Carbon::createFromDate($year, $month, 1)->daysInMonth;
-    for ($day = 1; $day <= $daysInMonth; $day++) {
-        $date = Carbon::createFromDate($year, $month, $day);
-        if (!$date->isWeekend()) {
-            $forecastedDays++;
-        }
-    }
-    $forecastedHours = $forecastedDays * 8;
-
-    // === LOGGED HOURS ===
-    $loggedHours = $data->reduce(function ($carry, $item) use ($month, $year) {
-        $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
-
-        if (!isset($record['applyOnCell']) || !isset($record['workingHours'])) return $carry;
-
-        $parts = explode(' / ', $record['applyOnCell']);
-        if (count($parts) !== 3) return $carry;
-
-        if ($parts[1] == str_pad($month, 2, '0', STR_PAD_LEFT) && $parts[2] == $year) {
-            return $carry + (is_numeric($record['workingHours']) ? (float)$record['workingHours'] : 0);
-        }
-
-        return $carry;
-    }, 0);
-
-    $timelineItems = [];
-    $labelMap = [
-        'PH' => 'Public Holiday',
-        'ML' => 'Medical Leave',
-        'AL' => 'Annual Leave',
-        'UL' => 'Unpaid Leave',
-        'PDO' => 'Paid day off',
-        'Custom COMP-OFF' => 'Comp off',
-        'pay_off' => 'Pay off',
-        'comp_off' => 'Comp off',
-        'ignore' => 'Ignore',
-    ];
-
-    foreach ($data as $entry) {
-        $record = is_string($entry->record) ? json_decode($entry->record, true) : $entry->record;
-        $leaveType = $record['leaveType'] ?? null;
-        $subType = $record['type'] ?? null;
-        $workingHours = $record['workingHours'] ?? null;
-        $extraHours = $record['extraHours'] ?? null;
-        $leaveHourId = $record['leaveHourId'] ?? null;
-        $applyOnCell = $record['applyOnCell'] ?? null;
-        $dateRange = $record['date'] ?? '';
-
-        if (!$leaveType && !$subType) continue;
-
-        $leaveShort = '';
-        if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-        elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-        elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
-
-        $topLabel = strtoupper($leaveType ?? ucfirst(str_replace('_', ' ', $subType)));
-        $mainLabel = $labelMap[$leaveType] ?? $labelMap[$subType] ?? null;
-        $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
-
-        $dates = [];
-
-        if ($dateRange && Str::contains($dateRange, 'to')) {
-            try {
-                [$start, $end] = array_map('trim', explode('to', $dateRange));
-                $startDate = \Carbon\Carbon::createFromFormat('d / m / Y', $start);
-                $endDate = \Carbon\Carbon::createFromFormat('d / m / Y', $end);
-                while ($startDate->lte($endDate)) {
-                    $dates[] = $startDate->copy();
-                    $startDate->addDay();
+        // === LEAVE LOG ===
+        $leaveLog = $data
+            ->filter(function ($item) use ($month, $year) {
+                $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+                if (!isset($record['applyOnCell']) || !isset($record['leaveType'])) {
+                    return false;
                 }
-            } catch (\Exception $e) {}
-        } elseif ($applyOnCell) {
-            try {
-                $dates[] = \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-            } catch (\Exception $e) {}
+
+                $parts = explode(' / ', $record['applyOnCell']);
+                return count($parts) === 3 && $parts[1] == str_pad($month, 2, '0', STR_PAD_LEFT) && $parts[2] == $year;
+            })
+            ->map(function ($item) {
+                $item->record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+
+                $dateField = $item->record['date'] ?? '';
+                $applyOnCell = $item->record['applyOnCell'] ?? '';
+
+                $from = $to = $applyOnCell;
+                $count = 1;
+
+                if ($dateField && Str::contains($dateField, 'to')) {
+                    try {
+                        [$start, $end] = array_map('trim', explode('to', $dateField));
+                        $from = $start;
+                        $to = $end;
+
+                        $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                        $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                        $count = $startDate->diffInDays($endDate) + 1;
+                    } catch (\Exception $e) {
+                    }
+                } elseif ($dateField) {
+                    $from = $to = $dateField;
+                    $count = 1;
+                } elseif ($applyOnCell) {
+                    $from = $to = $applyOnCell;
+                    $count = 1;
+                }
+
+                $item->record['from'] = $from;
+                $item->record['to'] = $to;
+                $item->record['count'] = "$count days";
+
+                return $item;
+            })
+            ->values();
+
+        // === FORECASTED HOURS ===
+        $forecastedDays = 0;
+        $daysInMonth = Carbon::createFromDate($year, $month, 1)->daysInMonth;
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = Carbon::createFromDate($year, $month, $day);
+            if (!$date->isWeekend()) {
+                $forecastedDays++;
+            }
         }
+        $forecastedHours = $forecastedDays * 8;
 
-        foreach ($dates as $date) {
-            if (in_array($date->dayOfWeek, [0, 6])) continue; // Skip weekends
-            if ($date->month != $month || $date->year != $year) continue; // Filter by current month/year
+        // === LOGGED HOURS ===
+        $loggedHours = $data->reduce(function ($carry, $item) use ($month, $year) {
+            $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
 
-            $timelineItems[] = [
-                'date' => $date->format('Y-m-d'),
-                'formatted' => $date->format('D, d M'),
-                'topLabel' => $topLabel,
-                'mainLabel' => $mainLabel,
-                'badge' => $badgeText,
-                'workingHours' => $workingHours,
-                'extraHours' => $extraHours,
-            ];
-        }
-    }
+            if (!isset($record['applyOnCell']) || !isset($record['workingHours'])) {
+                return $carry;
+            }
 
-    $extra_time_log = $data->filter(function ($item) use ($month, $year) {
-        $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+            $parts = explode(' / ', $record['applyOnCell']);
+            if (count($parts) !== 3) {
+                return $carry;
+            }
 
-        if (!isset($record['type'], $record['applyOnCell'])) return false;
+            if ($parts[1] == str_pad($month, 2, '0', STR_PAD_LEFT) && $parts[2] == $year) {
+                return $carry + (is_numeric($record['workingHours']) ? (float) $record['workingHours'] : 0);
+            }
 
-        $parts = explode(' / ', $record['applyOnCell']);
-        if (count($parts) !== 3) return false;
+            return $carry;
+        }, 0);
 
-        return $parts[1] == str_pad($month, 2, '0', STR_PAD_LEFT)
-            && $parts[2] == $year
-            && in_array($record['type'], ['comp_off', 'pay_off', 'ignore']);
-    })->map(function ($item) {
-        $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
-
+        $timelineItems = [];
         $labelMap = [
-            'comp_off' => ['label' => 'Comp - Off', 'color' => '#d35400'],
-            'pay_off'  => ['label' => 'Pay - Off',  'color' => '#2980b9'],
-            'ignore'   => ['label' => 'Ignored',    'color' => '#7f8c8d'],
+            'PH' => 'Public Holiday',
+            'ML' => 'Medical Leave',
+            'AL' => 'Annual Leave',
+            'UL' => 'Unpaid Leave',
+            'PDO' => 'Paid day off',
+            'Custom COMP-OFF' => 'Comp off',
+            'pay_off' => 'Pay off',
+            'comp_off' => 'Comp off',
+            'ignore' => 'Ignore',
         ];
 
-        $type = $record['type'];
-        $label = $labelMap[$type]['label'] ?? 'Unknown';
-        $color = $labelMap[$type]['color'] ?? '#000000';
+        foreach ($data as $entry) {
+            $record = is_string($entry->record) ? json_decode($entry->record, true) : $entry->record;
+            $leaveType = $record['leaveType'] ?? null;
+            $subType = $record['type'] ?? null;
+            $workingHours = $record['workingHours'] ?? null;
+            $extraHours = $record['extraHours'] ?? null;
+            $leaveHourId = $record['leaveHourId'] ?? null;
+            $applyOnCell = $record['applyOnCell'] ?? null;
+            $dateRange = $record['date'] ?? '';
 
-        return [
-            'date' => $record['applyOnCell'] ?? '--/--/----',
-            'type' => $type,
-            'label' => $label,
-            // 'color' => $color,
-            'hours' => str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) . ' : 00',
-        ];
-    })->values();
+            if (!$leaveType && !$subType) {
+                continue;
+            }
 
-    $pay_off_log = $data->filter(function ($item) use ($month, $year) {
-    $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+            $leaveShort = '';
+            if ($leaveHourId === 'fHalfDay') {
+                $leaveShort = 'HD1';
+            } elseif ($leaveHourId === 'sHalfDay') {
+                $leaveShort = 'HD2';
+            } elseif ($leaveHourId === 'customDay') {
+                $leaveShort = 'custom';
+            }
 
-    if (!isset($record['type'], $record['applyOnCell']) || $record['type'] !== 'pay_off') return false;
+            $topLabel = strtoupper($leaveType ?? ucfirst(str_replace('_', ' ', $subType)));
+            $mainLabel = $labelMap[$leaveType] ?? ($labelMap[$subType] ?? null);
+            $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
 
-    $parts = explode(' / ', $record['applyOnCell']);
-    return count($parts) === 3 && $parts[1] == str_pad($month, 2, '0', STR_PAD_LEFT) && $parts[2] == $year;
-    })->map(function ($item) {
-        $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+            $dates = [];
 
-        return [
-            'date' => $record['applyOnCell'] ?? '--/--/----',
-            'hours' => str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) . ' : 00',
-        ];
-    })->values();
-
-    $comp_off_log = [];
-
-    foreach ($data as $item) {
-        $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
-
-        if (($record['leaveType'] ?? '') !== 'Custom COMP-OFF') continue;
-
-        $leaveHour = $record['leaveHour'] ?? '';
-        $extraHours = isset($record['extraHours']) ? (int)$record['extraHours'] : 0;
-        $applyOnCell = $record['applyOnCell'] ?? '';
-        $dateRange = $record['date'] ?? '';
-
-        $subLabel = '';
-        if (Str::contains($leaveHour, 'HD1')) {
-            $subLabel = 'HD1';
-        } elseif (Str::contains($leaveHour, 'HD2')) {
-            $subLabel = 'HD2';
-        }
-
-        $label = 'Comp - Off' . ($subLabel ? " $subLabel" : '');
-
-        $dates = [];
-
-        if ($dateRange && Str::contains($dateRange, 'to')) {
-            try {
-                [$start, $end] = array_map('trim', explode('to', $dateRange));
-                $startDate = Carbon::createFromFormat('d / m / Y', $start);
-                $endDate = Carbon::createFromFormat('d / m / Y', $end);
-                while ($startDate->lte($endDate)) {
-                    $dates[] = $startDate->copy();
-                    $startDate->addDay();
+            if ($dateRange && Str::contains($dateRange, 'to')) {
+                try {
+                    [$start, $end] = array_map('trim', explode('to', $dateRange));
+                    $startDate = \Carbon\Carbon::createFromFormat('d / m / Y', $start);
+                    $endDate = \Carbon\Carbon::createFromFormat('d / m / Y', $end);
+                    while ($startDate->lte($endDate)) {
+                        $dates[] = $startDate->copy();
+                        $startDate->addDay();
+                    }
+                } catch (\Exception $e) {
                 }
-            } catch (\Exception $e) {}
-        } elseif ($applyOnCell) {
-            try {
-                $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-            } catch (\Exception $e) {}
+            } elseif ($applyOnCell) {
+                try {
+                    $dates[] = \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                } catch (\Exception $e) {
+                }
+            }
+
+            foreach ($dates as $date) {
+                if (in_array($date->dayOfWeek, [0, 6])) {
+                    continue;
+                } // Skip weekends
+                if ($date->month != $month || $date->year != $year) {
+                    continue;
+                } // Filter by current month/year
+
+                $timelineItems[] = [
+                    'date' => $date->format('Y-m-d'),
+                    'formatted' => $date->format('D, d M'),
+                    'topLabel' => $topLabel,
+                    'mainLabel' => $mainLabel,
+                    'badge' => $badgeText,
+                    'workingHours' => $workingHours,
+                    'extraHours' => $extraHours,
+                ];
+            }
         }
 
-        foreach ($dates as $date) {
-            if (in_array($date->dayOfWeek, [0, 6])) continue; // skip weekends
-            if ($date->month != $month || $date->year != $year) continue;
+        $extra_time_log = $data
+            ->filter(function ($item) use ($month, $year) {
+                $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
 
-            $comp_off_log[] = [
-                'date' => $date->format('D, d M'),
-                'label' => $label,
-                'hours' => $extraHours > 0 ? str_pad($extraHours, 2, '0', STR_PAD_LEFT) . ' : 00' : null,
+                if (!isset($record['type'], $record['applyOnCell'])) {
+                    return false;
+                }
+
+                $parts = explode(' / ', $record['applyOnCell']);
+                if (count($parts) !== 3) {
+                    return false;
+                }
+
+                return $parts[1] == str_pad($month, 2, '0', STR_PAD_LEFT) && $parts[2] == $year && in_array($record['type'], ['comp_off', 'pay_off', 'ignore']);
+            })
+            ->map(function ($item) {
+                $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+
+                $labelMap = [
+                    'comp_off' => ['label' => 'Comp - Off', 'color' => '#d35400'],
+                    'pay_off' => ['label' => 'Pay - Off', 'color' => '#2980b9'],
+                    'ignore' => ['label' => 'Ignored', 'color' => '#7f8c8d'],
+                ];
+
+                $type = $record['type'];
+                $label = $labelMap[$type]['label'] ?? 'Unknown';
+                $color = $labelMap[$type]['color'] ?? '#000000';
+
+                return [
+                    'date' => $record['applyOnCell'] ?? '--/--/----',
+                    'type' => $type,
+                    'label' => $label,
+                    // 'color' => $color,
+                    'hours' => str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) . ' : 00',
+                ];
+            })
+            ->values();
+
+        $pay_off_log = $data
+            ->filter(function ($item) use ($month, $year) {
+                $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+
+                if (!isset($record['type'], $record['applyOnCell']) || $record['type'] !== 'pay_off') {
+                    return false;
+                }
+
+                $parts = explode(' / ', $record['applyOnCell']);
+                return count($parts) === 3 && $parts[1] == str_pad($month, 2, '0', STR_PAD_LEFT) && $parts[2] == $year;
+            })
+            ->map(function ($item) {
+                $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+
+                return [
+                    'date' => $record['applyOnCell'] ?? '--/--/----',
+                    'hours' => str_pad($record['extraHours'] ?? '0', 2, '0', STR_PAD_LEFT) . ' : 00',
+                ];
+            })
+            ->values();
+
+        $comp_off_log = [];
+
+        foreach ($data as $item) {
+            $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+
+            if (($record['leaveType'] ?? '') !== 'Custom COMP-OFF') {
+                continue;
+            }
+
+            $leaveHour = $record['leaveHour'] ?? '';
+            $extraHours = isset($record['extraHours']) ? (int) $record['extraHours'] : 0;
+            $applyOnCell = $record['applyOnCell'] ?? '';
+            $dateRange = $record['date'] ?? '';
+
+            $subLabel = '';
+            if (Str::contains($leaveHour, 'HD1')) {
+                $subLabel = 'HD1';
+            } elseif (Str::contains($leaveHour, 'HD2')) {
+                $subLabel = 'HD2';
+            }
+
+            $label = 'Comp - Off' . ($subLabel ? " $subLabel" : '');
+
+            $dates = [];
+
+            if ($dateRange && Str::contains($dateRange, 'to')) {
+                try {
+                    [$start, $end] = array_map('trim', explode('to', $dateRange));
+                    $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                    $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                    while ($startDate->lte($endDate)) {
+                        $dates[] = $startDate->copy();
+                        $startDate->addDay();
+                    }
+                } catch (\Exception $e) {
+                }
+            } elseif ($applyOnCell) {
+                try {
+                    $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                } catch (\Exception $e) {
+                }
+            }
+
+            foreach ($dates as $date) {
+                if (in_array($date->dayOfWeek, [0, 6])) {
+                    continue;
+                } // skip weekends
+                if ($date->month != $month || $date->year != $year) {
+                    continue;
+                }
+
+                $comp_off_log[] = [
+                    'date' => $date->format('D, d M'),
+                    'label' => $label,
+                    'hours' => $extraHours > 0 ? str_pad($extraHours, 2, '0', STR_PAD_LEFT) . ' : 00' : null,
+                ];
+            }
+        }
+
+        $monthGroups = [];
+
+        foreach ($data as $item) {
+            $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+            if (!isset($record['applyOnCell'])) {
+                continue;
+            }
+
+            $parts = explode(' / ', $record['applyOnCell']);
+            if (count($parts) !== 3) {
+                continue;
+            }
+
+            [$day, $monthStr, $year] = $parts;
+            $monthKey = $year . '-' . str_pad($monthStr, 2, '0', STR_PAD_LEFT);
+            $monthGroups[$monthKey][] = strtolower(trim($item->status ?? ''));
+        }
+
+        $monthlyStatus = [];
+
+        foreach ($monthGroups as $monthKey => $statuses) {
+            if (in_array('draft', $statuses)) {
+                $monthlyStatus[$monthKey] = 'Draft';
+            } elseif (count(array_unique($statuses)) === 1) {
+                $monthlyStatus[$monthKey] = ucfirst($statuses[0]);
+            } else {
+                $monthlyStatus[$monthKey] = 'Mixed';
+            }
+        }
+
+        // ✅ Get only latest 6 submitted
+        ksort($monthlyStatus);
+        $submittedOnly = array_filter($monthlyStatus, fn($s) => strtolower($s) === 'submitted');
+        $submittedOnly = array_slice($submittedOnly, -6, 6, true);
+
+        // ✅ Format final structure
+        $get_copies = [];
+
+        foreach ($submittedOnly as $monthKey => $status) {
+            try {
+                $monthTitle = \Carbon\Carbon::createFromFormat('Y-m', $monthKey)->format('F - Y');
+            } catch (\Exception $e) {
+                $monthTitle = $monthKey;
+            }
+
+            $get_copies[] = [
+                'label' => 'Timesheet Overview',
+                'month_title' => $monthTitle,
+                'month_key' => $monthKey,
+                'status' => ucfirst($status),
+                'download_url' => url('/download-pdf'), // ✅ Update if dynamic
             ];
         }
-    }
-   
-    $monthGroups = [];
 
-    foreach ($data as $item) {
-        $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
-        if (!isset($record['applyOnCell'])) continue;
-
-        $parts = explode(' / ', $record['applyOnCell']);
-        if (count($parts) !== 3) continue;
-
-        [$day, $monthStr, $year] = $parts;
-        $monthKey = $year . '-' . str_pad($monthStr, 2, '0', STR_PAD_LEFT);
-        $monthGroups[$monthKey][] = strtolower(trim($item->status ?? ''));
-    }
-
-    $monthlyStatus = [];
-
-    foreach ($monthGroups as $monthKey => $statuses) {
-        if (in_array('draft', $statuses)) {
-            $monthlyStatus[$monthKey] = 'Draft';
-        } elseif (count(array_unique($statuses)) === 1) {
-            $monthlyStatus[$monthKey] = ucfirst($statuses[0]);
-        } else {
-            $monthlyStatus[$monthKey] = 'Mixed';
-        }
+        // === RESPONSE ===
+        return response()->json([
+            'status' => true,
+            'leave_log' => $leaveLog,
+            'work_log' => [
+                'forecasted_hours' => $forecastedHours,
+                'logged_hours' => round($loggedHours, 2),
+            ],
+            'timesheet_overview' => $timelineItems,
+            'extra_time_log' => $extra_time_log,
+            'pay_off_log' => $pay_off_log,
+            'comp_off_log' => $comp_off_log,
+            'get_copies' => $get_copies,
+        ]);
     }
 
-    // ✅ Get only latest 6 submitted
-    ksort($monthlyStatus);
-    $submittedOnly = array_filter($monthlyStatus, fn($s) => strtolower($s) === 'submitted');
-    $submittedOnly = array_slice($submittedOnly, -6, 6, true);
+    public function ConsultantFeedBack(Request $request, $id = null)
+    {
+        $method = $request->method();
+        $uri = $request->route()->uri(); // gets the route pattern like 'consultant/feedback/store'
+        if ($method === 'POST' && $uri === 'api/consultant/feedback/store') {
+            // Create
+            $request->validate([
+                'user_id' => 'required|integer',
+                'message' => 'required|string|max:1000',
+            ]);
 
-    // ✅ Format final structure
-    $get_copies = [];
+            DB::table('feedbacks')->insert([
+                'sender_id' => $request->user_id,
+                'message' => $request->message,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-    foreach ($submittedOnly as $monthKey => $status) {
-        try {
-            $monthTitle = \Carbon\Carbon::createFromFormat('Y-m', $monthKey)->format('F - Y');
-        } catch (\Exception $e) {
-            $monthTitle = $monthKey;
+            return response()->json(['success' => true, 'message' => 'Feedback submitted successfully.']);
         }
 
-        $get_copies[] = [
-            'label' => 'Timesheet Overview',
-            'month_title' => $monthTitle,
-            'month_key' => $monthKey,
-            'status' => ucfirst($status),
-            'download_url' => url('/download-pdf'), // ✅ Update if dynamic
-        ];
+       if ($method === 'GET' && $uri === 'api/consultant/feedback/all') {
+            // Only get feedbacks where sender_id matches the given user
+            $senderId = $request->user_id; 
+
+            $feedbacks = DB::table('feedbacks')
+                ->where('sender_id', $senderId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return response()->json($feedbacks);
+        }
+
+        if ($method === 'PUT' && $uri === 'api/consultant/feedback/update/{id}') {
+            // Update
+            $request->validate([
+                'message' => 'required|string|max:1000',
+            ]);
+
+            DB::table('feedbacks')->where('id', $id)->update([
+                'message' => $request->message,
+                'updated_at' => now(),
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Feedback updated successfully.']);
+        }
+
+        if ($method === 'DELETE' && $uri === 'api/consultant/feedback/delete/{id}') {
+            // Delete
+            DB::table('feedbacks')->where('id', $id)->delete();
+            return response()->json(['success' => true, 'message' => 'Feedback deleted successfully.']);
+        }
+
+        return response()->json(['error' => 'Unsupported route or method.'], 404);
     }
-
-
-
-    // === RESPONSE === 
-    return response()->json([
-        'status' => true,
-        'leave_log' => $leaveLog,
-        'work_log' => [
-            'forecasted_hours' => $forecastedHours,
-            'logged_hours' => round($loggedHours, 2),
-        ],
-        'timesheet_overview' => $timelineItems,
-        'extra_time_log' => $extra_time_log,
-        'pay_off_log' => $pay_off_log,
-        'comp_off_log' => $comp_off_log,
-        'get_copies' => $get_copies,
-    ]);
-}
-
-
-
 
 }
