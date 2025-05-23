@@ -11,7 +11,6 @@
 </script>
 <script>
    const claimsData = @json($dataClaims);
-
    document.addEventListener("DOMContentLoaded", function () {
       const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
       const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
@@ -20,9 +19,6 @@
       const edit_icon =  document.getElementById("edit_icon");
       const reporting_fileds_data = document.getElementById("reporting_fileds_data");
       
-
-      
-
       let hasData = false;
       let hasDraft = false;
 
@@ -91,14 +87,13 @@
 
                         <div id="reporting_fileds_data" class="client-details-consultant">
                            <ul>
-                                 <li>
-                                    <input type="text" placeholder="Enter Your Corporate Email-id">
-                                    </li>
+                              <li>
+                              <input type="text" placeholder="Enter Your Corporate Email-id">
+                              </li>
 
-                                    <li>
-                                    <input type="text" placeholder="Enter Reporting Manager Email-Id">
-                                    </li>
-                              
+                              <li>
+                              <input type="text" placeholder="Enter Reporting Manager Email-Id">
+                              </li>
                            </ul>
                         </div>
                      </div>
@@ -646,8 +641,6 @@
                               const savedMonth = localStorage.getItem("timesheetMonth");
                               const savedYear = localStorage.getItem("timesheetYear");
 
-                              
-
                               if (savedMonth !== null && savedYear !== null) {
                                  monthSelect.value = savedMonth;
                                  yearSelect.value = savedYear;
@@ -748,9 +741,6 @@
                                     break;
                               }
                            }
-
-
-
 
                            let calendarEnabled = false;
                            const calendarDays = document.getElementById("calendarDays");
@@ -886,13 +876,11 @@
                                           cell.addEventListener("click", (e) => showInputDropdown(e, cell, date));
                                        }
                                     
-                                   calendarDays.appendChild(cell);
-                                   
-                                   
+                                   calendarDays.appendChild(cell);   
                                }
 
                                const totalFilled = firstDay + daysInMonth;
-                              const extraCells = totalFilled % 7 === 0 ? 0 : 7 - (totalFilled % 7);
+                               const extraCells = totalFilled % 7 === 0 ? 0 : 7 - (totalFilled % 7);
 
                               for (let i = 0; i < extraCells; i++) {
                                  const trailingCell = document.createElement("div");
@@ -1054,7 +1042,6 @@
                                  dateLabel.style.color = "#000"; // keep it visible
                               }
                            }
-
 
                            const monthNames = [
                               "January", "February", "March", "April", "May", "June",
@@ -1294,8 +1281,6 @@
                                document.querySelectorAll(".dropdown").forEach((d) => d.remove());
                            }
                            
-                          
-
                            document.getElementById("monthSelect").addEventListener("change", function () {
                               localStorage.setItem("timesheetMonth", this.value);
                               localStorage.setItem("timesheetYear", document.getElementById("yearSelect").value);
@@ -1310,15 +1295,12 @@
                               renderCalendar();
                            });
 
-
-                           
                            document.addEventListener("click", function (e) {
                                if (!e.target.closest(".calendar-cell")) closeAllDropdowns();
                            });
                            
                            populateMonthYearSelectors();
                            renderCalendar();
-                           
                            
                            document.getElementById("edit_icon").addEventListener("click", function (e) {
                               e.preventDefault();
@@ -1448,7 +1430,6 @@
                            <span style="width: 16px; height: 16px; background-color: #FF961B; border: 1px solid #ccc; display: inline-block;"></span>
                            Others
                      </li>
-                     
                   </ul>
                </div>
 
@@ -1464,8 +1445,6 @@
                            <button class="nav-link tab_btn" data-bs-toggle="tab" data-bs-target="#gCopiesContent" type="button" role="tab">Get Copies</button>
                         </li>
                      </ul>
-                     
-                    
                      </button>
                   </div>
                   <div class="tab-content tab_content_body" id="clickTabsContent">
@@ -1552,7 +1531,6 @@
                               @endforeach
                            @endforeach
 
-                           {{-- ✅ Always render this hidden by default --}}
                            <p id="noClaimMessage" class="text-muted px-3 py-2 d-none">No entries found for this month</p>
 
                            <script>
@@ -1581,10 +1559,7 @@
                                  }, 200);
                               });
                            </script>
-
-
                         </div>
-
                      </div>
                      <script>
                         // ✅ Your full claim collection exposed from backend
@@ -1642,7 +1617,6 @@
                               const basePath = pathParts.length > 1 ? '/' + pathParts[1] : '';
                               const baseUrl = window.location.origin + basePath;
 
-                     
                               claims.forEach(c => {
                                  const r = JSON.parse(c.record || '{}');
                                  const html = `
@@ -1715,7 +1689,6 @@
                               });
                            });
                         });
-
                      </script>
                      <div class="tab-pane fade" id="gCopiesContent" role="tabpanel" aria-labelledby="gCopies-tab">
                         <div class="db_sidebar_title_box">
@@ -1814,7 +1787,6 @@
                               });
                            });
                         </script>
-
                      </div>
                   </div>
                   <!-- claim modal -->
@@ -1901,7 +1873,6 @@
                                                          </svg>
                                                    </span>
                                                 </li>
-
                                           </ul>
                                     </div>
                                  </div>
@@ -2250,8 +2221,7 @@
                                        if (msg) msg.classList.toggle("d-none", visibleCount > 0);
                                     }, 200);
                                  });
-                                 </script>
-                                   
+                                 </script> 
                            </div>
                         </div>
                      </div>

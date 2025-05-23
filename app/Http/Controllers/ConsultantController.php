@@ -33,7 +33,7 @@ class ConsultantController extends Controller {
             ->orderBy('r.id', 'desc')
             ->get();
 
-            //echo "<pre>";print_r($leaveLogData);die;
+            //echo "<pre>";print_r($dataTimesheet);die;
             return view('consultant.dashboard', compact('consultant','remarksData','feedbacksgData', 'userData', 'dataTimesheet', 'dataClaims', 'publicHolidays','leaveLogData', 'token'));
         }
         else {
@@ -315,327 +315,327 @@ class ConsultantController extends Controller {
         return response()->json(['success' => true, 'message' => 'Data saved successfully!']);
     }*/
     public function addConsultantData(Request $request) {
-    $records = json_decode($request->record, true); 
-    if (!is_array($records)) {
-    return response()->json(['success' => false, 'message' => 'Invalid record format.']);
-}
-if (array_keys($records) !== range(0, count($records) - 1)) {
-    $records = [$records];
-}
-    $type = $request->type;
-    $status = $request->status ?? 'Draft';
-    $userId = $request->user_id;
-    foreach ($records as $recordData) {
-        $applyOnCell = $recordData['applyOnCell'] ?? null;
-        $incomingExpenseType = $recordData['expenseType'] ?? null;
-        if (!empty($recordData['date']) && strpos($recordData['date'], 'to') !== false) {
-            $rangeParts = explode(' to ', $recordData['date']);
-            if (count($rangeParts) === 2) {
-                try {
-                    $start = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[0]));
-                    $end = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[1]));
-                    while ($start->lte($end)) {
-                        $formattedDate = $start->format('d / m / Y');
-                        $rowsToDelete = DB::table('consultant_dashboard')
-                            ->where('type', 'timesheet')
-                            ->where('user_id', $userId)
-                            ->whereJsonContains('record->applyOnCell', $formattedDate)
-                            ->get();
-                        foreach ($rowsToDelete as $row) {
-                            $decoded = json_decode($row->record, true);
-                            $imagePath = $decoded['certificate_path'] ?? null;
-                            if ($imagePath && file_exists(base_path($imagePath))) {
-                                unlink(base_path($imagePath));
+        $records = json_decode($request->record, true); 
+        $records['time'] = now()->format('h:i A'); 
+        $request->merge(['record' => json_encode($records)]);
+        if (!is_array($records)) {
+        return response()->json(['success' => false, 'message' => 'Invalid record format.']);
+        }
+        if (array_keys($records) !== range(0, count($records) - 1)) {
+            $records = [$records];
+        }
+        $type = $request->type;
+        $status = $request->status ?? 'Draft';
+        $userId = $request->user_id;
+        foreach ($records as $recordData) {
+            $applyOnCell = $recordData['applyOnCell'] ?? null;
+            $incomingExpenseType = $recordData['expenseType'] ?? null;
+            if (!empty($recordData['date']) && strpos($recordData['date'], 'to') !== false) {
+                $rangeParts = explode(' to ', $recordData['date']);
+                if (count($rangeParts) === 2) {
+                    try {
+                        $start = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[0]));
+                        $end = \Carbon\Carbon::createFromFormat('d / m / Y', trim($rangeParts[1]));
+                        while ($start->lte($end)) {
+                            $formattedDate = $start->format('d / m / Y');
+                            $rowsToDelete = DB::table('consultant_dashboard')
+                                ->where('type', 'timesheet')
+                                ->where('user_id', $userId)
+                                ->whereJsonContains('record->applyOnCell', $formattedDate)
+                                ->get();
+                            foreach ($rowsToDelete as $row) {
+                                $decoded = json_decode($row->record, true);
+                                $imagePath = $decoded['certificate_path'] ?? null;
+                                if ($imagePath && file_exists(base_path($imagePath))) {
+                                    unlink(base_path($imagePath));
+                                }
+                                DB::table('consultant_dashboard')->where('id', $row->id)->delete();
                             }
-                            DB::table('consultant_dashboard')->where('id', $row->id)->delete();
+                            $start->addDay();
                         }
-                        $start->addDay();
+                    } catch (\Exception $e) {
+                        \Log::error("Failed to delete overlapping workingHours: " . $e->getMessage());
                     }
-                } catch (\Exception $e) {
-                    \Log::error("Failed to delete overlapping workingHours: " . $e->getMessage());
                 }
             }
-        }
-        $existingRecords = DB::table('consultant_dashboard')
-            ->where('type', $type)
-            ->where('user_id', $userId)
-            ->get();
-        $match = null;
-        foreach ($existingRecords as $row) {
-            $decoded = json_decode($row->record, true);
-            if (
-                ($type === 'timesheet' && !empty($decoded['applyOnCell']) && $decoded['applyOnCell'] === $applyOnCell) ||
-                ($type === 'claims' && !empty($decoded['expenseType']) && $decoded['expenseType'] === $incomingExpenseType && !empty($decoded['applyOnCell']) && $decoded['applyOnCell'] === $applyOnCell)
-            ) {
-                $match = $row;
-                break;
+            $existingRecords = DB::table('consultant_dashboard')
+                ->where('type', $type)
+                ->where('user_id', $userId)
+                ->get();
+            $match = null;
+            foreach ($existingRecords as $row) {
+                $decoded = json_decode($row->record, true);
+                if (
+                    ($type === 'timesheet' && !empty($decoded['applyOnCell']) && $decoded['applyOnCell'] === $applyOnCell) ||
+                    ($type === 'claims' && !empty($decoded['expenseType']) && $decoded['expenseType'] === $incomingExpenseType && !empty($decoded['applyOnCell']) && $decoded['applyOnCell'] === $applyOnCell)
+                ) {
+                    $match = $row;
+                    break;
+                }
             }
-        }
-        $oldImagePath = $match ? (json_decode($match->record, true)['certificate_path'] ?? null) : null;
-        if ($request->hasFile('certificate')) {
-            if ($oldImagePath && file_exists(base_path($oldImagePath))) {
-                unlink(base_path($oldImagePath));
+            $oldImagePath = $match ? (json_decode($match->record, true)['certificate_path'] ?? null) : null;
+            if ($request->hasFile('certificate')) {
+                if ($oldImagePath && file_exists(base_path($oldImagePath))) {
+                    unlink(base_path($oldImagePath));
+                }
+                $image = $request->file('certificate');
+                $fileName = time() . '_' . $image->getClientOriginalName();
+                $image->storeAs('consultant', $fileName);
+                $recordData['certificate_path'] = 'storage/app/public/consultant/' . $fileName;
+            } elseif (!$request->hasFile('certificate') && !$match) {
+                $recordData['certificate_path'] = null;
+            } elseif (!$request->hasFile('certificate') && $match) {
+                $recordData['certificate_path'] = $oldImagePath;
             }
-            $image = $request->file('certificate');
-            $fileName = time() . '_' . $image->getClientOriginalName();
-            $image->storeAs('consultant', $fileName);
-            $recordData['certificate_path'] = 'storage/app/public/consultant/' . $fileName;
-        } elseif (!$request->hasFile('certificate') && !$match) {
-            $recordData['certificate_path'] = null;
-        } elseif (!$request->hasFile('certificate') && $match) {
-            $recordData['certificate_path'] = $oldImagePath;
-        }
-        if ($match) {
-            // 🛡️ Prevent submitted records from being reverted to Draft
-            $finalStatus =  $status;
-        
-          // Step 1: Fetch existing record first
-            $existing = DB::table('consultant_dashboard')->where('id', $match->id)->first();
+            if ($match) {
+                // 🛡️ Prevent submitted records from being reverted to Draft
+                $finalStatus =  $status;
+            
+            // Step 1: Fetch existing record first
+                $existing = DB::table('consultant_dashboard')->where('id', $match->id)->first();
 
-            if ($existing) {
-                $existingRecord = json_decode($existing->record, true) ?? [];
+                if ($existing) {
+                    $existingRecord = json_decode($existing->record, true) ?? [];
 
-                // Step 2: Preserve original claim_no if it exists
-                if (isset($existingRecord['claim_no'])) {
-                    $recordData['claim_no'] = $existingRecord['claim_no'];
+                    // Step 2: Preserve original claim_no if it exists
+                    if (isset($existingRecord['claim_no'])) {
+                        $recordData['claim_no'] = $existingRecord['claim_no'];
+                    }
+
+                    // Step 3: Save updated record
+                    DB::table('consultant_dashboard')
+                        ->where('id', $match->id)
+                        ->update([
+                            'record' => json_encode($recordData),
+                            'client_id' => $request->client_id,
+                            'client_name' => $request->client_name,
+                            'status' => $finalStatus,
+                            'updated_at' => now()
+                        ]);
                 }
 
-                // Step 3: Save updated record
-                DB::table('consultant_dashboard')
-                    ->where('id', $match->id)
-                    ->update([
+            
+                // ✅ If this record is marked as Submitted, then apply it to all records of the same month
+                if ($finalStatus === 'Submitted') {
+                    try {
+                        $applyDate = \Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
+                        $month = $applyDate->format('m');
+                        $year = $applyDate->format('Y');
+            
+                        $allSameMonth = DB::table('consultant_dashboard')
+                            ->where('type', $type)
+                            ->where('user_id', $request->user_id)
+                            ->get();
+            
+                            foreach ($allSameMonth as $row) {
+                                $decoded = json_decode($row->record, true);
+                                $cellDate = $decoded['applyOnCell'] ?? null;
+                            
+                                if ($cellDate) {
+                                    try {
+                                        $cellDateCarbon = \Carbon\Carbon::createFromFormat('d / m / Y', trim($cellDate));
+                                        if ($cellDateCarbon->isSameMonth($applyDate)) {
+                                            DB::table('consultant_dashboard')
+                                                ->where('id', $row->id)
+                                                ->update([
+                                                    'status' => 'Submitted',
+                                                    'updated_at' => now()
+                                                ]);
+                                        }
+                                    } catch (\Exception $e) {
+                                        \Log::warning("Invalid applyOnCell format in row ID {$row->id}");
+                                    }
+                                }
+                            }
+                            
+                    } catch (\Exception $e) {
+                        \Log::error("Failed to update same month records to Submitted: " . $e->getMessage());
+                    }
+                    DB::table('consultant_dashboard')->where('id', $match->id)->update([
                         'record' => json_encode($recordData),
                         'client_id' => $request->client_id,
                         'client_name' => $request->client_name,
                         'status' => $finalStatus,
                         'updated_at' => now()
                     ]);
-            }
-
-        
-            // ✅ If this record is marked as Submitted, then apply it to all records of the same month
-            if ($finalStatus === 'Submitted') {
-                try {
-                    $applyDate = \Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
-                    $month = $applyDate->format('m');
-                    $year = $applyDate->format('Y');
-        
-                    $allSameMonth = DB::table('consultant_dashboard')
-                        ->where('type', $type)
-                        ->where('user_id', $request->user_id)
-                        ->get();
-        
-                        foreach ($allSameMonth as $row) {
-                            $decoded = json_decode($row->record, true);
-                            $cellDate = $decoded['applyOnCell'] ?? null;
-                        
-                            if ($cellDate) {
-                                try {
-                                    $cellDateCarbon = \Carbon\Carbon::createFromFormat('d / m / Y', trim($cellDate));
-                                    if ($cellDateCarbon->isSameMonth($applyDate)) {
-                                        DB::table('consultant_dashboard')
-                                            ->where('id', $row->id)
-                                            ->update([
-                                                'status' => 'Submitted',
-                                                'updated_at' => now()
-                                            ]);
-                                    }
-                                } catch (\Exception $e) {
-                                    \Log::warning("Invalid applyOnCell format in row ID {$row->id}");
-                                }
-                            }
-                        }
-                        
-                } catch (\Exception $e) {
-                    \Log::error("Failed to update same month records to Submitted: " . $e->getMessage());
                 }
-                DB::table('consultant_dashboard')->where('id', $match->id)->update([
+            } else {
+                DB::table('consultant_dashboard')->insert([
+                    'type' => $type,
                     'record' => json_encode($recordData),
+                    'user_id' => $userId,
                     'client_id' => $request->client_id,
                     'client_name' => $request->client_name,
-                    'status' => $finalStatus,
-                    'updated_at' => now()
-                ]);
-            }
-        } else {
-            DB::table('consultant_dashboard')->insert([
-                'type' => $type,
-                'record' => json_encode($recordData),
-                'user_id' => $userId,
-                'client_id' => $request->client_id,
-                'client_name' => $request->client_name,
-                'status' => $status,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-        }
-        try {
-            $applyDate = \Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
-            $month = $applyDate->format('m');
-            $year = $applyDate->format('Y');
-            $sameMonthRecords = DB::table('consultant_dashboard')
-                ->where('type', $type)
-                ->where('user_id', $userId)
-                ->get();
-            foreach ($sameMonthRecords as $row) {
-                $decoded = json_decode($row->record, true);
-                $cellDate = $decoded['applyOnCell'] ?? null;
-                if ($cellDate) {
-                    try {
-                        $cellDateCarbon = \Carbon\Carbon::createFromFormat('d / m / Y', trim($cellDate));
-                        if ($cellDateCarbon->format('m') === $month && $cellDateCarbon->format('Y') === $year) {
-                            DB::table('consultant_dashboard')->where('id', $row->id)->update([
-                                'status' => $status,
-                                'updated_at' => now()
-                            ]);
-                        }
-                    } catch (\Exception $e) {
-                        \Log::warning("Invalid applyOnCell format in row ID {$row->id}");
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            \Log::error("Month status sync failed: " . $e->getMessage());
-        }
-    }
-   if ($status === 'Submitted') {
-
-        $to = $request->reporting_manager_email;
-        $cc = $request->corporate_email;
-        if (!empty($to)) {
-
-            try {
-
-                $consultant = \App\Models\Consultant::where('user_id', $userId)->first();
-
-                $token = $consultant->token ?? null;
-
-                $selectedYear = $request->input('selectedYear');
-
-                $selectedMonth = $request->input('selectedMonth');
-    
-                // Generate PDF for record
-
-                $data = [
-
-                    'type' => 'Timesheet Submission',
-
-                    'token' => $token,
-
-                    'consultant' => $consultant,
-
-                    'client' => DB::table('clients')->where('id', $consultant->client_id)->first(),
-
-                    'consultancy' => DB::table('users')->where('id', $consultant->client_id)->first(),
-
-                    'dashboards' => DB::table('consultant_dashboard')
-
-                        ->where('user_id', $consultant->user_id)
-
-                        ->where('type', 'timesheet')
-
-                        ->where('status', 'Submitted')
-
-                        ->get(),
-
-                    'selectedYear' => $selectedYear,
-
-                    'selectedMonth' => $selectedMonth,
-
-                    'totalWorkingHours' => 0,
-
-                    'isPdf' => true
-
-                ];
-    
-                foreach ($data['dashboards'] as $dashboard) {
-
-                    $record = json_decode($dashboard->record, true);
-
-                    if (!empty($record['workingHours'])) {
-
-                        $data['totalWorkingHours'] += floatval($record['workingHours']);
-
-                    }
-
-                }
-    
-                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.reporting_manager', $data);
-    
-                $fileName = 'timesheet_' . $consultant->id . '_' . time() . '.pdf';
-
-                $folder = storage_path('app/public/consultant/timesheets');
-
-                if (!\File::exists($folder)) {
-
-                    \File::makeDirectory($folder, 0755, true);
-
-                }
-    
-                $filePath = $folder . '/' . $fileName;
-
-                file_put_contents($filePath, $pdf->output());
-
-                $pdfLink = 'storage/consultant/timesheets/' . $fileName;
-    
-                $givenBy = !empty($givenBy) ? $givenBy : null;
-    
-                DB::table('remarks')->insert([
-
-                    'remark' => 'Harris J system update - Successfully submitted timesheet. You can track request via status bar.',
-
-                    'pdf_link' => $pdfLink,
-
-                    'month_of' => $selectedMonth."-".$selectedYear,
-
-                    'consultant_id' => 1,
-
-                    'given_by' => $givenBy,
-
-                    'given_by_type' => 'system',
-
+                    'status' => $status,
                     'created_at' => now(),
-
                     'updated_at' => now()
-
                 ]);
-    
-    
-                // Send mail
-
-                \Mail::to($to)
-
-                    ->cc(!empty($cc) ? [$cc] : [])
-
-                    ->send(new \App\Mail\ReportingManagerMail(
-
-                        'Timesheet Submitted',
-
-                        'Consultant has submitted their record.',
-
-                        $token,
-
-                        $selectedYear,
-
-                        $selectedMonth
-
-                    ));
-
+            }
+            try {
+                $applyDate = \Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
+                $month = $applyDate->format('m');
+                $year = $applyDate->format('Y');
+                $sameMonthRecords = DB::table('consultant_dashboard')
+                    ->where('type', $type)
+                    ->where('user_id', $userId)
+                    ->get();
+                foreach ($sameMonthRecords as $row) {
+                    $decoded = json_decode($row->record, true);
+                    $cellDate = $decoded['applyOnCell'] ?? null;
+                    if ($cellDate) {
+                        try {
+                            $cellDateCarbon = \Carbon\Carbon::createFromFormat('d / m / Y', trim($cellDate));
+                            if ($cellDateCarbon->format('m') === $month && $cellDateCarbon->format('Y') === $year) {
+                                DB::table('consultant_dashboard')->where('id', $row->id)->update([
+                                    'status' => $status,
+                                    'updated_at' => now()
+                                ]);
+                            }
+                        } catch (\Exception $e) {
+                            \Log::warning("Invalid applyOnCell format in row ID {$row->id}");
+                        }
+                    }
+                }
             } catch (\Exception $e) {
+                \Log::error("Month status sync failed: " . $e->getMessage());
+            }
+        }
+        if ($status === 'Submitted') {
 
-                \Log::error("Mail sending failed to Reporting Manager: " . $e->getMessage());
+            $to = $request->reporting_manager_email;
+            $cc = $request->corporate_email;
+            if (!empty($to)) {
 
-                return;
+                try {
+
+                    $consultant = \App\Models\Consultant::where('user_id', $userId)->first();
+
+                    $token = $consultant->token ?? null;
+
+                    $selectedYear = $request->input('selectedYear');
+
+                    $selectedMonth = $request->input('selectedMonth');
+        
+                    // Generate PDF for record
+
+                    $data = [
+
+                        'type' => 'Timesheet Submission',
+
+                        'token' => $token,
+
+                        'consultant' => $consultant,
+
+                        'client' => DB::table('clients')->where('id', $consultant->client_id)->first(),
+
+                        'consultancy' => DB::table('users')->where('id', $consultant->client_id)->first(),
+
+                        'dashboards' => DB::table('consultant_dashboard')
+
+                            ->where('user_id', $consultant->user_id)
+
+                            ->where('type', 'timesheet')
+
+                            ->where('status', 'Submitted')
+
+                            ->get(),
+
+                        'selectedYear' => $selectedYear,
+
+                        'selectedMonth' => $selectedMonth,
+
+                        'totalWorkingHours' => 0,
+
+                        'isPdf' => true
+
+                    ];
+        
+                    foreach ($data['dashboards'] as $dashboard) {
+
+                        $record = json_decode($dashboard->record, true);
+
+                        if (!empty($record['workingHours'])) {
+
+                            $data['totalWorkingHours'] += floatval($record['workingHours']);
+
+                        }
+
+                    }
+        
+                    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.reporting_manager', $data);
+        
+                    $fileName = 'timesheet_' . $consultant->id . '_' . time() . '.pdf';
+
+                    $folder = storage_path('app/public/consultant/timesheets');
+
+                    if (!\File::exists($folder)) {
+
+                        \File::makeDirectory($folder, 0755, true);
+
+                    }
+        
+                    $filePath = $folder . '/' . $fileName;
+
+                    file_put_contents($filePath, $pdf->output());
+
+                    $pdfLink = 'storage/consultant/timesheets/' . $fileName;
+        
+                    $givenBy = !empty($givenBy) ? $givenBy : null;
+        
+                    DB::table('remarks')->insert([
+
+                        'remark' => 'Harris J system update - Successfully submitted timesheet. You can track request via status bar.',
+
+                        'pdf_link' => $pdfLink,
+
+                        'month_of' => $selectedMonth."-".$selectedYear,
+
+                        'consultant_id' => 1,
+
+                        'given_by' => $givenBy,
+
+                        'given_by_type' => 'system',
+
+                        'created_at' => now(),
+
+                        'updated_at' => now()
+
+                    ]);
+        
+        
+                    // Send mail
+
+                    \Mail::to($to)
+
+                        ->cc(!empty($cc) ? [$cc] : [])
+
+                        ->send(new \App\Mail\ReportingManagerMail(
+
+                            'Timesheet Submitted',
+
+                            'Consultant has submitted their record.',
+
+                            $token,
+
+                            $selectedYear,
+
+                            $selectedMonth
+
+                        ));
+
+                } catch (\Exception $e) {
+
+                    \Log::error("Mail sending failed to Reporting Manager: " . $e->getMessage());
+
+                    return;
+
+                }
 
             }
 
         }
-
+        return response()->json(['success' => true, 'message' => 'Data saved successfully!']);
     }
- 
-
-    return response()->json(['success' => true, 'message' => 'Data saved successfully!']);
-}
     public function deleteClaim(Request $request) {
         $id = $request->id;
         $record = DB::table('consultant_dashboard')->where('id', $id)->first();

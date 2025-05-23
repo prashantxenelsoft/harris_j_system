@@ -3632,88 +3632,94 @@
                               </button> -->
                         </div>
                      </div>
-                    <div class="remark-timeline" id="remarkTimeline">
+                        <div class="remark-timeline" id="remarkTimeline">
                            @php
                               $timelineItems = [];
                               $sortedTimesheet = $dataTimesheet->sortByDesc('updated_at');
                               foreach ($sortedTimesheet as $entry) {
-                                    $record = json_decode($entry->record, true);
-                                    $leaveType = $record['leaveType'] ?? null;
-                                    $workingHours = $record['workingHours'] ?? null;
-                                    $leaveHourId = $record['leaveHourId'] ?? null;
-                                    $applyOnCell = $record['applyOnCell'] ?? null;
-                                    $dateRange = $record['date'] ?? '';
-                                    $remarks = $record['remarks'] ?? null;
-                                    $leaveShort = '';
-                                    if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-                                    elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-                                    elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
-                                    $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
-                                    $dates = [];
-                                    if ($dateRange && str_contains($dateRange, 'to')) {
-                                       try {
-                                          [$start, $end] = array_map('trim', explode('to', $dateRange));
-                                          $startDate = Carbon::createFromFormat('d / m / Y', $start);
-                                          $endDate = Carbon::createFromFormat('d / m / Y', $end);
-                                          while ($startDate->lte($endDate)) {
-                                                $dates[] = $startDate->copy();
-                                                $startDate->addDay();
-                                          }
-                                       } catch (\Exception $e) {}
-                                    } elseif ($applyOnCell) {
-                                       try {
-                                          $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-                                       } catch (\Exception $e) {}
-                                    }
-                                    foreach ($dates as $date) {
-                                       if (in_array($date->dayOfWeek, [0, 6])) continue;
-                                       $timelineItems[] = [
-                                          'date' => $date,
-                                          'formatted' => $date->format('D, d M Y'),
-                                          'badge' => $badgeText,
-                                          'workingHours' => $workingHours,
-                                          'leaveType' => $leaveType,
-                                          'remarks' => $remarks,
-                                          'month' => $date->month,
-                                          'year' => $date->year
-                                       ];
-                                    }
+                                 $record = json_decode($entry->record, true);
+                                 $leaveType = $record['leaveType'] ?? null;
+                                 $workingHours = $record['workingHours'] ?? null;
+                                 $leaveHourId = $record['leaveHourId'] ?? null;
+                                 $applyOnCell = $record['applyOnCell'] ?? null;
+                                 $dateRange = $record['date'] ?? '';
+                                 $remarks = $record['remarks'] ?? null;
+                                 $time = $record['time'] ?? null;
+                                 $leaveShort = '';
+                                 if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                 elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                 elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+                                 $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
+                                 $dates = [];
+                                 if ($dateRange && str_contains($dateRange, 'to')) {
+                                    try {
+                                       [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                       $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                       $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                                       while ($startDate->lte($endDate)) {
+                                          $dates[] = $startDate->copy();
+                                          $startDate->addDay();
+                                       }
+                                    } catch (\Exception $e) {}
+                                 } elseif ($applyOnCell) {
+                                    try {
+                                       $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                    } catch (\Exception $e) {}
+                                 }
+                                 foreach ($dates as $date) {
+                                    if (in_array($date->dayOfWeek, [0, 6])) continue;
+                                    $timelineItems[] = [
+                                       'date' => $date,
+                                       'formatted' => $date->format('d / m / Y') . ($time ? ' ' . $time : ''),
+                                       'badge' => $badgeText,
+                                       'workingHours' => $workingHours,
+                                       'leaveType' => $leaveType,
+                                       'remarks' => $remarks,
+                                       'month' => $date->month,
+                                       'year' => $date->year
+                                    ];
+                                 }
                               }
                            @endphp
+
                            <div id="timelineContainer" class="remark-container">
                               @foreach ($timelineItems as $item)
-                                    <div class="remark-item mb-3" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
-                                       <div class="d-flex align-items-start">
-                                          <div class="me-2 text-primary">
-                                                <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                                <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
-                                          </div>
-                                          <div>
-                                                <div class="d-flex align-items-center mb-1">
-                                                   <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
-                                                   <small class="text-muted"> {{ $item['formatted'] }} -
-                                                      @if ($item['badge'])
-                                                            <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
-                                                      @elseif ($item['workingHours']) {{ $item['workingHours'] }} hours
-                                                      @endif
-                                                   </small>
-                                                </div>
-                                                @if ($item['leaveType'] === 'ML')
-                                                   <p>{{ $consultant->emp_name }} has applied for medical leave</p>
-                                                   <p>{!! $item['remarks'] !!}</p>
-                                                @elseif (!empty($item['remarks']))
-                                                   <p>{!! $item['remarks'] !!}</p>
+                                 <div class="remark-item mb-3 px-2" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
+                                    <div class="d-flex align-items-start">
+                                       <div class="me-2 text-primary">
+                                          <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                          <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
+                                       </div>
+                                       <div class="flex-grow-1">
+                                          <div class="d-flex align-items-center mb-1">
+                                             <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
+                                             <small class="text-muted">
+                                                Approved On {{ $item['formatted'] }} -
+                                                @if ($item['badge'])
+                                                   <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
+                                                @elseif ($item['workingHours'])
+                                                   {{ $item['workingHours'] }} hours
                                                 @endif
+                                             </small>
                                           </div>
+                                          @if ($item['leaveType'] === 'ML')
+                                             <p class="mb-1">{{ $consultant->emp_name }} has applied for medical leave</p>
+                                          @endif
+                                          @if (!empty($item['remarks']))
+                                             <p class="mb-0">{!! $item['remarks'] !!}</p>
+                                          @endif
                                        </div>
                                     </div>
-                              @endforeach
-                                 <div id="noRemarksMessage" class="text-center text-muted p-3 d-none">
-                                       <strong>No entries found for this month</strong>
                                  </div>
+                              @endforeach
+
+                              <div id="noRemarksMessage" class="text-center text-muted p-3 d-none">
+                                 <strong>No entries found for this month</strong>
                               </div>
                            </div>
-                           <script>
+
+                        </div>
+                        <script>
                            document.addEventListener("DOMContentLoaded", function () {
                               const selectedMonth = parseInt(localStorage.getItem("timesheetMonth")) + 1;
                               const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
@@ -3732,7 +3738,7 @@
                               const noRemarks = document.getElementById("noRemarksMessage");
                               noRemarks.classList.toggle("d-none", visibleCount > 0);
                            });
-                           </script>
+                        </script>
                   </div>
                   <div class="modal fade" id="remarksModal" tabindex="-1" aria-labelledby="remarksModalLabel" aria-hidden="true">
                      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
@@ -3748,83 +3754,97 @@
                                     @php
                                        $timelineItems = [];
                                        $sortedTimesheet = $dataTimesheet->sortByDesc('updated_at');
+
                                        foreach ($sortedTimesheet as $entry) {
-                                             $record = json_decode($entry->record, true);
-                                             $leaveType = $record['leaveType'] ?? null;
-                                             $workingHours = $record['workingHours'] ?? null;
-                                             $leaveHourId = $record['leaveHourId'] ?? null;
-                                             $applyOnCell = $record['applyOnCell'] ?? null;
-                                             $dateRange = $record['date'] ?? '';
-                                             $remarks = $record['remarks'] ?? null;
-                                             $leaveShort = '';
-                                             if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
-                                             elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
-                                             elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
-                                             $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
-                                             $dates = [];
-                                             if ($dateRange && str_contains($dateRange, 'to')) {
-                                                try {
-                                                   [$start, $end] = array_map('trim', explode('to', $dateRange));
-                                                   $startDate = Carbon::createFromFormat('d / m / Y', $start);
-                                                   $endDate = Carbon::createFromFormat('d / m / Y', $end);
-                                                   while ($startDate->lte($endDate)) {
-                                                         $dates[] = $startDate->copy();
-                                                         $startDate->addDay();
-                                                   }
-                                                } catch (\Exception $e) {}
-                                             } elseif ($applyOnCell) {
-                                                try {
-                                                   $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
-                                                } catch (\Exception $e) {}
-                                             }
-                                             foreach ($dates as $date) {
-                                                if (in_array($date->dayOfWeek, [0, 6])) continue;
-                                                $timelineItems[] = [
-                                                   'date' => $date,
-                                                   'formatted' => $date->format('D, d M Y'),
-                                                   'badge' => $badgeText,
-                                                   'workingHours' => $workingHours,
-                                                   'leaveType' => $leaveType,
-                                                   'remarks' => $remarks,
-                                                   'month' => $date->month,
-                                                   'year' => $date->year
-                                                ];
-                                             }
+                                          $record = json_decode($entry->record, true);
+                                          $leaveType = $record['leaveType'] ?? null;
+                                          $workingHours = $record['workingHours'] ?? null;
+                                          $leaveHourId = $record['leaveHourId'] ?? null;
+                                          $applyOnCell = $record['applyOnCell'] ?? null;
+                                          $dateRange = $record['date'] ?? '';
+                                          $remarks = $record['remarks'] ?? null;
+                                          $time = $record['time'] ?? null;
+
+                                          $leaveShort = '';
+                                          if ($leaveHourId === 'fHalfDay') $leaveShort = 'HD1';
+                                          elseif ($leaveHourId === 'sHalfDay') $leaveShort = 'HD2';
+                                          elseif ($leaveHourId === 'customDay') $leaveShort = 'custom';
+
+                                          $badgeText = $leaveType ? ($leaveShort ? "$leaveType $leaveShort" : $leaveType) : null;
+
+                                          $dates = [];
+                                          if ($dateRange && str_contains($dateRange, 'to')) {
+                                             try {
+                                                [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                                $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                                $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                                                while ($startDate->lte($endDate)) {
+                                                   $dates[] = $startDate->copy();
+                                                   $startDate->addDay();
+                                                }
+                                             } catch (\Exception $e) {}
+                                          } elseif ($applyOnCell) {
+                                             try {
+                                                $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                             } catch (\Exception $e) {}
+                                          }
+
+                                          foreach ($dates as $date) {
+                                             if (in_array($date->dayOfWeek, [0, 6])) continue;
+                                             $timelineItems[] = [
+                                                'date' => $date,
+                                                'formatted' => $date->format('d / m / Y') . ($time ? ' ' . $time : ''),
+                                                'badge' => $badgeText,
+                                                'workingHours' => $workingHours,
+                                                'leaveType' => $leaveType,
+                                                'remarks' => $remarks,
+                                                'month' => $date->month,
+                                                'year' => $date->year
+                                             ];
+                                          }
                                        }
                                     @endphp
 
                                     <div id="timelineContainer123" class="remark-container">
-                                       @foreach ($timelineItems as $item)
-                                             <div class="remark-item mb-3" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
-                                                <div class="d-flex align-items-start">
-                                                   <div class="me-2 text-primary">
-                                                         <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                                                         <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
+                                       @forelse ($timelineItems as $item)
+                                          <div class="remark-item mb-3" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
+                                             <div class="d-flex align-items-start">
+                                                <div class="me-2 text-primary">
+                                                   <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                                   <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                   <div class="d-flex align-items-center justify-content-between flex-wrap mb-1">
+                                                      <div class="d-flex align-items-center">
+                                                         <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
+                                                         <small class="text-muted">
+                                                            Approved On {{ $item['formatted'] }}
+                                                            @if ($item['badge'])
+                                                               <span class="badge bg-light text-dark ms-2">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
+                                                            @elseif ($item['workingHours'])
+                                                               <span class="badge bg-light text-dark ms-2">{{ $item['workingHours'] }} hours</span>
+                                                            @endif
+                                                         </small>
+                                                      </div>
                                                    </div>
-                                                   <div>
-                                                         <div class="d-flex align-items-center mb-1">
-                                                            <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
-                                                            <small class="text-muted"> {{ $item['formatted'] }} -
-                                                               @if ($item['badge'])
-                                                                     <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
-                                                               @elseif ($item['workingHours']) {{ $item['workingHours'] }} hours
-                                                               @endif
-                                                            </small>
-                                                         </div>
-                                                         @if ($item['leaveType'] === 'ML')
-                                                            <p>{{ $consultant->emp_name }} has applied for medical leave</p>
-                                                         @elseif (!empty($item['remarks']))
-                                                            <p>{{ $item['remarks'] }}</p>
-                                                         @endif
-                                                   </div>
+
+                                                   @if ($item['leaveType'] === 'ML')
+                                                      <p class="mb-0">{{ $consultant->emp_name }} has applied for medical leave</p>
+                                                   @endif
+
+                                                   @if (!empty($item['remarks']))
+                                                      <p class="mb-0">{!! $item['remarks'] !!}</p>
+                                                   @endif
                                                 </div>
                                              </div>
-                                       @endforeach
-
-                                       <div id="remarksEmptyMsg" class="text-center text-muted p-3 d-none">
+                                          </div>
+                                       @empty
+                                          <div id="remarksEmptyMsg" class="text-center text-muted p-3">
                                              <strong>No entries found for this month</strong>
-                                       </div>
+                                          </div>
+                                       @endforelse
                                     </div>
+
                                  </div>
                                  <script>
                                     document.addEventListener("DOMContentLoaded", function () {
