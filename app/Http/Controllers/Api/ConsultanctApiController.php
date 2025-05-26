@@ -599,9 +599,6 @@ class ConsultanctApiController extends Controller
 
         return response()->json(['error' => 'Unsupported route or method.'], 404);
     }
-
-
-
     public function getDashboard(Request $request)
     {
         $user = $request->user();

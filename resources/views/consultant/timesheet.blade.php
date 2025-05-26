@@ -31,7 +31,10 @@
          });
    });
 </script>
-
+<script>
+   window.leaveLogData = @json($leaveLogData);
+   window.dataTimesheet = @json($dataTimesheet);
+</script>
 <script>
    const timesheetData = @json($dataTimesheet);
    document.addEventListener("DOMContentLoaded", function () {
@@ -973,6 +976,63 @@
                                        if (file) {
                                            formData.append("certificate", file);
                                        }
+                                       // 🔁 Extract selected date(s) for new request
+                                       let datesToCheck = [];
+                                       if (selectedDate) {
+                                          if (selectedDate.includes("to")) {
+                                             const [start, end] = selectedDate.split(" to ").map(d => d.trim());
+                                             const startDate = flatpickr.parseDate(start, "d / m / Y");
+                                             const endDate = flatpickr.parseDate(end, "d / m / Y");
+                                             const dateCursor = new Date(startDate);
+                                             while (dateCursor <= endDate) {
+                                                   const day = String(dateCursor.getDate()).padStart(2, '0');
+                                                   const month = String(dateCursor.getMonth() + 1).padStart(2, '0');
+                                                   const year = dateCursor.getFullYear();
+                                                   datesToCheck.push(`${day} / ${month} / ${year}`);
+                                                   dateCursor.setDate(dateCursor.getDate() + 1);
+                                             }
+                                          } else {
+                                             datesToCheck.push(selectedDate);
+                                          }
+                                       } else {
+                                          // fallback to applyOnCell if no date selected
+                                          const fallbackDate = document.getElementById("customLeaveDisplay")?.innerText.trim();
+                                          if (fallbackDate) datesToCheck.push(fallbackDate);
+                                       }
+
+                                       // 🧮 Count already used ML entries
+                                       const usedMLDates = window.dataTimesheet
+                                          ?.filter(item => {
+                                             const record = JSON.parse(item.record || '{}');
+                                             return record.leaveType?.toLowerCase().includes("ml");
+                                          })
+                                          .map(item => {
+                                             const record = JSON.parse(item.record || '{}');
+                                             return record.applyOnCell?.trim();
+                                          }) || [];
+
+                                       let usedMLCount = usedMLDates.length;
+
+                                       // 🧮 Add new ML applications for comparison
+                                       let newMLCount = 0;
+                                       datesToCheck.forEach(d => {
+                                          if (!usedMLDates.includes(d)) {
+                                             newMLCount++;
+                                          }
+                                       });
+
+                                       // ✅ Compare with allowed ML
+                                       const allowedML = parseInt(window.leaveLogData?.assign_ml || 0);
+                                       if ((usedMLCount + newMLCount) > allowedML) {
+                                          Swal.fire({
+                                             icon: "error",
+                                             title: "ML Leave Limit Exceeded",
+                                             text: `You are allowed a maximum of ${allowedML} ML leaves. You've already used ${usedMLCount} and trying to add ${newMLCount} more.`
+                                          });
+                                          return;
+                                       }
+
+
                                        fetch("{{ route('consultant.data.save') }}", {
                                            method: "POST",
                                            headers: {
