@@ -19,7 +19,7 @@ class ConsultantController extends Controller {
             $dataTimesheet = DB::table('consultant_dashboard')->where('user_id', $userId)->where('type', 'timesheet')->orderBy('id', 'desc')->get();
             $dataClaims = DB::table('consultant_dashboard')->where('user_id', $userId)->where('type', 'claims')->orderBy('id', 'desc')->get();
             $publicHolidays = DB::table('public_holidays')->get();
-             $leaveLogData = DB::table('leave_log')
+            $leaveLogData = DB::table('leave_log')
             ->where('user_id', $userId)
             ->first();
             $token = $consultant->token ?? null;

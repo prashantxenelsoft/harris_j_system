@@ -481,9 +481,9 @@
                                  formData.append("record", JSON.stringify(recordData));
                                  formData.append('status', "Draft");
 
-                                 for (let pair of formData.entries()) {
-                                       console.log(`${pair[0]}:`, pair[1]);
-                                 }
+                                 // for (let pair of formData.entries()) {
+                                 //       console.log(`${pair[0]}:`, pair[1]);
+                                 // }
 
                                  fetch("{{ route('consultant.data.save') }}", {
                                        method: "POST",
@@ -1162,7 +1162,7 @@
                            </div>
                         </div>
                         <script>
-                           (function () {
+                        (function () {
                            const modal = document.querySelector("#customLeave");
                            if (!modal) return;
                            const rangeInput = modal.querySelectorAll(".range-input input");
@@ -1178,227 +1178,207 @@
                            const fHalfDay = modal.querySelector("#fHalfDay");
                            const sHalfDay = modal.querySelector("#sHalfDay");
                            const customDay = modal.querySelector("#customDay");
-                           function setSlider(minIndex, maxIndex, disable = true) {
-                                 rangeInput[0].value = minIndex;
-                                 rangeInput[1].value = maxIndex;
-                                 updateSlider();
-                                 rangeInput.forEach(input => input.disabled = disable);
-                                 range.style.pointerEvents = disable ? "none" : "auto";
-                              }
-                              [fullDay, fHalfDay, sHalfDay, customDay].forEach(radio => {
-                                 if (radio) {
-                                    const popTime = modal.querySelector("#custom_pop_time");
-                                    radio.addEventListener("change", function () {
-                                          if (this.checked) {
-                                             switch (this.id) {
-                                                case "fullDay":
-                                                      setSlider(18, 37, true); 
-                                                      if (popTime) {
-                                                         popTime.innerHTML = `Time On Duty : <span>-- / 8:30</span>`;
-                                                      }
-                                                      break;
-                                                case "fHalfDay":
-                                                      setSlider(18, 26, true); 
-                                                      if (popTime) {
-                                                         popTime.innerHTML = `Time On Duty : <span>4:30 / 8:30</span>`;
-                                                      }
-                                                      break;
-                                                case "sHalfDay":
-                                                      setSlider(28, 37, true); 
-                                                      if (popTime) {
-                                                         popTime.innerHTML = `Time On Duty : <span>4:30 / 8:30</span>`;
-                                                      }
-                                                      break;
-                                                case "customDay":
-                                                      setSlider(+rangeInput[0].value, +rangeInput[1].value, false); 
-                                                      if (popTime) {
-                                                         popTime.innerHTML = `Time On Duty : <span>-- / 8:30</span>`;
-                                                      }
-                                                      break;
-                                             }
-                                          }
-                                    });
-                                 }
-                              });
-                           let dateRangeInstance = null;
+
                            const timeLabels = Array.from({ length: 48 }, (_, i) => {
-                           const hours = Math.floor(i / 2);
-                           const minutes = i % 2 === 0 ? "00" : "30";
-                           const suffix = hours >= 12 ? "PM" : "AM";
-                           const displayHours = hours % 12 === 0 ? 12 : hours % 12;
-                           return `${displayHours}:${minutes} ${suffix}`;
+                              const hours = Math.floor(i / 2);
+                              const minutes = i % 2 === 0 ? "00" : "30";
+                              const suffix = hours >= 12 ? "PM" : "AM";
+                              const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+                              return `${displayHours}:${minutes} ${suffix}`;
                            });
-                           function updateSlider() {
-                           let minVal = parseInt(rangeInput[0].value);
-                           let maxVal = parseInt(rangeInput[1].value);
-                           if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
-                           const percent1 = (minVal / 47) * 100;
-                           const percent2 = (maxVal / 47) * 100;
-                           range.style.left = percent1 + "%";
-                           range.style.width = percent2 - percent1 + "%";
-                           minTooltip.style.left = percent1 + "%";
-                           minTooltip.textContent = timeLabels[minVal];
-                           maxTooltip.style.left = percent2 + "%";
-                           maxTooltip.textContent = timeLabels[maxVal];
+
+                           function setSlider(minIndex, maxIndex, disable = true) {
+                              rangeInput[0].value = minIndex;
+                              rangeInput[1].value = maxIndex;
+                              updateSlider();
+                              rangeInput.forEach(input => input.disabled = disable);
+                              range.style.pointerEvents = disable ? "none" : "auto";
                            }
+
+                           [fullDay, fHalfDay, sHalfDay, customDay].forEach(radio => {
+                              if (radio) {
+                                 const popTime = modal.querySelector("#custom_pop_time");
+                                 radio.addEventListener("change", function () {
+                                    if (this.checked) {
+                                       switch (this.id) {
+                                          case "fullDay": setSlider(18, 37, true); if (popTime) popTime.innerHTML = `Time On Duty : <span>-- / 8:30</span>`; break;
+                                          case "fHalfDay": setSlider(18, 26, true); if (popTime) popTime.innerHTML = `Time On Duty : <span>4:30 / 8:30</span>`; break;
+                                          case "sHalfDay": setSlider(28, 37, true); if (popTime) popTime.innerHTML = `Time On Duty : <span>4:30 / 8:30</span>`; break;
+                                          case "customDay": setSlider(+rangeInput[0].value, +rangeInput[1].value, false); if (popTime) popTime.innerHTML = `Time On Duty : <span>-- / 8:30</span>`; break;
+                                       }
+                                    }
+                                 });
+                              }
+                           });
+
+                           function updateSlider() {
+                              let minVal = parseInt(rangeInput[0].value);
+                              let maxVal = parseInt(rangeInput[1].value);
+                              if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
+                              const percent1 = (minVal / 47) * 100;
+                              const percent2 = (maxVal / 47) * 100;
+                              range.style.left = percent1 + "%";
+                              range.style.width = percent2 - percent1 + "%";
+                              minTooltip.style.left = percent1 + "%";
+                              minTooltip.textContent = timeLabels[minVal];
+                              maxTooltip.style.left = percent2 + "%";
+                              maxTooltip.textContent = timeLabels[maxVal];
+                           }
+
                            rangeInput.forEach(input => input.addEventListener("input", updateSlider));
                            updateSlider();
+
                            document.addEventListener('DOMContentLoaded', function () {
-                           leaveTypeBtns.forEach(btn => {
-                           btn.addEventListener("click", function (e) {
-                           e.preventDefault();
-                           leaveTypeBtns.forEach(b => b.classList.remove("active"));
-                           this.classList.add("active");
-                           selectedTypeInput.value = this.dataset.type;
+                              leaveTypeBtns.forEach(btn => {
+                                 btn.addEventListener("click", function (e) {
+                                    e.preventDefault();
+                                    leaveTypeBtns.forEach(b => b.classList.remove("active"));
+                                    this.classList.add("active");
+                                    selectedTypeInput.value = this.dataset.type;
+                                 });
+                              });
                            });
-                           });
-                           });
+
                            modal.addEventListener('shown.bs.modal', function () {
-                           if (dateRangeInstance) dateRangeInstance.destroy();
-                           const dateText = document.getElementById("customLeaveDisplay").innerText.trim();
-                           let defaultDate = new Date();
-                           if (dateText && dateText.includes("/")) {
-                           const [day, month, year] = dateText.split(" / ").map(Number);
-                           defaultDate = new Date(year, month - 1, day);
-                           }
-                           dateRangeInstance = flatpickr(dateRange, {
-                           mode: "range",
-                           dateFormat: "d / m / Y",
-                           defaultDate: [defaultDate],
-                           minDate: defaultDate,
-                           disable: [
-                           function (date) {
-                           const startDate = new Date(defaultDate.getFullYear(), defaultDate.getMonth(), defaultDate.getDate());
-                           const today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                           if (today < startDate) {
-                           return true;
-                           }
-                           return false;
-                           }
-                           ],
-                           onChange: function (selectedDates, dateStr, instance) {
-                           const isRange = dateStr.includes("to");
-                           rangeInput.forEach(input => input.disabled = isRange);
-                           range.style.backgroundColor = isRange ? "transparent" : "#037EFF";
-                           if (selectedDates.length > 0) {
-                           let isValid = selectedDates.some(date => {
-                           return date.getDate() === defaultDate.getDate() &&
-                           date.getMonth() === defaultDate.getMonth() &&
-                           date.getFullYear() === defaultDate.getFullYear();
+                              if (dateRange._flatpickr) dateRange._flatpickr.destroy();
+                              const dateText = document.getElementById("customLeaveDisplay").innerText.trim();
+                              let defaultDate = new Date();
+                              if (dateText && dateText.includes("/")) {
+                                 const [day, month, year] = dateText.split(" / ").map(Number);
+                                 defaultDate = new Date(year, month - 1, day);
+                              }
+                              dateRange._flatpickr = flatpickr(dateRange, {
+                                 mode: "range",
+                                 dateFormat: "d / m / Y",
+                                 defaultDate: [defaultDate],
+                                 minDate: defaultDate,
+                                 disable: [
+                                    function (date) {
+                                       const startDate = new Date(defaultDate.getFullYear(), defaultDate.getMonth(), defaultDate.getDate());
+                                       return date < startDate;
+                                    }
+                                 ],
+                                 onChange: function (selectedDates, dateStr, instance) {
+                                    const isRange = dateStr.includes("to");
+                                    rangeInput.forEach(input => input.disabled = isRange);
+                                    range.style.backgroundColor = isRange ? "transparent" : "#037EFF";
+                                    if (selectedDates.length > 0) {
+                                       let isValid = selectedDates.some(date => date.getTime() === defaultDate.getTime());
+                                       if (!isValid) {
+                                          Swal.fire({ icon: "error", title: "Invalid Selection", text: "You must include the clicked date ( " + defaultDate.toLocaleDateString() + " )" });
+                                          instance.clear();
+                                       }
+                                    }
+                                 }
+                              });
+
+                              if (window.editingRecord) {
+                                 const record = window.editingRecord;
+                                 if (record.date) dateRange.value = record.date.replaceAll("\\/", "/");
+                                 leaveTypeBtns.forEach(btn => {
+                                    if (record.leaveType.includes(btn.dataset.type)) {
+                                       btn.classList.add("active");
+                                       selectedTypeInput.value = btn.dataset.type;
+                                    } else {
+                                       btn.classList.remove("active");
+                                    }
+                                 });
+                                 if (record.leaveHourId) {
+                                    const leaveHourInput = modal.querySelector(`#${record.leaveHourId}`);
+                                    if (leaveHourInput) leaveHourInput.checked = true;
+                                 }
+                                 if (record.rangeMin && record.rangeMax) {
+                                    const timeToIndex = time => timeLabels.findIndex(label => label === record[time]);
+                                    rangeInput[0].value = timeToIndex("rangeMin");
+                                    rangeInput[1].value = timeToIndex("rangeMax");
+                                    updateSlider();
+                                 }
+                                 if (record.remarks) {
+                                    remarkInput.value = record.remarks;
+                                 }
+                              }
                            });
-                           if (!isValid) {
-                           Swal.fire({
-                           icon: "error",
-                           title: "Invalid Selection",
-                           text: "You must include the clicked date ( " + defaultDate.toLocaleDateString() + " )",
-                           });
-                           instance.clear();
-                           }
-                           }
-                           }
-                           });
-                           if (window.editingRecord) {
-                           const record = window.editingRecord;
-                           if (record.date) dateRange.value = record.date.replaceAll("\\/", "/");
-                           leaveTypeBtns.forEach(btn => {
-                           if (record.leaveType.includes(btn.dataset.type)) {
-                           btn.classList.add("active");
-                           selectedTypeInput.value = btn.dataset.type;
-                           } else {
-                           btn.classList.remove("active");
-                           }
-                           });
-                           if (record.leaveHourId) {
-                           const leaveHourInput = modal.querySelector(`#${record.leaveHourId}`);
-                           if (leaveHourInput) leaveHourInput.checked = true;
-                           }
-                           if (record.rangeMin && record.rangeMax) {
-                           rangeInput[0].value = record.rangeMin;
-                           rangeInput[1].value = record.rangeMax;
-                           updateSlider();
-                           }
-                           if (record.remarks) {
-                           remarkInput.value = record.remarks;
-                           }
-                           }
-                           });
+
                            clockItBtn.addEventListener("click", function () {
-                           const selectedDate = dateRange.value.trim();
-                           const selectedRadio = modal.querySelector('input[name="Day"]:checked');
-                           const leaveHourText = selectedRadio ? modal.querySelector(`label[for="${selectedRadio.id}"]`)?.textContent.trim() : "";
-                           const selectedRadioId = selectedRadio?.id || "";
-                           const leaveType = selectedTypeInput.value.trim();
-                           const remark = remarkInput.value.trim();
-                           const rangeMin = rangeInput[0].value;
-                           const rangeMax = rangeInput[1].value;
-                           if (!leaveType || !selectedRadioId || !selectedDate || !remark) {
-                           alert("All fields are mandatory!");
-                           return;
-                           }
-                           const formData = new FormData();
-                           formData.append("type", "timesheet");
-                           formData.append("user_id", "{{ $userData['id'] ?? '' }}");
-                           formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
-                           formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
-                           formData.append('status', "Draft");
-                           const recordData = {
-                           date: selectedDate,
-                           leaveType: `Custom ${leaveType}`,
-                           leaveHour: leaveHourText,
-                           leaveHourId: selectedRadioId,
-                           applyOnCell: document.getElementById("customLeaveDisplay").innerText.trim(),
-                           remarks: remark
-                           };
-                           if (!selectedDate.includes("to")) {
-                           recordData.rangeMin = rangeMin;
-                           recordData.rangeMax = rangeMax;
-                           }
-                           formData.append("record", JSON.stringify(recordData));
-                           fetch("{{ route('consultant.data.save') }}", {
-                           method: "POST",
-                           headers: {
-                           "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-                           },
-                           body: formData
-                           })
-                           .then(res => res.json())
-                           .then(data => {
-                           console.log("Saved:", data);
-                           modal.classList.remove("editing-mode");
-                           modal.querySelectorAll('input[name="Day"]').forEach(input => input.checked = false);
-                           leaveTypeBtns.forEach(btn => btn.classList.remove("active"));
-                           selectedTypeInput.value = "";
-                           remarkInput.value = "";
-                           rangeInput[0].value = 15;
-                           rangeInput[1].value = 32;
-                           updateSlider();
-                           if (dateRange._flatpickr) dateRange._flatpickr.clear();
-                           setTimeout(() => {
-                           location.reload();
-                           }, 500);
-                           })
-                           .catch(err => {
-                           console.error(err);
+                              const selectedDate = dateRange.value.trim();
+                              const selectedRadio = modal.querySelector('input[name="Day"]:checked');
+                              const leaveHourText = selectedRadio ? modal.querySelector(`label[for="${selectedRadio.id}"]`)?.textContent.trim() : "";
+                              const selectedRadioId = selectedRadio?.id || "";
+                              const leaveType = selectedTypeInput.value.trim();
+                              const remark = remarkInput.value.trim();
+                              const rangeMin = parseInt(rangeInput[0].value);
+                              const rangeMax = parseInt(rangeInput[1].value);
+
+                              if (!leaveType || !selectedRadioId || !selectedDate || !remark) {
+                                 alert("All fields are mandatory!");
+                                 return;
+                              }
+
+                              const formData = new FormData();
+                              formData.append("type", "timesheet");
+                              formData.append("user_id", "{{ $userData['id'] ?? '' }}");
+                              formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+                              formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+                              formData.append('status', "Draft");
+
+                              const recordData = {
+                                 date: selectedDate,
+                                 leaveType: `Custom ${leaveType}`,
+                                 leaveHour: leaveHourText,
+                                 leaveHourId: selectedRadioId,
+                                 applyOnCell: document.getElementById("customLeaveDisplay").innerText.trim(),
+                                 remarks: remark
+                              };
+
+                              if (!selectedDate.includes("to")) {
+                                 recordData.rangeMin = timeLabels[rangeMin];
+                                 recordData.rangeMax = timeLabels[rangeMax];
+                              }
+
+                              formData.append("record", JSON.stringify(recordData));
+                              fetch("{{ route('consultant.data.save') }}", {
+                                 method: "POST",
+                                 headers: {
+                                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                                 },
+                                 body: formData
+                              })
+                              .then(res => res.json())
+                              .then(data => {
+                                 console.log("Saved:", data);
+                                 modal.classList.remove("editing-mode");
+                                 modal.querySelectorAll('input[name="Day"]').forEach(input => input.checked = false);
+                                 leaveTypeBtns.forEach(btn => btn.classList.remove("active"));
+                                 selectedTypeInput.value = "";
+                                 remarkInput.value = "";
+                                 rangeInput[0].value = 15;
+                                 rangeInput[1].value = 32;
+                                 updateSlider();
+                                 if (dateRange._flatpickr) dateRange._flatpickr.clear();
+                                 setTimeout(() => { location.reload(); }, 500);
+                              })
+                              .catch(err => console.error(err));
                            });
-                           });
+
                            const style = document.createElement("style");
                            style.innerHTML = `
-                           #customLeave.editing-mode .modal-content {
-                           outline: 2px dashed #ffc107;
-                           outline-offset: -6px;
-                           box-shadow: 0 0 0 3px rgba(255,193,7,0.25);
-                           }
-                           .leave_type_options a.active {
-                           background-color: #037eff;
-                           color: white;
-                           padding: 10px 20px;
-                           border-radius: 12px;
-                           display: inline-block;
-                           }
+                              #customLeave.editing-mode .modal-content {
+                                 outline: 2px dashed #ffc107;
+                                 outline-offset: -6px;
+                                 box-shadow: 0 0 0 3px rgba(255,193,7,0.25);
+                              }
+                              .leave_type_options a.active {
+                                 background-color: #037eff;
+                                 color: white;
+                                 padding: 10px 20px;
+                                 border-radius: 12px;
+                                 display: inline-block;
+                              }
                            `;
                            document.head.appendChild(style);
-                           })();
+                        })();
                         </script>
+
                         <script>
                           document.addEventListener("DOMContentLoaded", function () {
                            const monthSelect = document.getElementById("monthSelect");
