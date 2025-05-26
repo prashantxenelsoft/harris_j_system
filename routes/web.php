@@ -45,6 +45,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::get('consultant/feedback/all', [ConsultanctApiController::class, 'ConsultantFeedBack']);
         Route::put('consultant/feedback/update/{id}', [ConsultanctApiController::class, 'ConsultantFeedBack']);
         Route::delete('consultant/feedback/delete/{id}', [ConsultanctApiController::class, 'ConsultantFeedBack']);
+        Route::get('/consultant/get-dashboard', [ConsultanctApiController::class, 'getDashboard']);
 
     });
 

@@ -600,4 +600,67 @@ class ConsultanctApiController extends Controller
         return response()->json(['error' => 'Unsupported route or method.'], 404);
     }
 
+
+
+    public function getDashboard(Request $request)
+    {
+        $user = $request->user();
+
+        // Fetch timesheet data
+        $dataTimesheet = DB::table('consultant_dashboard')
+            ->where('user_id', $user->id)
+            ->where('type', 'timesheet')
+            ->get();
+
+        // Timesheet status summary
+        $total = $dataTimesheet->count();
+        $submitted = $dataTimesheet->where('status', 'submitted')->count();
+        $approved = $dataTimesheet->where('status', 'approved')->count();
+        $rejected = $dataTimesheet->where('status', 'rejected')->count();
+
+        // Working hours calculation (matches Blade logic)
+        $workingHourRows = 0;
+        $totalWorkingHours = 0;
+
+        foreach ($dataTimesheet as $item) {
+            $record = json_decode($item->record ?? '{}', true);
+
+            if (isset($record['workingHours']) && is_numeric($record['workingHours'])) {
+                $workingHourRows++;
+                $totalWorkingHours += (float) $record['workingHours'];
+            }
+        }
+
+        $totalForecastedHours = $workingHourRows * 8;
+
+        // Fetch claims
+        $claims = DB::table('consultant_dashboard')
+            ->where('user_id', $user->id)
+            ->where('type', 'claims')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'claim_no' => json_decode($item->record, true)['claim_no'] ?? 'N/A',
+                    'status' => $item->status ?? 'draft',
+                    'record' => json_decode($item->record, true)
+                ];
+            });
+
+        // Final API response
+        return response()->json([
+            'user' => $user,
+            'timesheet_summary' => [
+                'total_timesheets' => $total,
+                'submitted' => $submitted,
+                'approved' => $approved,
+                'rejected' => $rejected
+            ],
+            'working_log' => [
+                'hours_forecasted' => $totalForecastedHours,
+                'hours_logged' => $totalWorkingHours
+            ],
+            'claims_summary' => $claims
+        ]);
+    }
+
 }
