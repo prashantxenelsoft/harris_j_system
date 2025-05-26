@@ -3674,11 +3674,11 @@
                                           <div class="d-flex align-items-center mb-1">
                                              <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
                                              <small class="text-muted">
-                                                Approved On {{ $item['formatted'] }} -
+                                                Approved On {{ $item['formatted'] }}
                                                 @if ($item['badge'])
-                                                   <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
+                                                   <!-- <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span> -->
                                                 @elseif ($item['workingHours'])
-                                                   {{ $item['workingHours'] }} hours
+                                                   <!-- {{ $item['workingHours'] }} hours -->
                                                 @endif
                                              </small>
                                           </div>
@@ -3800,9 +3800,9 @@
                                                          <small class="text-muted">
                                                             Approved On {{ $item['formatted'] }}
                                                             @if ($item['badge'])
-                                                               <span class="badge bg-light text-dark ms-2">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
+                                                               <!-- <span class="badge bg-light text-dark ms-2">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span> -->
                                                             @elseif ($item['workingHours'])
-                                                               <span class="badge bg-light text-dark ms-2">{{ $item['workingHours'] }} hours</span>
+                                                               <!-- <span class="badge bg-light text-dark ms-2">{{ $item['workingHours'] }} hours</span> -->
                                                             @endif
                                                          </small>
                                                       </div>
