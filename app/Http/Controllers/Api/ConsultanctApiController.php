@@ -618,7 +618,7 @@ class ConsultanctApiController extends Controller
         $approved = $dataTimesheet->where('status', 'approved')->count();
         $rejected = $dataTimesheet->where('status', 'rejected')->count();
 
-        // Working hours calculation (matches Blade logic)
+        // Working hours calculation
         $workingHourRows = 0;
         $totalWorkingHours = 0;
 
@@ -646,8 +646,10 @@ class ConsultanctApiController extends Controller
                 ];
             });
 
-        // Final API response
+        // Final response
         return response()->json([
+            'status' => true,
+            'message' => 'Dashboard data fetched successfully.',
             'user' => $user,
             'timesheet_summary' => [
                 'total_timesheets' => $total,
@@ -662,6 +664,7 @@ class ConsultanctApiController extends Controller
             'claims_summary' => $claims
         ]);
     }
+
 
     public function addConsultantData(Request $request)
     {
