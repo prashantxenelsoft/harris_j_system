@@ -1396,6 +1396,71 @@
                               }
 
                               formData.append("record", JSON.stringify(recordData));
+                              // Extract selected leave type
+                              const selectedLeaveType = `Custom ${leaveType}`.toLowerCase();
+
+                              // Resolve effective leave type key from text
+                              function extractCoreType(type) {
+                                 return (type || "").toLowerCase().replace("custom", "").trim();
+                              }
+
+                              const typeKey = extractCoreType(selectedLeaveType); // e.g., 'ml'
+
+                              // Find assigned leave count
+                              const allowedCount = parseInt(window.leaveLogData?.[`assign_${typeKey}`] || 0);
+
+                              // Gather dates being applied
+                              let datesToCheck = [];
+                              if (selectedDate) {
+                                 if (selectedDate.includes("to")) {
+                                    const [start, end] = selectedDate.split(" to ").map(d => d.trim());
+                                    const startDate = flatpickr.parseDate(start, "d / m / Y");
+                                    const endDate = flatpickr.parseDate(end, "d / m / Y");
+                                    const dateCursor = new Date(startDate);
+                                    while (dateCursor <= endDate) {
+                                       const day = String(dateCursor.getDate()).padStart(2, '0');
+                                       const month = String(dateCursor.getMonth() + 1).padStart(2, '0');
+                                       const year = dateCursor.getFullYear();
+                                       datesToCheck.push(`${day} / ${month} / ${year}`);
+                                       dateCursor.setDate(dateCursor.getDate() + 1);
+                                    }
+                                 } else {
+                                    datesToCheck.push(selectedDate);
+                                 }
+                              } else {
+                                 const fallback = document.getElementById("customLeaveDisplay")?.innerText.trim();
+                                 if (fallback) datesToCheck.push(fallback);
+                              }
+
+                              // Count used dates for this leave type
+                              const usedDates = (window.dataTimesheet || [])
+                                 .map(item => {
+                                    const record = JSON.parse(item.record || '{}');
+                                    if (extractCoreType(record.leaveType)?.toLowerCase() === typeKey) {
+                                       return record.applyOnCell?.trim();
+                                    }
+                                    return null;
+                                 })
+                                 .filter(Boolean);
+
+                              const usedCount = usedDates.length;
+                              let newCount = 0;
+                              datesToCheck.forEach(d => {
+                                 if (!usedDates.includes(d)) {
+                                    newCount++;
+                                 }
+                              });
+
+                              // Check limit
+                              if ((usedCount + newCount) > allowedCount) {
+                                 Swal.fire({
+                                    icon: "error",
+                                    title: `${typeKey.toUpperCase()} Leave Limit Exceeded`,
+                                    text: `You are allowed a maximum of ${allowedCount} ${typeKey.toUpperCase()} leaves. You've already used ${usedCount} and trying to add ${newCount} more.`
+                                 });
+                                 return;
+                              }
+
                               fetch("{{ route('consultant.data.save') }}", {
                                  method: "POST",
                                  headers: {

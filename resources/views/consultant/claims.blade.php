@@ -1635,7 +1635,7 @@
                                                 <span class="fw-bold">Amount</span>
                                                 <span>$ ${r.amount || '0.00'}</span>
                                              </div>
-                                             <div class="u_icons" style="display:none;">
+                                             <div class="u_icons">
                                                 <a href="#" class="badge_icon"><i class="fa-solid fa-pen-nib"></i></a>
                                                 <a href="#" class="badge_icon"><i class="fa-solid fa-trash-can"></i></a>
                                              </div>
@@ -1761,9 +1761,13 @@
                               @endforeach
                            </div>
 
-                           <div class="g_cpoies_submit_btn r_update_btn">
-                              <button type="button" id="downloadSelected">Submit</button>
-                           </div>
+                           @if(count($groupedClaims) > 0)
+                              <div class="g_cpoies_submit_btn r_update_btn">
+                                 <button type="button" id="downloadSelected">Submit</button>
+                              </div>
+                           @endif
+
+                           
                         </form>
 
                         <script>
