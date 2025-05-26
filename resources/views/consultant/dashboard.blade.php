@@ -76,8 +76,8 @@
                         </div>
                         <div class="hj-col-country-dropdown">
                             <select id="action-dropdown" onchange="handleDropdown(this)">
-                                <!-- <option selected disabled>{{ Auth::user()->name }}</option>
-                                <option data-url="#">Profile</option> -->
+                                <!-- <option selected disabled>{{ Auth::user()->name }}</option> -->
+                                <option data-url="#">Profile</option>
                                 <option data-url="logout">Logout</option>
                             </select>
                             <form id="logout-form" method="POST" action="{{ route('admin.logout') }}" style="display: none;">
