@@ -1635,7 +1635,7 @@
                                                 <span class="fw-bold">Amount</span>
                                                 <span>$ ${r.amount || '0.00'}</span>
                                              </div>
-                                             <div class="u_icons">
+                                             <div class="u_icons" style="display:none;">
                                                 <a href="#" class="badge_icon"><i class="fa-solid fa-pen-nib"></i></a>
                                                 <a href="#" class="badge_icon"><i class="fa-solid fa-trash-can"></i></a>
                                              </div>
@@ -1682,8 +1682,6 @@
                                           </div>
                                        </div>
                                     </div>`;
-
-                                    
 
                                  container.insertAdjacentHTML('beforeend', html);
                               });
