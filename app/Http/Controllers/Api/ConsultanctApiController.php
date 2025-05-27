@@ -528,6 +528,45 @@ class ConsultanctApiController extends Controller
             ];
         }
 
+        $timesheet_data = DB::table('consultant_dashboard')
+        ->where('user_id', $user->id)
+        ->where('type', 'timesheet')
+        ->get()
+        ->filter(function ($item) use ($month, $year) {
+            $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+            $applyOnCell = $record['applyOnCell'] ?? '';
+            $parts = explode(' / ', $applyOnCell);
+            return count($parts) === 3 &&
+                (int)$parts[1] == (int)$month &&
+                (int)$parts[2] == (int)$year;
+        })
+        ->map(function ($item) {
+            $item->record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+            return $item;
+        })
+        ->values();
+
+
+       $claim_data = DB::table('consultant_dashboard')
+        ->where('user_id', $user->id)
+        ->where('type', 'claims')
+        ->get()
+        ->filter(function ($item) use ($month, $year) {
+            $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+            $applyOnCell = $record['applyOnCell'] ?? '';
+            $parts = explode(' / ', $applyOnCell);
+            return count($parts) === 3 &&
+                (int)$parts[1] == (int)$month &&
+                (int)$parts[2] == (int)$year;
+        })
+        ->map(function ($item) {
+            $item->record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+            return $item;
+        })
+        ->values();
+
+
+
         // === RESPONSE ===
         return response()->json([
             'status' => true,
@@ -541,6 +580,8 @@ class ConsultanctApiController extends Controller
             'pay_off_log' => $pay_off_log,
             'comp_off_log' => $comp_off_log,
             'get_copies' => $get_copies,
+            'timesheet_data' => $timesheet_data,
+            'claim_data' => $claim_data,
         ]);
     }
 

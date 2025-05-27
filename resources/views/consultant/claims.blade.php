@@ -1662,7 +1662,10 @@
                                                    <i class="fa-solid fa-pen-nib"></i>
                                                 </a>
 
-                                                <a href="#" class="badge_icon"><i class="fa-solid fa-trash-can"></i></a>
+                                                <a href="#" class="badge_icon trigger-claim-delete"
+                                                   data-id="${c.id}">
+                                                   <i class="fa-solid fa-trash-can"></i>
+                                                </a>
                                              </div>
                                           </div>
                                           <div class="bottom_ic_details detial_row">
@@ -1713,46 +1716,95 @@
                            });
                         });
                      </script>
-                    <script>
-                        document.addEventListener("click", function (e) {
-                           const btn = e.target.closest(".trigger-claim-edit");
-                           if (btn) {
-                              e.preventDefault();
+                     <script>
+                           document.addEventListener("click", function (e) {
+                              const btn = e.target.closest(".trigger-claim-edit");
+                              if (btn) {
+                                 e.preventDefault();
 
-                              // 🟢 Fill modal form fields from data attributes
-                              document.getElementById("eDate").value = btn.dataset.date || "";
-                              document.getElementById("expenseType").value = btn.dataset.type || "";
-                              document.getElementById("eParticulars").value = btn.dataset.particulars || "";
-                              document.getElementById("eAmount").value = btn.dataset.amount || "";
-                              document.getElementById("customRemark").value = btn.dataset.remarks || "";
-                              document.getElementById("eLocationFrom").value = btn.dataset.locationfrom || "";
-                              document.getElementById("eLocationTo").value = btn.dataset.locationto || "";
-                              document.getElementById("otherExpense").value = btn.dataset.otherexpense || "";
+                                 // 🟢 Fill modal form fields from data attributes
+                                 document.getElementById("eDate").value = btn.dataset.date || "";
+                                 document.getElementById("expenseType").value = btn.dataset.type || "";
+                                 document.getElementById("eParticulars").value = btn.dataset.particulars || "";
+                                 document.getElementById("eAmount").value = btn.dataset.amount || "";
+                                 document.getElementById("customRemark").value = btn.dataset.remarks || "";
+                                 document.getElementById("eLocationFrom").value = btn.dataset.locationfrom || "";
+                                 document.getElementById("eLocationTo").value = btn.dataset.locationto || "";
+                                 document.getElementById("otherExpense").value = btn.dataset.otherexpense || "";
 
-                              // 🟢 Dispatch change for dropdowns (if dependent)
-                              document.getElementById("expenseType").dispatchEvent(new Event("change"));
+                                 // 🟢 Dispatch change for dropdowns (if dependent)
+                                 document.getElementById("expenseType").dispatchEvent(new Event("change"));
 
-                              // 🟢 Optional: highlight form if needed
-                              const form = document.getElementById("claimForm");
-                              if (form) {
-                                 form.style.boxShadow = "0 0 10px #ff7f50";
-                                 form.style.border = "2px solid #ff7f50";
+                                 // 🟢 Optional: highlight form if needed
+                                 const form = document.getElementById("claimForm");
+                                 if (form) {
+                                    form.style.boxShadow = "0 0 10px #ff7f50";
+                                    form.style.border = "2px solid #ff7f50";
+                                 }
+
+                              // 🟢 Hide currently open claimModal (safely)
+                                 const claimModalInstance = bootstrap.Modal.getInstance(document.getElementById("claimModal"));
+                                 if (claimModalInstance) claimModalInstance.hide();
+
+                                 // 🟢 Show otherModal
+                                 const otherModal = new bootstrap.Modal(document.getElementById("otherModal"));
+                                 otherModal.show();
+
+                                 // Optional: track for editing
+                                 window.editMode = true;
+                                 window.editTarget = btn.closest(".tabs_type_row");
                               }
+                           });
+                     </script>
 
-                             // 🟢 Hide currently open claimModal (safely)
-                              const claimModalInstance = bootstrap.Modal.getInstance(document.getElementById("claimModal"));
-                              if (claimModalInstance) claimModalInstance.hide();
+                     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-                              // 🟢 Show otherModal
-                              const otherModal = new bootstrap.Modal(document.getElementById("otherModal"));
-                              otherModal.show();
+                     <script>
+                        document.addEventListener("click", function (e) {
+                           const btn = e.target.closest(".trigger-claim-delete");
+                           if (!btn) return;
 
-                              // Optional: track for editing
-                              window.editMode = true;
-                              window.editTarget = btn.closest(".tabs_type_row");
-                           }
+                           e.preventDefault();
+
+                           const id = btn.dataset.id;
+                           const card = btn.closest(".tabs_type_row"); // or .tab_lists if outer wrapper is that
+
+                           Swal.fire({
+                              title: "Are you sure?",
+                              text: "This claim will be permanently deleted.",
+                              icon: "warning",
+                              showCancelButton: true,
+                              confirmButtonColor: "#d33",
+                              cancelButtonColor: "#3085d6",
+                              confirmButtonText: "Yes, delete it!",
+                              cancelButtonText: "Cancel"
+                           }).then((result) => {
+                              if (result.isConfirmed) {
+                                 fetch("{{ route('consultant.claim.delete') }}", {
+                                    method: "POST",
+                                    headers: {
+                                       "X-CSRF-TOKEN": document.querySelector('meta[name=\"csrf-token\"]').getAttribute("content"),
+                                       "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({ id: id })
+                                 })
+                                 .then(res => res.json())
+                                 .then(data => {
+                                    if (data.success) {
+                                       card.remove();
+                                       Swal.fire("Deleted!", "The claim has been deleted.", "success");
+                                    } else {
+                                       Swal.fire("Failed", "Could not delete the claim.", "error");
+                                    }
+                                 })
+                                 .catch(() => {
+                                    Swal.fire("Error", "An error occurred while deleting.", "error");
+                                 });
+                              }
+                           });
                         });
                      </script>
+
 
 
                      <div class="tab-pane fade" id="gCopiesContent" role="tabpanel" aria-labelledby="gCopies-tab">
