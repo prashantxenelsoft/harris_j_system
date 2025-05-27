@@ -370,43 +370,55 @@
                               </div>
                            </div>
                         </div>
-                        <script>
-                           document.addEventListener("DOMContentLoaded", function () {
-                               document.querySelector(".tab_type_list").addEventListener("click", function (e) {
-                                   const deleteBtn = e.target.closest(".delete-claim");
-                                   if (deleteBtn) {
-                                       e.preventDefault();
-                           
-                                       const card = deleteBtn.closest(".tab_lists");
-                                       const id = deleteBtn.dataset.id;
-                           
-                                       if (confirm("Are you sure you want to delete this claim?")) {
-                                           fetch("{{ route('consultant.claim.delete') }}", {
-                                               method: "POST",
-                                               headers: {
-                                                   "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-                                                   "Content-Type": "application/json"
-                                               },
-                                               body: JSON.stringify({ id: id })
-                                           })
-                                           .then(res => res.json())
-                                           .then(data => {
-                                               if (data.success) {
-                                                   card.remove();
-                                                   console.log("Deleted successfully.");
-                                               } else {
-                                                   alert("Failed to delete the claim.");
-                                               }
-                                           })
-                                           .catch(err => {
-                                               console.error("Delete error:", err);
-                                               alert("An error occurred while deleting.");
-                                           });
+                       <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                           document.querySelector(".tab_type_list").addEventListener("click", function (e) {
+                              const deleteBtn = e.target.closest(".delete-claim");
+                              if (!deleteBtn) return;
+
+                              e.preventDefault();
+                              const id = deleteBtn.dataset.id;
+                              const card = deleteBtn.closest(".tab_lists");
+
+                              // ✅ SweetAlert confirmation
+                              Swal.fire({
+                                 title: "Are you sure?",
+                                 text: "This claim will be permanently deleted.",
+                                 icon: "warning",
+                                 showCancelButton: true,
+                                 confirmButtonColor: "#d33",
+                                 cancelButtonColor: "#3085d6",
+                                 confirmButtonText: "Yes, delete it!",
+                                 cancelButtonText: "Cancel"
+                              }).then((result) => {
+                                 if (result.isConfirmed) {
+                                    fetch("{{ route('consultant.claim.delete') }}", {
+                                       method: "POST",
+                                       headers: {
+                                          "X-CSRF-TOKEN": document.querySelector('meta[name=\"csrf-token\"]').getAttribute("content"),
+                                          "Content-Type": "application/json"
+                                       },
+                                       body: JSON.stringify({ id: id })
+                                    })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                       if (data.success) {
+                                          card.remove();
+                                          Swal.fire("Deleted!", "Your claim has been deleted.", "success");
+                                       } else {
+                                          Swal.fire("Failed", "Failed to delete the claim.", "error");
                                        }
-                                   }
-                               });
+                                    })
+                                    .catch((err) => {
+                                       console.error("Error:", err);
+                                       Swal.fire("Error", "An error occurred while deleting.", "error");
+                                    });
+                                 }
+                              });
                            });
+                        });
                         </script>
+
                         <script>
                            let editMode = false;
                            let editTarget = null;
@@ -594,7 +606,7 @@
                            document.querySelector(".tab_type_list").addEventListener("click", function (e) {
                                if (e.target.closest(".delete-claim")) {
                                    e.preventDefault();
-                                   e.target.closest(".tab_lists").remove();
+                                  // e.target.closest(".tab_lists").remove();
                                }
                            
                                if (e.target.closest(".edit-claim")) {
@@ -1635,8 +1647,21 @@
                                                 <span class="fw-bold">Amount</span>
                                                 <span>$ ${r.amount || '0.00'}</span>
                                              </div>
-                                             <div class="u_icons" style="display:none;">
-                                                <a href="#" class="badge_icon"><i class="fa-solid fa-pen-nib"></i></a>
+                                             <div class="u_icons">
+
+                                                <a href="#" class="badge_icon trigger-claim-edit"
+                                                   data-id="${c.id}"
+                                                   data-date="${r.date || ''}"
+                                                   data-type="${r.expenseType || ''}"
+                                                   data-particulars="${r.particulars || ''}"
+                                                   data-amount="${r.amount || ''}"
+                                                   data-remarks="${r.remarks || ''}"
+                                                   data-locationfrom="${r.locationFrom || ''}"
+                                                   data-locationto="${r.locationTo || ''}"
+                                                   data-otherexpense="${r.otherExpense || ''}">
+                                                   <i class="fa-solid fa-pen-nib"></i>
+                                                </a>
+
                                                 <a href="#" class="badge_icon"><i class="fa-solid fa-trash-can"></i></a>
                                              </div>
                                           </div>
@@ -1688,6 +1713,48 @@
                            });
                         });
                      </script>
+                    <script>
+                        document.addEventListener("click", function (e) {
+                           const btn = e.target.closest(".trigger-claim-edit");
+                           if (btn) {
+                              e.preventDefault();
+
+                              // 🟢 Fill modal form fields from data attributes
+                              document.getElementById("eDate").value = btn.dataset.date || "";
+                              document.getElementById("expenseType").value = btn.dataset.type || "";
+                              document.getElementById("eParticulars").value = btn.dataset.particulars || "";
+                              document.getElementById("eAmount").value = btn.dataset.amount || "";
+                              document.getElementById("customRemark").value = btn.dataset.remarks || "";
+                              document.getElementById("eLocationFrom").value = btn.dataset.locationfrom || "";
+                              document.getElementById("eLocationTo").value = btn.dataset.locationto || "";
+                              document.getElementById("otherExpense").value = btn.dataset.otherexpense || "";
+
+                              // 🟢 Dispatch change for dropdowns (if dependent)
+                              document.getElementById("expenseType").dispatchEvent(new Event("change"));
+
+                              // 🟢 Optional: highlight form if needed
+                              const form = document.getElementById("claimForm");
+                              if (form) {
+                                 form.style.boxShadow = "0 0 10px #ff7f50";
+                                 form.style.border = "2px solid #ff7f50";
+                              }
+
+                             // 🟢 Hide currently open claimModal (safely)
+                              const claimModalInstance = bootstrap.Modal.getInstance(document.getElementById("claimModal"));
+                              if (claimModalInstance) claimModalInstance.hide();
+
+                              // 🟢 Show otherModal
+                              const otherModal = new bootstrap.Modal(document.getElementById("otherModal"));
+                              otherModal.show();
+
+                              // Optional: track for editing
+                              window.editMode = true;
+                              window.editTarget = btn.closest(".tabs_type_row");
+                           }
+                        });
+                     </script>
+
+
                      <div class="tab-pane fade" id="gCopiesContent" role="tabpanel" aria-labelledby="gCopies-tab">
                         <div class="db_sidebar_title_box">
                            <span>Total Work Hours</span>
