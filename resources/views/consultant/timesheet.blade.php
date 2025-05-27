@@ -4460,113 +4460,55 @@
                               </script>
 
                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="copiesTab">
-                            
+                           </div>
+                           <div class="tab-pane fade" id="copiesTab">
+                              @php
+                                 $timesheetRemarks = $remarks_data->filter(function ($item) {
+                                    return str_contains($item->pdf_link ?? '', '/timesheets/');
+                                 });
 
+                                 $latestSix = $timesheetRemarks->sortByDesc('created_at')->take(6);
+                              @endphp
 
-                                          @php
-                                          $monthGroups = [];
+                              @if ($latestSix->isNotEmpty())
+                                 @foreach ($latestSix as $entry)
+                                    @php
+                                       try {
+                                          $monthTitle = \Carbon\Carbon::createFromFormat('m_Y', $entry->month_of)->format('F - Y');
+                                       } catch (\Exception $e) {
+                                          $monthTitle = $entry->month_of;
+                                       }
+                                    @endphp
 
-                                          foreach ($dataTimesheet as $item) {
-                                             $record = json_decode($item->record ?? '{}', true);
-                                             if (!isset($record['applyOnCell'])) continue;
-
-                                             $parts = explode(' / ', $record['applyOnCell']);
-                                             if (count($parts) !== 3) continue;
-
-                                             [$day, $month, $year] = $parts;
-                                             $key = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
-                                             $monthGroups[$key][] = strtolower(trim($item->status));
-                                          }
-
-                                          $monthlyStatus = [];
-                                          foreach ($monthGroups as $monthKey => $statuses) {
-                                             if (in_array('draft', $statuses)) {
-                                                $monthlyStatus[$monthKey] = 'Draft';
-                                             } elseif (count(array_unique($statuses)) === 1) {
-                                                $monthlyStatus[$monthKey] = ucfirst($statuses[0]);
-                                             } else {
-                                                $monthlyStatus[$monthKey] = 'Mixed';
-                                             }
-                                          }
-
-                                          // Keep only latest 6 months
-                                          krsort($monthlyStatus);
-                                          $monthlyStatus = array_slice($monthlyStatus, 0, 6, true);
-
-                                          // ✅ Filter only submitted entries
-                                          $submittedOnly = array_filter($monthlyStatus, fn($status) => strtolower($status) === 'submitted');
-                                       @endphp
-
-                                       @if (!empty($submittedOnly))
-                                          @foreach ($submittedOnly as $monthKey => $status)
-                                             @php
-                                                $monthTitle = \Carbon\Carbon::createFromFormat('Y-m', $monthKey)->format('F - Y');
-                                                $statusLower = strtolower($status);
-
-                                                $dotClass = match($statusLower) {
-                                                   'draft' => 'dot-blue',
-                                                   'submitted' => 'dot-yellow',
-                                                   'auto approved', 'approved' => 'dot-green',
-                                                   'rejected' => 'dot-red',
-                                                   default => 'dot-gray',
-                                                };
-
-                                                $lineClass = match($statusLower) {
-                                                   'draft' => 'blue-timeline',
-                                                   'submitted' => 'yellow-timeline',
-                                                   'auto approved', 'approved' => 'green-timeline',
-                                                   'rejected' => 'red-timeline',
-                                                   default => 'gray-timeline',
-                                                };
-
-                                                $badgeClass = match($statusLower) {
-                                                   'draft' => 'badge blue',
-                                                   'submitted' => 'badge yellow',
-                                                   'auto approved', 'approved' => 'badge green',
-                                                   'rejected' => 'badge red',
-                                                   default => 'badge gray',
-                                                };
-
-                                                $icon = match($statusLower) {
-                                                   'auto approved', 'approved' => '<i class="fa-solid fa-check"></i>',
-                                                   'submitted' => '<i class="fa-solid fa-xmark"></i>',
-                                                   default => '',
-                                                };
-                                             @endphp
-
-                                             <div class="timeline">
-                                              <div class="timeline-item d-flex mb-3 fs-12">
-
-                                              <div class="me-2">
-                                                <div class="dot bg-primary rounded-circle"
-                                                   style="width:10px; height:10px;"></div>
-                                                <div class="line bg-primary"></div>
+                                    <div class="timeline">
+                                       <div class="timeline-item d-flex mb-3 fs-12">
+                                          <div class="me-2">
+                                             <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                             <div class="line bg-primary"></div>
+                                          </div>
+                                          <div class="w-100 d-flex">
+                                             <div class="d-flex mb-1 tl-header">
+                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
                                              </div>
-                                             <div class="w-100 d-flex">
-                                                <div class="d-flex mb-1 tl-header">
-                                                   <img src="https://i.pravatar.cc/24"
-                                                         class="rounded-circle me-2">
+                                             <div class="tl_details w-100">
+                                                <span class="text-primary">Timesheet Overview</span>
+                                                <div class="d-flex justify-content-between mt-2">
+                                                   <span>({{ $monthTitle }})</span>
+                                                   <a href="{{ asset(str_replace('storage', 'storage/app/public', $entry->pdf_link)) }}" download target="_blank" class="badge_icon">
+                                                      <i class="fa-solid fa-cloud-arrow-down"></i>
+                                                   </a>
 
                                                 </div>
-                                                <div class="tl_details w-100">
-                                                   <span class="text-primary">Timesheet Overview</span>
-                                                      <div class="d-flex justify-content-between mt-2">
-                                                         <span>({{ $monthTitle }})</span>
-                                                         <a href="{{ url('/download-pdf') }}" class="badge_icon">
-                                                            <i class="fa-solid fa-cloud-arrow-down"></i>
-                                                         </a>
-                                                      </div> 
-                                                </div>
-                                                 </div>
-                                                </div>
-                                                @endforeach
-                                                @else
-                                                   <p class="text-muted" style="padding: 0.5rem 1rem;">No submitted timesheets found</p>
-                                                @endif
-                                            
-                            </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 @endforeach
+                              @else
+                                 <p class="text-muted" style="padding: 0.5rem 1rem;">No submitted timesheets found</p>
+                              @endif
+                           </div>
+
                         </div>
                      </div>
                   </div>

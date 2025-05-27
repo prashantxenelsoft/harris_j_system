@@ -18,6 +18,7 @@ class ConsultantController extends Controller {
         if ($userData['role_id'] == 11) {
             $dataTimesheet = DB::table('consultant_dashboard')->where('user_id', $userId)->where('type', 'timesheet')->orderBy('id', 'desc')->get();
             $dataClaims = DB::table('consultant_dashboard')->where('user_id', $userId)->where('type', 'claims')->orderBy('id', 'desc')->get();
+            $remarks_data = DB::table('remarks')->where('consultant_id', $consultant->id)->orderBy('id', 'desc')->get();
             $publicHolidays = DB::table('public_holidays')->get();
             $leaveLogData = DB::table('leave_log')
             ->where('user_id', $userId)
@@ -33,8 +34,8 @@ class ConsultantController extends Controller {
             ->orderBy('r.id', 'desc')
             ->get();
 
-            //echo "<pre>";print_r($dataTimesheet);die;
-            return view('consultant.dashboard', compact('consultant','remarksData','feedbacksgData', 'userData', 'dataTimesheet', 'dataClaims', 'publicHolidays','leaveLogData', 'token'));
+            //echo "<pre>";print_r($remarks_data);die;
+            return view('consultant.dashboard', compact('consultant','remarks_data','remarksData','feedbacksgData', 'userData', 'dataTimesheet', 'dataClaims', 'publicHolidays','leaveLogData', 'token'));
         }
         else {
             return view('errors.404');
