@@ -565,6 +565,95 @@ class ConsultanctApiController extends Controller
         })
         ->values();
 
+    
+
+// Initialize
+$currentYear = date('Y');
+$leave_assign = DB::table('leave_log')
+    ->where('user_id', $user->id)
+    ->where('year', $currentYear)
+    ->first();
+
+$used = [
+    'AL' => 0,
+    'ML' => 0,
+    'UL' => 0,
+    'PDO' => 0,
+    'Comp Off' => 0,
+];
+$totalUsed = 0;
+
+// Loop timesheet entries
+foreach ($timesheet_data as $entry) {
+    $record = json_decode($entry->record ?? '{}', true);
+    if (!$record || !isset($record['leaveType'])) continue;
+
+    $originalType = trim($record['leaveType']);
+    $workingHours = isset($record['workingHours']) && is_numeric($record['workingHours']) ? floatval($record['workingHours']) : 0;
+    $hourId = $record['leaveHourId'] ?? '';
+    $applyOnCell = $record['applyOnCell'] ?? '';
+    $dateRange = $record['date'] ?? '';
+
+    $mapTypes = [
+        'Custom AL' => 'AL',
+        'Custom ML' => 'ML',
+        'Custom UL' => 'UL',
+        'Custom PDO' => 'PDO',
+        'Custom COMP-OFF' => 'Comp Off',
+    ];
+    $type = $mapTypes[$originalType] ?? $originalType;
+
+    $perDayValue = in_array($hourId, ['fHalfDay', 'sHalfDay']) ? 0.5 : 1;
+
+    $dates = [];
+    if ($dateRange && Str::contains($dateRange, 'to')) {
+        try {
+            [$start, $end] = array_map('trim', explode('to', $dateRange));
+            $startDate = Carbon::createFromFormat('d / m / Y', $start);
+            $endDate = Carbon::createFromFormat('d / m / Y', $end);
+            while ($startDate->lte($endDate)) {
+                $dates[] = $startDate->copy();
+                $startDate->addDay();
+            }
+        } catch (\Exception $e) {}
+    } elseif ($applyOnCell) {
+        try {
+            $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+        } catch (\Exception $e) {}
+    }
+
+    foreach ($dates as $d) {
+        if (in_array($d->dayOfWeek, [0, 6])) continue;
+
+        if (in_array($type, ['AL', 'ML', 'UL', 'PDO'])) {
+            $used[$type] += $perDayValue;
+            $totalUsed += $perDayValue;
+        } elseif ($type === 'Comp Off') {
+            if ($workingHours > 8) {
+                $extra = $workingHours - 8;
+                $val = $extra / 8;
+                $used['Comp Off'] += $val;
+                $totalUsed += $val;
+            } else {
+                $val = $perDayValue;
+                $used['Comp Off'] += $val;
+                $totalUsed += $val;
+            }
+        }
+    }
+}
+
+// Format and calculate remaining
+$remaing_leaves = [
+    'Total_remaing'     => max(0, ($leave_assign->assign_total_leave_log ?? 0) - $totalUsed),
+    'AL_remaing'        => max(0, ($leave_assign->assign_al ?? 0) - $used['AL']),
+    'ML_remaing'        => max(0, ($leave_assign->assign_ml ?? 0) - $used['ML']),
+    'UL_remaing'        => max(0, ($leave_assign->assign_ul ?? 0) - $used['UL']),
+    'PDO_remaing'       => max(0, ($leave_assign->assign_pdo ?? 0) - $used['PDO']),
+    'Comp Off_remaing'  => max(0, ($leave_assign->assign_comp_off ?? 0) - $used['Comp Off']),
+];
+
+
 
 
         // === RESPONSE ===
@@ -583,6 +672,7 @@ class ConsultanctApiController extends Controller
             'get_copies' => $get_copies,
             'timesheet_data' => $timesheet_data,
             'claim_data' => $claim_data,
+            'remaing_leaves' => $remaing_leaves,
         ]);
     }
 

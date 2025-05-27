@@ -3312,10 +3312,8 @@
                               });
                            </script>
 
+                           @php
 
-                          @php
-
-                           // Initialize counters
                            $used = [
                               'AL' => 0,
                               'ML' => 0,
@@ -3323,24 +3321,69 @@
                               'PDO' => 0,
                               'Comp Off' => 0,
                            ];
-
                            $totalUsed = 0;
 
                            foreach ($dataTimesheet as $entry) {
                               $record = json_decode($entry->record ?? '{}', true);
-                              if (!isset($record['leaveType'])) continue;
+                              if (!$record || !isset($record['leaveType'])) continue;
 
-                              $type = trim($record['leaveType']);
+                              $originalType = trim($record['leaveType']);
+                              $workingHours = isset($record['workingHours']) && is_numeric($record['workingHours']) ? floatval($record['workingHours']) : 0;
                               $hourId = $record['leaveHourId'] ?? '';
+                              $applyOnCell = $record['applyOnCell'] ?? '';
+                              $dateRange = $record['date'] ?? '';
 
-                              $value = 1;
+                              // Normalize the leaveType
+                              $mapTypes = [
+                                 'Custom AL' => 'AL',
+                                 'Custom ML' => 'ML',
+                                 'Custom UL' => 'UL',
+                                 'Custom PDO' => 'PDO',
+                                 'Custom COMP-OFF' => 'Comp Off',
+                              ];
+                              $type = $mapTypes[$originalType] ?? $originalType;
+
+                              $perDayValue = 1;
                               if (in_array($hourId, ['fHalfDay', 'sHalfDay'])) {
-                                 $value = 0.5;
+                                 $perDayValue = 0.5;
                               }
 
-                              if (array_key_exists($type, $used)) {
-                                 $used[$type] += $value;
-                                 $totalUsed += $value;
+                              $dates = [];
+                              if ($dateRange && Str::contains($dateRange, 'to')) {
+                                 try {
+                                    [$start, $end] = array_map('trim', explode('to', $dateRange));
+                                    $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                                    $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                                    while ($startDate->lte($endDate)) {
+                                       $dates[] = $startDate->copy();
+                                       $startDate->addDay();
+                                    }
+                                 } catch (\Exception $e) {}
+                              } elseif ($applyOnCell) {
+                                 try {
+                                    $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                                 } catch (\Exception $e) {}
+                              }
+
+                              foreach ($dates as $d) {
+                                 if (in_array($d->dayOfWeek, [0, 6])) continue;
+
+                                 if (in_array($type, ['AL', 'ML', 'UL', 'PDO'])) {
+                                    $used[$type] += $perDayValue;
+                                    $totalUsed += $perDayValue;
+                                 } elseif ($type === 'Comp Off') {
+                                    if ($workingHours > 8) {
+                                       $extra = $workingHours - 8;
+                                       $compVal = $extra / 8;
+                                       $used['Comp Off'] += $compVal;
+                                       $totalUsed += $compVal;
+                                    } else {
+                                       $val = 1;
+                                       if (in_array($hourId, ['fHalfDay', 'sHalfDay'])) $val = 0.5;
+                                       $used['Comp Off'] += $val;
+                                       $totalUsed += $val;
+                                    }
+                                 }
                               }
                            }
 
@@ -3348,31 +3391,33 @@
                               $used[$key] = number_format($val, 2);
                            }
                            $totalUsedFormatted = number_format($totalUsed, 2);
-                        @endphp
+                           @endphp
 
-                        <div class="bottom-stats">
-                           <div class="stats_score">
-                              <div class="workSummaryNum">
-                                 <span class="w_hrs">{{ $totalUsedFormatted }}</span>
-                                 / <span class="tw_hrs">{{ $leaveLogData->assign_total_leave_log ?? '0' }}</span>
-                              </div> 
-                              <p>Leave Log</p>
+                           <div class="bottom-stats">
+                              <div class="stats_score">
+                                 <div class="workSummaryNum">
+                                    <span class="w_hrs">{{ $totalUsedFormatted }}</span>
+                                    / <span class="tw_hrs">{{ $leaveLogData->assign_total_leave_log ?? '0' }}</span>
+                                 </div> 
+                                 <p>Leave Log</p>
+                              </div>
+                              <div class="stats_score">
+                                 <div class="workSummaryNum">
+                                    <span class="w_hrs">{{ $used['AL'] ?? '00.00' }}</span>
+                                    / <span class="tw_hrs">{{ $leaveLogData->assign_al ?? '0' }}</span>
+                                 </div> 
+                                 <p>AL</p>
+                              </div>
+                              <div class="stats_score">
+                                 <div class="workSummaryNum">
+                                    <span class="w_hrs">{{ $used['ML'] ?? '00.00' }}</span>
+                                    / <span class="tw_hrs">{{ $leaveLogData->assign_ml ?? '0' }}</span>
+                                 </div> 
+                                 <p>ML</p>
+                              </div>
                            </div>
-                           <div class="stats_score">
-                              <div class="workSummaryNum">
-                                 <span class="w_hrs">{{ $used['AL'] ?? '00.00' }}</span>
-                                 / <span class="tw_hrs">{{ $leaveLogData->assign_al ?? '0' }}</span>
-                              </div> 
-                              <p>AL</p>
-                           </div>
-                           <div class="stats_score">
-                              <div class="workSummaryNum">
-                                 <span class="w_hrs">{{ $used['ML'] ?? '00.00' }}</span>
-                                 / <span class="tw_hrs">{{ $leaveLogData->assign_ml ?? '0' }}</span>
-                              </div> 
-                              <p>ML</p>
-                           </div>
-                        </div>
+
+                           
 
                         </div>
                      </div>
