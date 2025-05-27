@@ -4169,10 +4169,11 @@
                                     </div>
                                  </div>
                               @empty
-                                 <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2">
+                                 
+                              @endforelse
+                              <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2">
                                     <strong>No entries found for this month</strong>
                                  </div>
-                              @endforelse
                            </div>
 
                            <script>
@@ -4192,9 +4193,13 @@
                                           item.style.setProperty("display", "none", "important");
                                        }
                                     });
+                                     //console.log(visibleCount);
                                     const noMessage = document.querySelector("#noTimelineMessage");
-                                    if (noMessage) {
-                                       noMessage.classList.toggle("d-none", visibleCount > 0);
+                                    if (visibleCount == 0) {
+                                       noMessage.style.setProperty("display", "block", "important");
+                                    }
+                                    if (visibleCount > 0) {
+                                       noMessage.style.setProperty("display", "none", "important");
                                     }
                                  }, 200);
                               });
@@ -4701,10 +4706,11 @@
                                                 </div>
                                              </div>
                                           @empty
-                                             <div id="noTimelineMessage12" class="fs-12 text-center text-muted p-2">
-                                                <strong>No entries found for this month</strong>
-                                             </div>
+                                             
                                           @endforelse
+                                          <div id="noTimelineMessage12" class="fs-12 text-center text-muted p-2">
+                                             <strong>No entries found for this month</strong>
+                                          </div>
                                        </div>
                                     </div>
 
@@ -4727,8 +4733,13 @@
                                              });
 
                                              const noMessage = document.querySelector("#noTimelineMessage12");
-                                             if (noMessage) {
-                                                noMessage.classList.toggle("d-none", visibleCount > 0);
+                                             if(visibleCount == 0)
+                                             {
+                                                noMessage.style.setProperty("display", "block", "important");
+                                             }
+                                             if(visibleCount > 0)
+                                             {
+                                                noMessage.style.setProperty("display", "none", "important");
                                              }
                                           }, 200);
                                        });
