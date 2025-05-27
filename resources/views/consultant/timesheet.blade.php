@@ -3745,6 +3745,7 @@
                                  $record = json_decode($entry->record, true);
                                  $leaveType = $record['leaveType'] ?? null;
                                  $workingHours = $record['workingHours'] ?? null;
+                                 $status = $entry->status ?? null;
                                  $leaveHourId = $record['leaveHourId'] ?? null;
                                  $applyOnCell = $record['applyOnCell'] ?? null;
                                  $dateRange = $record['date'] ?? '';
@@ -3778,6 +3779,7 @@
                                        'formatted' => $date->format('d / m / Y') . ($time ? ' ' . $time : ''),
                                        'badge' => $badgeText,
                                        'workingHours' => $workingHours,
+                                       'status'=> $status,
                                        'leaveType' => $leaveType,
                                        'remarks' => $remarks,
                                        'month' => $date->month,
@@ -3801,17 +3803,25 @@
                                              <small class="text-muted">
                                                 Approved On {{ $item['formatted'] }}
                                                 @if ($item['badge'])
-                                                   <!-- <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span> -->
-                                                @elseif ($item['workingHours'])
-                                                   <!-- {{ $item['workingHours'] }} hours -->
+                                                   <span class="badge bg-light text-dark">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span>
+                                                
                                                 @endif
                                              </small>
                                           </div>
-                                          @if ($item['leaveType'] === 'ML')
-                                             <p class="mb-1">{{ $consultant->emp_name }} has applied for medical leave</p>
+                                          @if (!empty($item['leaveType']) && str_contains($item['leaveType'], 'ML'))
+                                             <small class="text-muted">{{ $consultant->emp_name }} has applied for medical leave</small> <br>
                                           @endif
+                                          
+                                          <small class="text-muted">
+                                             @if ($item['workingHours'])
+                                                Working - {{ $item['workingHours'] }} hours <br>
+                                             @endif
+                                          </small>
                                           @if (!empty($item['remarks']))
-                                             <p class="mb-0">{!! $item['remarks'] !!}</p>
+                                             <small class="text-muted">{!! $item['remarks'] !!}</small> <br>
+                                          @endif
+                                          @if ($item['status'] === 'Submitted')
+                                          <small class="text-muted">Harris J system update - Successfully submitted timesheet. You can track request via status bar.</small>
                                           @endif
                                        </div>
                                     </div>
@@ -3864,6 +3874,7 @@
                                           $record = json_decode($entry->record, true);
                                           $leaveType = $record['leaveType'] ?? null;
                                           $workingHours = $record['workingHours'] ?? null;
+                                          $status = $entry->status ?? null;
                                           $leaveHourId = $record['leaveHourId'] ?? null;
                                           $applyOnCell = $record['applyOnCell'] ?? null;
                                           $dateRange = $record['date'] ?? '';
@@ -3903,6 +3914,7 @@
                                                 'workingHours' => $workingHours,
                                                 'leaveType' => $leaveType,
                                                 'remarks' => $remarks,
+                                                'status' => $status,
                                                 'month' => $date->month,
                                                 'year' => $date->year
                                              ];
@@ -3912,45 +3924,49 @@
 
                                     <div id="timelineContainer123" class="remark-container">
                                        @forelse ($timelineItems as $item)
-                                          <div class="remark-item mb-3" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
+                                          <div class="remark-item mb-3 px-2" data-month="{{ $item['month'] }}" data-year="{{ $item['year'] }}">
                                              <div class="d-flex align-items-start">
                                                 <div class="me-2 text-primary">
                                                    <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
                                                    <div class="line bg-primary" style="width: 2px; height: 100%; margin-left: 4px;"></div>
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                   <div class="d-flex align-items-center justify-content-between flex-wrap mb-1">
-                                                      <div class="d-flex align-items-center">
-                                                         <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
-                                                         <small class="text-muted">
-                                                            Approved On {{ $item['formatted'] }}
-                                                            @if ($item['badge'])
-                                                               <!-- <span class="badge bg-light text-dark ms-2">{{ \Illuminate\Support\Str::replaceFirst('Custom', '', $item['badge']) }}</span> -->
-                                                            @elseif ($item['workingHours'])
-                                                               <!-- <span class="badge bg-light text-dark ms-2">{{ $item['workingHours'] }} hours</span> -->
-                                                            @endif
-                                                         </small>
-                                                      </div>
+                                                   <div class="d-flex align-items-center mb-1">
+                                                      <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
+                                                      <small class="text-muted">
+                                                         Approved On {{ $item['formatted'] }}
+                                                         @if ($item['badge'])
+                                                            <span class="badge bg-light text-dark">{{ str_replace('Custom', '', $item['badge']) }}</span>
+                                                         @endif
+                                                      </small>
                                                    </div>
 
-                                                   @if ($item['leaveType'] === 'ML')
-                                                      <p class="mb-0">{{ $consultant->emp_name }} has applied for medical leave</p>
+                                                   @if (!empty($item['leaveType']) && str_contains($item['leaveType'], 'ML'))
+                                                      <small class="text-muted">{{ $consultant->emp_name }} has applied for medical leave</small><br>
+                                                   @endif
+
+                                                   @if (!empty($item['workingHours']))
+                                                      <small class="text-muted">Working - {{ $item['workingHours'] }} hours</small><br>
                                                    @endif
 
                                                    @if (!empty($item['remarks']))
-                                                      <p class="mb-0">{!! $item['remarks'] !!}</p>
+                                                      <small class="text-muted">{!! $item['remarks'] !!}</small><br>
+                                                   @endif
+
+                                                   @if ($item['status'] === 'Submitted')
+                                                      <small class="text-muted">Harris J system update - Successfully submitted timesheet. You can track request via status bar.</small>
                                                    @endif
                                                 </div>
                                              </div>
                                           </div>
                                        @empty
-                                         
                                        @endforelse
-                                        <div id="remarksEmptyMsg" class="text-center text-muted p-3">
-                                             <strong>No entries found for this month</strong>
-                                          </div>
-                                    </div>
 
+                                       <div id="remarksEmptyMsg" class="text-center text-muted p-3">
+                                          <strong>No entries found for this month</strong>
+                                       </div>
+                                    </div>
+                                    
                                  </div>
                                  <script>
                                     document.addEventListener("DOMContentLoaded", function () {
@@ -4943,94 +4959,47 @@
                                     </div>
                                  </div>
                                  <div class="tab-pane fade" id="modelcopiesTab">
-                                 
+                                    @php
+                                       $timesheetRemarks = $remarks_data->filter(function ($item) {
+                                          return isset($item->pdf_link) && str_contains($item->pdf_link, '/timesheets/');
+                                       })->sortByDesc('created_at');
+                                    @endphp
+
+                                    @if ($timesheetRemarks->count())
+                                       @foreach ($timesheetRemarks as $entry)
                                           @php
-                                          $monthGroups = [];
-                                          foreach ($dataTimesheet as $item) {
-                                          $record = json_decode($item->record ?? '{}', true);
-                                          if (!isset($record['applyOnCell'])) continue;
-                                          $parts = explode(' / ', $record['applyOnCell']);
-                                          if (count($parts) !== 3) continue;
-                                          [$day, $month, $year] = $parts;
-                                          $key = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
-                                          $monthGroups[$key][] = strtolower(trim($item->status));
-                                          }
-                                          $monthlyStatus = [];
-                                          foreach ($monthGroups as $monthKey => $statuses) {
-                                          if (in_array('draft', $statuses)) {
-                                          $monthlyStatus[$monthKey] = 'Draft';
-                                          } elseif (count(array_unique($statuses)) === 1) {
-                                          $monthlyStatus[$monthKey] = ucfirst($statuses[0]);
-                                          } else {
-                                          $monthlyStatus[$monthKey] = 'Mixed';
-                                          }
-                                          }
-                                          // Keep only latest 6 months
-                                          krsort($monthlyStatus);
-                                          $monthlyStatus = array_slice($monthlyStatus, 0, 6, true);
-                                          // ✅ Filter only submitted entries
-                                          $submittedOnly = array_filter($monthlyStatus, fn($status) => strtolower($status) === 'submitted');
+                                             $monthParts = explode('_', $entry->month_of);
+                                             $monthNum = $monthParts[0] ?? '01';
+                                             $year = $monthParts[1] ?? '2025';
+                                             $monthTitle = \Carbon\Carbon::createFromDate($year, $monthNum, 1)->format('F - Y');
+                                             $downloadUrl = asset($entry->pdf_link);
                                           @endphp
-                                          @if (!empty($submittedOnly))
-                                          @foreach ($submittedOnly as $monthKey => $status)
-                                          @php
-                                          $monthTitle = \Carbon\Carbon::createFromFormat('Y-m', $monthKey)->format('F - Y');
-                                          $statusLower = strtolower($status);
-                                          $dotClass = match($statusLower) {
-                                          'draft' => 'dot-blue',
-                                          'submitted' => 'dot-yellow',
-                                          'auto approved', 'approved' => 'dot-green',
-                                          'rejected' => 'dot-red',
-                                          default => 'dot-gray',
-                                          };
-                                          $lineClass = match($statusLower) {
-                                          'draft' => 'blue-timeline',
-                                          'submitted' => 'yellow-timeline',
-                                          'auto approved', 'approved' => 'green-timeline',
-                                          'rejected' => 'red-timeline',
-                                          default => 'gray-timeline',
-                                          };
-                                          $badgeClass = match($statusLower) {
-                                          'draft' => 'badge blue',
-                                          'submitted' => 'badge yellow',
-                                          'auto approved', 'approved' => 'badge green',
-                                          'rejected' => 'badge red',
-                                          default => 'badge gray',
-                                          };
-                                          $icon = match($statusLower) {
-                                          'auto approved', 'approved' => '<i class="fa-solid fa-check"></i>',
-                                          'submitted' => '<i class="fa-solid fa-xmark"></i>',
-                                          default => '',
-                                          };
-                                          @endphp
-                                             <div class="timeline">
-                                       <div class="timeline-item d-flex mb-3 fs-12">
-                                          <div class="me-2">
-                                             <div class="dot bg-primary rounded-circle"
-                                                style="width:10px; height:10px;"></div>
-                                             <div class="line bg-primary"></div>
-                                          </div>
-                                          <div class="w-100 d-flex">
-                                             <div class="d-flex mb-1 tl-header">
-                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2">
-                                             </div>
-                                             <div class="tl_details w-100">
-                                                <span class="text-primary">Timesheet Overview</span>
-                                                <div class="d-flex justify-content-between mt-2">
-                                                   <span>({{ $monthTitle }})</span>
-                                                   <a href="{{ url('/download-pdf') }}" class="badge_icon">
-                                                   <i class="fa-solid fa-cloud-arrow-down"></i>
-                                                   </a>
+                                          <div class="timeline">
+                                             <div class="timeline-item d-flex mb-3 fs-12">
+                                                <div class="me-2">
+                                                   <div class="dot bg-primary rounded-circle" style="width:10px; height:10px;"></div>
+                                                   <div class="line bg-primary"></div>
+                                                </div>
+                                                <div class="w-100 d-flex">
+                                                   <div class="d-flex mb-1 tl-header">
+                                                      <img src="https://i.pravatar.cc/24" class="rounded-circle me-2">
+                                                   </div>
+                                                   <div class="tl_details w-100">
+                                                      <span class="text-primary">Timesheet Overview</span>
+                                                      <div class="d-flex justify-content-between mt-2">
+                                                         <span>({{ $monthTitle }})</span>
+                                                         <a href="{{ $downloadUrl }}" class="badge_icon" target="_blank">
+                                                            <i class="fa-solid fa-cloud-arrow-down"></i>
+                                                         </a>
+                                                      </div>
+                                                   </div>
                                                 </div>
                                              </div>
-                                             </div>
-                                       </div>
-                                             @endforeach
-                                             @else
-                                             <p class="text-muted" style="padding: 0.5rem 1rem;">No submitted timesheets found</p>
-                                             @endif
-                                        
-                                    </div>
+                                          </div>
+                                       @endforeach
+                                    @else
+                                       <p class="text-muted" style="padding: 0.5rem 1rem;">No submitted timesheets found</p>
+                                    @endif
                                  </div>
                               </div>
                            </div>
