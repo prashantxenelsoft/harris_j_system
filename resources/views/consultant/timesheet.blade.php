@@ -3944,10 +3944,11 @@
                                              </div>
                                           </div>
                                        @empty
-                                          <div id="remarksEmptyMsg" class="text-center text-muted p-3">
+                                         
+                                       @endforelse
+                                        <div id="remarksEmptyMsg" class="text-center text-muted p-3">
                                              <strong>No entries found for this month</strong>
                                           </div>
-                                       @endforelse
                                     </div>
 
                                  </div>
