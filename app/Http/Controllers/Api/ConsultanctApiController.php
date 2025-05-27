@@ -575,6 +575,7 @@ class ConsultanctApiController extends Controller
                 'forecasted_hours' => $forecastedHours,
                 'logged_hours' => round($loggedHours, 2),
             ],
+            'leave_assign' => $leave_assign,
             'timesheet_overview' => $timelineItems,
             'extra_time_log' => $extra_time_log,
             'pay_off_log' => $pay_off_log,

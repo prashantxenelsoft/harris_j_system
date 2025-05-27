@@ -1542,30 +1542,26 @@
                            }
                            function updateStatusIcon(status) {
                               const iconList = document.querySelectorAll("#timeSheetStatus li span");
-                              iconList.forEach(span => span.classList.remove("active"));
-                              switch (status) {
-                                 case "draft":
-                                       iconList[0].classList.add("active");
-                                       break;
-                                 case "submitted":
-                                       iconList[1].classList.add("active");
-                                       break;
-                                 case "approved":
-                                       iconList[2].classList.add("active");
-                                       break;
-                                 case "reviewed":
-                                       iconList[3].classList.add("active");
-                                       break;
-                                 case "finalized":
-                                       iconList[4].classList.add("active");
-                                       break;
-                                 case "paid":
-                                       iconList[5].classList.add("active");
-                                       break;
-                                 default:
-                                       break;
+                              iconList.forEach(span => span.classList.remove("active")); // Clear all
+
+                              const statusMap = {
+                                 draft: 0,
+                                 submitted: 1,
+                                 client_approval: 2,
+                                 client_rejected : 3,
+                                 consultancy_verification: 4,
+                                 send_for_rework_by_consultancy: 5,
+                                 consultancy_approved_and_completed: 6
+                              };
+
+                              const index = statusMap[status];
+                              if (index !== undefined) {
+                                 for (let i = 0; i <= index; i++) {
+                                    iconList[i].classList.add("active");
+                                 }
                               }
                            }
+
                            const publicHolidays = @json($publicHolidays);
                            const calendarDays = document.getElementById("calendarDays");
                            let calendarEditable = false;

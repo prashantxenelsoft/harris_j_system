@@ -699,60 +699,36 @@
                            }
 
                            function updateClaimStatusIcon(status) {
-                              // 🔹 Existing logic for #claimStatus
+                              const statusMap = {
+                                 draft: 0,
+                                 submitted: 1,
+                                 approved: 2,
+                                 reviewed: 3,
+                                 finalized: 4,
+                                 paid: 5
+                              };
+
+                              const index = statusMap[status];
+
+                              // 🔹 Claim status update
                               const claimIcons = document.querySelectorAll("#claimStatus li span");
                               claimIcons.forEach(span => span.classList.remove("active"));
-
-                              switch (status) {
-                                 case "draft":
-                                    claimIcons[0]?.classList.add("active");
-                                    break;
-                                 case "submitted":
-                                    claimIcons[1]?.classList.add("active");
-                                    break;
-                                 case "approved":
-                                    claimIcons[2]?.classList.add("active");
-                                    break;
-                                 case "reviewed":
-                                    claimIcons[3]?.classList.add("active");
-                                    break;
-                                 case "finalized":
-                                    claimIcons[4]?.classList.add("active");
-                                    break;
-                                 case "paid":
-                                    claimIcons[5]?.classList.add("active");
-                                    break;
-                                 default:
-                                    break;
+                              if (index !== undefined) {
+                                 for (let i = 0; i <= index; i++) {
+                                    claimIcons[i]?.classList.add("active");
+                                 }
                               }
 
-                              // 🔸 New logic for #timeSheetStatus
+                              // 🔸 TimeSheet status update
                               const timeIcons = document.querySelectorAll("#timeSheetStatus li span");
                               timeIcons.forEach(span => span.classList.remove("active"));
-
-                              switch (status) {
-                                 case "draft":
-                                    timeIcons[0]?.classList.add("active");
-                                    break;
-                                 case "submitted":
-                                    timeIcons[1]?.classList.add("active");
-                                    break;
-                                 case "approved":
-                                    timeIcons[2]?.classList.add("active");
-                                    break;
-                                 case "reviewed":
-                                    timeIcons[3]?.classList.add("active");
-                                    break;
-                                 case "finalized":
-                                    timeIcons[4]?.classList.add("active");
-                                    break;
-                                 case "paid":
-                                    timeIcons[5]?.classList.add("active");
-                                    break;
-                                 default:
-                                    break;
+                              if (index !== undefined) {
+                                 for (let i = 0; i <= index; i++) {
+                                    timeIcons[i]?.classList.add("active");
+                                 }
                               }
                            }
+
 
                            let calendarEnabled = false;
                            const calendarDays = document.getElementById("calendarDays");
