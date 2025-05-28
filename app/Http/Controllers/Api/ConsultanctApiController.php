@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Mail;
+use Illuminate\Support\Facades\Log;
 use App\Mail\TestMail;
 use DB;
 use Illuminate\Support\Facades\URL;
@@ -797,6 +798,9 @@ $remaing_leaves = [
 
     public function addConsultantData(Request $request)
     {
+        \Log::info('--- addConsultantData called ---');
+        \Log::info('Date: ' . now()->toDateTimeString());
+        \Log::info('Request Data:', $request->all());
         $records = json_decode($request->record, true); 
         $records['time'] = now()->format('h:i A'); 
         $request->merge(['record' => json_encode($records)]);
