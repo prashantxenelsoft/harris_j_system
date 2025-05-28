@@ -4550,6 +4550,8 @@
                                        } catch (\Exception $e) {
                                           $monthTitle = $entry->month_of;
                                        }
+
+                                       $createdAtFormatted = \Carbon\Carbon::parse($entry->created_at)->format('d M Y, h:i A');
                                     @endphp
 
                                     <div class="timeline">
@@ -4569,8 +4571,8 @@
                                                    <a href="{{ asset(str_replace('storage', 'storage/app/public', $entry->pdf_link)) }}" download target="_blank" class="badge_icon">
                                                       <i class="fa-solid fa-cloud-arrow-down"></i>
                                                    </a>
-
                                                 </div>
+                                                <small class="text-muted">Submitted on: {{ $createdAtFormatted }}</small>
                                              </div>
                                           </div>
                                        </div>
@@ -4579,6 +4581,7 @@
                               @else
                                  <p class="text-muted" style="padding: 0.5rem 1rem;">No submitted timesheets found</p>
                               @endif
+
                            </div>
 
                         </div>
@@ -5023,24 +5026,19 @@
 
                                     @if ($timesheetRemarks->count())
                                        @foreach ($timesheetRemarks as $entry)
-                                         
                                           @php
-                                             $rawMonth = $entry->month_of ?? '';
-                                             $monthParts = explode('_', $rawMonth);
-
-                                             $monthNum = isset($monthParts[0]) && is_numeric($monthParts[0]) && (int)$monthParts[0] >= 1 && (int)$monthParts[0] <= 12
-                                                         ? $monthParts[0]
-                                                         : '01';
-
-                                             $year = isset($monthParts[1]) && is_numeric($monthParts[1]) ? $monthParts[1] : '2025';
+                                             $monthParts = explode('_', $entry->month_of);
+                                             $monthNum = $monthParts[0] ?? '01';
+                                             $year = $monthParts[1] ?? '2025';
 
                                              try {
                                                 $monthTitle = \Carbon\Carbon::createFromDate($year, $monthNum, 1)->format('F - Y');
                                              } catch (\Exception $e) {
-                                                $monthTitle = 'Invalid Date';
+                                                $monthTitle = $entry->month_of;
                                              }
 
                                              $downloadUrl = asset($entry->pdf_link);
+                                             $createdAtFormatted = \Carbon\Carbon::parse($entry->created_at)->format('d M Y, h:i A');
                                           @endphp
 
                                           <div class="timeline">
@@ -5061,6 +5059,7 @@
                                                             <i class="fa-solid fa-cloud-arrow-down"></i>
                                                          </a>
                                                       </div>
+                                                      <small class="text-muted">Submitted on: {{ $createdAtFormatted }}</small>
                                                    </div>
                                                 </div>
                                              </div>
@@ -5069,6 +5068,7 @@
                                     @else
                                        <p class="text-muted" style="padding: 0.5rem 1rem;">No submitted timesheets found</p>
                                     @endif
+
                                  </div>
                               </div>
                            </div>
