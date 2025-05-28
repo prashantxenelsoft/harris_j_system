@@ -5023,13 +5023,7 @@
 
                                     @if ($timesheetRemarks->count())
                                        @foreach ($timesheetRemarks as $entry)
-                                          <!-- @php
-                                             $monthParts = explode('_', $entry->month_of);
-                                             $monthNum = $monthParts[0] ?? '01';
-                                             $year = $monthParts[1] ?? '2025';
-                                             $monthTitle = \Carbon\Carbon::createFromDate($year, $monthNum, 1)->format('F - Y');
-                                             $downloadUrl = asset($entry->pdf_link);
-                                          @endphp -->
+                                         
                                           @php
                                              $rawMonth = $entry->month_of ?? '';
                                              $monthParts = explode('_', $rawMonth);
