@@ -5023,13 +5023,32 @@
 
                                     @if ($timesheetRemarks->count())
                                        @foreach ($timesheetRemarks as $entry)
-                                          @php
+                                          <!-- @php
                                              $monthParts = explode('_', $entry->month_of);
                                              $monthNum = $monthParts[0] ?? '01';
                                              $year = $monthParts[1] ?? '2025';
                                              $monthTitle = \Carbon\Carbon::createFromDate($year, $monthNum, 1)->format('F - Y');
                                              $downloadUrl = asset($entry->pdf_link);
+                                          @endphp -->
+                                          @php
+                                             $rawMonth = $entry->month_of ?? '';
+                                             $monthParts = explode('_', $rawMonth);
+
+                                             $monthNum = isset($monthParts[0]) && is_numeric($monthParts[0]) && (int)$monthParts[0] >= 1 && (int)$monthParts[0] <= 12
+                                                         ? $monthParts[0]
+                                                         : '01';
+
+                                             $year = isset($monthParts[1]) && is_numeric($monthParts[1]) ? $monthParts[1] : '2025';
+
+                                             try {
+                                                $monthTitle = \Carbon\Carbon::createFromDate($year, $monthNum, 1)->format('F - Y');
+                                             } catch (\Exception $e) {
+                                                $monthTitle = 'Invalid Date';
+                                             }
+
+                                             $downloadUrl = asset($entry->pdf_link);
                                           @endphp
+
                                           <div class="timeline">
                                              <div class="timeline-item d-flex mb-3 fs-12">
                                                 <div class="me-2">
