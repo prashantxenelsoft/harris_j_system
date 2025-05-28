@@ -1674,6 +1674,7 @@
                                  const isPublicHoliday = publicHolidays.some(h => h.date === dateStr);
                                  if (isPublicHoliday) {
                                     applyTag(cell, "PH", "#dc3545"); 
+                                    cell.classList.add("disabled");
                                  }
                                  if (!isPublicHoliday && cellDate < today && dayOfWeek !== 0 && dayOfWeek !== 6) {
                                     applyTag(cell, "8", "#000000"); 
