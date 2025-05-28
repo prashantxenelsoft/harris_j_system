@@ -636,3 +636,15 @@ div#home_page_timesheet .timeline-container{
         left: -9.5%;
     }
 }
+
+.timesheet-overview-consultant .badge.red
+{
+    padding: 5px;
+    border-radius: 5px;
+    color: #e02f2f;
+    background-color: #E5F1FF;
+    font-family: var(--Themefont);
+    margin-top: 10px;
+    font-weight: 700;
+    font-size: var(--Font14px);
+}
