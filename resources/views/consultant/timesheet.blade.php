@@ -1401,13 +1401,26 @@
 
                               // Resolve effective leave type key from text
                               function extractCoreType(type) {
-                                 return (type || "").toLowerCase().replace("custom", "").trim();
+                                 const cleaned = (type || "").toLowerCase().replace("custom", "").trim();
+                                 if (cleaned === "comp off") return "comp_off";
+                                 return cleaned.replace(/\s+/g, '_'); // handles 'Paid Day Off' => 'paid_day_off'
                               }
 
-                              const typeKey = extractCoreType(selectedLeaveType); // e.g., 'ml'
+                              const typeKey = extractCoreType(selectedLeaveType) === "comp-off"
+                              ? "comp_off"
+                              : extractCoreType(selectedLeaveType);
+
+                              // Normalize leaveLogData keys to lowercase (once, ideally during init)
+                              const normalizedLeaveLogData = {};
+                              for (const key in window.leaveLogData) {
+                                 normalizedLeaveLogData[key.toLowerCase()] = window.leaveLogData[key];
+                              }
+                              window.leaveLogData = normalizedLeaveLogData;
 
                               // Find assigned leave count
                               const allowedCount = parseInt(window.leaveLogData?.[`assign_${typeKey}`] || 0);
+                              //console.log("allowedCount:", allowedCount);
+
 
                               // Gather dates being applied
                               let datesToCheck = [];
@@ -1452,6 +1465,7 @@
                               });
 
                               // Check limit
+                              // console.log(allowedCount);
                               if ((usedCount + newCount) > allowedCount) {
                                  Swal.fire({
                                     icon: "error",
