@@ -108,13 +108,13 @@
       <div><strong>Name :</strong> {{ $consultant->emp_name ?? 'N/A' }}</div>
       <div><strong>Date :</strong> {{ \Carbon\Carbon::now()->format('d/m/Y') }}</div>
     </div>
-    <div style="width: 45%;">
+    <!-- <div style="width: 45%;">
       <strong>Approved By : </strong><br><br>
       <hr>
       <div><strong>Manager’s Name :</strong> Sarath Babu</div>
       <div><strong>Designation :</strong> Director</div>
       <div><strong>Date :</strong> {{ \Carbon\Carbon::now()->format('d/m/Y') }}</div>
-    </div>
+    </div> -->
   </div>
 
   <div style="font-size: 12px; margin-top: 30px;">
