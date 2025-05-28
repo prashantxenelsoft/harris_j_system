@@ -895,15 +895,15 @@ public function updateTimesheetStatusMail(Request $request)
             'updated_at' => now()
         ]);
         DB::table('remarks')->insert([
-    'remark' => $remarksMessage,
-    'pdf_link' => $storagePath,
-    'month_of' => $month . '-' . $year,
-    'consultant_id' => $consultant->id,
-    'given_by' => 1,
-    'given_by_type' => 'system',
-    'created_at' => now(),
-    'updated_at' => now(),
-]);
+            'remark' => $remarksMessage,
+            'pdf_link' => $storagePath,
+            'month_of' => $month . '_' . $year,
+            'consultant_id' => $consultant->id,
+            'given_by' => 1,
+            'given_by_type' => 'system',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     return response()->json([
