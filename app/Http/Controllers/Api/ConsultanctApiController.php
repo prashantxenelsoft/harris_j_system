@@ -178,6 +178,123 @@ class ConsultanctApiController extends Controller
         ]);
     }
 
+    public function getDashboardCliamTimelineData(Request $request)
+    {
+        $user = $request->user();
+        $rawRecords = DB::table('consultant_dashboard')
+            ->where('user_id', $user->id)
+            ->where('type', 'claims')
+            ->get();
+        $grouped = [];
+        foreach ($rawRecords as $item) {
+            $record = json_decode($item->record, true);
+            $applyDate = trim($record['applyOnCell'] ?? '');
+            if (empty($applyDate)) {
+                continue;
+            }
+            try {
+                $dates = [];
+                if (!empty($record['date']) && str_contains($record['date'], 'to')) {
+                    [$from, $to] = explode('to', $record['date']);
+                    $start = \Carbon\Carbon::createFromFormat('d / m / Y', trim($from));
+                    $end = \Carbon\Carbon::createFromFormat('d / m / Y', trim($to));
+                    $dates = \Carbon\CarbonPeriod::create($start, $end);
+                    $record['date_range'] = $record['date'];
+                    unset($record['date']);
+                } else {
+                    $dates[] = \Carbon\Carbon::createFromFormat('d / m / Y', $applyDate);
+                }
+                if (!empty($record['certificate_path'])) {
+                    $filename = str_replace('storage/app/public/', '', $record['certificate_path']);
+                    $record['certificate_path'] = url('public/storage/' . ltrim($filename, '/'));
+                }
+                if (isset($record['leaveType']) && $record['leaveType'] === 'Custom AL') {
+                    $record['leaveType'] = 'AL';
+                }
+                foreach ($dates as $date) {
+                    if ($date->isFuture()) {
+                        continue;
+                    }
+                    $monthKey = $date->format('Y-m');
+                    $day = $date->day;
+                    if (!isset($grouped[$monthKey])) {
+                        $grouped[$monthKey] = [];
+                    }
+                    $grouped[$monthKey][$day] = [
+                        'id' => $item->id,
+                        'user_id' => $item->user_id,
+                        'client_id' => $item->client_id,
+                        'type' => $item->type,
+                        'details' => $record,
+                        'status' => $item->status,
+                    ];
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+        $finalData = [];
+        foreach ($grouped as $month => $days) {
+            $carbon = \Carbon\Carbon::createFromFormat('Y-m', $month);
+            $daysInMonth = $carbon->daysInMonth;
+            $daysList = [];
+            for ($i = 1; $i <= $daysInMonth; $i++) {
+                $fullDate = $carbon
+                    ->copy()
+                    ->day($i)
+                    ->format('d / m / Y');
+                $fullCarbonDate = \Carbon\Carbon::createFromFormat('d / m / Y', $fullDate);
+                if ($fullCarbonDate->isFuture()) {
+                    continue;
+                }
+                if (isset($days[$i])) {
+                    if (empty($days[$i]['details']['date'])) {
+                        $days[$i]['details']['date'] = $fullDate;
+                    }
+                    $daysList[] = [
+                        'day' => $i,
+                        'id' => $days[$i]['id'],
+                        'user_id' => $days[$i]['user_id'],
+                        'client_id' => $days[$i]['client_id'],
+                        'type' => $days[$i]['type'],
+                        'details' => $days[$i]['details'],
+                        'status' => $days[$i]['status'],
+                    ];
+                } else {
+                    $daysList[] = [
+                        'day' => $i,
+                        'id' => null,
+                        'user_id' => $user->id,
+                        'client_id' => null,
+                        'type' => 'timesheet',
+                        'details' => [
+                            'date' => $fullDate,
+                            'workingHours' => 8,
+                            'leaveType' => null,
+                            'date_range' => null,
+                            'applyOnCell' => null,
+                            'certificate_path' => null,
+                        ],
+                        'status' => 'AutoFilled',
+                    ];
+                }
+            }
+            if (!empty($daysList)) {
+                $finalData[] = [
+                    'month' => $carbon->format('F Y'),
+                    'start_date' => $carbon->startOfMonth()->toDateString(),
+                    'end_date' => $carbon->endOfMonth()->toDateString(),
+                    'days' => $daysList,
+                ];
+            }
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'ClaimTimeline data compiled successfully.',
+            'data' => $finalData,
+        ]);
+    }
+
     public function getConsultantAllDetails(Request $request)
     {
         $user = auth()->user();
