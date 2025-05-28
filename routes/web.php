@@ -143,8 +143,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('hr/dashboard', [HrController::class, 'index'])->name('hr.dashboard');
 });
-Route::middleware('auth')->group(function () {
+// Route::middleware('auth')->group(function () {
     Route::get('/consultant/approve-sheet/{token}', [ConsultantController::class, 'approveConsultantSheet'])->name('consultant.approve.sheet');
 
-});
+// });
 Route::post('/consultant/approve-sheet/update-status', [App\Http\Controllers\ConsultantController::class, 'updateTimesheetStatusMail']);
