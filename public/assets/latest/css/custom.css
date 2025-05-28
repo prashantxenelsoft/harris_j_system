@@ -641,8 +641,8 @@ div#home_page_timesheet .timeline-container{
 {
     padding: 5px;
     border-radius: 5px;
-    color: #e02f2f;
-    background-color: #E5F1FF;
+    color: #f6f6f6;
+    background-color: #e02f2f;
     font-family: var(--Themefont);
     margin-top: 10px;
     font-weight: 700;
