@@ -810,7 +810,8 @@ class ConsultanctApiController extends Controller
         \Log::info('Date: ' . now()->toDateTimeString());
         \Log::info('Request Data:', $request->all());
         $records = json_decode($request->record, true); 
-     
+        $records['time'] = now()->format('h:i A'); 
+        $request->merge(['record' => json_encode($records)]);
         if (!is_array($records)) {
         return response()->json(['success' => false, 'message' => 'Invalid record format.']);
         }
@@ -953,23 +954,37 @@ class ConsultanctApiController extends Controller
                     ]);
                 }
             } else {
-                $recordList = json_decode($request->record, true); // decode string to array
+                if($request->type == "claims"){
+                DB::table('consultant_dashboard')->insert([
+                    'type' => $type,
+                    'record' => json_encode($recordData),
+                    'user_id' => $userId,
+                    'client_id' => $request->client_id,
+                    'client_name' => $request->client_name,
+                    'status' => $status,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+                }
+                else
+                {
+                    $recordList = json_decode($request->record, true); // decode string to array
 
-                if (is_array($recordList)) {
-                    foreach ($recordList as $recordData) {
-                        DB::table('consultant_dashboard')->insert([
-                            'type' => $type,
-                            'record' => json_encode($recordData),
-                            'user_id' => $userId,
-                            'client_id' => $request->client_id,
-                            'client_name' => $request->client_name,
-                            'status' => $status,
-                            'created_at' => now(),
-                            'updated_at' => now()
-                        ]);
+                    if (is_array($recordList)) {
+                        foreach ($recordList as $recordData) {
+                            DB::table('consultant_dashboard')->insert([
+                                'type' => $type,
+                                'record' => json_encode($recordData),
+                                'user_id' => $userId,
+                                'client_id' => $request->client_id,
+                                'client_name' => $request->client_name,
+                                'status' => $status,
+                                'created_at' => now(),
+                                'updated_at' => now()
+                            ]);
+                        }
                     }
                 }
-
             }
             try {
                 $applyDate = \Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
