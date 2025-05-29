@@ -810,8 +810,7 @@ class ConsultanctApiController extends Controller
         \Log::info('Date: ' . now()->toDateTimeString());
         \Log::info('Request Data:', $request->all());
         $records = json_decode($request->record, true); 
-        $records['time'] = now()->format('h:i A'); 
-        $request->merge(['record' => json_encode($records)]);
+     
         if (!is_array($records)) {
         return response()->json(['success' => false, 'message' => 'Invalid record format.']);
         }
