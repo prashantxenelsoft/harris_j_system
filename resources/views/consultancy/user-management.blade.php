@@ -1,3 +1,5 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <div class="row filter-section-consultancy">
     <div class="col-lg-6 d-flex search-section">
         <div class="search-bar-hj">
@@ -913,7 +915,7 @@
         newCell.textContent = date;
     }
 
-
+     console.log('countryStateData',countryStateData);
     const countrySelect = document.getElementById("country-select");
     Object.keys(countryStateData).forEach((country) => {
         const option = document.createElement("option");

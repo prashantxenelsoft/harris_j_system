@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use App\Models\Hr;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Consultant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -290,4 +291,52 @@ class HrController extends Controller {
             'consultants' => $consultants,
         ];
     }
+
+  
+
+    public function add_consultant(Request $request)
+    {
+        $request->validate([
+            'emp_name' => 'required|string|max:100',
+            'emp_code' => 'nullable|string|max:50',
+            'sex' => 'nullable|string',
+            'dob' => 'nullable|date',
+            'mobile_number_code' => 'nullable|string|max:10',
+            'mobile_number' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:100',
+            'profile_picture' => 'nullable|file|mimes:jpg,jpeg,png|max:1024',
+            'full_address' => 'nullable|string',
+            'show_address_input' => 'nullable|string',
+            'joining_date' => 'nullable|date',
+            'resignation_date' => 'nullable|date',
+            'status' => 'nullable|string|max:50',
+            'select_client' => 'nullable|string|max:100',
+            'select_holiday' => 'nullable|string|max:100',
+            'designation' => 'nullable|string|max:100',
+            'login_email' => 'nullable|email|max:100',
+            'reset_password' => 'nullable|in:0,1',
+            'receipt_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ]);
+
+        // ✅ exclude _token, profile_picture, and receipt_file from direct DB insert
+        $data = $request->except(['_token', 'profile_picture', 'receipt_file']);
+
+        // ✅ handle profile picture file
+        if ($request->hasFile('profile_picture')) {
+            $data['profile_picture'] = $request->file('profile_picture')->store('consultants/profile', 'public');
+        }
+
+        // ✅ handle receipt file
+        if ($request->hasFile('receipt_file')) {
+            $data['receipt_file'] = $request->file('receipt_file')->store('consultants/receipts', 'public');
+        }
+
+        // ✅ insert into hr_consultant table
+        DB::table('hr_consultant')->insert($data);
+
+        return response()->json([
+            'message' => 'Consultant added successfully!',
+        ]);
+    }
+
 }

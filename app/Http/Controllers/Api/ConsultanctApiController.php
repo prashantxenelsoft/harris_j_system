@@ -610,12 +610,21 @@ class ConsultanctApiController extends Controller
         $submittedOnly = array_filter($monthlyStatus, fn($s) => strtolower($s) === 'submitted');
         $submittedOnly = array_slice($submittedOnly, -6, 6, true);
 
-        // ✅ Format final structure
+         $remarks = DB::table('remarks')
+        ->where('consultant_id', $consultantId)
+        ->whereNotNull('pdf_link')
+        ->where('pdf_link', 'like', '%/timesheets/%')
+        ->orderByDesc('created_at')
+        ->get();
+
         $get_copies = [];
 
-        foreach ($submittedOnly as $monthKey => $status) {
+        foreach ($remarks as $entry) {
+            $monthKey = $entry->month_of ?? '00_0000';
+
             try {
-                $monthTitle = \Carbon\Carbon::createFromFormat('Y-m', $monthKey)->format('F - Y');
+                [$month, $year] = explode('_', $monthKey);
+                $monthTitle = Carbon::createFromDate($year, $month, 1)->format('F - Y');
             } catch (\Exception $e) {
                 $monthTitle = $monthKey;
             }
@@ -624,8 +633,8 @@ class ConsultanctApiController extends Controller
                 'label' => 'Timesheet Overview',
                 'month_title' => $monthTitle,
                 'month_key' => $monthKey,
-                'status' => ucfirst($status),
-                'download_url' => url('/download-pdf'), // ✅ Update if dynamic
+                'status' => 'Submitted',
+                'download_url' => asset($entry->pdf_link),
             ];
         }
 
