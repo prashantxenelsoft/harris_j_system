@@ -319,7 +319,8 @@ class HrController extends Controller {
         ]);
 
         // ✅ exclude _token, profile_picture, and receipt_file from direct DB insert
-        $data = $request->except(['_token', 'profile_picture', 'receipt_file']);
+        $data = $request->except(['_token', 'profile_picture', 'receipt_file', 'edit_id']);
+
 
         // ✅ handle profile picture file
         if ($request->hasFile('profile_picture')) {
