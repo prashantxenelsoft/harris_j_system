@@ -954,16 +954,23 @@ class ConsultanctApiController extends Controller
                     ]);
                 }
             } else {
-                DB::table('consultant_dashboard')->insert([
-                    'type' => $type,
-                    'record' => json_encode($recordData),
-                    'user_id' => $userId,
-                    'client_id' => $request->client_id,
-                    'client_name' => $request->client_name,
-                    'status' => $status,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
+                $recordList = json_decode($request->record, true); // decode string to array
+
+                if (is_array($recordList)) {
+                    foreach ($recordList as $recordData) {
+                        DB::table('consultant_dashboard')->insert([
+                            'type' => $type,
+                            'record' => json_encode($recordData),
+                            'user_id' => $userId,
+                            'client_id' => $request->client_id,
+                            'client_name' => $request->client_name,
+                            'status' => $status,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+                    }
+                }
+
             }
             try {
                 $applyDate = \Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
@@ -1130,5 +1137,7 @@ class ConsultanctApiController extends Controller
         }
         return response()->json(['success' => true, 'message' => 'Data saved successfully!']);
     }
+
+   
 
 }
