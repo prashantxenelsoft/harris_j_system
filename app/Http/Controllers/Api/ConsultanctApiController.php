@@ -260,23 +260,6 @@ class ConsultanctApiController extends Controller
                         'details' => $days[$i]['details'],
                         'status' => $days[$i]['status'],
                     ];
-                } else {
-                    $daysList[] = [
-                        'day' => $i,
-                        'id' => null,
-                        'user_id' => $user->id,
-                        'client_id' => null,
-                        'type' => 'timesheet',
-                        'details' => [
-                            'date' => $fullDate,
-                            'workingHours' => 8,
-                            'leaveType' => null,
-                            'date_range' => null,
-                            'applyOnCell' => null,
-                            'certificate_path' => null,
-                        ],
-                        'status' => 'AutoFilled',
-                    ];
                 }
             }
             if (!empty($daysList)) {
