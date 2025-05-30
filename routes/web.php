@@ -48,6 +48,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::delete('consultant/feedback/delete/{id}', [ConsultanctApiController::class, 'ConsultantFeedBack']);
         Route::get('/consultant/get-dashboard', [ConsultanctApiController::class, 'getDashboard']);
         Route::post('/consultant/add-data', [ConsultanctApiController::class, 'addConsultantData']);
+        Route::post('/consultant/get-timesheet-remarks', [ConsultanctApiController::class, 'getTimelineRemarks']);
 
     });
 

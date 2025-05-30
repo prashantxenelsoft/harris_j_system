@@ -1152,6 +1152,112 @@ class ConsultanctApiController extends Controller
         return response()->json(['success' => true, 'message' => 'Data saved successfully!']);
     }
 
+  public function getTimelineRemarks(Request $request)
+{
+    $user = auth()->user();
+    $month = $request->input('month');
+    $year = $request->input('year');
+
+    if (!$user || !$month || !$year) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Missing required parameters.',
+        ], 400);
+    }
+
+    $entries = DB::table('consultant_dashboard')
+        ->where('user_id', $user->id)
+        ->where('type', 'timesheet')
+        ->orderByDesc('updated_at')
+        ->get();
+
+    $result = [];
+    $leaveTypesWithRemarks = ['AL', 'PH', 'PDO', 'UL', 'Comp Off'];
+
+    foreach ($entries as $entry) {
+        $record = json_decode($entry->record, true);
+        if (!$record) continue;
+
+        $records = isset($record[0]) ? $record : [$record];
+
+        foreach ($records as $rec) {
+            $leaveType = $rec['leaveType'] ?? null;
+            $workingHours = $rec['workingHours'] ?? null;
+            $applyOnCell = $rec['applyOnCell'] ?? null;
+            $dateRange = $rec['date'] ?? null;
+            $remarks = $rec['remarks'] ?? null;
+            $time = $rec['time'] ?? null;
+            $status = $entry->status ?? null;
+
+            $badge = $leaveType;
+            $dates = [];
+
+            // Handle date ranges
+            if ($dateRange && str_contains($dateRange, 'to')) {
+                try {
+                    [$start, $end] = array_map('trim', explode('to', $dateRange));
+                    $startDate = \Carbon\Carbon::createFromFormat('d / m / Y', $start);
+                    $endDate = \Carbon\Carbon::createFromFormat('d / m / Y', $end);
+                    while ($startDate->lte($endDate)) {
+                        $dates[] = $startDate->copy();
+                        $startDate->addDay();
+                    }
+                } catch (\Exception $e) {}
+            } elseif ($applyOnCell) {
+                try {
+                    $dates[] = \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                } catch (\Exception $e) {}
+            }
+
+            foreach ($dates as $date) {
+                if ($date->dayOfWeek === 0 || $date->dayOfWeek === 6) continue;
+                if ($date->month != $month || $date->year != $year) continue;
+
+                $formatted = $date->format('d / m / Y') . ($time ? ' ' . $time : '');
+                $systemUpdate = "Harris J system update - Successfully submitted timesheet. You can track request via status bar.";
+
+                // Default remarks logic
+                $finalRemarks = null;
+
+                if ($workingHours) {
+                    $finalRemarks = "Working - {$workingHours} hours";
+                } elseif ($leaveType === 'ML') {
+                    $finalRemarks = $remarks ?: "{$user->name} has applied for medical leave";
+                } elseif (in_array($leaveType, $leaveTypesWithRemarks)) {
+                    $finalRemarks = $remarks ?: null;
+                }
+
+                // Append system message if submitted
+                if ($status === 'Submitted') {
+                    if ($finalRemarks) {
+                        $finalRemarks .= ', ' . $systemUpdate;
+                    } else {
+                        $finalRemarks = $systemUpdate;
+                    }
+                }
+
+                $result[] = [
+                    'formatted' => $formatted,
+                    'badge' => $badge,
+                    'message' => null,
+                    'remarks' => $finalRemarks,
+                ];
+            }
+        }
+    }
+
+    return response()->json([
+        'status' => true,
+        'data' => $result,
+    ]);
+}
+
+
+
+
+
+
+
    
 
 }
