@@ -1634,7 +1634,14 @@
                            </defs>
                            </svg>` }
                            ];
-                           let currentDate = new Date();
+                           const selectedMonth = parseInt(localStorage.getItem("timesheetMonth"));
+                           const selectedYear = parseInt(localStorage.getItem("timesheetYear"));
+
+                           if (!isNaN(selectedMonth) && !isNaN(selectedYear)) {
+                              currentDate = new Date(selectedYear, selectedMonth, 1); // ✅ fix for reload
+                           } else {
+                              currentDate = new Date(); // fallback
+                           }
                            let highlightedCell = null;
                            function populateMonthYearSelectors() {
                                const months = Array.from({ length: 12 }, (_, i) => new Date(0, i).toLocaleString("default", { month: "long" }));
