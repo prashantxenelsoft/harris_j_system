@@ -1176,9 +1176,13 @@ class ConsultanctApiController extends Controller
 
     foreach ($entries as $entry) {
         $record = json_decode($entry->record, true);
-        if (!$record) continue;
 
-        $records = isset($record[0]) ? $record : [$record];
+        // Skip if not array
+        if (!is_array($record)) continue;
+
+        // Ensure we always loop on an array of entries
+        $records = array_is_list($record) ? $record : [$record];
+
 
         foreach ($records as $rec) {
             $leaveType = $rec['leaveType'] ?? null;
