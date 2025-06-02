@@ -149,6 +149,8 @@ class ConsultantController extends Controller {
 
     public function addNewClaim(Request $request) {
         $recordData = json_decode($request->record, true);
+        $recordData['time'] = now()->format('h:i A'); 
+        $request->merge(['record' => json_encode($recordData)]);
         if (!is_array($recordData)) {
             return response()->json(['success' => false, 'message' => 'Invalid record.']);
         }
