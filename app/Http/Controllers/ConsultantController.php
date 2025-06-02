@@ -163,6 +163,7 @@ class ConsultantController extends Controller {
         } else {
             $recordData['certificate_path'] = null;
         }
+        $monthYear = isset($recordData['applyOnCell']) ? implode('_', array_slice(explode(' / ', $recordData['applyOnCell']), 1)) : null;
 
         DB::table('consultant_dashboard')->insert([
             'type' => $request->type,
@@ -170,6 +171,7 @@ class ConsultantController extends Controller {
             'user_id' => $request->user_id,
             'client_id' => $request->client_id,
             'client_name' => $request->client_name,
+            'month_year' => $monthYear,
             'status' => $request->status ?? 'Draft',
             'created_at' => now(),
             'updated_at' => now()
@@ -575,10 +577,14 @@ class ConsultantController extends Controller {
                     if (isset($existingRecord['claim_no'])) {
                         $recordData['claim_no'] = $existingRecord['claim_no'];
                     }
+                    $monthYear = isset($recordData['applyOnCell']) ? implode('_', array_slice(explode(' / ', $recordData['applyOnCell']), 1)) : null;
+
                     DB::table('consultant_dashboard')->where('id', $match->id)->update(['record' => json_encode($recordData), 'client_id' => $request->client_id, 'client_name' => $request->client_name, 'status' => $finalStatus,'month_year' => $monthYear, 'updated_at' => now() ]);
                 }
             }
             else {
+                $monthYear = isset($recordData['applyOnCell']) ? implode('_', array_slice(explode(' / ', $recordData['applyOnCell']), 1)) : null;
+
                 DB::table('consultant_dashboard')->insert(['type' => $type, 'record' => json_encode($recordData), 'user_id' => $userId, 'client_id' => $request->client_id, 'client_name' => $request->client_name, 'status' => $status,'month_year' => $monthYear, 'created_at' => now(), 'updated_at' => now() ]);
             }
             try {

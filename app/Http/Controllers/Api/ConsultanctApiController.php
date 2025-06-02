@@ -1115,6 +1115,8 @@ class ConsultanctApiController extends Controller
                                 ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(record, '$.applyOnCell')) = ?", [$incomingApplyOn])
                                 ->delete();
                         }
+                        
+                        $monthYear = isset($recordData['applyOnCell']) ? implode('_', array_slice(explode(' / ', $recordData['applyOnCell']), 1)) : null;
 
                         DB::table('consultant_dashboard')->insert([
                             'type' => $type,
@@ -1122,6 +1124,7 @@ class ConsultanctApiController extends Controller
                             'user_id' => $userId,
                             'client_id' => $request->client_id,
                             'client_name' => $request->client_name,
+                            'month_year' => $monthYear,
                             'status' => $status,
                             'created_at' => now(),
                             'updated_at' => now()
@@ -1141,13 +1144,14 @@ class ConsultanctApiController extends Controller
                                         ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(record, '$.applyOnCell')) = ?", [$incomingApplyOn])
                                         ->delete();
                                 }
-
+                                $monthYear = isset($recordData['applyOnCell']) ? implode('_', array_slice(explode(' / ', $recordData['applyOnCell']), 1)) : null;
                                 DB::table('consultant_dashboard')->insert([
                                     'type' => $type,
                                     'record' => json_encode($recordData),
                                     'user_id' => $userId,
                                     'client_id' => $request->client_id,
                                     'client_name' => $request->client_name,
+                                    'month_year' => $monthYear,
                                     'status' => $status,
                                     'created_at' => now(),
                                     'updated_at' => now()
@@ -1323,7 +1327,7 @@ class ConsultanctApiController extends Controller
         return response()->json(['success' => true, 'message' => 'Data saved successfully!']);
     }
 
-  public function getTimelineRemarks(Request $request)
+    public function getTimelineRemarks(Request $request)
     {
         $user = auth()->user();
         $month = $request->input('month');
@@ -1425,6 +1429,11 @@ class ConsultanctApiController extends Controller
             'status' => true,
             'data' => $result,
         ]);
+    }
+
+    public function getClaimRemarks()
+    {
+
     }
 
 
