@@ -683,6 +683,110 @@ class ConsultanctApiController extends Controller
         ->values();
 
 
+        $user = auth()->user();
+
+    // 📌 Get leave_log as a single object
+    $leaveLog1 = DB::table('leave_log')
+        ->where('user_id', $user->id)
+        ->where('year', $year)
+        ->first(); // ✅ must use first(), not get()
+
+    // 📊 Filtered timesheet_data as provided
+    $timesheet_data1 = DB::table('consultant_dashboard')
+        ->where('user_id', $user->id)
+        ->where('type', 'timesheet')
+        ->get()
+        ->filter(function ($item) use ($month, $year) {
+            $record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+            $applyOnCell = $record['applyOnCell'] ?? '';
+            $parts = explode(' / ', $applyOnCell);
+            return count($parts) === 3 &&
+                (int)$parts[1] == (int)$month &&
+                (int)$parts[2] == (int)$year;
+        })
+        ->map(function ($item) {
+            $item->record = is_string($item->record) ? json_decode($item->record, true) : $item->record;
+            return $item;
+        })
+        ->values();
+
+        $used = ['AL' => 0, 'ML' => 0, 'UL' => 0, 'PDO' => 0, 'Comp Off' => 0];
+        $totalUsed = 0;
+
+        foreach ($timesheet_data1 as $entry) {
+            $record = $entry->record;
+            if (!$record || !isset($record['leaveType'])) continue;
+
+            $originalType = trim($record['leaveType']);
+            $workingHours = isset($record['workingHours']) && is_numeric($record['workingHours']) ? floatval($record['workingHours']) : 0;
+            $hourId = $record['leaveHourId'] ?? '';
+            $applyOnCell = $record['applyOnCell'] ?? '';
+            $dateRange = $record['date'] ?? '';
+
+            $mapTypes = [
+                'Custom AL' => 'AL',
+                'Custom ML' => 'ML',
+                'Custom UL' => 'UL',
+                'Custom PDO' => 'PDO',
+                'Custom COMP-OFF' => 'Comp Off',
+            ];
+            $type = $mapTypes[$originalType] ?? $originalType;
+            $perDayValue = in_array($hourId, ['fHalfDay', 'sHalfDay']) ? 0.5 : 1;
+            $dates = [];
+
+            if ($dateRange && Str::contains($dateRange, 'to')) {
+                try {
+                    [$start, $end] = array_map('trim', explode('to', $dateRange));
+                    $startDate = Carbon::createFromFormat('d / m / Y', $start);
+                    $endDate = Carbon::createFromFormat('d / m / Y', $end);
+                    while ($startDate->lte($endDate)) {
+                        $dates[] = $startDate->copy();
+                        $startDate->addDay();
+                    }
+                } catch (\Exception $e) {}
+            } elseif ($applyOnCell) {
+                try {
+                    $dates[] = Carbon::createFromFormat('d / m / Y', trim($applyOnCell));
+                } catch (\Exception $e) {}
+            }
+
+            foreach ($dates as $d) {
+                if (in_array($d->dayOfWeek, [0, 6])) continue;
+
+                if (in_array($type, ['AL', 'ML', 'UL', 'PDO'])) {
+                    $used[$type] += $perDayValue;
+                    $totalUsed += $perDayValue;
+                } elseif ($type === 'Comp Off') {
+                    if ($workingHours > 8) {
+                        $extra = $workingHours - 8;
+                        $compVal = $extra / 8;
+                        $used['Comp Off'] += $compVal;
+                        $totalUsed += $compVal;
+                    } else {
+                        $val = $perDayValue;
+                        $used['Comp Off'] += $val;
+                        $totalUsed += $val;
+                    }
+                }
+            }
+        }
+
+        foreach ($used as $key => $val) {
+            $used[$key] = number_format($val, 2);
+        }
+        $totalUsedFormatted = number_format($totalUsed, 2);
+
+        // 🧮 Build leave_summary
+        $leave_summary = [
+            'Leave Log' => $totalUsedFormatted . ' / ' . ($leaveLog1->assign_total_leave_log ?? 0),
+            'AL' => ($used['AL'] ?? '0.00') . ' / ' . ($leaveLog1->assign_al ?? 0),
+            'ML' => ($used['ML'] ?? '0.00') . ' / ' . ($leaveLog1->assign_ml ?? 0),
+            'UL' => ($used['UL'] ?? '0.00') . ' / ' . ($leaveLog1->assign_ul ?? 0),
+            'PDO' => ($used['PDO'] ?? '0.00') . ' / ' . ($leaveLog1->assign_pdo ?? 0),
+            'Comp Off' => ($used['Comp Off'] ?? '0.00') . ' / ' . ($leaveLog1->assign_comp_off ?? 0),
+        ];
+
+
         // === RESPONSE ===
         return response()->json([
             'status' => true,
@@ -690,6 +794,7 @@ class ConsultanctApiController extends Controller
             'work_log' => [
                 'forecasted_hours' => $forecastedHours,
                 'logged_hours' => round($loggedHours, 2),
+                'leave_summary' => $leave_summary,
             ],
             'timesheet_overview' => $timelineItems,
             'extra_time_log' => $extra_time_log,
@@ -1141,7 +1246,7 @@ class ConsultanctApiController extends Controller
 
                         'pdf_link' => $pdfLink,
 
-                        'month_of' => $selectedMonth."-".$selectedYear,
+                        'month_of' => $selectedMonth."_".$selectedYear,
 
                         'consultant_id' => 1,
 
@@ -1355,6 +1460,53 @@ class ConsultanctApiController extends Controller
             'data' => $blocks,
         ]);
     }
+
+    public function addClaim(Request $request)
+    {
+        // ✅ Validate required parameters
+        $required = ['record', 'type', 'user_id', 'client_id', 'client_name'];
+        foreach ($required as $field) {
+            if (!$request->filled($field)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Missing required field: {$field}"
+                ], 400);
+            }
+        }
+
+        $recordData = json_decode($request->record, true);
+        if (!is_array($recordData)) {
+            return response()->json(['success' => false, 'message' => 'Invalid record.']);
+        }
+
+        // ✅ Add current time
+        $recordData['time'] = now()->format('h:i A');
+
+        // ✅ Handle file upload
+        if ($request->hasFile('certificate')) {
+            $image = $request->file('certificate');
+            $fileName = time() . '_' . $image->getClientOriginalName();
+            $image->storeAs('consultant', $fileName);
+            $recordData['certificate_path'] = 'storage/app/public/consultant/' . $fileName;
+        } else {
+            $recordData['certificate_path'] = null;
+        }
+
+        // ✅ Store into DB
+        DB::table('consultant_dashboard')->insert([
+            'type' => $request->type,
+            'record' => json_encode($recordData),
+            'user_id' => $request->user_id,
+            'client_id' => $request->client_id,
+            'client_name' => $request->client_name,
+            'status' => $request->status ?? 'Draft',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'New claim added.']);
+    }
+
 
 
 }

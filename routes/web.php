@@ -50,6 +50,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::post('/consultant/add-data', [ConsultanctApiController::class, 'addConsultantData']);
         Route::post('/consultant/get-timesheet-remarks', [ConsultanctApiController::class, 'getTimelineRemarks']);
         Route::post('/consultant/backdated-claims-data', [ConsultanctApiController::class, 'getBackdatedClaimsData']);
+        Route::post('/consultant/add-claim', [ConsultanctApiController::class, 'addClaim']);
 
     });
 
