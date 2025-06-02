@@ -610,24 +610,40 @@ class ConsultanctApiController extends Controller
         $submittedOnly = array_filter($monthlyStatus, fn($s) => strtolower($s) === 'submitted');
         $submittedOnly = array_slice($submittedOnly, -6, 6, true);
 
-        // ✅ Format final structure
         $get_copies = [];
 
-        foreach ($submittedOnly as $monthKey => $status) {
-            try {
-                $monthTitle = \Carbon\Carbon::createFromFormat('Y-m', $monthKey)->format('F - Y');
-            } catch (\Exception $e) {
-                $monthTitle = $monthKey;
-            }
+        $user = auth()->user();
+        $consultantId = DB::table('consultants')
+            ->where('user_id', $user->id)
+            ->value('id');
 
-            $get_copies[] = [
-                'label' => 'Timesheet Overview',
-                'month_title' => $monthTitle,
-                'month_key' => $monthKey,
-                'status' => ucfirst($status),
-                'download_url' => url('/download-pdf'), // ✅ Update if dynamic
-            ];
+        if ($consultantId) {
+            $remarks = DB::table('remarks')
+                ->where('consultant_id', $consultantId)
+                ->whereNotNull('pdf_link')
+                ->where('pdf_link', 'like', '%/timesheets/%') // only timesheet-related
+                ->orderByDesc('created_at')
+                ->get();
+
+            foreach ($remarks as $remark) {
+                $monthKey = $remark->month_of ?? 'Unknown';
+                try {
+                    [$month, $year] = explode('_', $monthKey);
+                    $monthTitle = \Carbon\Carbon::createFromDate($year, $month, 1)->format('F - Y');
+                } catch (\Exception $e) {
+                    $monthTitle = $monthKey;
+                }
+
+                $get_copies[] = [
+                    'label' => 'Timesheet Overview',
+                    'month_title' => $monthTitle,
+                    'month_key' => $monthKey,
+                    'status' => 'Submitted',
+                    'download_url' => asset($remark->pdf_link),
+                ];
+            }
         }
+
 
         $timesheet_data = DB::table('consultant_dashboard')
         ->where('user_id', $user->id)
