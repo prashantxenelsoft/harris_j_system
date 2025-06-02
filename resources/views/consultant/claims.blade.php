@@ -2177,55 +2177,55 @@
                         </div>
                      </div>
                      <div class="timeline" id="remarkTimeline">
-    @php $hasData = false; @endphp
+                        @php $hasData = false; @endphp
 
-    @foreach ($dataClaims as $item)
-        @php
-            $record = json_decode($item->record ?? '{}', true);
-            $applyDate = $record['applyOnCell'] ?? null;
-            $claimNo = $record['claim_no'] ?? 'N/A';
-            $remarks = $record['remarks'] ?? '';
-            $time = $record['time'] ?? null;
+                        @foreach ($dataClaims as $item)
+                           @php
+                                 $record = json_decode($item->record ?? '{}', true);
+                                 $applyDate = $record['applyOnCell'] ?? null;
+                                 $claimNo = $record['claim_no'] ?? 'N/A';
+                                 $remarks = $record['remarks'] ?? '';
+                                 $time = $record['time'] ?? null;
 
-            // Fallback for avatar
-            $avatar = $item->profile_image ?? 'https://i.pravatar.cc/24';
-            $userName = $item->user_name ?? 'User';
+                                 // Fallback for avatar
+                                 $avatar = $item->profile_image ?? 'https://i.pravatar.cc/24';
+                                 $userName = $item->user_name ?? 'User';
 
-            // Format date & time
-            $dateObj = $applyDate ? \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyDate)) : null;
-            $dateText = $dateObj ? $dateObj->format('d / m / Y') : 'Invalid date';
+                                 // Format date & time
+                                 $dateObj = $applyDate ? \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyDate)) : null;
+                                 $dateText = $dateObj ? $dateObj->format('d / m / Y') : 'Invalid date';
 
-            $statusText = ucfirst($item->status ?? 'Draft');
-            $statusTime = $dateObj && $time ? "{$dateObj->format('d / m / Y')} {$time}" : $dateText;
-        @endphp
+                                 $statusText = ucfirst($item->status ?? 'Draft');
+                                 $statusTime = $dateObj && $time ? "{$dateObj->format('d / m / Y')} {$time}" : $dateText;
+                           @endphp
 
-        @if ($dateObj)
-            @php $hasData = true; @endphp
+                           @if ($dateObj)
+                                 @php $hasData = true; @endphp
 
-            <div class="remark-item mb-3"
-                data-month="{{ $dateObj->month }}"
-                data-year="{{ $dateObj->year }}">
-                <div class="d-flex">
-                    <div class="me-2 text-primary">
-                        <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
-                        <div class="line bg-primary"></div>
-                    </div>
-                    <div>
-                        <div class="d-flex align-items-center mb-1">
-                            <img src="{{ $avatar }}" class="rounded-circle me-2" style="width: 24px; height: 24px;" title="{{ $userName }}" />
-                            <small class="text-muted">
-                                Approved On {{ $statusTime }}
-                            </small>
-                        </div>
-                        <p class="mb-1">{{ $remarks }}</p>
-                    </div>
-                </div>
-            </div>
-        @endif
-    @endforeach
+                                 <div class="remark-item mb-3"
+                                    data-month="{{ $dateObj->month }}"
+                                    data-year="{{ $dateObj->year }}">
+                                    <div class="d-flex">
+                                       <div class="me-2 text-primary">
+                                             <div class="dot bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                                             <div class="line bg-primary"></div>
+                                       </div>
+                                       <div>
+                                             <div class="d-flex align-items-center mb-1">
+                                                <img src="{{ $avatar }}" class="rounded-circle me-2" style="width: 24px; height: 24px;" title="{{ $userName }}" />
+                                                <small class="text-muted">
+                                                   Approved On {{ $statusTime }}
+                                                </small>
+                                             </div>
+                                             <p class="mb-1">{{ $remarks }}</p>
+                                       </div>
+                                    </div>
+                                 </div>
+                           @endif
+                        @endforeach
 
-    <p id="noRemarksMessage" class="text-muted px-3 py-2 {{ $hasData ? 'd-none' : '' }}">No entries found for this month</p>
-</div>
+                        <p id="noRemarksMessage" class="text-muted px-3 py-2 {{ $hasData ? 'd-none' : '' }}">No entries found for this month</p>
+                     </div>
 
 
                      <script>

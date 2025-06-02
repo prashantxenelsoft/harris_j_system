@@ -1431,10 +1431,65 @@ class ConsultanctApiController extends Controller
         ]);
     }
 
-    public function getClaimRemarks()
+    public function getClaimRemarks(Request $request)
     {
+        $user = auth()->user();
+        $month = $request->input('month');
+        $year = $request->input('year');
 
+        if (!$user || !$month || !$year) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Missing required parameters.',
+            ], 400);
+        }
+
+        $claims = DB::table('consultant_dashboard')
+            ->where('user_id', $user->id)
+            ->where('type', 'claims')
+            ->orderByDesc('created_at')
+            ->get();
+
+        $result = [];
+
+        foreach ($claims as $item) {
+            $record = json_decode($item->record ?? '{}', true);
+            if (!$record) continue;
+
+            $applyDate = $record['applyOnCell'] ?? null;
+            $claimNo = $record['claim_no'] ?? 'N/A';
+            $remarks = $record['remarks'] ?? '';
+            $time = $record['time'] ?? null;
+
+            // Format date
+            try {
+                $dateObj = $applyDate ? \Carbon\Carbon::createFromFormat('d / m / Y', trim($applyDate)) : null;
+            } catch (\Exception $e) {
+                $dateObj = null;
+            }
+
+            if ($dateObj && (int)$dateObj->month == (int)$month && (int)$dateObj->year == (int)$year) {
+                $statusText = ucfirst($item->status ?? 'Draft');
+                $statusTime = $dateObj && $time ? $dateObj->format('d / m / Y') . ' ' . $time : $applyDate;
+
+                $result[] = [
+                    'claim_no' => $claimNo,
+                    'remarks' => $remarks,
+                    'status' => $statusText,
+                    'status_time' => $statusTime,
+                    'avatar' => $item->profile_image ?? 'https://i.pravatar.cc/24',
+                    'user_name' => $item->user_name ?? 'User',
+                    'apply_on' => $applyDate,
+                ];
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $result,
+        ]);
     }
+
 
 
 
