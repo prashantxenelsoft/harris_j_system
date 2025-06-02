@@ -970,38 +970,60 @@ class ConsultanctApiController extends Controller
                     ]);
                 }
             } else {
-                if($request->type == "claims"){
-                DB::table('consultant_dashboard')->insert([
-                    'type' => $type,
-                    'record' => json_encode($recordData),
-                    'user_id' => $userId,
-                    'client_id' => $request->client_id,
-                    'client_name' => $request->client_name,
-                    'status' => $status,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
-                }
-                else
-                {
-                    $recordList = json_decode($request->record, true); // decode string to array
+                    if ($request->type == "claims") {
+                        $recordData = json_decode($request->record, true);
+                        $recordData['time'] = $recordData['time'] ?? now()->format('h:i A');
 
-                    if (is_array($recordList)) {
-                        foreach ($recordList as $recordData) {
-                            DB::table('consultant_dashboard')->insert([
-                                'type' => $type,
-                                'record' => json_encode($recordData),
-                                'user_id' => $userId,
-                                'client_id' => $request->client_id,
-                                'client_name' => $request->client_name,
-                                'status' => $status,
-                                'created_at' => now(),
-                                'updated_at' => now()
-                            ]);
+                        $incomingApplyOn = $recordData['applyOnCell'] ?? null;
+                        if ($incomingApplyOn) {
+                            DB::table('consultant_dashboard')
+                                ->where('user_id', $userId)
+                                ->where('type', 'claims')
+                                ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(record, '$.applyOnCell')) = ?", [$incomingApplyOn])
+                                ->delete();
+                        }
+
+                        DB::table('consultant_dashboard')->insert([
+                            'type' => $type,
+                            'record' => json_encode($recordData),
+                            'user_id' => $userId,
+                            'client_id' => $request->client_id,
+                            'client_name' => $request->client_name,
+                            'status' => $status,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+                    } else {
+                        $recordList = json_decode($request->record, true);
+
+                        if (is_array($recordList)) {
+                            foreach ($recordList as $recordData) {
+                                $recordData['time'] = $recordData['time'] ?? now()->format('h:i A');
+
+                                $incomingApplyOn = $recordData['applyOnCell'] ?? null;
+                                if ($incomingApplyOn) {
+                                    DB::table('consultant_dashboard')
+                                        ->where('user_id', $userId)
+                                        ->where('type', 'timesheet')
+                                        ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(record, '$.applyOnCell')) = ?", [$incomingApplyOn])
+                                        ->delete();
+                                }
+
+                                DB::table('consultant_dashboard')->insert([
+                                    'type' => $type,
+                                    'record' => json_encode($recordData),
+                                    'user_id' => $userId,
+                                    'client_id' => $request->client_id,
+                                    'client_name' => $request->client_name,
+                                    'status' => $status,
+                                    'created_at' => now(),
+                                    'updated_at' => now()
+                                ]);
+                            }
                         }
                     }
                 }
-            }
+
             try {
                 $applyDate = \Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
                 $month = $applyDate->format('m');
