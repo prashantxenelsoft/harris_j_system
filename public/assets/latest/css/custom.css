@@ -648,3 +648,7 @@ div#home_page_timesheet .timeline-container{
     font-weight: 700;
     font-size: var(--Font14px);
 }
+
+.clients-tabs-consultants{
+    margin-bottom: 40px;
+}

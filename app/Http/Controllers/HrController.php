@@ -25,6 +25,7 @@ class HrController extends Controller {
         )
         ->orderBy('consultants.id', 'desc')
         ->get();
+        
         //$data = $this->getFullUserHierarchyIncludingAbove($user->id, $user->role_id);
         $clients = Client::all();
         //echo "<pre>";print_r($clients);die;

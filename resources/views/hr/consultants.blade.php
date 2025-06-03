@@ -4,40 +4,52 @@
             <div class="col-lg-4 col-xxl-3">
                 <div class="add-consultant-clients-wrapper">
                     <h4>Clients</h4>
+                    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
                     <div class="clients-tabs-consultants pt-3">
                         <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                            @foreach ($clients as $index => $client)
+                                @php
+                                    $isActive = $index === 0 ? 'active' : '';
+                                    $tabId = 'client-' . $client->id;
 
-                           @foreach ($clients as $index => $client)
-                              @php
-                                  $isActive = $index === 0 ? 'active' : '';
-                                  $tabId = 'client-' . $client->id;
-                              @endphp
+                                    // ✅ Filter consultants by client ID (make sure consultants.select_client is numeric)
+                                    $filtered = $consultants->filter(fn($c) => $c->client_id == $client->id);
 
-                              <button class="nav-link {{ $isActive }}"
-                                  id="v-pills-{{ $tabId }}-tab"
-                                  data-bs-toggle="pill"
-                                  data-bs-target="#v-pills-{{ $tabId }}"
-                                  type="button"
-                                  role="tab"
-                                  aria-controls="v-pills-{{ $tabId }}"
-                                  aria-selected="{{ $isActive ? 'true' : 'false' }}">
-                                  
-                                  <div class="clients-tab-switch">
-                                      <div class="clients-img-name">
-                                          <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="{{ $client->serving_client }}" />
-                                          <h6 class="{{ $isActive ? 'fw-bold' : '' }}">{{ $client->serving_client }}</h6>
-                                      </div>
+                                    $inactive = $filtered->where('status', 'Inactive')->count();
+                                    $active = $filtered->where('status', 'Active')->count();
+                                    $notice = $filtered->where('status', 'Notice Period')->count();
+                                    $total = $filtered->count();
+                                @endphp
 
-                                      <div class="clients-numbers-tab-switch">
-                                          <span>
-                                              (<em>10</em>,<em>23</em>,<em>12</em>) <b>/ 45</b>
-                                          </span>
-                                      </div>
-                                  </div>
-                              </button>
-                          @endforeach
+                                <button class="nav-link {{ $isActive }}"
+                                    id="v-pills-{{ $tabId }}-tab"
+                                    data-client-id="{{ $client->id }}"
+                                    data-bs-toggle="pill"
+                                    data-bs-target="#v-pills-{{ $tabId }}"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="v-pills-{{ $tabId }}"
+                                    aria-selected="{{ $isActive ? 'true' : 'false' }}">
+                                    
+                                    <div class="clients-tab-switch">
+                                        <div class="clients-img-name">
+                                            <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="{{ $client->serving_client }}" />
+                                            <h6 class="{{ $isActive ? 'fw-bold' : '' }}">{{ $client->serving_client }}</h6>
+                                        </div>
 
+                                        <div class="clients-numbers-tab-switch">
+                                            <span>
+                                                (
+                                                <em style="color: red;">{{ $inactive }}</em>,
+                                                <em style="color: blue;">{{ $active }}</em>,
+                                                <em style="color: gray;">{{ $notice }}</em>
+                                                ) <b>/ {{ $total }}</b>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </button>
+                            @endforeach
                         </div>
                     </div>
 
@@ -64,263 +76,203 @@
 
             <div class="col-lg-8 col-xxl-9">
                 <div class="consultants-clients-tabs-content">
+                    <!-- Consultants Table (Right Side) -->
                     <div class="tab-content" id="v-pills-tabContent">
-                        <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
-                            <div class="clients-tab-inner-section">
-                                <div class="clients-tab-header">
-                                    <div class="clients-tab-header-left-col">
-                                        <h6>Consultants</h6>
-                                        <input type="text" placeholder="Search..." />
-                                        <select>
-                                            <option value="" selected disabled>Designation</option>
-                                            <option value="Designation 1">Designation 1</option>
-                                            <option value="Designation 2">Designation 2</option>
-                                            <option value="Designation 3">Designation 3</option>
-                                        </select>
-                                        <select>
-                                          <option value="" selected disabled>Select User Status</option>
-                                          <option value="Active">Active</option>
-                                          <option value="Inactive">Inactive</option> 
-                                          <option value="Notice Period">Notice Period</option>
-                                      </select>
-                                    </div>
+                    <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel">
+                        <div class="clients-tab-inner-section">
+                        <div class="clients-tab-header">
+                            <div class="clients-tab-header-left-col" id="filter_item">
+                                <h6>Consultants</h6>
+                                <input type="text" placeholder="Search..." />
+                                <select>
+                                    <option value="" selected disabled>Designation</option>
+                                    <option value="Designation 1">Designation 1</option>
+                                    <option value="Designation 2">Designation 2</option>
+                                    <option value="Designation 3">Designation 3</option>
+                                </select>
+                                <select>
+                                    <option value="" selected disabled>Select User Status</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                    <option value="Notice Period">Notice Period</option>
+                                </select>
+                            </div>
+                           <script>
+                                $(document).ready(function () {
+                                    $('#filter_item input, #filter_item select').on('input change', function () {
+                                        const keyword = $('#filter_item input').val().toLowerCase();
+                                        const selectedDesignation = $('#filter_item select').eq(0).val();
+                                        const selectedStatus = $('#filter_item select').eq(1).val();
 
-                                    <div class="clients-tab-header-right-col">
-                                        <a href="#" class="add-consultants-btn">
-                                            <img src="{{ asset('public/assets/latest/images/circle-add-button.png') }}" class="img-fluid" />
-                                            Add Consultants
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="table-hj-list-section mt-3">
-                                    <div class="container p-0">
-                                        <div class="col-md-12">
-                                            <table class="table table-condensed table-striped" id="myTable">
-                                                <thead>
-                                                    <tr>
-                                                        <th>S.No</th>
-                                                        <th>Employee ID</th>
-                                                        <th>Employee Name</th>
-                                                        <th>Email Address</th>
-                                                        <th>Residential Status</th>
-                                                        <th>Designation</th>
-                                                        <th>Joining Date</th>
-                                                        <th>Status</th>
-                                                        <th>Actions</th>
-                                                    </tr>
-                                                </thead>
+                                        const $activeTab = $('.tab-pane.active');
+                                        const $rows = $activeTab.find('table tbody tr');
+                                        let hasVisible = false;
 
-                                                <tbody>
-                                                    <!-- First employee row -->
-                                                    <tr>
-                                                        <td>01</td>
-                                                        <td>EM1008ID</td>
-                                                        <td>
-                                                            <div class="country-wrap">
-                                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
-                                                                <p>Bruce Lee</p>
-                                                            </div>
-                                                        </td>
-                                                        <td>brucelee@gmail.com</td>
-                                                        <td>
-                                                            <span class="blue-badge"><strong>SR</strong></span>
-                                                        </td>
-                                                        <td><span class="blue-badge">Information Security Analyst</span></td>
-                                                        <td>
-                                                            <p>
-                                                                <span>
-                                                                    12 / 08 / 2024
-                                                                </span>
-                                                            </p>
-                                                        </td>
-                                                        <td>
-                                                            <span class="active-badge">
-                                                                Active
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <div class="icon-group-listing">
-                                                                <span>
-                                                                    <i class="fas fa-pen-nib"></i>
-                                                                </span>
+                                        $rows.each(function () {
+                                            const row = $(this);
+                                            const text = row.text().toLowerCase();
+                                            const designation = row.find('td:nth-child(6)').text().trim();
+                                            const status = row.find('td:nth-child(8)').text().trim();
 
-                                                                <span>
-                                                                    <i class="fa fa-trash" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#exampleModal"></i>
-                                                                    <div class="modal fade delete-popup" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                                        <div class="modal-dialog modal-dialog-centered">
-                                                                            <div class="modal-content">
-                                                                                <img src="{{ asset('public/assets/latest/images/close-icon-popup.png') }}" data-bs-dismiss="modal" aria-label="Close" class="delete-popup-close-btn" />
+                                            // 🧠 Skip rows that contain 'N/A' in designation or status
+                                            if (designation === 'N/A' || status === 'N/A') {
+                                                row.hide();
+                                                return; // skip further checks
+                                            }
 
-                                                                                <div class="modal-body">
-                                                                                    <div class="delete-popup-row">
-                                                                                        <div class="delete-icon-row">
-                                                                                            <span>
-                                                                                                <i class="fa fa-trash"></i>
-                                                                                            </span>
-                                                                                        </div>
+                                            const matchesKeyword = text.includes(keyword);
+                                            const matchesDesignation = !selectedDesignation || designation === selectedDesignation;
+                                            const matchesStatus = !selectedStatus || status === selectedStatus;
 
-                                                                                        <div class="delete-row-text">
-                                                                                            <h6>Are you sure you want to delete this user?</h6>
-                                                                                            <p>
-                                                                                                This action cannot be undone. The user's data will be permanently removed
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </div>
+                                            if (matchesKeyword && matchesDesignation && matchesStatus) {
+                                                row.show();
+                                                hasVisible = true;
+                                            } else {
+                                                row.hide();
+                                            }
+                                        });
 
-                                                                                    <div class="delete-popup-btn-group">
-                                                                                        <a href="#" data-bs-dismiss="modal">
-                                                                                            No, cancel
-                                                                                        </a>
-                                                                                        <a href="#">
-                                                                                            Yes, confirm
-                                                                                        </a>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </span>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
+                                        const $notFoundRow = $activeTab.find('.no-consultant-row');
+                                        if (!hasVisible) {
+                                            $notFoundRow.show();
+                                        } else {
+                                            $notFoundRow.hide();
+                                        }
+                                    });
+                                });
+                            </script>
 
-                                                    <!-- Second employee row -->
-                                                    <tr>
-                                                        <td>02</td>
-                                                        <td>EM1009ID</td>
-                                                        <td>
-                                                            <div class="country-wrap">
-                                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
-                                                                <p>Allison Schleifer</p>
-                                                            </div>
-                                                        </td>
-                                                        <td>brucelee@gmail.com</td>
-                                                        <td>
-                                                            <span class="red-badge"><strong>SPR</strong></span>
-                                                        </td>
-                                                        <td><span class="red-badge">Head Administrator</span></td>
-                                                        <td>
-                                                            <p>
-                                                                <span>
-                                                                    12 / 08 / 2024
-                                                                </span>
-                                                            </p>
-                                                        </td>
-                                                        <td>
-                                                            <span class="active-badge">
-                                                                Active
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <div class="icon-group-listing">
-                                                                <span>
-                                                                    <i class="fas fa-pen-nib"></i>
-                                                                </span>
 
-                                                                <span>
-                                                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                                                </span>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
 
-                                                    <!-- Third employee row -->
-                                                    <tr>
-                                                        <td>03</td>
-                                                        <td>EM1010ID</td>
-                                                        <td>
-                                                            <div class="country-wrap">
-                                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
-                                                                <p>Bruce Lee</p>
-                                                            </div>
-                                                        </td>
-                                                        <td>brucelee@gmail.com</td>
-                                                        <td>
-                                                            <span class="orange-badge"><strong>PP</strong></span>
-                                                        </td>
-                                                        <td><span class="blue-badge">Web developer</span></td>
-                                                        <td>
-                                                            <p>
-                                                                <span>
-                                                                    12 / 08 / 2024
-                                                                </span>
-                                                            </p>
-                                                        </td>
-                                                        <td>
-                                                            <span class="active-badge">
-                                                                Active
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <div class="icon-group-listing">
-                                                                <span>
-                                                                    <i class="fas fa-pen-nib"></i>
-                                                                </span>
-
-                                                                <span>
-                                                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                                                </span>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Third employee row -->
-                                                    <tr>
-                                                        <td>04</td>
-                                                        <td>EM1011ID</td>
-                                                        <td>
-                                                            <div class="country-wrap">
-                                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="Alena" />
-                                                                <p>Lincoln Geidt</p>
-                                                            </div>
-                                                        </td>
-                                                        <td>lincin@gmail.com</td>
-                                                        <td>
-                                                            <span class="blue-badge"><strong>EP</strong></span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="orange-badge">
-                                                                Technical support analyst
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <p>
-                                                                <span>
-                                                                    12 / 08 / 2024
-                                                                </span>
-                                                            </p>
-                                                        </td>
-                                                        <td>
-                                                            <span class="inactive-badge">
-                                                                Inactive
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <div class="icon-group-listing">
-                                                                <span>
-                                                                    <i class="fas fa-pen-nib"></i>
-                                                                </span>
-
-                                                                <span>
-                                                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                                                </span>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="clients-tab-header-right-col">
+                            <a href="#" class="add-consultants-btn">
+                                <img src="{{ asset('public/assets/latest/images/circle-add-button.png') }}" class="img-fluid" />
+                                Add Consultants
+                            </a>
                             </div>
                         </div>
 
-                        <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab"></div>
+                        <div class="table-hj-list-section mt-3">
+                            <div class="container p-0">
+                            <div class="col-md-12">
+                                <table class="table table-condensed table-striped">
+                                <thead>
+                                    <tr>
+                                    <th>S.No</th>
+                                    <th>Employee ID</th>
+                                    <th>Employee Name</th>
+                                    <th>Email Address</th>
+                                    <th>Residential Status</th>
+                                    <th>Designation</th>
+                                    <th>Joining Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($consultants as $index => $c)
+                                    <tr class="consultant-row" data-client-id="{{ $c->client_id }}">
+                                        <td>{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</td>
+                                        <td>{{ $c->emp_code }}</td>
+                                        <td>
+                                            <div class="country-wrap">
+                                                <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" />
+                                                <p>{{ $c->emp_name }}</p>
+                                            </div>
+                                        </td>
+                                        <td>{{ $c->email }}</td>
 
-                        <div class="tab-pane fade" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab"></div>
+                                        {{-- ✅ Fix Residential Status --}}
+                                        <td>
+                                            @if($c->residential_status === 'SR')
+                                                <span class="blue-badge"><strong>SR</strong></span>
+                                            @elseif($c->residential_status === 'SPR')
+                                                <span class="red-badge"><strong>SPR</strong></span>
+                                            @elseif($c->residential_status === 'PP')
+                                                <span class="orange-badge"><strong>PP</strong></span>
+                                            @elseif($c->residential_status === 'EP')
+                                                <span class="blue-badge"><strong>EP</strong></span>
+                                            @else
+                                                <span class="badge text-muted">N/A</span>
+                                            @endif
+                                        </td>
 
-                        <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab"></div>
+                                        {{-- ✅ Fix Designation --}}
+                                        <td>
+                                            @if(!empty($c->designation))
+                                                <span>{{ $c->designation }}</span>
+                                            @else
+                                                <span class="badge text-muted">N/A</span>
+                                            @endif
+                                        </td>
+
+                                        <td>{{ \Carbon\Carbon::parse($c->joining_date)->format('d / m / Y') }}</td>
+
+                                        <td>
+                                            @if($c->status === 'Active')
+                                                <span class="active-badge">Active</span>
+                                            @elseif($c->status === 'Inactive')
+                                                <span class="inactive-badge">Inactive</span>
+                                            @else
+                                                <span class="notice-badge">Notice Period</span>
+                                            @endif
+                                        </td>
+
+                                        <td>
+                                            <div class="icon-group-listing">
+                                                <span><i class="fas fa-pen-nib"></i></span>
+                                                <span><i class="fa fa-trash"></i></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    @endforeach
+                                    <tr class="no-consultant-row" style="display:none;">
+                                    <td colspan="9" class="text-center text-muted">Consultant not found for this client</td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
                     </div>
+                    </div>
+
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                        const clientTabs = document.querySelectorAll(".nav-link[data-client-id]");
+                        const consultantRows = document.querySelectorAll(".consultant-row");
+                        const noRowMsg = document.querySelector(".no-consultant-row");
+
+                        function filterByClient(clientId) {
+                            let matchCount = 0;
+                            consultantRows.forEach(row => {
+                            if (row.getAttribute("data-client-id") === clientId) {
+                                row.style.display = "table-row";
+                                matchCount++;
+                            } else {
+                                row.style.display = "none";
+                            }
+                            });
+                            noRowMsg.style.display = matchCount === 0 ? "table-row" : "none";
+                        }
+
+                        clientTabs.forEach(btn => {
+                            btn.addEventListener("click", function () {
+                            clientTabs.forEach(b => b.classList.remove("active", "fw-bold"));
+                            this.classList.add("active", "fw-bold");
+                            const clientId = this.getAttribute("data-client-id");
+                            filterByClient(clientId);
+                            });
+                        });
+
+                        const firstTab = document.querySelector(".nav-link.active[data-client-id]");
+                        if (firstTab) {
+                            filterByClient(firstTab.getAttribute("data-client-id"));
+                        }
+                        });
+                    </script>
                 </div>
             </div>
         </div>
