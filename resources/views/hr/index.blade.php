@@ -1,4 +1,5 @@
 @extends('layouts.custom_layout') @section('content') 
+<script src="{{ asset('public/assets/latest/js/country-state-data.js')}}"></script>
 <section class="add-consultant-parent">
    <header class="hj-header">
       <div class="container">

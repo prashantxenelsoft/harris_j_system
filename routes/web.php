@@ -52,6 +52,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::post('/consultant/backdated-claims-data', [ConsultanctApiController::class, 'getBackdatedClaimsData']);
         Route::post('/consultant/add-claim', [ConsultanctApiController::class, 'addClaim']);
         Route::post('/consultant/get-claim-remarks', [ConsultanctApiController::class, 'getClaimRemarks']);
+        Route::post('/consultant/get-claim-and-get-copies-tab', [ConsultanctApiController::class, 'getClaimAndGetCopies']);
 
     });
 
@@ -150,8 +151,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('hr/dashboard', [HrController::class, 'index'])->name('hr.dashboard');
 });
-// Route::middleware('auth')->group(function () {
-    Route::get('/consultant/approve-sheet/{token}', [ConsultantController::class, 'approveConsultantSheet'])->name('consultant.approve.sheet');
-
-// });
+Route::get('/consultant/approve-sheet/{token}', [ConsultantController::class, 'approveConsultantSheet'])->name('consultant.approve.sheet');
+Route::get('/consultant/approve-sheet-claim/{token}', [ConsultantController::class, 'approveConsultantSheetClaim'])->name('consultant.approve.sheet.claim');
 Route::post('/consultant/approve-sheet/update-status', [App\Http\Controllers\ConsultantController::class, 'updateTimesheetStatusMail']);
+Route::post('/consultant/approve-sheet-claim/update-status', [App\Http\Controllers\ConsultantController::class, 'updateTimesheetStatusMailClaim']);
+Route::get('/reporting-manager-body', [\App\Http\Controllers\ConsultantController::class, 'showReportingManagerView']);
+Route::get('/claims-reporting-manager-body', [\App\Http\Controllers\ConsultantController::class, 'getAllSubmittedClaimsByUser']);
+//Route::get('/consultant/approve-claim-sheet/{token}', [YourController::class, 'approveConsultantClaimSheet']);
+Route::post('/consultant/set-month-year', [App\Http\Controllers\ConsultantController::class, 'setMonthYear'])->name('consultant.set.monthyear');

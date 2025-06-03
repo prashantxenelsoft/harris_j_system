@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use App\Mail\TimesheetStatusMail;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
 use Barryvdh\DomPDF\Facade\Pdf;
 class ConsultantController extends Controller {
@@ -814,111 +815,419 @@ class ConsultantController extends Controller {
     }
 
 
-public function updateTimesheetStatusMail(Request $request)
-{
-    $request->validate([
-        'ids' => 'required|array',
-        'status' => 'required|string|in:Approved,Rejected,Draft',
-        'token' => 'required|string',
-        'month' => 'required|string',
-        'year' => 'required|string',
-    ]);
-
-    $status = $request->status;
-    $ids = $request->ids;
-    $month = $request->month;
-    $year = $request->year;
-
-    // Message to be sent in email
-    $emailMessage = match ($status) {
-        'Approved' => 'Your timesheet has been Approved.',
-        'Rejected' => 'Your timesheet has been Rejected.',
-        'Draft'    => 'Your timesheet has been sent for Rework.',
-    };
-
-    // Message to be saved in remarks table
-    $remarksMessage = 'Harris J system update - ' . $emailMessage;
-
-    $consultant = DB::table('consultants')->where('token', $request->token)->first();
-    $client = null;
-    $consultancy = null;
-
-    if ($consultant) {
-        $client = DB::table('clients')->where('id', $consultant->client_id)->first();
-        if ($client && !empty($client->user_id)) {
-            $consultancy = DB::table('users')->where('id', $client->user_id)->first();
-        }
-    }
-
-    $dashboards = DB::table('consultant_dashboard')->whereIn('id', $ids)->get();
-
-    $totalWorkingHours = 0;
-    foreach ($dashboards as $dashboard) {
-        $record = json_decode($dashboard->record, true);
-        if (!empty($record['workingHours']) && is_numeric($record['workingHours'])) {
-            $totalWorkingHours += floatval($record['workingHours']);
-        }
-    }
-
-    $viewData = [
-        'type' => 'Timesheet Submission',
-        'token' => $request->token,
-        'consultant' => $consultant,
-        'client' => $client,
-        'consultancy' => $consultancy,
-        'dashboards' => $dashboards,
-        'selectedYear' => $year,
-        'selectedMonth' => $month,
-        'totalWorkingHours' => $totalWorkingHours,
-        'isPdf' => true
-    ];
-
-    $pdf = Pdf::loadView('emails.reporting_manager', $viewData);
-
-    $fileName = 'timesheet_' . $consultant->id . '_' . time() . '.pdf';
-    $folder = storage_path('app/public/consultant/timesheets');
-    if (!File::exists($folder)) {
-        File::makeDirectory($folder, 0755, true);
-    }
-
-    $filePath = $folder . '/' . $fileName;
-    $storagePath = 'storage/consultant/timesheets/' . $fileName;
-    file_put_contents($filePath, $pdf->output());
-
-    foreach ($ids as $id) {
-        DB::table('consultant_dashboard')->where('id', $id)->update([
-            'status' => $status,
-            'updated_at' => now()
+    public function updateTimesheetStatusMail(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'status' => 'required|string|in:Approved,Rejected,Draft',
+            'token' => 'required|string',
+            'month' => 'required|string',
+            'year' => 'required|string',
         ]);
 
+        $status = $request->status;
+        $ids = $request->ids;
+        $month = $request->month;
+        $year = $request->year;
+
+        // Message to be sent in email
+        $emailMessage = match ($status) {
+            'Approved' => 'Your timesheet has been Approved.',
+            'Rejected' => 'Your timesheet has been Rejected.',
+            'Draft'    => 'Your timesheet has been sent for Rework.',
+        };
+
+        // Message to be saved in remarks table
+        $remarksMessage = 'Harris J system update - ' . $emailMessage;
+
+        $consultant = DB::table('consultants')->where('token', $request->token)->first();
+        $client = null;
+        $consultancy = null;
+
+        if ($consultant) {
+            $client = DB::table('clients')->where('id', $consultant->client_id)->first();
+            if ($client && !empty($client->user_id)) {
+                $consultancy = DB::table('users')->where('id', $client->user_id)->first();
+            }
+        }
+
+        $dashboards = DB::table('consultant_dashboard')->whereIn('id', $ids)->get();
+
+        $totalWorkingHours = 0;
+        foreach ($dashboards as $dashboard) {
+            $record = json_decode($dashboard->record, true);
+            if (!empty($record['workingHours']) && is_numeric($record['workingHours'])) {
+                $totalWorkingHours += floatval($record['workingHours']);
+            }
+        }
+
+        $viewData = [
+            'type' => 'Timesheet Submission',
+            'token' => $request->token,
+            'consultant' => $consultant,
+            'client' => $client,
+            'consultancy' => $consultancy,
+            'dashboards' => $dashboards,
+            'selectedYear' => $year,
+            'selectedMonth' => $month,
+            'totalWorkingHours' => $totalWorkingHours,
+            'isPdf' => true
+        ];
+
+        $pdf = Pdf::loadView('emails.reporting_manager', $viewData);
+
+        $fileName = 'timesheet_' . $consultant->id . '_' . time() . '.pdf';
+        $folder = storage_path('app/public/consultant/timesheets');
+        if (!File::exists($folder)) {
+            File::makeDirectory($folder, 0755, true);
+        }
+
+        $filePath = $folder . '/' . $fileName;
+        $storagePath = 'storage/consultant/timesheets/' . $fileName;
+        file_put_contents($filePath, $pdf->output());
+
+        foreach ($ids as $id) {
+            DB::table('consultant_dashboard')->where('id', $id)->update([
+                'status' => $status,
+                'updated_at' => now()
+            ]);
+
+            
+
+        }
+
+        if ($consultant && $consultant->email) {
+            Mail::to($consultant->email)->send(new TimesheetStatusMail($status, $consultant->emp_name));
+
+            DB::table('consultants')->where('id', $consultant->id)->update([
+                'token' => Str::uuid()->toString(),
+                'updated_at' => now()
+            ]);
+            DB::table('remarks')->insert([
+                'remark' => $remarksMessage,
+                'pdf_link' => $storagePath,
+                'month_of' => $month . '_' . $year,
+                'consultant_id' => $consultant->id,
+                'given_by' => 1,
+                'given_by_type' => 'system',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Timesheet status updated to ' . $status
+        ]);
+    }
+
+    public function approveConsultantSheetClaim()
+    {
+        $token = request()->segment(count(request()->segments()));
         
+        $consultant = DB::table('consultants')->where('claim_token', $token)->first();
+        if (!$consultant) {
+            $errorMessage = "Invalid or expired token. The claim timesheet you're trying to access is not available.";
+            return view('emails.token-error', compact('errorMessage'));
+        }
 
+        $client = DB::table('clients')->where('id', $consultant->client_id)->first();
+        $consultancy = $client && !empty($client->user_id)
+            ? DB::table('users')->where('id', $client->user_id)->first()
+            : null;
+
+        $selectedMonth = date('m');
+        $selectedYear = date('Y');
+        $type = 'Claim Timesheet';
+        $token = $consultant->claim_token;
+
+        $dashboards = DB::table('consultant_dashboard')
+            ->where('user_id', $consultant->user_id)
+            ->where('type', 'claims')
+            ->where('status', 'Submitted')
+            ->orderBy('month_year')
+            ->get();
+
+        $parentFormId = $dashboards->first()->parent_form_id ?? null;
+
+        $claimsByMonth = [];
+        foreach ($dashboards as $record) {
+            $decoded = json_decode($record->record, true);
+            $entries = (is_array($decoded) && isset($decoded[0])) ? $decoded : (is_array($decoded) ? [$decoded] : []);
+
+            foreach ($entries as $data) {
+                if (!empty($data['applyOnCell'])) {
+                    $dateStr = preg_replace('/\s*\/\s*/', '-', trim($data['applyOnCell']));
+                    try {
+                        $date = \Carbon\Carbon::createFromFormat('d-m-Y', $dateStr);
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+
+                    $monthYear = $date->format('m_Y');
+                    $day = (int)$date->format('d');
+
+                    $claimsByMonth[$monthYear][$day][] = [
+                        'type' => strtolower(trim($data['expenseType'] ?? 'other')),
+                        'claim_no' => $data['claim_no'] ?? '',
+                        'amount' => $data['amount'] ?? '',
+                        'particulars' => $data['particulars'] ?? '',
+                        'remarks' => $data['remarks'] ?? '',
+                    ];
+                }
+            }
+        }
+
+        // Extract first and last month from claimsByMonth
+        $monthKeys = array_keys($claimsByMonth);
+        sort($monthKeys);
+        $firstMonth = !empty($monthKeys) ? \Carbon\Carbon::createFromFormat('m_Y', $monthKeys[0])->format('F Y') : null;
+        $lastMonth = !empty($monthKeys) ? \Carbon\Carbon::createFromFormat('m_Y', end($monthKeys))->format('F Y') : null;
+
+        return view('emails.view-timesheet-claim', compact(
+            'type',
+            'token',
+            'consultant',
+            'client',
+            'consultancy',
+            'selectedMonth',
+            'selectedYear',
+            'claimsByMonth',
+            'parentFormId',
+            'firstMonth',
+            'lastMonth'
+        ));
     }
 
-    if ($consultant && $consultant->email) {
-        Mail::to($consultant->email)->send(new TimesheetStatusMail($status, $consultant->emp_name));
-
-        DB::table('consultants')->where('id', $consultant->id)->update([
-            'token' => Str::uuid()->toString(),
-            'updated_at' => now()
+    public function updateTimesheetStatusMailClaim(Request $request)
+    {
+        $request->validate([
+            'status' => 'required|string|in:Approved,Rejected,Draft',
+            'token' => 'required|string',
+            'month_year' => 'required|array',
+            'month_year.*' => 'regex:/^\d{2}_\d{4}$/',
         ]);
-        DB::table('remarks')->insert([
-            'remark' => $remarksMessage,
-            'pdf_link' => $storagePath,
-            'month_of' => $month . '_' . $year,
-            'consultant_id' => $consultant->id,
-            'given_by' => 1,
-            'given_by_type' => 'system',
-            'created_at' => now(),
-            'updated_at' => now(),
+
+        $status = $request->status;
+        $token = $request->token;
+        $monthYearArray = $request->month_year;
+
+        $consultant = DB::table('consultants')->where('claim_token', $token)->first();
+        if (!$consultant) {
+            return response()->json(['status' => false, 'message' => 'Invalid token.'], 404);
+        }
+
+        $client = DB::table('clients')->where('id', $consultant->client_id)->first();
+        $consultancy = $client && $client->user_id ? DB::table('users')->where('id', $client->user_id)->first() : null;
+
+        $allClaimsByMonth = [];
+        $allIds = [];
+
+        foreach ($monthYearArray as $monthYearKey) {
+            [$month, $year] = explode('_', $monthYearKey);
+
+            $dashboards = DB::table('consultant_dashboard')
+                ->where('user_id', $consultant->user_id)
+                ->where('type', 'claims')
+                ->where('month_year', $monthYearKey)
+                ->get();
+
+            foreach ($dashboards as $record) {
+                $decoded = json_decode($record->record, true);
+                $entries = (is_array($decoded) && isset($decoded[0])) ? $decoded : (is_array($decoded) ? [$decoded] : []);
+
+                foreach ($entries as $data) {
+                    if (!empty($data['applyOnCell'])) {
+                        $dateStr = preg_replace('/\s*\/\s*/', '-', trim($data['applyOnCell']));
+                        try {
+                            $date = \Carbon\Carbon::createFromFormat('d-m-Y', $dateStr);
+                        } catch (\Exception $e) {
+                            continue;
+                        }
+
+                        $monthYear = $date->format('m_Y');
+                        $day = (int)$date->format('d');
+
+                        $allClaimsByMonth[$monthYear][$day][] = [
+                            'type' => strtolower(trim($data['expenseType'] ?? 'other')),
+                            'claim_no' => $data['claim_no'] ?? '',
+                            'amount' => $data['amount'] ?? '',
+                            'particulars' => $data['particulars'] ?? '',
+                            'remarks' => $data['remarks'] ?? '',
+                        ];
+                    }
+                }
+
+                $allIds[] = $record->id;
+            }
+        }
+
+        $remarksMessage = 'Harris J system update - ' . match ($status) {
+            'Approved' => 'Your claim has been Approved.',
+            'Rejected' => 'Your claim has been Rejected.',
+            'Draft' => 'Your claim has been sent for Rework.',
+        };
+
+        $viewData = [
+            'claimsByMonth' => $allClaimsByMonth,
+            'token' => $token,
+            'consultant' => $consultant,
+            'client' => $client,
+            'consultancy' => $consultancy,
+            'selectedMonth' => '', // Optional: You may format a range string if needed
+            'selectedYear' => '',
+            'isPdf' => true
+        ];
+
+        $pdf = \PDF::loadView('emails.claims_timesheet_reporting_manager_body', $viewData);
+        $fileName = 'claims_' . $consultant->id . '_' . time() . '.pdf';
+        $folder = storage_path('app/public/consultant/claims');
+        if (!File::exists($folder)) {
+            File::makeDirectory($folder, 0755, true);
+        }
+        $filePath = $folder . '/' . $fileName;
+        $storagePath = 'storage/consultant/claims/' . $fileName;
+        file_put_contents($filePath, $pdf->output());
+
+        DB::table('consultant_dashboard')
+            ->whereIn('id', $allIds)
+            ->update(['status' => $status, 'updated_at' => now()]);
+
+        if ($consultant->email) {
+            Mail::to($consultant->email)->send(new \App\Mail\ClaimStatusMail($status, $consultant->emp_name));
+
+            DB::table('consultants')->where('id', $consultant->id)->update([
+                'claim_token' => Str::uuid()->toString(),
+                'updated_at' => now()
+            ]);
+
+            foreach ($monthYearArray as $monthYearKey) {
+                DB::table('remarks')->insert([
+                    'remark' => $remarksMessage,
+                    'pdf_link' => $storagePath,
+                    'month_of' => $monthYearKey,
+                    'consultant_id' => $consultant->id,
+                    'given_by' => 1,
+                    'given_by_type' => 'system',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        return response()->json(['status' => true, 'message' => 'Claim status updated to ' . $status]);
+    }
+
+    public function showReportingManagerView() {
+        $userId = 15;
+        $selectedMonth = 5;
+        $selectedYear = 2025;
+        $consultant = \App\Models\Consultant::where('user_id', $userId)->first();
+        if (!$consultant) {
+            abort(404, 'Consultant not found');
+        }
+        $token = $consultant->token ?? null;
+        $data = ['type' => 'Timesheet Submission', 'token' => $token, 'consultant' => $consultant, 'client' => DB::table('clients')->where('id', $consultant->client_id)->first(), 'consultancy' => DB::table('users')->where('id', $consultant->client_id)->first(), 'dashboards' => DB::table('consultant_dashboard')->where('user_id', $consultant->user_id)->where('type', 'timesheet')->where('status', 'Submitted')->get(), 'selectedYear' => $selectedYear, 'selectedMonth' => $selectedMonth, 'totalWorkingHours' => 0, 'isPdf' => false];
+        foreach ($data['dashboards'] as $dashboard) {
+            $record = json_decode($dashboard->record, true);
+            if (!empty($record['workingHours'])) {
+                $data['totalWorkingHours'] += floatval($record['workingHours']);
+            }
+        }
+        return view('emails.claims_timesheet_reporting_manager_body', $data);
+    }
+
+    public function getAllSubmittedClaimsByUser($userId = 15)
+    {
+        $consultant = DB::table('consultants')->where('user_id', $userId)->first();
+        $claimToken = $consultant->claim_token ?? null;
+
+        // Fetch related client info
+        $client = null;
+        if (!empty($consultant->client_id)) {
+            $client = DB::table('clients')->where('id', $consultant->client_id)->first();
+        }
+
+        // Fetch consultancy (user of the client)
+        $consultancy = $client ? DB::table('users')->where('id', $client->user_id)->first() : null;
+
+        // Fetch consultant's user data
+        $user = DB::table('users')->where('id', $userId)->first();
+
+        // Fetch submitted claims
+        $records = DB::table('consultant_dashboard')
+            ->where('user_id', $userId)
+            ->where('status', 'Submitted')
+            ->where('type', 'claims')
+            ->orderBy('month_year')
+            ->get();
+
+        $claimsByMonth = [];
+
+        foreach ($records as $record) {
+            $decoded = json_decode($record->record, true);
+            $entries = (is_array($decoded) && isset($decoded[0])) ? $decoded : (is_array($decoded) ? [$decoded] : []);
+
+            foreach ($entries as $data) {
+                if (!empty($data['applyOnCell'])) {
+                    $dateStr = preg_replace('/\s*\/\s*/', '-', trim($data['applyOnCell']));
+
+                    try {
+                        $date = \Carbon\Carbon::createFromFormat('d-m-Y', $dateStr);
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+
+                    $monthYear = $date->format('m_Y');
+                    $day = (int)$date->format('d');
+
+                    $claimsByMonth[$monthYear][$day][] = [
+                        'id' => $record->id,
+                        'type' => strtolower(trim($data['expenseType'] ?? 'other')),
+                        'claim_no' => $data['claim_no'] ?? '',
+                        'amount' => $data['amount'] ?? '',
+                        'particulars' => $data['particulars'] ?? '',
+                        'remarks' => $data['remarks'] ?? '',
+                    ];
+                }
+            }
+        }
+
+        return view('emails.claims_timesheet_reporting_manager_body', [
+            'claimsByMonth' => $claimsByMonth,
+            'token' => $claimToken,
+            'consultant' => $consultant,
+            'client' => $client,
+            'user' => $user,
+            'consultancy' => $consultancy,
+            'dashboards' => $records, // Add this if you want to extract parent_form_id later
         ]);
     }
 
-    return response()->json([
-        'status' => true,
-        'message' => 'Timesheet status updated to ' . $status
-    ]);
-}
+    public function setMonthYear(Request $request)
+    {
+        $request->validate([
+            'month' => 'required|integer|min:0|max:11',  // 0-indexed from JS
+            'year' => 'required|integer|min:2000|max:2100',
+        ]);
+
+        $month = str_pad($request->month + 1, 2, '0', STR_PAD_LEFT); // Convert to 1-indexed
+        $year = $request->year;
+
+        $monthYear = $month . '_' . $year;
+
+        session([
+            'consultant_selected_month' => $month,
+            'consultant_selected_year' => $year,
+            'consultant_selected_month_year' => $monthYear,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Month and year saved to session.',
+            'month_year' => $monthYear
+        ]);
+    }
 
 
 }

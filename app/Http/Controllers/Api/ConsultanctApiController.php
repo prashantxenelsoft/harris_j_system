@@ -209,19 +209,23 @@ class ConsultanctApiController extends Controller
     public function getDashboardCliamTimelineData(Request $request)
     {
         $user = $request->user();
+
         $rawRecords = DB::table('consultant_dashboard')
             ->where('user_id', $user->id)
             ->where('type', 'claims')
             ->get();
+
         $grouped = [];
+
         foreach ($rawRecords as $item) {
             $record = json_decode($item->record, true);
             $applyDate = trim($record['applyOnCell'] ?? '');
-            if (empty($applyDate)) {
-                continue;
-            }
+            if (empty($applyDate)) continue;
+
             try {
                 $dates = [];
+
+                // Handle date range
                 if (!empty($record['date']) && str_contains($record['date'], 'to')) {
                     [$from, $to] = explode('to', $record['date']);
                     $start = \Carbon\Carbon::createFromFormat('d / m / Y', trim($from));
@@ -232,23 +236,30 @@ class ConsultanctApiController extends Controller
                 } else {
                     $dates[] = \Carbon\Carbon::createFromFormat('d / m / Y', $applyDate);
                 }
+
+                // Fix certificate path
                 if (!empty($record['certificate_path'])) {
                     $filename = str_replace('storage/app/public/', '', $record['certificate_path']);
                     $record['certificate_path'] = url('public/storage/' . ltrim($filename, '/'));
                 }
+
+                // Normalize leaveType
                 if (isset($record['leaveType']) && $record['leaveType'] === 'Custom AL') {
                     $record['leaveType'] = 'AL';
                 }
+
+                // Group by date
                 foreach ($dates as $date) {
-                    if ($date->isFuture()) {
-                        continue;
-                    }
+                    if ($date->isFuture()) continue;
+
                     $monthKey = $date->format('Y-m');
                     $day = $date->day;
-                    if (!isset($grouped[$monthKey])) {
-                        $grouped[$monthKey] = [];
+
+                    if (!isset($grouped[$monthKey][$day])) {
+                        $grouped[$monthKey][$day] = [];
                     }
-                    $grouped[$monthKey][$day] = [
+
+                    $grouped[$monthKey][$day][] = [
                         'id' => $item->id,
                         'user_id' => $item->user_id,
                         'client_id' => $item->client_id,
@@ -261,35 +272,39 @@ class ConsultanctApiController extends Controller
                 continue;
             }
         }
+
+        // Final formatting
         $finalData = [];
+
         foreach ($grouped as $month => $days) {
             $carbon = \Carbon\Carbon::createFromFormat('Y-m', $month);
             $daysInMonth = $carbon->daysInMonth;
             $daysList = [];
+
             for ($i = 1; $i <= $daysInMonth; $i++) {
-                $fullDate = $carbon
-                    ->copy()
-                    ->day($i)
-                    ->format('d / m / Y');
+                $fullDate = $carbon->copy()->day($i)->format('d / m / Y');
                 $fullCarbonDate = \Carbon\Carbon::createFromFormat('d / m / Y', $fullDate);
-                if ($fullCarbonDate->isFuture()) {
-                    continue;
-                }
+                if ($fullCarbonDate->isFuture()) continue;
+
                 if (isset($days[$i])) {
-                    if (empty($days[$i]['details']['date'])) {
-                        $days[$i]['details']['date'] = $fullDate;
+                    foreach ($days[$i] as $entry) {
+                        if (empty($entry['details']['date'])) {
+                            $entry['details']['date'] = $fullDate;
+                        }
+
+                        $daysList[] = [
+                            'day' => $i,
+                            'id' => $entry['id'],
+                            'user_id' => $entry['user_id'],
+                            'client_id' => $entry['client_id'],
+                            'type' => $entry['type'],
+                            'details' => $entry['details'],
+                            'status' => $entry['status'],
+                        ];
                     }
-                    $daysList[] = [
-                        'day' => $i,
-                        'id' => $days[$i]['id'],
-                        'user_id' => $days[$i]['user_id'],
-                        'client_id' => $days[$i]['client_id'],
-                        'type' => $days[$i]['type'],
-                        'details' => $days[$i]['details'],
-                        'status' => $days[$i]['status'],
-                    ];
                 }
             }
+
             if (!empty($daysList)) {
                 $finalData[] = [
                     'month' => $carbon->format('F Y'),
@@ -299,6 +314,7 @@ class ConsultanctApiController extends Controller
                 ];
             }
         }
+
         return response()->json([
             'success' => true,
             'message' => 'ClaimTimeline data compiled successfully.',
@@ -1598,6 +1614,91 @@ class ConsultanctApiController extends Controller
 
         return response()->json(['success' => true, 'message' => 'New claim added.']);
     }
+
+    public function getClaimAndGetCopies(Request $request)
+    {
+        $user = auth()->user();
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        if (!$user || !$month || !$year) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Missing required parameters.',
+            ], 400);
+        }
+
+        $rawRecords = DB::table('consultant_dashboard')
+            ->where('user_id', $user->id)
+            ->where('type', 'claims')
+            ->get();
+
+        $groupedClaims = [];
+        $getCopies = [];
+
+        foreach ($rawRecords as $item) {
+            $record = json_decode($item->record, true);
+            $applyOnCell = $record['applyOnCell'] ?? null;
+            $claimNo = $record['claim_no'] ?? null;
+
+            if ($applyOnCell && $claimNo) {
+                try {
+                    $date = \Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
+                    if ($date->month == $month && $date->year == $year) {
+                        $groupKey = $claimNo . '_' . $applyOnCell;
+
+                        // group for modal (claims)
+                        if (!isset($groupedClaims[$groupKey])) {
+                            $groupedClaims[$groupKey] = [
+                                'claim_no' => $claimNo,
+                                'apply_date' => $applyOnCell,
+                                'status' => $item->status,
+                                'entries' => []
+                            ];
+                        }
+
+                        $record['id'] = $item->id;
+                        $record['status'] = $item->status;
+                        $groupedClaims[$groupKey]['entries'][] = $record;
+
+                        // group for getCopies view
+                        if (!isset($getCopies[$claimNo])) {
+                            $getCopies[$claimNo] = [
+                                'claim_no' => $claimNo,
+                                'amount' => 0,
+                                'items' => []
+                            ];
+                        }
+
+                        $getCopies[$claimNo]['amount'] += (float) ($record['amount'] ?? 0);
+                        $getCopies[$claimNo]['items'][] = $record;
+                    }
+
+                } catch (\Exception $e) {
+                    continue;
+                }
+            }
+        }
+
+        // Final formatting
+        $claims = [];
+        foreach ($groupedClaims as $group) {
+            $group['count'] = count($group['entries']);
+            $claims[] = $group;
+        }
+
+        $copies = array_values($getCopies); // reset keys
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Grouped claims fetched successfully.',
+            'data' => [
+                'claims' => $claims,
+                'getCopies' => $copies
+            ],
+        ]);
+    }
+
 
 
 

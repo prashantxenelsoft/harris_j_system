@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use App\Models\Hr;
+use App\Models\Client;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Consultant;
 use Illuminate\Support\Facades\Auth;
@@ -13,13 +14,16 @@ class HrController extends Controller {
         if (!$user) {
             return view('errors.404');
         }
-        $data = $this->getFullUserHierarchyIncludingAbove($user->id, $user->role_id);
+        //$data = $this->getFullUserHierarchyIncludingAbove($user->id, $user->role_id);
+        $clients = Client::all();
+        //echo "<pre>";print_r($clients);die;
+        
         return view('hr.index', [
             'userData'      => $user,
-            'consultancies' => $data['consultancies'],
-            'hrs'           => $data['hrs'],
-            'clients'       => $data['clients'],
-            'consultants'   => $data['consultants']
+            // 'consultancies' => $data['consultancies'],
+            // 'hrs'           => $data['hrs'],
+            'clients'       => $clients,
+            // 'consultants'   => $data['consultants']
         ]);
     }
     public function getFullUserHierarchyIncludingAbove($userId, $roleId) {
@@ -304,7 +308,7 @@ class HrController extends Controller {
             'mobile_number_code' => 'nullable|string|max:10',
             'mobile_number' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:100',
-            'profile_picture' => 'nullable|file|mimes:jpg,jpeg,png|max:1024',
+            'profile_image' => 'nullable|file|mimes:jpg,jpeg,png|max:1024',
             'full_address' => 'nullable|string',
             'show_address_input' => 'nullable|string',
             'joining_date' => 'nullable|date',
@@ -318,18 +322,13 @@ class HrController extends Controller {
             'receipt_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        // ✅ exclude _token, profile_picture, and receipt_file from direct DB insert
-        $data = $request->except(['_token', 'profile_picture', 'receipt_file', 'edit_id']);
+       
+        $data = $request->except(['_token', 'profile_image', 'edit_id']);
 
-
+        $data['created_by_user_id'] = auth()->id(); 
         // ✅ handle profile picture file
-        if ($request->hasFile('profile_picture')) {
-            $data['profile_picture'] = $request->file('profile_picture')->store('consultants/profile', 'public');
-        }
-
-        // ✅ handle receipt file
-        if ($request->hasFile('receipt_file')) {
-            $data['receipt_file'] = $request->file('receipt_file')->store('consultants/receipts', 'public');
+        if ($request->hasFile('profile_image')) {
+            $data['profile_image'] = $request->file('profile_image')->store('consultants/profile', 'public');
         }
 
         // ✅ insert into hr_consultant table
