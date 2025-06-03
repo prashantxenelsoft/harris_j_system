@@ -3,17 +3,28 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use App\Models\Hr;
+use App\Models\User;
 use App\Models\Client;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Consultant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Mail;
+use App\Mail\TestMail;
 class HrController extends Controller {
     public function index() {
         $user = Auth::user();
         if (!$user) {
             return view('errors.404');
         }
+         $consultants = DB::table('consultants')
+        ->leftJoin('clients', 'consultants.client_id', '=', 'clients.id') // if using foreign key
+        ->select(
+            'consultants.*',
+            'clients.serving_client as client_name'
+        )
+        ->orderBy('consultants.id', 'desc')
+        ->get();
         //$data = $this->getFullUserHierarchyIncludingAbove($user->id, $user->role_id);
         $clients = Client::all();
         //echo "<pre>";print_r($clients);die;
@@ -23,7 +34,7 @@ class HrController extends Controller {
             // 'consultancies' => $data['consultancies'],
             // 'hrs'           => $data['hrs'],
             'clients'       => $clients,
-            // 'consultants'   => $data['consultants']
+            'consultants'   => $consultants
         ]);
     }
     public function getFullUserHierarchyIncludingAbove($userId, $roleId) {
@@ -314,7 +325,7 @@ class HrController extends Controller {
             'joining_date' => 'nullable|date',
             'resignation_date' => 'nullable|date',
             'status' => 'nullable|string|max:50',
-            'select_client' => 'nullable|string|max:100',
+            // 'select_client' => 'nullable|string|max:100',
             'select_holiday' => 'nullable|string|max:100',
             'designation' => 'nullable|string|max:100',
             'login_email' => 'nullable|email|max:100',
@@ -322,17 +333,53 @@ class HrController extends Controller {
             'receipt_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
+        // ✅ Duplicate check for consultant email
+        if ($request->email && DB::table('consultants')->where('email', $request->email)->exists()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'The entered consultant email already exists. Please use a different one.',
+            ]);
+        }
+
+        // ✅ Duplicate check for login_email in users table
+        if (DB::table('users')->where('email', $request->login_email)->exists()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'This user credentials user ID (email) is already registered. Please choose another one.',
+            ]);
+        }
+
        
         $data = $request->except(['_token', 'profile_image', 'edit_id']);
 
-        $data['created_by_user_id'] = auth()->id(); 
         // ✅ handle profile picture file
         if ($request->hasFile('profile_image')) {
             $data['profile_image'] = $request->file('profile_image')->store('consultants/profile', 'public');
         }
 
-        // ✅ insert into hr_consultant table
-        DB::table('hr_consultant')->insert($data);
+        $consultantId = DB::table('consultants')->insertGetId(
+            array_merge($data, ['user_id' => null]) // insert but keep user_id blank
+        );
+        $user = User::create([
+            'name'     => $data['emp_name'],
+            'email'    => $data['login_email'],
+            'role_id'  => 11,
+            'status'   => $data['status'],
+            'created_by_user_id' => auth()->id(),
+        ]);
+        $userinsertedId = $user->id;
+        DB::table('consultants')->where('id', $consultantId)->update(['user_id' => $userinsertedId]);
+
+        if($request->reset_password == 1)
+        {
+            $data = [
+                'name' => $request->emp_name,
+                'message' => 'Here is the important link you requested.',
+                'url' => route('insert.password', ['id' => $userinsertedId]) // You can replace this with any dynamic URL
+            ];
+    
+            Mail::to($request->login_email)->send(new TestMail($data));
+        }
 
         return response()->json([
             'message' => 'Consultant added successfully!',

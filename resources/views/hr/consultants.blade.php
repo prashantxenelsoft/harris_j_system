@@ -647,14 +647,13 @@
                                     </select>
                                 </div>
                                 <div class="consultancy-form-col">
-                                    <select name="select_client" required>
+                                    <select name="client_id" required>
                                         <option value="" selected disabled>Select Client</option>
                                         @foreach ($clients as $client)
                                             <option value="{{ $client->id }}">{{ $client->serving_client }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-
 
                                 <div class="consultancy-form-col">
                                     <select name="select_holiday" required>
@@ -663,6 +662,17 @@
                                         <option value="Holiday 2">Holiday 2</option>
                                     </select>
                                 </div>
+
+                                <div class="consultancy-form-col">
+                                  <select name="residential_status" id="residential_status" required>
+                                      <option value="" selected disabled>Select Residential Status</option>
+                                      <option value="SR">SR - Singapore Resident</option>
+                                      <option value="SPR">SPR - Singapore Permanent Resident</option>
+                                      <option value="PP">PP - Passport Holder</option>
+                                      <option value="EP">EP - Employment Pass</option>
+                                  </select>
+                                </div>
+
                             </div>
 
                             <h3>Designation</h3>
@@ -676,7 +686,12 @@
                                         <!-- <option value="Consultant">Consultant</option> -->
                                     </select>
                                 </div>
+                                <div class="consultancy-form-col">
+                                  <input type="text" name="billing_amount" placeholder="Enter Billing Amount" required />
+                                </div>
                             </div>
+
+                            
 
                             <h3>User Credentials</h3>
                             <div class="form-row-consultancy">
