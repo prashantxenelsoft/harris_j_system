@@ -387,4 +387,89 @@ class HrController extends Controller {
         ]);
     }
 
+    public function update_consultant(Request $request, $id)
+    {
+        $request->validate([
+            'emp_name' => 'required|string|max:100',
+            'emp_code' => 'nullable|string|max:50',
+            'sex' => 'nullable|string',
+            'dob' => 'nullable|date',
+            'mobile_number_code' => 'nullable|string|max:10',
+            'mobile_number' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:100',
+            'profile_image' => 'nullable|file|mimes:jpg,jpeg,png|max:1024',
+            'full_address' => 'nullable|string',
+            'show_address_input' => 'nullable|string',
+            'joining_date' => 'nullable|date',
+            'resignation_date' => 'nullable|date',
+            'status' => 'nullable|string|max:50',
+            'select_holiday' => 'nullable|string|max:100',
+            'designation' => 'nullable|string|max:100',
+            'login_email' => 'nullable|email|max:100',
+            'reset_password' => 'nullable|in:0,1',
+            'receipt_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ]);
+
+        // ✅ Check if consultant exists
+        $consultant = DB::table('consultants')->where('id', $id)->first();
+        if (!$consultant) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Consultant not found.',
+            ], 404);
+        }
+
+        // ✅ Prevent updating to an existing email
+        if ($request->email && DB::table('consultants')->where('email', $request->email)->where('id', '!=', $id)->exists()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'The entered consultant email already exists.',
+            ]);
+        }
+
+        if ($request->login_email && DB::table('users')->where('email', $request->login_email)->where('id', '!=', $consultant->user_id)->exists()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'This user ID (login email) is already registered.',
+            ]);
+        }
+
+        $data = $request->except(['_token', 'profile_image', 'edit_id', '_method']);
+
+        // ✅ Handle profile picture update
+        if ($request->hasFile('profile_image')) {
+            $data['profile_image'] = $request->file('profile_image')->store('consultants/profile', 'public');
+        }
+
+        // ✅ Update consultant
+        DB::table('consultants')->where('id', $id)->update($data);
+
+        // ✅ Update user info
+        if ($consultant->user_id) {
+            DB::table('users')
+                ->where('id', $consultant->user_id)
+                ->update([
+                    'name' => $request->emp_name,
+                    'email' => $request->login_email,
+                    'status' => $request->status,
+                ]);
+        }
+
+        // ✅ Send reset password email if requested
+        if ($request->reset_password == 1 && $consultant->user_id) {
+            $data = [
+                'name' => $request->emp_name,
+                'message' => 'Here is the important link you requested.',
+                'url' => route('insert.password', ['id' => $consultant->user_id])
+            ];
+
+            Mail::to($request->login_email)->send(new TestMail($data));
+        }
+
+        return response()->json([
+            'message' => 'Consultant updated successfully!',
+        ]);
+    }
+
+
 }

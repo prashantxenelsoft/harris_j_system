@@ -233,7 +233,30 @@
 
                                         <td>
                                             <div class="icon-group-listing">
-                                                <span><i class="fas fa-pen-nib"></i></span>
+                                                <span class="edit-user"
+                                                    data-id="{{ $c->id }}"
+                                                    data-name="{{ $c->emp_name }}"
+                                                    data-code="{{ $c->emp_code }}"
+                                                    data-sex="{{ $c->sex }}"
+                                                    data-dob="{{ $c->dob }}"
+                                                    data-email="{{ $c->email }}"
+                                                    data-mobile_country_code="{{ $c->mobile_number_code }}"
+                                                    data-mobile="{{ $c->mobile_number }}"
+                                                    data-status="{{ $c->status }}"
+                                                    data-designation="{{ $c->designation }}"
+                                                    data-client="{{ $c->client_id }}"
+                                                    data-resstatus="{{ $c->residential_status }}"
+                                                    data-image="{{ asset('storage/app/public/' . $c->profile_image) }}"
+                                                    data-login_email="{{ $c->login_email }}"
+                                                    data-billing="{{ $c->billing_amount }}"
+                                                    data-joining_date="{{ $c->joining_date }}"
+                                                    data-resignation_date="{{ $c->resignation_date }}"
+                                                    data-holiday="{{ $c->select_holiday }}"
+                                                    data-show_address="{{ $c->show_address_input }}"
+                                                    data-full_address="{{ $c->full_address }}">
+                                                <i class="fas fa-pen-nib"></i>
+                                                </span>
+
                                                 <span><i class="fa fa-trash"></i></span>
                                             </div>
                                         </td>
@@ -301,6 +324,228 @@
             });
         });
     </script>
+
+    <script>
+        function setIntlTelInput(selector, dialCode) {
+            let countryISO = Object.keys(countryCode).find(
+                key => countryCode[key] === dialCode
+            ) || "in";
+
+            $(selector).intlTelInput("destroy").intlTelInput({
+                initialCountry: countryISO,
+                separateDialCode: true,
+            });
+        }
+        function updateStartDateTable(date) {
+            const thead = document.querySelector("#dateTable thead");
+            if (thead) thead.remove();
+
+            const tableBody = document.querySelector("#dateTable tbody");
+            tableBody.innerHTML = "";
+
+            const newRow = tableBody.insertRow();
+            const newCell = newRow.insertCell(0);
+            newCell.textContent = date;
+        }
+
+        function updateEndDateTable(date) {
+            const thead = document.querySelector("#enddateTable thead");
+            if (thead) thead.remove();
+
+            const tableBody = document.querySelector("#enddateTable tbody");
+            tableBody.innerHTML = "";
+
+            const newRow = tableBody.insertRow();
+            const newCell = newRow.insertCell(0);
+            newCell.textContent = date;
+        }
+
+        $(document).on("click", ".edit-user", function () {
+            const el = $(this);
+            const form = $('#userManagmentForm'); // ⬅️ scope to form ID
+
+            // ✅ Show form and hide list
+            $(".add-user-form-section").removeClass("d-none");
+            $(".pt-4").addClass("d-none");
+            $("#consultancy_form_heading").text("Edit Consultant");
+
+            // ✅ Basic inputs
+            form.find('input[name="emp_name"]').val(el.data('name'));
+            form.find('input[name="emp_code"]').val(el.data('code'));
+            form.find('input[name="dob"]').val(el.data('dob'));
+            form.find('input[name="email"]').val(el.data('email'));
+            form.find('input[name="login_email"]').val(el.data('login_email'));
+            form.find('input[name="billing_amount"]').val(el.data('billing'));
+            form.find('input[name="edit_id"]').val(el.data('id'));
+            setIntlTelInput("#mobile_number", el.data("mobile_country_code"));
+
+            setTimeout(() => {
+                $('#mobile_number').val(el.data("mobile"));
+            }, 200);
+
+            // ✅ Dropdowns with trigger
+            form.find('select[name="status"]').val(el.data('status')).trigger("change");
+            form.find('select[name="designation"]').val(el.data('designation')).trigger("change");
+            form.find('select[name="client_id"]').val(el.data('client')).trigger("change");
+            form.find('select[name="residential_status"]').val(el.data('resstatus')).trigger("change");
+            form.find('select[name="select_holiday"]').val(el.data('holiday') || '').trigger("change");
+
+
+            // ✅ Gender radios
+            const sexVal = el.data('sex');
+            if (sexVal && sexVal.startsWith("Other:")) {
+                form.find('input[name="sex"][value="Others"]').prop("checked", true).trigger("change");
+                $('#custom_sex').val(sexVal.replace("Other:", ""));
+                $("#otherGenderInput").show();
+            } else {
+                form.find('input[name="sex"]').prop("checked", false);
+                form.find('input[name="sex"][value="' + sexVal + '"]').prop("checked", true).trigger("change");
+                $("#otherGenderInput").hide();
+                $('#custom_sex').val('');
+            }
+
+            // ✅ Address block
+            document.getElementById("manual_address_input").style.display = "none";
+            //document.getElementById("manual_address_input").setAttribute("required", "required");
+            $('#full_address').val(el.data('full_address'));
+            $('#show_address_input').val(el.data('show_address'));
+            $('#show_address').text(el.data('show_address'));
+
+
+            const joiningDate = $(this).data("joining_date");
+            const resignationDate = $(this).data("resignation_date");
+
+            // Delay to ensure date input is ready (especially if modal just opened)
+            setTimeout(() => {
+                // Set joining date and manually update table
+                $("#startDate").val(joiningDate);
+                updateStartDateTable(joiningDate); // custom function below
+
+                // Set resignation date and manually update table
+                $("#endDate").val(resignationDate);
+                updateEndDateTable(resignationDate);
+            }, 100);
+
+            let fullAddressStr = $(this).data("full_address"); // get the string
+            let addressObj = {};
+
+            fullAddressStr.split(",").forEach(function (item) {
+                let parts = item.split(":");
+                if (parts.length === 2) {
+                    let key = $.trim(parts[0]);
+                    let value = $.trim(parts[1]);
+                    addressObj[key] = value;
+                }
+            });
+
+            $('select[name="address_type"]').val(addressObj.addressType);
+            $('select[name="country"]').val(addressObj.country);
+            $('input[name="postal_code"]').val(addressObj.postalCode);
+            $('input[name="street_name"]').val(addressObj.streetName);
+            $('input[name="unit_number"]').val(addressObj.unitNumber);
+            $('input[name="land_mark"]').val(addressObj.landMark);
+            $('input[name="town_area"]').val(addressObj.townArea);
+            $('input[name="city"]').val(addressObj.city);
+
+            // Step 1: Set country dropdown value
+            $('select[name="country"]').val(addressObj.country);
+
+            // Step 2: Load corresponding states
+            let states = countryStateData[addressObj.country] || [];
+
+            // Step 3: Clear existing state options
+            let $stateSelect = $('select[name="state"]');
+            $stateSelect.empty();
+
+            // Step 4: Add default option
+            $stateSelect.append('<option value="" disabled selected>Select State / Province *</option>');
+
+            // Step 5: Populate state options
+            states.forEach(function (state) {
+                let selected = state === addressObj.state ? "selected" : "";
+                $stateSelect.append('<option value="' + state + '" ' + selected + ">" + state + "</option>");
+            });
+
+            // Step 6: If the state is NOT in the countryStateData list, add and select it
+            if (!states.includes(addressObj.state)) {
+                $stateSelect.append('<option value="' + addressObj.state + '" selected>' + addressObj.state + "</option>");
+            }
+
+            $('input[name="google_plus_code"]').val(addressObj.plusCode);
+
+            // Set default checkbox
+            if (addressObj.isDefault && addressObj.isDefault.toLowerCase() === "yes") {
+                $('input[name="set_default"]').prop("checked", true);
+            } else {
+                $('input[name="set_default"]').prop("checked", false);
+            }
+
+
+            $('.consultancy-form-address-feed-form').removeClass('d-none');
+
+            const imgSrc = el.data('image');
+
+            if (imgSrc) {
+                uploadedImgSrc = imgSrc;
+                $('#previewBox').addClass('active');
+                $('#previewHint').show();
+            } else {
+                uploadedImgSrc = "";
+                $('#previewBox').removeClass('active');
+                $('#previewHint').hide();
+            }
+
+
+            // Get data
+            const addressText = $('#show_address_input').val();
+            const plusCode = $('#google-map-field').val(); // or fetch from your data
+
+            if (addressText) {
+                const newAddressHTML = `
+                    <div class="default-address">
+                        <div class="default-address-badge">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <h6>Default</h6>
+                        </div>
+                        <div class="address-text-col-popup">
+                            <div class="address-default-text">
+                                <p>${addressText}</p>
+                            </div>
+                            <div class="address-default-btn-group">
+                                <div class="icon-group-listing">
+                                    <span><i class="fa-solid fa-angle-down accordion-toggle" data-bs-toggle="collapse" data-bs-target="#demo1"></i></span>
+                                    <span><i class="fas fa-pen-nib"></i></span>
+                                    <span><i class="fa fa-trash" aria-hidden="true"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        ${plusCode ? `
+                        <div class="default-copy-address">
+                            <img src="{{ asset('public/assets/latest/images/icon-c.png') }}" class="img-fluid" />
+                            <h5>${plusCode}</h5>
+                            <img src="{{ asset('public/assets/latest/images/icon-c1.png') }}" class="img-fluid" />
+                        </div>` : ""}
+                    </div>`;
+
+                $('#existingAddressContent')
+                .removeClass('blank-address-content address-view-render') // remove both if needed
+                .html(newAddressHTML);
+            } else {
+                $('#existingAddressContent').html(`
+                    <div class="blank-address-content">
+                        <img src="/public/assets/latest/images/no-data-2.png" class="img-fluid" />
+                        <h5>Add Address</h5>
+                    </div>
+                `);
+            }
+
+
+
+
+        });
+    </script>
+
+
 
     <div class="add-user-form-section d-none">
         <div class="hj-add-consultancy-screen">
@@ -518,7 +763,7 @@
                                 </div>
 
                                 <div class="consultancy-form-col">
-                                    <input readonly id="manual_address_input" type="text" style="border: 3px dashed #a8b9ca; border-radius: 6px;" required />
+                                    <input readonly id="manual_address_input" type="text" style="border: 3px dashed #a8b9ca; border-radius: 6px;" />
                                     <input type="hidden" id="full_address" name="full_address" />
                                     <input type="hidden" id="show_address_input" name="show_address_input" />
                                     <div class="consultancy-form-address-feed-form d-none">
@@ -765,7 +1010,7 @@
                                                 <div class="address-popup-right-col">
                                                     <h4>Address</h4>
 
-                                                    <div class="blank-address-content">
+                                                    <div id="existingAddressContent" class="address-view-render blank-address-content">
                                                         <img src="{{ asset('public/assets/latest/images/no-data-2.png') }}" class="img-fluid" />
                                                         <h5>Add Address</h5>
                                                     </div>
@@ -943,18 +1188,16 @@
             var httpMethod = "";
 
             if (editId) {
-                // If edit_id exists, it's an Update
-                actionUrl = "{{ url('consultancies/update-user') }}/" + editId;
+                // Update
+                actionUrl = "{{ url('hr/update-consultant') }}/" + editId;
                 formData.append("_method", "PUT");
             } else {
-                // Add new record
-                actionUrl = "{{ route('consultancy.add_user') }}"; //
+                // Add
+                actionUrl = "{{ route('hr.add_consultant') }}";
             }
 
-            //console.log(Object.fromEntries(formData.entries()));
-
             $.ajax({
-                url: "{{ route('hr.add_consultant') }}",
+                url: actionUrl,
                 method: "POST",
                 data: formData,
                 processData: false,
@@ -1347,194 +1590,6 @@
             });
         });
 
-        $(document).on("click", ".edit-user", function () {
-            $('input[name="edit_id"]').val($(this).data("id"));
-            $('input[name="emp_name"]').val($(this).data("emp_name"));
-            $('input[name="emp_code"]').val($(this).data("emp_code"));
-            $('input[name="full_address"]').val($(this).data("full_address"));
-            $('input[name="reset_password"]').prop("checked", $(this).data("reset_password") == 1);
-            const mobileNumber = $(this).data("mobile_number");
-
-            $("#mobile_number").val(mobileNumber);
-            setIntlTelInput("#mobile_number", $(this).data("mobile_number_code"));
-
-            const sex = $(this).data("sex");
-            const dob = $(this).data("dob");
-
-            // --- Set SEX ---
-            if (sex.startsWith("Other:")) {
-                const customValue = sex.split("Other:")[1];
-                $("#sex_others").prop("checked", true); // Check "Others"
-                $("#otherGenderInput").show(); // Show textbox
-                $("#custom_sex").val(customValue); // Fill custom gender
-            } else {
-                $(`input[name="sex"][value="${sex}"]`).prop("checked", true); // Check Male/Female
-                $("#otherGenderInput").hide(); // Hide custom input if not Others
-                $("#custom_sex").val(""); // Clear value
-            }
-
-            $("#dob").val(dob);
-
-            const joiningDate = $(this).data("joining_date");
-            const resignationDate = $(this).data("resignation_date");
-
-            // Delay to ensure date input is ready (especially if modal just opened)
-            setTimeout(() => {
-                // Set joining date and manually update table
-                $("#startDate").val(joiningDate);
-                updateStartDateTable(joiningDate); // custom function below
-
-                // Set resignation date and manually update table
-                $("#endDate").val(resignationDate);
-                updateEndDateTable(resignationDate);
-            }, 100);
-
-            let fullAddressStr = $(this).data("full_address"); // get the string
-            let addressObj = {};
-
-            fullAddressStr.split(",").forEach(function (item) {
-                let parts = item.split(":");
-                if (parts.length === 2) {
-                    let key = $.trim(parts[0]);
-                    let value = $.trim(parts[1]);
-                    addressObj[key] = value;
-                }
-            });
-
-            $('select[name="address_type"]').val(addressObj.addressType);
-            $('select[name="country"]').val(addressObj.country);
-            $('input[name="postal_code"]').val(addressObj.postalCode);
-            $('input[name="street_name"]').val(addressObj.streetName);
-            $('input[name="unit_number"]').val(addressObj.unitNumber);
-            $('input[name="land_mark"]').val(addressObj.landMark);
-            $('input[name="town_area"]').val(addressObj.townArea);
-            $('input[name="city"]').val(addressObj.city);
-
-            // Step 1: Set country dropdown value
-            $('select[name="country"]').val(addressObj.country);
-
-            // Step 2: Load corresponding states
-            let states = countryStateData[addressObj.country] || [];
-
-            // Step 3: Clear existing state options
-            let $stateSelect = $('select[name="state"]');
-            $stateSelect.empty();
-
-            // Step 4: Add default option
-            $stateSelect.append('<option value="" disabled selected>Select State / Province *</option>');
-
-            // Step 5: Populate state options
-            states.forEach(function (state) {
-                let selected = state === addressObj.state ? "selected" : "";
-                $stateSelect.append('<option value="' + state + '" ' + selected + ">" + state + "</option>");
-            });
-
-            // Step 6: If the state is NOT in the countryStateData list, add and select it
-            if (!states.includes(addressObj.state)) {
-                $stateSelect.append('<option value="' + addressObj.state + '" selected>' + addressObj.state + "</option>");
-            }
-
-            $('input[name="google_plus_code"]').val(addressObj.plusCode);
-
-            // Set default checkbox
-            if (addressObj.isDefault && addressObj.isDefault.toLowerCase() === "yes") {
-                $('input[name="set_default"]').prop("checked", true);
-            } else {
-                $('input[name="set_default"]').prop("checked", false);
-            }
-
-            $('input[name="show_address_input"]').val($(this).data("show_address_input"));
-
-            let receiptPath = $(this).data("profile_image");
-
-            if (receiptPath) {
-                const pathParts = window.location.pathname.split("/");
-                const basePath = pathParts.length > 1 ? "/" + pathParts[1] : "";
-                const baseUrl = window.location.origin + basePath;
-
-                let imageUrl = baseUrl + "/" + receiptPath;
-
-                uploadedImgSrc = imageUrl;
-                previewBox.innerHTML = '<p style="cursor: pointer; color: green;">Click here to preview</p>'; // Show text only
-                previewHint.style.display = "none"; // Hide any additional hints
-            } else {
-                uploadedImgSrc = "";
-                previewBox.innerHTML = ""; // No text if no image
-                previewHint.style.display = "none";
-            }
-
-            $('input[name="login_email"]').val($(this).data("login_email"));
-            $('input[name="email"]').val($(this).data("email"));
-            $('input[name="dob"]').val($(this).data("dob"));
-
-            $('select[name="designation"]').val($(this).data("designation"));
-            $('select[name="status"]').val($(this).data("status"));
-
-            $(".table-hj-list-section").hide();
-            $(".filter-section-consultancy").hide();
-            $(".add-user-form-section").show(); // use toggle() if you don’t want slide effect
-
-            document.querySelector(".search-section").setAttribute("style", "display: none !important;");
-            const addressBlock = document.getElementsByClassName("consultancy-form-address-feed-form")[0];
-            addressBlock.classList.remove("d-none");
-            document.getElementById("manual_address_input").style.display = "none";
-            document.getElementById("manual_address_input").removeAttribute("required");
-            var addressText = $('input[name="show_address_input"]').val();
-            document.getElementById("show_address").innerText = addressText;
-            $("#consultancy_form_heading").text("Edit Consultancy");
-
-            const streetNameEl = document.querySelector('input[name="street_name"]');
-            const unitNumberEl = document.querySelector('input[name="unit_number"]');
-            const landMarkEl = document.querySelector('input[name="land_mark"]');
-            const stateEl = document.querySelector('select[name="state"]');
-            const countryEl = document.querySelector('select[name="country"]');
-            const postalCodeEl = document.querySelector('input[name="postal_code"]');
-            const plusCodeEl = document.querySelector('input[name="google_plus_code"]');
-
-            const addressParts = [streetNameEl?.value, unitNumberEl?.value, landMarkEl?.value, stateEl?.value, countryEl?.value ? countryEl.value + " -" : ""].filter(Boolean);
-
-            let addressText_edit = addressParts.join(", ");
-            if (postalCodeEl?.value) {
-                addressText_edit += addressText_edit ? " " + postalCodeEl.value : postalCodeEl.value;
-            }
-
-            const plusCode = plusCodeEl?.value || "";
-
-            $('input[name="address_text"]').val(addressText_edit);
-            $('input[name="google_plus_code"]').val(plusCode);
-
-            const newAddressHTML = `
-                <div class="default-address">
-                    <div class="default-address-badge">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <h6>Default</h6>
-                    </div>
-                    <div class="address-text-col-popup">
-                        <div class="address-default-text">
-                            <p>${addressText_edit}</p>
-                        </div>
-                        <div class="address-default-btn-group">
-                            <div class="icon-group-listing">
-                                <span><i class="fa-solid fa-angle-down accordion-toggle" data-bs-toggle="collapse" data-bs-target="#demo1"></i></span>
-                                <span><i class="fas fa-pen-nib"></i></span>
-                                <span><i class="fa fa-trash" aria-hidden="true"></i></span>
-                            </div>
-                        </div>
-                    </div>
-                    ${
-                        plusCode
-                            ? `
-                    <div class="default-copy-address">
-                        <img src="{{ asset('public/assets/latest/images/icon-c.png') }}" class="img-fluid" />
-                        <h5>${plusCode}</h5>
-                        <img src="{{ asset('public/assets/latest/images/icon-c1.png') }}" class="img-fluid" />
-                    </div>`
-                            : ""
-                    }
-                </div>`;
-
-            const addressCol = document.querySelector(".address-popup-right-col");
-            addressCol.innerHTML = `<h4>Address</h4>` + newAddressHTML;
-        });
+       
     </script>
 </div>

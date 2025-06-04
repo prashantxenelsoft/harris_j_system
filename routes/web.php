@@ -117,6 +117,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/consultancies/add-user', [ConsultancyController::class, 'add_user'])->name('consultancy.add_user');
     Route::put('/consultancies/update-user/{id}', [ConsultancyController::class, 'update_user'])->name('consultancy.update_user');
+    Route::put('/hr/update-consultant/{id}', [HrController::class, 'update_consultant'])->name('hr.update_consultant');
 
      Route::post('/hr/add_consultant', [HrController::class, 'add_consultant'])->name('hr.add_consultant');
 
