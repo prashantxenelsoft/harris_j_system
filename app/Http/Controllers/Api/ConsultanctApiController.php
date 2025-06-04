@@ -1569,8 +1569,51 @@ class ConsultanctApiController extends Controller
         ]);
     }
 
+    public function generateClaimCodeFromDate($dateStr)
+    {
+        // Remove all non-digits, e.g., "02 / 04 / 2025" → "02042025"
+        $clean = preg_replace('/\D/', '', $dateStr);
+
+        // Create numeric hash like JS `(hash << 5) - hash + charCode`
+        $hash = 0;
+        $chars = str_split($clean);
+
+        foreach ($chars as $ch) {
+            $charCode = ord($ch); // ASCII value
+            $hash = ($hash << 5) - $hash + $charCode;
+            // Force 32-bit signed int overflow behavior (same as JS `|= 0`)
+            $hash = $hash & 0xFFFFFFFF;
+        }
+
+        // Ensure positive number (like `Math.abs` in JS)
+        if ($hash < 0) {
+            $hash = ~$hash + 1;
+        }
+
+        // Convert to base36 and return first 5 characters in uppercase
+        $base36 = strtoupper(base_convert($hash, 10, 36));
+        return 'CF' . substr($base36, 0, 5);
+    }
+
+
     public function addClaim(Request $request)
     {
+        $recordData = json_decode($request->record, true);
+
+        $clean = preg_replace('/\D/', '', $recordData['applyOnCell']);
+        $hash = 0;
+        $chars = str_split($clean);
+        foreach ($chars as $ch) {
+            $charCode = ord($ch);
+            $hash = (($hash << 5) - $hash + $charCode) & 0xFFFFFFFF;
+        }
+        if ($hash & 0x80000000) {
+            $hash = -((~$hash + 1) & 0xFFFFFFFF);
+        }
+        $hash = abs($hash);
+        $base36 = strtoupper(base_convert($hash, 10, 36));
+        $claim_no = 'CF' . substr($base36, 0, 5);
+
         // ✅ Validate required parameters
         $required = ['record', 'type', 'user_id', 'client_id', 'client_name'];
         foreach ($required as $field) {
@@ -1582,13 +1625,13 @@ class ConsultanctApiController extends Controller
             }
         }
 
-        $recordData = json_decode($request->record, true);
         if (!is_array($recordData)) {
             return response()->json(['success' => false, 'message' => 'Invalid record.']);
         }
 
         // ✅ Add current time
         $recordData['time'] = now()->format('h:i A');
+        $recordData['claim_no'] = $claim_no;
 
         // ✅ Handle file upload
         if ($request->hasFile('certificate')) {
@@ -1597,23 +1640,42 @@ class ConsultanctApiController extends Controller
             $image->storeAs('consultant', $fileName);
             $recordData['certificate_path'] = 'storage/app/public/consultant/' . $fileName;
         } else {
-            $recordData['certificate_path'] = null;
+            $recordData['certificate_path'] = $recordData['certificate_path'] ?? null;
         }
 
-        // ✅ Store into DB
-        DB::table('consultant_dashboard')->insert([
-            'type' => $request->type,
-            'record' => json_encode($recordData),
-            'user_id' => $request->user_id,
-            'client_id' => $request->client_id,
-            'client_name' => $request->client_name,
-            'status' => $request->status ?? 'Draft',
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        // ✅ Insert or Update logic
+        if ($request->filled('edit_id')) {
+            // Update existing record
+            DB::table('consultant_dashboard')
+                ->where('id', $request->edit_id)
+                ->update([
+                    'type' => $request->type,
+                    'record' => json_encode($recordData),
+                    'user_id' => $request->user_id,
+                    'client_id' => $request->client_id,
+                    'client_name' => $request->client_name,
+                    'status' => $request->status ?? 'Draft',
+                    'updated_at' => now()
+                ]);
 
-        return response()->json(['success' => true, 'message' => 'New claim added.']);
+            return response()->json(['success' => true, 'message' => 'Claim updated.']);
+        } else {
+            // Insert new record
+            DB::table('consultant_dashboard')->insert([
+                'type' => $request->type,
+                'record' => json_encode($recordData),
+                'user_id' => $request->user_id,
+                'client_id' => $request->client_id,
+                'client_name' => $request->client_name,
+                'status' => $request->status ?? 'Draft',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'New claim added.']);
+        }
     }
+
 
     public function getClaimAndGetCopies(Request $request)
     {

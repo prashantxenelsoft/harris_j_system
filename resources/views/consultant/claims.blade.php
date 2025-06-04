@@ -962,7 +962,7 @@
 
                                         const modalCustomLeave = new bootstrap.Modal(document.getElementById("otherModal"));
                                         modalCustomLeave.show();
-
+                                        console.log(finalDate);
                                         const finalDatenew = generateClaimCodeFromDate(finalDate);
                                         const claimSpan = document.querySelector("#otherModal .ml_duty_time span span");
                                         if (claimSpan) claimSpan.textContent = finalDatenew;
