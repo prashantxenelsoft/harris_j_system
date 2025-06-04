@@ -81,68 +81,81 @@
                     <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel">
                         <div class="clients-tab-inner-section">
                         <div class="clients-tab-header">
-                            <div class="clients-tab-header-left-col" id="filter_item">
+                            <div class="filter_item clients-tab-header-left-col">
                                 <h6>Consultants</h6>
                                 <input type="text" placeholder="Search..." />
-                                <select>
-                                    <option value="" selected disabled>Designation</option>
+                                <select id="designationFilter">
+                                    <option value="">All Designations</option>
                                     <option value="Designation 1">Designation 1</option>
                                     <option value="Designation 2">Designation 2</option>
                                     <option value="Designation 3">Designation 3</option>
                                 </select>
-                                <select>
-                                    <option value="" selected disabled>Select User Status</option>
+                                <select id="statusFilter">
+                                    <option value="">All Status</option>
                                     <option value="Active">Active</option>
                                     <option value="Inactive">Inactive</option>
                                     <option value="Notice Period">Notice Period</option>
                                 </select>
                             </div>
-                           <script>
-                                $(document).ready(function () {
-                                    $('#filter_item input, #filter_item select').on('input change', function () {
-                                        const keyword = $('#filter_item input').val().toLowerCase();
-                                        const selectedDesignation = $('#filter_item select').eq(0).val();
-                                        const selectedStatus = $('#filter_item select').eq(1).val();
 
-                                        const $activeTab = $('.tab-pane.active');
-                                        const $rows = $activeTab.find('table tbody tr');
-                                        let hasVisible = false;
+                            <script>
+                            $(document).ready(function () {
+                                let selectedClientId = $('.nav-link.active').data('client-id') || null;
 
-                                        $rows.each(function () {
-                                            const row = $(this);
-                                            const text = row.text().toLowerCase();
-                                            const designation = row.find('td:nth-child(6)').text().trim();
-                                            const status = row.find('td:nth-child(8)').text().trim();
+                                // When a client is clicked
+                                $('.nav-link[data-client-id]').on('click', function () {
+                                    selectedClientId = $(this).data('client-id');
+                                    applyAllFilters();
+                                });
 
-                                            // 🧠 Skip rows that contain 'N/A' in designation or status
-                                            if (designation === 'N/A' || status === 'N/A') {
-                                                row.hide();
-                                                return; // skip further checks
-                                            }
+                                // On filter change
+                                $('.filter_item input, .filter_item select').on('input change', function () {
+                                    applyAllFilters();
+                                });
 
-                                            const matchesKeyword = text.includes(keyword);
-                                            const matchesDesignation = !selectedDesignation || designation === selectedDesignation;
-                                            const matchesStatus = !selectedStatus || status === selectedStatus;
+                                function applyAllFilters() {
+                                    const keyword = $('.filter_item input').val().toLowerCase();
+                                    const selectedDesignation = $('#designationFilter').val();
+                                    const selectedStatus = $('#statusFilter').val();
 
-                                            if (matchesKeyword && matchesDesignation && matchesStatus) {
-                                                row.show();
-                                                hasVisible = true;
-                                            } else {
-                                                row.hide();
-                                            }
-                                        });
+                                    let hasVisible = false;
 
-                                        const $notFoundRow = $activeTab.find('.no-consultant-row');
-                                        if (!hasVisible) {
-                                            $notFoundRow.show();
+                                    $('tr.consultant-row').each(function () {
+                                        const row = $(this);
+                                        const rowClientId = row.data('client-id');
+
+                                        if (rowClientId != selectedClientId) {
+                                            row.hide();
+                                            return;
+                                        }
+
+                                        const text = row.text().toLowerCase();
+                                        const designation = row.find('td:nth-child(6) span').text().trim();
+                                        const status = row.find('td:nth-child(8) span').text().trim();
+
+                                        const matchesKeyword = text.includes(keyword);
+                                        const matchesDesignation = !selectedDesignation || designation === selectedDesignation;
+                                        const matchesStatus = !selectedStatus || status === selectedStatus;
+
+                                        if (matchesKeyword && matchesDesignation && matchesStatus) {
+                                            row.show();
+                                            hasVisible = true;
                                         } else {
-                                            $notFoundRow.hide();
+                                            row.hide();
                                         }
                                     });
-                                });
+
+                                    $('.no-consultant-row').toggle(!hasVisible);
+                                }
+
+                                // Run filter on page load
+                                const defaultClient = $('.nav-link.active').data('client-id');
+                                if (defaultClient) {
+                                    selectedClientId = defaultClient;
+                                    applyAllFilters();
+                                }
+                            });
                             </script>
-
-
 
                             <div class="clients-tab-header-right-col">
                             <a href="#" class="add-consultants-btn">
@@ -775,49 +788,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const searchInput = document.getElementById("searchInput");
-            const statusFilter = document.getElementById("statusFilter");
-            const designationFilter = document.getElementById("statusFilterDesignation");
-            const table = document.getElementById("myTable");
-            const rows = table.querySelectorAll("tbody tr:nth-child(odd)");
-
-            function filterTable() {
-                const searchValue = searchInput.value.toLowerCase();
-                const selectedStatus = statusFilter.value.toLowerCase();
-                const selectedDesignation = designationFilter.value.toLowerCase();
-
-                rows.forEach((row) => {
-                    const name = row.cells[2].textContent.toLowerCase();
-                    const userId = row.cells[1].textContent.toLowerCase();
-                    const designation = row.cells[3].textContent.trim().toLowerCase();
-                    const status = row.cells[4].textContent.trim().toLowerCase();
-
-                    const matchesSearch = name.includes(searchValue) || userId.includes(searchValue) || designation.includes(searchValue);
-
-                    const matchesStatus = !selectedStatus || status === selectedStatus;
-                    const matchesDesignation = !selectedDesignation || designation === selectedDesignation;
-
-                    if (matchesSearch && matchesStatus && matchesDesignation) {
-                        row.style.display = "";
-                        const expandRow = row.nextElementSibling;
-                        if (expandRow && expandRow.classList.contains("hiddenRow")) {
-                            expandRow.style.display = "";
-                        }
-                    } else {
-                        row.style.display = "none";
-                        const expandRow = row.nextElementSibling;
-                        if (expandRow && expandRow.classList.contains("hiddenRow")) {
-                            expandRow.style.display = "none";
-                        }
-                    }
-                });
-            }
-
-            searchInput.addEventListener("input", filterTable);
-            statusFilter.addEventListener("change", filterTable);
-            designationFilter.addEventListener("change", filterTable);
-        });
+       
 
         let iti1;
         $(document).ready(function () {
