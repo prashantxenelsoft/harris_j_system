@@ -18,7 +18,7 @@ class HrController extends Controller {
             return view('errors.404');
         }
          $consultants = DB::table('consultants')
-        ->leftJoin('clients', 'consultants.client_id', '=', 'clients.id') // if using foreign key
+        ->join('clients', 'consultants.client_id', '=', 'clients.id') // if using foreign key
         ->select(
             'consultants.*',
             'clients.serving_client as client_name'
@@ -28,7 +28,7 @@ class HrController extends Controller {
         
         //$data = $this->getFullUserHierarchyIncludingAbove($user->id, $user->role_id);
         $clients = Client::all();
-        //echo "<pre>";print_r($clients);die;
+        //echo "<pre>";print_r($consultants);die;
         
         return view('hr.index', [
             'userData'      => $user,
