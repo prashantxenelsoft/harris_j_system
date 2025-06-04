@@ -257,7 +257,9 @@
                                                 <i class="fas fa-pen-nib"></i>
                                                 </span>
 
-                                                <span><i class="fa fa-trash"></i></span>
+                                                <span class="delete-user" data-id="{{ $c->id }}">
+                                                 <i class="fa fa-trash"></i>
+                                                </span>
                                             </div>
                                         </td>
                                     </tr>
@@ -276,38 +278,90 @@
                     </div>
 
                     <script>
-                        document.addEventListener("DOMContentLoaded", function () {
-                        const clientTabs = document.querySelectorAll(".nav-link[data-client-id]");
-                        const consultantRows = document.querySelectorAll(".consultant-row");
-                        const noRowMsg = document.querySelector(".no-consultant-row");
+                       document.addEventListener("DOMContentLoaded", function () {
+                            const clientTabs = document.querySelectorAll(".nav-link[data-client-id]");
+                            const consultantRows = document.querySelectorAll(".consultant-row");
+                            const noRowMsg = document.querySelector(".no-consultant-row");
 
-                        function filterByClient(clientId) {
-                            let matchCount = 0;
-                            consultantRows.forEach(row => {
-                            if (row.getAttribute("data-client-id") === clientId) {
-                                row.style.display = "table-row";
-                                matchCount++;
-                            } else {
-                                row.style.display = "none";
+                            function filterByClient(clientId) {
+                                let matchCount = 0;
+                                consultantRows.forEach(row => {
+                                    if (row.getAttribute("data-client-id") === clientId) {
+                                        row.style.display = "table-row";
+                                        matchCount++;
+                                    } else {
+                                        row.style.display = "none";
+                                    }
+                                });
+                                if (noRowMsg) {
+                                    noRowMsg.style.display = matchCount === 0 ? "table-row" : "none";
+                                }
                             }
-                            });
-                            noRowMsg.style.display = matchCount === 0 ? "table-row" : "none";
-                        }
 
-                        clientTabs.forEach(btn => {
-                            btn.addEventListener("click", function () {
-                            clientTabs.forEach(b => b.classList.remove("active", "fw-bold"));
-                            this.classList.add("active", "fw-bold");
-                            const clientId = this.getAttribute("data-client-id");
-                            filterByClient(clientId);
+                            clientTabs.forEach(btn => {
+                                btn.addEventListener("click", function () {
+                                    clientTabs.forEach(b => b.classList.remove("active", "fw-bold"));
+                                    this.classList.add("active", "fw-bold");
+
+                                    const clientId = this.getAttribute("data-client-id");
+                                    filterByClient(clientId);
+
+                                    // ✅ Save to localStorage on tab click
+                                    localStorage.setItem("lastClientTab", clientId);
+                                });
                             });
+
+                            // ✅ Restore last active tab from localStorage if exists
+                            const savedClientId = localStorage.getItem("lastClientTab");
+                            const targetTab = document.querySelector(`.nav-link[data-client-id="${savedClientId}"]`);
+
+                            if (targetTab) {
+                                targetTab.click(); // triggers everything as if user clicked
+                            } else if (clientTabs.length > 0) {
+                                clientTabs[0].click(); // fallback to first tab
+                            }
                         });
 
-                        const firstTab = document.querySelector(".nav-link.active[data-client-id]");
-                        if (firstTab) {
-                            filterByClient(firstTab.getAttribute("data-client-id"));
-                        }
-                        });
+                        $(document).on("click", ".delete-user", function () {
+                            const userId = $(this).data("id");
+
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: "This action cannot be undone!",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#d33',
+                                cancelButtonColor: '#3085d6',
+                                confirmButtonText: 'Yes, delete it!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajax({
+                                        url: "{{ url('hr/delete-consultant') }}/" + userId,
+                                        method: 'POST', // or 'DELETE' if your route supports it
+                                        headers: {
+                                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                        },
+                                        success: function (response) {
+                                            // ✅ Save the currently active client tab ID
+                                            const activeTab = document.querySelector(".nav-link.active[data-client-id]");
+                                            if (activeTab) {
+                                                const clientId = activeTab.getAttribute("data-client-id");
+                                                localStorage.setItem("lastClientTab", clientId);
+                                            }
+
+                                            Swal.fire('Deleted!', response.message || 'User has been deleted.', 'success').then(() => {
+                                                location.reload();
+                                            });
+                                        },
+                                        error: function () {
+                                            Swal.fire('Error!', 'Failed to delete the user.', 'error');
+                                        }
+                                    });
+
+                                }
+                            });
+                            });
+
                     </script>
                 </div>
             </div>
@@ -1218,24 +1272,29 @@
                     });
                 },
                 success: function (response) {
-                    // Loader close karna
                     Swal.close();
-                    //console.log("check response",response)
                     Swal.fire({
                         icon: "success",
                         title: "Success!",
                         text: response.message,
                         confirmButtonColor: "#3085d6",
-                        allowOutsideClick: false, // Prevent closing by clicking outside
+                        allowOutsideClick: false,
                     }).then((result) => {
                         if (result.isConfirmed) {
+                            // ✅ Save the active client ID in localStorage before reload
+                            const activeTab = document.querySelector(".nav-link.active[data-client-id]");
+                            if (activeTab) {
+                                const clientId = activeTab.getAttribute("data-client-id");
+                                localStorage.setItem("lastClientTab", clientId);
+                            }
+
                             location.reload();
                         }
                     });
 
-                    // Optionally reset form
                     form.reset();
                 },
+
                 error: function (xhr) {
                     // Loader close karna
                     Swal.close();

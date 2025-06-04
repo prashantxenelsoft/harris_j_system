@@ -4,33 +4,41 @@
       <h4>Client – Wise Dossiers</h4>
       <div class="clients-tabs-consultants pt-3">
         <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-    @forelse ($clients as $index => $client)
-        <button 
-            class="nav-link {{ $index === 0 ? 'active' : '' }}" 
-            id="v-pills-client-{{ $client->id }}-tab" 
-            data-bs-toggle="pill" 
-            data-bs-target="#v-pills-client-{{ $client->id }}" 
-            type="button" 
-            role="tab" 
-            aria-controls="v-pills-client-{{ $client->id }}" 
-            aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
-        >
-            <div class="clients-tab-switch">
-                <div class="clients-img-name">
-                    <img src="{{ asset('public/assets/images/client-icon-' . (($index % 4) + 1) . '.png') }}" class="img-fluid" alt="Client Icon">
-                    <h6>{{ $client->serving_client ?? $client->name ?? 'Client' }}</h6>
-                </div>
-                <div class="clients-numbers-tab-switch">
-                    <span> 
-                        (<em>{{ rand(5, 15) }}</em>,<em>{{ rand(10, 30) }}</em>,<em>{{ rand(5, 20) }}</em>) 
-                        <b>/ {{ rand(40, 60) }} </b> 
-                    </span> {{-- Replace with actual stats when available --}}
-                </div>
-            </div>
-        </button>
-    @empty
-        <p class="text-muted px-3">No clients found.</p>
-    @endforelse
+         @forelse ($clients as $index => $client)
+           @php
+               $isActive = $index === 0 ? 'active' : '';
+               $tabId = 'client-' . $client->id;
+
+               // ✅ Filter consultants by client ID (make sure consultants.select_client is numeric)
+               $filtered = $consultants->filter(fn($c) => $c->client_id == $client->id);
+
+               $inactive = $filtered->where('status', 'Inactive')->count();
+               $active = $filtered->where('status', 'Active')->count();
+               $notice = $filtered->where('status', 'Notice Period')->count();
+               $total = $filtered->count();
+            @endphp
+            <button 
+                  class="nav-link"
+            >
+                  <div class="clients-tab-switch">
+                     <div class="clients-img-name">
+                        <img src="{{ asset('public/assets/images/client-icon-' . (($index % 4) + 1) . '.png') }}" class="img-fluid" alt="Client Icon">
+                        <h6>{{ $client->serving_client ?? $client->name ?? 'Client' }}</h6>
+                     </div>
+                         <div class="clients-numbers-tab-switch">
+                              <span>
+                                 (
+                                 <em style="color: red;">{{ $inactive }}</em>,
+                                 <em style="color: blue;">{{ $active }}</em>,
+                                 <em style="color: gray;">{{ $notice }}</em>
+                                 ) <b>/ {{ $total }}</b>
+                              </span>
+                           </div>
+                  </div>
+            </button>
+         @empty
+            <p class="text-muted px-3">No clients found.</p>
+         @endforelse
 </div>
 
 

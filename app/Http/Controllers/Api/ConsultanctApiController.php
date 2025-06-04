@@ -189,10 +189,13 @@ class ConsultanctApiController extends Controller
             }
 
             if (!empty($daysList)) {
+                 $statuses = collect($daysList)->pluck('status')->unique()->values();
+                $finalStatus = $statuses->count() === 1 ? $statuses[0] : 'Draft';
                 $finalData[] = [
                     'month' => $carbon->format('F Y'),
                     'start_date' => $carbon->startOfMonth()->toDateString(),
                     'end_date' => $carbon->endOfMonth()->toDateString(),
+                    'status' => $finalStatus,
                     'days' => $daysList,
                 ];
             }

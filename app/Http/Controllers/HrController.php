@@ -471,5 +471,40 @@ class HrController extends Controller {
         ]);
     }
 
+   public function delete_consultant($id)
+    {
+        $consultant = DB::table('consultants')->where('id', $id)->first();
+
+        if (!$consultant) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Consultant not found.'
+            ], 404);
+        }
+
+        // Optional: Delete profile image
+        if (!empty($consultant->profile_image)) {
+            $path = storage_path('app/public/' . $consultant->profile_image);
+            if (file_exists($path)) {
+                @unlink($path);
+            }
+        }
+
+        // ❗ Delete related user from 'users' table
+        if (!empty($consultant->login_email)) {
+            DB::table('users')->where('email', $consultant->login_email)->delete();
+        }
+
+        // Delete consultant
+        DB::table('consultants')->where('id', $id)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Consultant and linked user deleted successfully.'
+        ]);
+    }
+
+
+
 
 }
