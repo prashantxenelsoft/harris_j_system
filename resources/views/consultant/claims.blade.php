@@ -1366,7 +1366,11 @@
                                  formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
                                  formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
                                  formData.append("status", statusValue);
-                                 formData.append("record", JSON.stringify(recordData));
+                                 //formData.append("record", JSON.stringify(recordData));
+
+                                 // for (let [key, value] of formData.entries()) {
+                                 //    console.log(key + ": " + value);
+                                 // }
 
                                  const promise = fetch("{{ route('consultant.data.save') }}", {
                                        method: "POST",

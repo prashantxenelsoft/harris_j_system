@@ -1646,12 +1646,14 @@ class ConsultanctApiController extends Controller
         // ✅ Insert or Update logic
         if ($request->filled('edit_id')) {
             // Update existing record
+            $monthYear = isset($recordData['applyOnCell']) ? implode('_', array_slice(explode(' / ', $recordData['applyOnCell']), 1)) : null;
             DB::table('consultant_dashboard')
                 ->where('id', $request->edit_id)
                 ->update([
                     'type' => $request->type,
                     'record' => json_encode($recordData),
                     'user_id' => $request->user_id,
+                    'month_year' => $monthYear,
                     'client_id' => $request->client_id,
                     'client_name' => $request->client_name,
                     'status' => $request->status ?? 'Draft',
@@ -1660,12 +1662,14 @@ class ConsultanctApiController extends Controller
 
             return response()->json(['success' => true, 'message' => 'Claim updated.']);
         } else {
+            $monthYear = isset($recordData['applyOnCell']) ? implode('_', array_slice(explode(' / ', $recordData['applyOnCell']), 1)) : null;
             // Insert new record
             DB::table('consultant_dashboard')->insert([
                 'type' => $request->type,
                 'record' => json_encode($recordData),
                 'user_id' => $request->user_id,
                 'client_id' => $request->client_id,
+                'month_year' => $monthYear,
                 'client_name' => $request->client_name,
                 'status' => $request->status ?? 'Draft',
                 'created_at' => now(),
