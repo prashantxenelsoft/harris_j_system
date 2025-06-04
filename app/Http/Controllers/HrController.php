@@ -18,7 +18,7 @@ class HrController extends Controller {
             return view('errors.404');
         }
          $consultants = DB::table('consultants')
-        ->leftJoin('clients', 'consultants.client_id', '=', 'clients.id') // if using foreign key
+        ->join('clients', 'consultants.client_id', '=', 'clients.id') // if using foreign key
         ->select(
             'consultants.*',
             'clients.serving_client as client_name'
