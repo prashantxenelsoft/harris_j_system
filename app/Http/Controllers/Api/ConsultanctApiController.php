@@ -1761,6 +1761,34 @@ class ConsultanctApiController extends Controller
         ]);
     }
 
+    public function deleteCliam($id)
+    {
+        // Check if the claim exists
+        $claim = DB::table('consultant_dashboard')->where('id', $id)->first();
+
+        if (!$claim) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Claim not found.'
+            ], 404);
+        }
+
+        // Optionally delete uploaded certificate file if exists
+        $record = json_decode($claim->record, true);
+        if (!empty($record['certificate_path']) && file_exists(base_path($record['certificate_path']))) {
+            @unlink(base_path($record['certificate_path']));
+        }
+
+        // Delete the claim
+        DB::table('consultant_dashboard')->where('id', $id)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Claim deleted successfully.'
+        ]);
+    }
+
+
 
 
 

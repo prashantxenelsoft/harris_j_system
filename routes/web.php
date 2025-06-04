@@ -53,6 +53,8 @@ Route::group(['prefix' => 'api'], function () {
         Route::post('/consultant/add-claim', [ConsultanctApiController::class, 'addClaim']);
         Route::post('/consultant/get-claim-remarks', [ConsultanctApiController::class, 'getClaimRemarks']);
         Route::post('/consultant/get-claim-and-get-copies-tab', [ConsultanctApiController::class, 'getClaimAndGetCopies']);
+        Route::post('consultant/delete-claim/{id}', [ConsultanctApiController::class, 'deleteCliam']);
+
 
     });
 
