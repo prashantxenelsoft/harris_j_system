@@ -652,3 +652,9 @@ div#home_page_timesheet .timeline-container{
 .clients-tabs-consultants{
     margin-bottom: 40px;
 }
+
+.hr-my-dashboard .info .pink {
+    border-bottom: 3px solid rgb(255, 93, 228);
+    display: inline-block;
+    padding-bottom: 5px;
+}
