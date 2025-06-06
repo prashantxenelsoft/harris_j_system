@@ -27,8 +27,8 @@ class HrController extends Controller {
         ->get();
         
         //$data = $this->getFullUserHierarchyIncludingAbove($user->id, $user->role_id);
-        $clients = Client::all();
-        //echo "<pre>";print_r($consultants);die;
+        $clients = Client::where('user_id', $user->created_by_user_id)->get();
+        //echo "<pre>";print_r($clients);die;
         
         return view('hr.index', [
             'userData'      => $user,
@@ -358,8 +358,19 @@ class HrController extends Controller {
             $data['profile_image'] = $request->file('profile_image')->store('consultants/profile', 'public');
         }
 
+        // Assume $data['client_id'] is already set
+        $clientId = $data['client_id'] ?? null;
+
+        $clientName = DB::table('clients')
+        ->where('id', $clientId)
+        ->value('serving_client') ?? null;
+
+        // Now add the client_name to the $data array before insert
         $consultantId = DB::table('consultants')->insertGetId(
-            array_merge($data, ['user_id' => null]) // insert but keep user_id blank
+            array_merge($data, [
+                'user_id' => null,
+                'client_name' => $clientName
+            ])
         );
         $user = User::create([
             'name'     => $data['emp_name'],

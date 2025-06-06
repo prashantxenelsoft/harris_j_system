@@ -68,7 +68,7 @@
                                  </clipPath>
                               </defs>
                            </svg>
-                           Claims <span>3</span> 
+                           Claims
                         </a>
                      </li>
                   </ul>
