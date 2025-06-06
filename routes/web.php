@@ -14,6 +14,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ConsultancyApiController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\Api\ConsultanctApiController;
+use App\Http\Controllers\Api\HrApiController;
+
 
 // Route::group(['prefix' => 'api'], function () {
 //     Route::post('auth/login', [AuthController::class, 'apiLogin']);
@@ -54,6 +56,14 @@ Route::group(['prefix' => 'api'], function () {
         Route::post('/consultant/get-claim-remarks', [ConsultanctApiController::class, 'getClaimRemarks']);
         Route::post('/consultant/get-claim-and-get-copies-tab', [ConsultanctApiController::class, 'getClaimAndGetCopies']);
         Route::post('consultant/delete-claim/{id}', [ConsultanctApiController::class, 'deleteCliam']);
+
+        // hr api start
+        Route::post('hr/add-consultant', [HrApiController::class, 'addConsultant']);
+        Route::post('hr/update-consultant', [HrApiController::class, 'updateConsultant']);
+        Route::post('hr/delete-consultant', [HrApiController::class, 'deleteConsultant']);
+        Route::post('hr/client-list', [HrApiController::class, 'clientListing']);
+        Route::post('hr/reports-tab', [HrApiController::class, 'reportsTab']);
+        // hr api ends
 
 
     });
