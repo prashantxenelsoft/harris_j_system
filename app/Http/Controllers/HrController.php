@@ -326,7 +326,6 @@ class HrController extends Controller {
             'joining_date' => 'nullable|date',
             'resignation_date' => 'nullable|date',
             'status' => 'nullable|string|max:50',
-            // 'select_client' => 'nullable|string|max:100',
             'select_holiday' => 'nullable|string|max:100',
             'designation' => 'nullable|string|max:100',
             'login_email' => 'nullable|email|max:100',

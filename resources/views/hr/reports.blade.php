@@ -6,48 +6,42 @@
                <h5>Consultancy Lisiting</h5>
                <div class="clients-tabs-consultants pt-3">
                   <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                     @foreach ($clients as $index => $client)
-                        @php
-                           $isActive = $index === 0 ? 'active' : '';
-                           $tabId = 'client-' . $client->id;
-
-                           // ✅ Filter consultants by client ID (make sure consultants.select_client is numeric)
-                           $filtered = $consultants->filter(fn($c) => $c->client_id == $client->id);
-
-                           $inactive = $filtered->where('status', 'Inactive')->count();
-                           $active = $filtered->where('status', 'Active')->count();
-                           $notice = $filtered->where('status', 'Notice Period')->count();
-                           $total = $filtered->count();
-                        @endphp
-
-                        <button class="nav-link {{ $isActive }}"
-                           id="v-pills-{{ $tabId }}-tab"
-                           data-client-id="{{ $client->id }}"
-                           data-bs-toggle="pill"
-                           data-bs-target="#v-pills-{{ $tabId }}"
-                           type="button"
-                           role="tab"
-                           aria-controls="v-pills-{{ $tabId }}"
-                           aria-selected="{{ $isActive ? 'true' : 'false' }}">
-                           
-                           <div class="clients-tab-switch">
-                                 <div class="clients-img-name">
-                                    <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="{{ $client->serving_client }}" />
-                                    <h6 class="{{ $isActive ? 'fw-bold' : '' }} truncate-text">{{ $client->serving_client }}</h6>
-                                 </div>
-
-                                 <div class="clients-numbers-tab-switch">
-                                    <span>
-                                       (
-                                       <em style="color: red;">{{ $inactive }}</em>,
-                                       <em style="color: blue;">{{ $active }}</em>,
-                                       <em style="color: gray;">{{ $notice }}</em>
-                                       ) <b>/ {{ $total }}</b>
-                                    </span>
-                                 </div>
+                     <button class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home" aria-selected="true">
+                        <div class="clients-tab-switch">
+                           <div class="clients-img-name">
+                              <img src="{{ asset('public/assets/images/client-icon-1.png')}}" class="img-fluid"> 
+                              <h6>Encore Films</h6>
                            </div>
-                        </button>
-                     @endforeach
+                           <div class="clients-numbers-tab-switch"> <span> (<em>10</em>,<em>23</em>,<em>12</em>) <b>/ 45 </b> </span> </div>
+                        </div>
+                     </button>
+                     <button class="nav-link" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">
+                        <div class="clients-tab-switch">
+                           <div class="clients-img-name">
+                              <img src="{{ asset('public/assets/images/client-icon-2.png')}}" class="img-fluid"> 
+                              <h6>Encore Films</h6>
+                           </div>
+                           <div class="clients-numbers-tab-switch"> <span> (<em>10</em>,<em>23</em>,<em>12</em>) <b>/ 45 </b> </span> </div>
+                        </div>
+                     </button>
+                     <button class="nav-link" id="v-pills-messages-tab" data-bs-toggle="pill" data-bs-target="#v-pills-messages" type="button" role="tab" aria-controls="v-pills-messages" aria-selected="false">
+                        <div class="clients-tab-switch">
+                           <div class="clients-img-name">
+                              <img src="{{ asset('public/assets/images/client-icon-3.png')}}" class="img-fluid"> 
+                              <h6>Bank of America</h6>
+                           </div>
+                           <div class="clients-numbers-tab-switch"> <span> (<em>10</em>,<em>23</em>,<em>12</em>) <b>/ 45 </b> </span> </div>
+                        </div>
+                     </button>
+                     <button class="nav-link" id="v-pills-settings-tab" data-bs-toggle="pill" data-bs-target="#v-pills-settings" type="button" role="tab" aria-controls="v-pills-settings" aria-selected="false">
+                        <div class="clients-tab-switch">
+                           <div class="clients-img-name">
+                              <img src="{{ asset('public/assets/images/client-icon-4.png')}}" class="img-fluid"> 
+                              <h6>Citi Bank</h6>
+                           </div>
+                           <div class="clients-numbers-tab-switch"> <span> (<em>10</em>,<em>23</em>,<em>12</em>) <b>/ 45 </b> </span> </div>
+                        </div>
+                     </button>
                   </div>
                </div>
             </div>
