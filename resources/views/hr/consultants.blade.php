@@ -953,6 +953,10 @@
                                 <div class="consultancy-form-col">
                                   <input type="text" name="billing_amount" placeholder="Enter Billing Amount" required />
                                 </div>
+
+                                <div class="consultancy-form-col">
+                                  <input type="text" name="working_hours" placeholder="Enter Working Hours" required />
+                                </div>
                             </div>
 
                             

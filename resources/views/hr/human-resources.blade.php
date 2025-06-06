@@ -35,7 +35,7 @@
                               <div class="clients-tab-switch">
                                     <div class="clients-img-name">
                                        <img src="https://i.pravatar.cc/24" class="rounded-circle me-2" title="{{ $client->serving_client }}" />
-                                       <h6 class="{{ $isActive ? 'fw-bold' : '' }}">{{ $client->serving_client }}</h6>
+                                       <h6 class="{{ $isActive ? 'fw-bold' : '' }} truncate-text">{{ $client->serving_client }}</h6>
                                     </div>
 
                                     <div class="clients-numbers-tab-switch">
@@ -75,64 +75,77 @@
                         <div class="hr-tab-inner">
                            <div class="hr-table">
                               <div class="hr-table-inner">
+                                
                                  <div class="hr-table-header">
-                                    <div><strong><i class="fa-solid fa-calendar-days"></i> August - 2024</strong> </div>
+                                 <div class="calendar-display" onclick="toggleGrid()">
+                                 <i class="fa-solid fa-calendar-days"></i>
+                                 <span id="calendarLabel"></span>
                                  </div>
+                                 <div class="month-grid-popup" id="gridPopup">
+                                 <div class="month-grid-header">
+                                    <button onclick="chgYr(-1)">&#8592;</button>
+                                    <span id="yrLbl"></span>
+                                    <button onclick="chgYr(1)">&#8594;</button>
+                                 </div>
+                                 <div class="month-grid" id="gridMonths"></div>
+                                 </div>
+                                 </div>
+
                                  <table>
-                                    <thead>
-                                       <tr>
-                                          <th>Name <span class="sort-icon"><i class="fa fa-search" aria-hidden="true"></i> </span> </th>
-                                          <th>Queue <span class="sort-icon"><i class="fa-solid fa-filter"></i></span> </th>
-                                          <th>Hours Logged / Hours Forecasted <span class="sort-icon"><i class="fa-solid fa-sort"></i></span> </th>
-                                          <th>Logged Time-off <span class="sort-icon"><i class="fa-solid fa-sort"></i></span> </th>
-                                          <th>AL Overview <span class="sort-icon"><i class="fa-solid fa-sort"></i></span> </th>
-                                          <th>ML Overview <span class="sort-icon"><i class="fa-solid fa-sort"></i></span> </th>
-                                          <th>PDO Overview <span class="sort-icon"><i class="fa-solid fa-sort"></i></span> </th>
-                                          <th>UL Overview <span class="sort-icon"><i class="fa-solid fa-sort"></i></span> </th>
-                                       </tr>
-                                    </thead>
-                                    <tbody>
-                                       <tr>
-                                          <td>Bruce Lee</td>
-                                          <td><span class="queue-dot blue"></span> </td>
-                                          <td>0/160</td>
-                                          <td>5/2/2</td>
-                                          <td>8/12</td>
-                                          <td>2/12</td>
-                                          <td>1/2</td>
-                                          <td>3</td>
-                                       </tr>
-                                       <tr>
-                                          <td>Allison Schleifer</td>
-                                          <td><span class="queue-dot yellow"></span> </td>
-                                          <td>100/160</td>
-                                          <td>6/3/2</td>
-                                          <td>8/12</td>
-                                          <td>3/12</td>
-                                          <td>2/2</td>
-                                          <td>4</td>
-                                       </tr>
-                                       <tr>
-                                          <td>Charlie Vetrovs</td>
-                                          <td><span class="queue-dot green"></span> </td>
-                                          <td>160/160</td>
-                                          <td>7/3/2</td>
-                                          <td>8/12</td>
-                                          <td>3/12</td>
-                                          <td>2/2</td>
-                                          <td>2</td>
-                                       </tr>
-                                       <tr>
-                                          <td>Lincoln Geidt</td>
-                                          <td><span class="queue-dot red"></span></td>
-                                          <td>0/160</td>
-                                          <td>10/2/2</td>
-                                          <td>8/12</td>
-                                          <td>2/12</td>
-                                          <td>1/2</td>
-                                          <td>3</td>
-                                       </tr>
-                                    </tbody>
+                                 <thead>
+                                    <tr>
+                                       <th>Name <span class="sort-icon"><i class="fa fa-search" aria-hidden="true"></i> </span> </th>
+                                       <th>Queue <span class="sort-icon"><i class="fa-solid fa-filter"></i></span> </th>
+                                       <th>Hours Logged / Hours Forecasted <span class="sort-icon"><i class="fa-solid fa-sort"></i></span> </th>
+                                       <th>Logged Time-off <span class="sort-icon"><i class="fa-solid fa-sort"></i></span> </th>
+                                       <th>AL Overview <span class="sort-icon"><i class="fa-solid fa-sort"></i></span> </th>
+                                       <th>ML Overview <span class="sort-icon"><i class="fa-solid fa-sort"></i></span> </th>
+                                       <th>PDO Overview <span class="sort-icon"><i class="fa-solid fa-sort"></i></span> </th>
+                                       <th>UL Overview <span class="sort-icon"><i class="fa-solid fa-sort"></i></span> </th>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    <tr>
+                                       <td>Bruce Lee</td>
+                                       <td><span class="queue-dot blue"></span> </td>
+                                       <td>0/160</td>
+                                       <td>5/2/2</td>
+                                       <td>8/12</td>
+                                       <td>2/12</td>
+                                       <td>1/2</td>
+                                       <td>3</td>
+                                    </tr>
+                                    <tr>
+                                       <td>Allison Schleifer</td>
+                                       <td><span class="queue-dot yellow"></span> </td>
+                                       <td>100/160</td>
+                                       <td>6/3/2</td>
+                                       <td>8/12</td>
+                                       <td>3/12</td>
+                                       <td>2/2</td>
+                                       <td>4</td>
+                                    </tr>
+                                    <tr>
+                                       <td>Charlie Vetrovs</td>
+                                       <td><span class="queue-dot green"></span> </td>
+                                       <td>160/160</td>
+                                       <td>7/3/2</td>
+                                       <td>8/12</td>
+                                       <td>3/12</td>
+                                       <td>2/2</td>
+                                       <td>2</td>
+                                    </tr>
+                                    <tr>
+                                       <td>Lincoln Geidt</td>
+                                       <td><span class="queue-dot red"></span></td>
+                                       <td>0/160</td>
+                                       <td>10/2/2</td>
+                                       <td>8/12</td>
+                                       <td>2/12</td>
+                                       <td>1/2</td>
+                                       <td>3</td>
+                                    </tr>
+                                 </tbody>
                                  </table>
                               </div>
                               <div class="selected-row">◉ Selected Row</div>
@@ -328,7 +341,7 @@
                               </div>
                               <div class="calender-small-hr">
                                  <div class="status-buttons"> <button class="status good"><img src="{{ asset('public/assets/images/tick-circle-icon.png')}}" class="img-fluid"> Good To Go</button> <button class="status hold"><img src="{{ asset('public/assets/images/pause-circle-icon.png')}}" class="img-fluid"> Hold</button> <button class="status rework"><img src="{{ asset('public/assets/images/recycle-circle-icon.png')}}" class="img-fluid"> Rework</button> </div>
-                                 <div class="calendar">
+                                 <div class="calendar" id="show_calendar">
                                     <div class="weekdays">
                                        <div>SUN</div>
                                        <div>MON</div>
@@ -339,7 +352,7 @@
                                        <div>SAT</div>
                                     </div>
                                     <div class="days">
-                                       <div class="empty">28</div>
+                                       <!-- <div class="empty">28</div>
                                        <div>29</div>
                                        <div>30</div>
                                        <div>31</div>
@@ -356,7 +369,7 @@
                                        <div>11</div>
                                        <div>12<br>8</div>
                                        <div>13<br>8</div>
-                                       <div>14<br><span class="leave red">UL</span> </div>
+                                       <div>14<br><span class="leave red">UL</span> <span class="leave red">UL</span></div>
                                        <div>15<br><span class="leave">ML HD1</span> </div>
                                        <div>16<br>8</div>
                                        <div>17</div>
@@ -372,8 +385,8 @@
                                        <div>27<br>8</div>
                                        <div>28<br>8</div>
                                        <div>29<br>8</div>
-                                       <div>30<br class="red">11</div>
-                                       <div>1</div>
+                                       <div>30</div>
+                                       <div>1</div> -->
                                     </div>
                                  </div>
                               </div>
@@ -1340,3 +1353,74 @@
       </div>
    </div>
 </div>
+
+<script>
+const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+let today = new Date(), selMonth = today.getMonth(), selYear = today.getFullYear();
+const grid = document.getElementById("gridPopup"), lbl = document.getElementById("calendarLabel"),
+      yrLbl = document.getElementById("yrLbl"), gridMonths = document.getElementById("gridMonths");
+
+function toggleGrid() {
+   grid.style.display = grid.style.display === "block" ? "none" : "block";
+   renderGrid();
+}
+
+function chgYr(d) {
+   selYear += d;
+   yrLbl.innerText = selYear;
+   renderGrid();
+}
+
+function renderGrid() {
+   yrLbl.innerText = selYear;
+   gridMonths.innerHTML = months.map((m, i) => {
+      const selected = (i === selMonth && selYear === today.getFullYear()) ? 'selected' : '';
+      return `<button class="${selected}" onclick="setMonth(${i})">${m}</button>`;
+   }).join("");
+}
+
+function setMonth(m) {
+   selMonth = m;
+   const full = new Date(selYear, selMonth).toLocaleString('default', { month: 'long' });
+   lbl.innerText = `${full} - ${selYear}`;
+   grid.style.display = "none";
+   renderCalendar(selMonth, selYear);
+}
+
+function renderCalendar(month, year) {
+   const daysDiv = document.querySelector("#show_calendar .days");
+   const startDate = new Date(year, month, 1);
+   const startDay = startDate.getDay();
+   const daysInMonth = new Date(year, month + 1, 0).getDate();
+   let html = "";
+
+   // Blank cells for days before the 1st
+   for (let i = 0; i < startDay; i++) {
+      html += `<div class="empty"></div>`;
+   }
+
+   // Current month days
+   for (let i = 1; i <= daysInMonth; i++) {
+      html += `<div>${i}</div>`;
+   }
+
+   // Fill remaining boxes after the month's last day
+   const total = startDay + daysInMonth;
+   const trailingBlanks = 7 - (total % 7);
+   if (trailingBlanks < 7) {
+      for (let i = 0; i < trailingBlanks; i++) {
+         html += `<div class="empty"></div>`;
+      }
+   }
+
+   daysDiv.innerHTML = html;
+}
+
+
+window.addEventListener("click", e => {
+   if (!e.target.closest(".calendar-display") && !e.target.closest(".month-grid-popup"))
+      grid.style.display = "none";
+});
+
+setMonth(selMonth); // Init on load
+</script>

@@ -658,3 +658,33 @@ div#home_page_timesheet .timeline-container{
     display: inline-block;
     padding-bottom: 5px;
 }
+
+.calendar-display { cursor: pointer; font-weight: bold; display: inline-block; }
+.month-grid-popup {
+   position: absolute; background: #fff; border: 1px solid #ccc; border-radius: 10px;
+   padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); z-index: 1000; display: none;
+   top: 52px;
+   right: 2px;
+}
+
+.hr-table-inner{
+    position: relative;
+}
+
+.month-grid-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.month-grid-header button { background: none; border: none; font-size: 18px; font-weight: bold; cursor: pointer; }
+.month-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.month-grid button {
+   padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;
+   background-color: #f0f0f0;
+}
+.month-grid button.selected { background-color: #007bff; color: #fff; }
+
+.truncate-text {
+  max-width: 120px; /* adjust width as needed */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: bottom;
+}
