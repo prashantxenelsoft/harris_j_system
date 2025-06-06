@@ -954,8 +954,21 @@
                                   <input type="text" name="billing_amount" placeholder="Enter Billing Amount" required />
                                 </div>
 
+                              
                                 <div class="consultancy-form-col">
-                                  <input type="text" name="working_hours" placeholder="Enter Working Hours" required />
+                                    <select name="working_hours">
+                                        <option value="" selected disabled>Select Working Hours</option>
+                                        <option value="4 hour">4 hour</option>
+                                        <option value="4 hour">5 hour</option>
+                                        <option value="4 hour">6 hour</option>
+                                        <option value="4 hour">7 hour</option>
+                                        <option value="4 hour">8 hour</option>
+                                        <option value="4 hour">9 hour</option>
+                                        <option value="4 hour">10 hour</option>
+                                        <option value="4 hour">11 hour</option>
+                                        <option value="4 hour">12 hour</option>
+                                        <!-- <option value="Consultant">Consultant</option> -->
+                                    </select>
                                 </div>
                             </div>
 
