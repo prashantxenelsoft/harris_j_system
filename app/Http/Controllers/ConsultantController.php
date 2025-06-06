@@ -35,7 +35,7 @@ class ConsultantController extends Controller {
             ->orderBy('r.id', 'desc')
             ->get();
 
-            //echo "<pre>";print_r($remarks_data);die;
+            //echo "<pre>";print_r($userData);die;
             return view('consultant.dashboard', compact('consultant','remarks_data','remarksData','feedbacksgData', 'userData', 'dataTimesheet', 'dataClaims', 'publicHolidays','leaveLogData', 'token'));
         }
         else {
@@ -93,6 +93,12 @@ class ConsultantController extends Controller {
         if ($statuses->contains('draft')) {
             return response()->json(['status' => 'draft']);
         }
+        if ($statuses->contains('rejected')) {
+            return response()->json(['status' => 'rejected']);
+        }
+        if ($statuses->contains('approved')) {
+            return response()->json(['status' => 'approved']);
+        }
         if ($statuses->every(fn($s) => $s === 'submitted')) {
             return response()->json(['status' => 'submitted']);
         }
@@ -116,6 +122,12 @@ class ConsultantController extends Controller {
         $statuses = $filtered->pluck('status')->map(fn($s) => strtolower(trim($s)));
         if ($statuses->contains('draft')) {
             return response()->json(['status' => 'draft']);
+        }
+         if ($statuses->contains('rejected')) {
+            return response()->json(['status' => 'rejected']);
+        }
+        if ($statuses->contains('approved')) {
+            return response()->json(['status' => 'approved']);
         }
         if ($statuses->every(fn($s) => $s === 'submitted')) {
             return response()->json(['status' => 'submitted']);
@@ -830,6 +842,8 @@ class ConsultantController extends Controller {
         $month = $request->month;
         $year = $request->year;
 
+       // echo "<pre>";print_r($request->all());die;
+
         // Message to be sent in email
         $emailMessage = match ($status) {
             'Approved' => 'Your timesheet has been Approved.',
@@ -891,9 +905,6 @@ class ConsultantController extends Controller {
                 'status' => $status,
                 'updated_at' => now()
             ]);
-
-            
-
         }
 
         if ($consultant && $consultant->email) {

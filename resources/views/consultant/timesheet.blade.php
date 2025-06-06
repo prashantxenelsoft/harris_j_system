@@ -1548,7 +1548,9 @@
                               fetch(`{{ route('get-timesheet-status') }}?month=${month}&year=${year}`)
                                  .then(response => response.json())
                                  .then(data => {
-                                       updateStatusIcon(data.status);  
+                                        const status_new = data.status || "draft";
+                                        //console.log(status_new);
+                                        updateStatusIcon(status_new);
                                  })
                                  .catch(error => {
                                        console.error("Status fetch error:", error);
@@ -1561,8 +1563,8 @@
                               const statusMap = {
                                  draft: 0,
                                  submitted: 1,
-                                 client_approval: 2,
-                                 client_rejected : 3,
+                                 approved: 2,
+                                 rejected : 3,
                                  consultancy_verification: 4,
                                  send_for_rework_by_consultancy: 5,
                                  consultancy_approved_and_completed: 6
@@ -2697,26 +2699,26 @@
                               $dotClass = match($statusLower) {
                                  'draft' => 'dot-blue',
                                  'submitted' => 'dot-yellow',
-                                 'auto approved', 'approved' => 'dot-green',
+                                 'approved' => 'dot-green',
                                  'rejected' => 'dot-red',
                                  default => 'dot-gray',
                               };
                               $lineClass = match($statusLower) {
                                  'draft' => 'blue-timeline',
                                  'submitted' => 'yellow-timeline',
-                                 'auto approved', 'approved' => 'green-timeline',
+                                 'approved' => 'green-timeline',
                                  'rejected' => 'red-timeline',
                                  default => 'gray-timeline',
                               };
                               $badgeClass = match($statusLower) {
                                  'draft' => 'badge blue',
                                  'submitted' => 'badge yellow',
-                                 'auto approved', 'approved' => 'badge green',
+                                 'approved' => 'badge green',
                                  'rejected' => 'badge red',
                                  default => 'badge gray',
                               };
                               $icon = match($statusLower) {
-                                 'auto approved', 'approved' => '<i class="fa-solid fa-check"></i>',
+                                 'approved' => '<i class="fa-solid fa-check"></i>',
                                  'submitted' => '<i class="fa-solid fa-xmark"></i>',
                                  default => '',
                               };

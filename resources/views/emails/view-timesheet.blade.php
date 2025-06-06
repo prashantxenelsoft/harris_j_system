@@ -130,7 +130,7 @@
   </div>
 
   <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: space-between;">
-    <a href="javascript:void(0)" id="btnApprove"
+    <a href="javascript:void(0)updateTimesheetStatus" id="btnApprove"
    onclick="updateTimesheetStatus('Approved', this)"
    style="flex: 1; background: #28a745; color: #fff; padding: 15px; text-align: center; text-decoration: none; border-radius: 4px; font-weight: bold;">
    ✅ Approve
@@ -186,6 +186,8 @@
         btn.style.pointerEvents = 'none';
       });
 
+      //console.log(ids);
+
       $.ajax({
         url: "{{ url('/consultant/approve-sheet/update-status') }}",
         method: "POST",
@@ -198,6 +200,7 @@
           year: selectedYear
         },
         success: function (res) {
+          //console.log(res);
           $('#main-content').hide();
           $('#finalStatus').text(action);
           $('#thankyou-msg').show();
