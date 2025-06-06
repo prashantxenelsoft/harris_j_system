@@ -34,6 +34,7 @@ class AuthController extends Controller
             6  => ['route' => 'bom.dashboard', 'dashboard_name' => 'BOM Dashboard'],
             7  => ['route' => 'consultancy.dashboard', 'dashboard_name' => 'Consultancy Dashboard'],
             11 => ['route' => 'consultant.dashboard', 'dashboard_name' => 'Consultant Dashboard'],
+            8 => ['route' => 'consultant.dashboard', 'dashboard_name' => 'HR Dashboard'],
         ];
 
         if (!array_key_exists($user->role_id, $roleRedirects)) {
