@@ -25,27 +25,7 @@ class HrApiController extends Controller
 
   public function addConsultant(Request $request)
     {
-        echo "<pre>";print_r($request->all());die;
-        $request->validate([
-            'emp_name' => 'required|string|max:100',
-            'emp_code' => 'nullable|string|max:50',
-            'sex' => 'nullable|string',
-            'dob' => 'nullable|date',
-            'mobile_number_code' => 'nullable|string|max:10',
-            'mobile_number' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:100',
-            'profile_image' => 'nullable|file|mimes:jpg,jpeg,png|max:1024',
-            'full_address' => 'nullable|string',
-            'show_address_input' => 'nullable|string',
-            'joining_date' => 'nullable|date',
-            'resignation_date' => 'nullable|date',
-            'status' => 'nullable|string|max:50',
-            'select_holiday' => 'nullable|string|max:100',
-            'designation' => 'nullable|string|max:100',
-            'login_email' => 'nullable|email|max:100',
-            'reset_password' => 'nullable|in:0,1',
-            'client_id' => 'nullable|integer|exists:clients,id',
-        ]);
+        //echo "<pre>";print_r($request->all());die;
 
         // Check duplicate consultant email
         if ($request->email && DB::table('consultants')->where('email', $request->email)->exists()) {
