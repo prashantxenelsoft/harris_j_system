@@ -688,3 +688,32 @@ div#home_page_timesheet .timeline-container{
   display: inline-block;
   vertical-align: bottom;
 }
+
+.start-date-col{
+    height: 40px;
+    top: 0;
+}
+
+.preview_box {
+    border: 2px dashed #ccc;
+    padding: 10px;
+    height: 38px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+        display: flex
+;
+    align-items: center;
+}
+
+.end-date-col{
+    height: 40px;
+}
+
+.upload_certificate .file_input{
+    margin-bottom: 0;
+}
+
+.hj-add-consultancy-screen .add-consultancy-form .consultancy-form-col.add-address-col{
+    margin: auto;
+    height: 40px;
+}

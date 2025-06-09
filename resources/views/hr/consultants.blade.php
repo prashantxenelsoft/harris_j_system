@@ -249,6 +249,8 @@
                                                     data-image="{{ asset('storage/app/public/' . $c->profile_image) }}"
                                                     data-login_email="{{ $c->login_email }}"
                                                     data-billing="{{ $c->billing_amount }}"
+                                                    data-working_hours="{{ $c->working_hours }}"
+                                                    data-contract_period="{{ $c->contract_period }}"
                                                     data-joining_date="{{ $c->joining_date }}"
                                                     data-resignation_date="{{ $c->resignation_date }}"
                                                     data-holiday="{{ $c->select_holiday }}"
@@ -438,6 +440,8 @@
             }, 200);
 
             // ✅ Dropdowns with trigger
+            form.find('select[name="contract_period"]').val(el.data('contract_period')).trigger("change");
+            form.find('select[name="working_hours"]').val(el.data('working_hours')).trigger("change");
             form.find('select[name="status"]').val(el.data('status')).trigger("change");
             form.find('select[name="designation"]').val(el.data('designation')).trigger("change");
             form.find('select[name="client_id"]').val(el.data('client')).trigger("change");
@@ -937,6 +941,17 @@
                                   </select>
                                 </div>
 
+                                 <div class="consultancy-form-col">
+                                  <select name="contract_period" id="contract_period" required>
+                                      <option value="" selected disabled>Select Contract Period</option>
+                                      <option value="2 Months">2 Months</option>
+                                      <option value="6 Months">6 Months</option>
+                                      <option value="1 Year">1 Year</option>
+                                      <option value="2 Years">2 Years</option>
+                                      <option value="3 Years">3 Years</option>
+                                  </select>
+                                </div>
+
                             </div>
 
                             <h3>Designation</h3>
@@ -958,15 +973,13 @@
                                 <div class="consultancy-form-col">
                                     <select name="working_hours">
                                         <option value="" selected disabled>Select Working Hours</option>
-                                        <option value="4 hour">4 hour</option>
-                                        <option value="4 hour">5 hour</option>
-                                        <option value="4 hour">6 hour</option>
-                                        <option value="4 hour">7 hour</option>
-                                        <option value="4 hour">8 hour</option>
-                                        <option value="4 hour">9 hour</option>
-                                        <option value="4 hour">10 hour</option>
-                                        <option value="4 hour">11 hour</option>
-                                        <option value="4 hour">12 hour</option>
+                                        <option value="6 hour">6 hour</option>
+                                        <option value="7 hour">7 hour</option>
+                                        <option value="8 hour">8 hour</option>
+                                        <option value="9 hour">9 hour</option>
+                                        <option value="10 hour">10 hour</option>
+                                        <option value="11 hour">11 hour</option>
+                                        <option value="12 hour">12 hour</option>
                                         <!-- <option value="Consultant">Consultant</option> -->
                                     </select>
                                 </div>
