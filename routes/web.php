@@ -61,10 +61,11 @@ Route::group(['prefix' => 'api'], function () {
         Route::post('hr/add-consultant', [HrApiController::class, 'addConsultant']);
         Route::post('hr/update-consultant', [HrApiController::class, 'updateConsultant']);
         Route::post('hr/delete-consultant', [HrApiController::class, 'deleteConsultant']);
+        Route::post('hr/consultant-information', [HrApiController::class, 'consultantInformation']);
         Route::post('hr/client-list', [HrApiController::class, 'clientListing']);
+        Route::post('hr/dashboard-api', [HrApiController::class, 'dashboardApi']);
         Route::post('hr/reports-tab', [HrApiController::class, 'reportsTab']);
         // hr api ends
-
 
     });
 

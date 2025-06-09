@@ -134,6 +134,20 @@
                            </div>
                         </div>
                      </li>
+
+                      <li>
+                        <div class="hr-dashboard-activity-card">
+                           <div class="activity-card-icon">
+                              <img src="{{ asset('public/assets/latest/images/activity-card-icon-4.png')}}" class="img-fluid">
+                           </div>
+                           <div class="activity-card-text">
+                              <h5>{{ $totalRelieving }}</h5>
+                              <p>Total Number Of Future Joining Employees</p>
+                           </div>
+                        </div>
+                     </li>
+
+
                   </ul>
 
                </div>
