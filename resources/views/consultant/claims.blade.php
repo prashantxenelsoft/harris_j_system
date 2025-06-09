@@ -88,11 +88,11 @@
                         <div id="reporting_fileds_data" class="client-details-consultant">
                            <ul>
                               <li>
-                              <input type="text" placeholder="Enter Your Corporate Email-id">
+                              <input type="text" id="corporate_email" name="corporate_email" placeholder="Enter Your Corporate Email-id">
                               </li>
 
                               <li>
-                              <input type="text" placeholder="Enter Reporting Manager Email-Id">
+                              <input type="text" id="reporting_manager_email" name="reporting_manager_email" placeholder="Enter Reporting Manager Email-Id">
                               </li>
                            </ul>
                         </div>
@@ -1320,87 +1320,119 @@
                            });
 
                            function saveClaimData(statusValue = 'Submitted') {
-                              const selectedMonth = parseInt(document.getElementById("monthSelect").value); // 0-based
-                              const selectedYear = parseInt(document.getElementById("yearSelect").value);
+                           const submitBtn = document.getElementById("submit_icon");
 
-                              const entries = Array.from(document.querySelectorAll(".tab_type_list .tab_lists")).filter(entry => {
-                                 const applyOnCell = entry.getAttribute("data-applyoncell");
-                                 if (!applyOnCell) return false;
+                           const selectedMonth = parseInt(document.getElementById("monthSelect").value) + 1;
+                           const selectedYear = parseInt(document.getElementById("yearSelect").value);
 
-                                 const [day, month, year] = applyOnCell.split(" / ").map(Number);
-                                 return month === (selectedMonth + 1) && year === selectedYear;
-                              });
+                           const reportingManagerEmail = document.getElementById("reporting_manager_email")?.value.trim();
+                           const corporateEmail = document.getElementById("corporate_email")?.value.trim();
 
-                              const promises = [];
-                              let hasData = entries.length > 0;
+                           const claim_token = "{{ $consultant->claim_token ?? '' }}";
 
-                              entries.forEach(entry => {
-                                 const type = entry.getAttribute("data-type");
-                                 const applyOnCell = entry.getAttribute("data-applyoncell");
-
-                                 const date = entry.querySelector(".list_date")?.innerText.split(" ").pop().trim() || "";
-                                 const particulars = entry.querySelector(".list_particulars")?.innerText.replace("Particulars : ", "").trim() || "";
-                                 const amount = entry.querySelector(".list_e_amount")?.innerText.replace("Amount : $", "").trim() || "";
-                                 const remarks = entry.querySelector(".edit-claim")?.getAttribute("data-remarks") || "";
-                                 const locationFrom = entry.querySelector(".edit-claim")?.getAttribute("data-locationfrom") || "";
-                                 const locationTo = entry.querySelector(".edit-claim")?.getAttribute("data-locationto") || "";
-                                 const otherExpense = entry.querySelector(".edit-claim")?.getAttribute("data-otherexpense") || "";
-                                 const claim_no = document.querySelector("#otherModal .ml_duty_time span span")?.textContent.trim() || "";
-
-                                 const recordData = {
-                                       date,
-                                       expenseType: type,
-                                       claim_no,
-                                       applyOnCell,
-                                       particulars,
-                                       amount: parseFloat(amount).toFixed(2),
-                                       remarks,
-                                       locationFrom,
-                                       locationTo,
-                                       otherExpense
-                                 };
-
-                                 const formData = new FormData();
-                                 formData.append("type", "claims");
-                                 formData.append("user_id", "{{ $userData['id'] ?? '' }}");
-                                 formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
-                                 formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
-                                 formData.append("status", statusValue);
-                                 //formData.append("record", JSON.stringify(recordData));
-
-                                 // for (let [key, value] of formData.entries()) {
-                                 //    console.log(key + ": " + value);
-                                 // }
-
-                                 const promise = fetch("{{ route('consultant.data.save') }}", {
-                                       method: "POST",
-                                       headers: {
-                                          "X-CSRF-TOKEN": document.querySelector('meta[name=\"csrf-token\"]').getAttribute("content")
-                                       },
-                                       body: formData
-                                 }).then(res => res.json());
-
-                                 promises.push(promise);
-                              });
-
-                              if (!hasData) {
-                                 Swal.fire("No Data!", "Does not have data for this month for claim", "info");
-                                 return;
-                              }
-
-                              Promise.all(promises)
-                                 .then(() => {
-                                       Swal.fire(
-                                          statusValue === 'Submitted' ? "Submitted!" : "Saved!",
-                                          `All claim entries ${statusValue.toLowerCase()} successfully!`,
-                                          "success"
-                                       ).then(() => location.reload());
-                                 })
-                                 .catch(error => {
-                                       console.error("Bulk claim update failed:", error);
-                                       Swal.fire("Error", "Some claims failed to save.", "error");
-                                 });
+                           if (!reportingManagerEmail && statusValue == 'Submitted') {
+                              Swal.fire("Missing Email", "Please enter the Reporting Manager Email ID.", "warning");
+                              return;
                            }
+
+                           const entries = Array.from(document.querySelectorAll(".tab_type_list .tab_lists")).filter(entry => {
+                              const applyOnCell = entry.getAttribute("data-applyoncell");
+                              if (!applyOnCell) return false;
+
+                              const [day, month, year] = applyOnCell.split(" / ").map(Number);
+                              return month === selectedMonth && year === selectedYear;
+                           });
+
+                           if (entries.length === 0) {
+                              Swal.fire("No Data!", "Does not have data for this month for claim", "info");
+                              return;
+                           }
+
+                           const combinedRecords = [];
+
+                           entries.forEach(entry => {
+                              const type = entry.getAttribute("data-type");
+                              const applyOnCell = entry.getAttribute("data-applyoncell");
+
+                              const date = entry.querySelector(".list_date")?.innerText.split(" ").pop().trim() || "";
+                              const particulars = entry.querySelector(".list_particulars")?.innerText.replace("Particulars : ", "").trim() || "";
+                              const amount = entry.querySelector(".list_e_amount")?.innerText.replace("Amount : $", "").trim() || "";
+                              const remarks = entry.querySelector(".edit-claim")?.getAttribute("data-remarks") || "";
+                              const locationFrom = entry.querySelector(".edit-claim")?.getAttribute("data-locationfrom") || "";
+                              const locationTo = entry.querySelector(".edit-claim")?.getAttribute("data-locationto") || "";
+                              const otherExpense = entry.querySelector(".edit-claim")?.getAttribute("data-otherexpense") || "";
+                              const claim_no = document.querySelector("#otherModal .ml_duty_time span span")?.textContent.trim() || "";
+
+                              combinedRecords.push({
+                                 date,
+                                 expenseType: type,
+                                 claim_no,
+                                 applyOnCell,
+                                 particulars,
+                                 amount: parseFloat(amount).toFixed(2),
+                                 remarks,
+                                 locationFrom,
+                                 locationTo,
+                                 otherExpense
+                              });
+                           });
+
+                           const formData = new FormData();
+                           formData.append("type", "claims");
+                           formData.append("user_id", "{{ $userData['id'] ?? '' }}");
+                           formData.append("client_id", "{{ $consultant->client_id ?? '' }}");
+                           formData.append("client_name", "{{ $consultant->client_name ?? '' }}");
+                           formData.append("status", statusValue);
+                           formData.append("record", JSON.stringify(combinedRecords));
+                           formData.append("reporting_manager_email", reportingManagerEmail);
+                           formData.append("corporate_email", corporateEmail);
+                           formData.append("selectedMonth", selectedMonth);
+                           formData.append("selectedYear", selectedYear);
+                           formData.append("token", claim_token);
+
+                           submitBtn.disabled = true;
+
+                           Swal.fire({
+                              title: 'Please wait...',
+                              html: 'Submitting your claim...',
+                              allowOutsideClick: false,
+                              didOpen: () => {
+                                 Swal.showLoading();
+                              }
+                           });
+
+                           fetch("{{ route('consultant.data.save') }}", {
+                              method: "POST",
+                              headers: {
+                                 "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                              },
+                              body: formData
+                           })
+                        .then(async res => {
+                           const data = await res.json();
+                           if (res.ok && data.success) {
+                              Swal.fire(
+                              statusValue === 'Submitted' ? "Submitted!" : "Saved!",
+                              data.message || `All claim entries ${statusValue.toLowerCase()} successfully!`,
+                              "success"
+                              ).then((result) => {
+                              if (result.isConfirmed) {
+                                 location.reload();
+                              }
+                              });
+                              
+                           } else {
+                              throw new Error(data.message || "Unknown error");
+                           }
+                        })
+                           .catch(error => {
+                              console.error("Bulk claim update failed:", error);
+                              Swal.fire("Error", error.message || "Some claims failed to save.", "error");
+                           })
+                           .finally(() => {
+                              submitBtn.disabled = false;
+                           });
+                        }
 
                            document.getElementById("save_icon").addEventListener("click", function (e) {
                               e.preventDefault();
@@ -1445,7 +1477,7 @@
                            <button class="nav-link tab_btn" data-bs-toggle="tab" data-bs-target="#gCopiesContent" type="button" role="tab">Get Copies</button>
                         </li>
                      </ul>
-                     </button>
+                    
                   </div>
                   <div class="tab-content tab_content_body" id="clickTabsContent">
                      <div class="tab-pane fade show active" id="claimContent123" role="tabpanel" aria-labelledby="claim-tab">

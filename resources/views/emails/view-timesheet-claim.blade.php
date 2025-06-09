@@ -168,7 +168,7 @@
                     <div style="font-weight: bold; padding-bottom: 4px;">{{ $d }}</div>
                     @foreach($claimData as $claim)
                       <div class="claim-block" style="background: {{ $colorMap[$claim['type']] ?? '#ddd' }};">
-                        {{ ucfirst($claim['type']) }}<br>₹{{ $claim['amount'] }}
+                        {{ ucfirst($claim['type']) }}<br>{{ $claim['amount'] }}
                       </div>
                     @endforeach
                   @endif

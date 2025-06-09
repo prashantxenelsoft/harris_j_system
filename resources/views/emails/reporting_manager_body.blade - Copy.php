@@ -69,16 +69,7 @@ return $record;
     $endOfMonth = $startOfMonth->copy()->endOfMonth();
     $period = CarbonPeriod::create($startOfMonth, $endOfMonth);
     $weekdays = collect($period)->filter(fn($date) => !$date->isWeekend())->count();
- $phCount = collect($parsedRecords)->filter(function ($record) use ($month, $year) {
-    if (!empty($record['leaveType']) && $record['leaveType'] === 'PH' && !empty($record['parsedDate'])) {
-        $date = $record['parsedDate'];
-        return $date->month == $month && $date->year == $year && !$date->isWeekend(); // Only count PH on weekdays
-    }
-    return false;
-})->count();
-
-// Adjust forecast hours
-$forecastHours = ($weekdays - $phCount) * 8;
+    $forecastHours = $weekdays * 8;
   @endphp
 
   <!-- Leave Table -->
@@ -119,6 +110,64 @@ $forecastHours = ($weekdays - $phCount) * 8;
     </div>
   </div>
 
+  @php
+  $daysInMonth = $startOfMonth->daysInMonth;
+  $recordsByDate = [];
+  foreach ($parsedRecords as $record) {
+      if (!empty($record['parsedDate'])) {
+          $key = $record['parsedDate']->format('Y-m-d');
+          $recordsByDate[$key][] = $record;
+      }
+  }
+  $firstDayOfWeek = $startOfMonth->copy()->startOfMonth()->dayOfWeekIso; // 1=Mon to 7=Sun
+  $totalCells = ceil(($daysInMonth + $firstDayOfWeek - 1) / 7) * 7;
+@endphp
+
+<div style="margin-top: 40px;">
+  <h3 style="color: #003366;">Monthly Calendar View ({{ $startOfMonth->format('F Y') }})</h3>
+ <table style="width: 100%; border-collapse: collapse; font-size: 13px; border: 1px solid #ccc; margin-top: 40px;">
+  <thead>
+    <tr style="background: #003366; color: #fff; text-align: center;">
+      @foreach (['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as $dayName)
+        <th style="width: 14.28%; padding: 8px; border: 1px solid #fff;">{{ $dayName }}</th>
+      @endforeach
+    </tr>
+  </thead>
+  <tbody>
+    @for ($i = 1; $i <= $totalCells; $i++)
+      @php
+        $cellDate = $startOfMonth->copy()->startOfMonth()->addDays($i - $firstDayOfWeek);
+        $inMonth = $cellDate->month === $month;
+        $entries = $recordsByDate[$cellDate->format('Y-m-d')] ?? [];
+        $dayNum = $cellDate->day;
+      @endphp
+
+      @if (($i - 1) % 7 == 0)
+        <tr>
+      @endif
+
+      <td style="width: 14.28%; vertical-align: top; border: 1px solid #ccc; padding: 6px; background: {{ $inMonth ? '#fff' : '#f1f1f1' }};">
+        <div style="font-weight: bold; color: #003366;">{{ $dayNum }}</div>
+        @foreach ($entries as $entry)
+          <div style="margin-top: 4px; background: #e0ecff; padding: 3px 5px; border-radius: 4px;">
+            @if (!empty($entry['leaveType']))
+              <div><strong>Leave:</strong> {{ $entry['leaveType'] }}</div>
+              <div><strong>Hours:</strong> {{ $entry['leaveHour'] ?? '-' }}</div>
+            @elseif (!empty($entry['workingHours']))
+              <div><strong>Worked:</strong> {{ $entry['workingHours'] }}h</div>
+            @endif
+          </div>
+        @endforeach
+      </td>
+
+      @if ($i % 7 == 0)
+        </tr>
+      @endif
+    @endfor
+  </tbody>
+</table>
+
+</div>
 
   <!-- Manager Instructions -->
   <div style="margin-top: 40px; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background: #f9f9f9;">
@@ -151,7 +200,6 @@ $forecastHours = ($weekdays - $phCount) * 8;
     <p><strong>ML:</strong> Medical Leave</p>
     <p><strong>AL:</strong> Annual Leave</p>
     <p><strong>UL:</strong> Unpaid Leave</p>
-    <p><strong>PDO:</strong> Paid Day Off</p>
   </div>
 
   <!-- Approval Link -->
