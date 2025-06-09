@@ -1519,9 +1519,9 @@
                                     $badgeClass = match(strtolower($statusRaw)) {
                                        'submitted' => 'badge submitted',
                                        'approved'  => 'badge approved',
-                                       'rejected'  => 'badge bg-danger',
+                                       'rejected'  => 'badge rejected',
                                        'draft'     => 'badge draft',
-                                       default     => 'badge bg-light text-dark',
+                                       'default'     => 'badge bg-light text-dark',
                                     };
                                  @endphp
 
@@ -1906,7 +1906,7 @@
 
                            
                         </form>
-
+                        @if(count($groupedClaims) > 0)
                         <script>
                            document.getElementById('downloadSelected').addEventListener('click', function () {
                               const checkboxes = document.querySelectorAll('.claim-checkbox:checked');
@@ -1928,6 +1928,7 @@
                               });
                            });
                         </script>
+                        @endif
                      </div>
                   </div>
                   <!-- claim modal -->

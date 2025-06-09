@@ -717,3 +717,14 @@ div#home_page_timesheet .timeline-container{
     margin: auto;
     height: 40px;
 }
+
+.badge.rejected{
+    padding: 5px;
+    border-radius: 5px;
+    color: #f6f6f6 !important;
+    background-color: #e02f2f !important;
+    font-family: var(--Themefont);
+    margin-top: 10px;
+    font-weight: 700;
+    font-size: var(--Font14px);
+}
