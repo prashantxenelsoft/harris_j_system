@@ -251,7 +251,6 @@ class ConsultanctApiController extends Controller
             try {
                 $dates = [];
 
-                // Handle date range
                 if (!empty($record['date']) && str_contains($record['date'], 'to')) {
                     [$from, $to] = explode('to', $record['date']);
                     $start = \Carbon\Carbon::createFromFormat('d / m / Y', trim($from));
@@ -263,18 +262,15 @@ class ConsultanctApiController extends Controller
                     $dates[] = \Carbon\Carbon::createFromFormat('d / m / Y', $applyDate);
                 }
 
-                // Fix certificate path
                 if (!empty($record['certificate_path'])) {
                     $filename = str_replace('storage/app/public/', '', $record['certificate_path']);
                     $record['certificate_path'] = url('public/storage/' . ltrim($filename, '/'));
                 }
 
-                // Normalize leaveType
                 if (isset($record['leaveType']) && $record['leaveType'] === 'Custom AL') {
                     $record['leaveType'] = 'AL';
                 }
 
-                // Group by date
                 foreach ($dates as $date) {
                     if ($date->isFuture()) continue;
 
@@ -332,10 +328,14 @@ class ConsultanctApiController extends Controller
             }
 
             if (!empty($daysList)) {
+                $statuses = collect($daysList)->pluck('status')->unique()->values();
+                $monthStatus = $statuses->count() === 1 ? $statuses[0] : 'Mixed';
+
                 $finalData[] = [
                     'month' => $carbon->format('F Y'),
                     'start_date' => $carbon->startOfMonth()->toDateString(),
                     'end_date' => $carbon->endOfMonth()->toDateString(),
+                    'status' => $monthStatus, // ✅ added line
                     'days' => $daysList,
                 ];
             }
@@ -347,6 +347,7 @@ class ConsultanctApiController extends Controller
             'data' => $finalData,
         ]);
     }
+
 
     public function getConsultantAllDetails(Request $request)
     {
