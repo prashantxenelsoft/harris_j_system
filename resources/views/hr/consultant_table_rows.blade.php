@@ -1,19 +1,23 @@
+<tbody>
 @foreach ($consultants as $consultant)
     @php
         $userData = $dashboardData[$consultant->user_id] ?? collect();
+
         $totalLogged = 0;
-
-        // Forecasted hours
-        $start = Carbon\Carbon::create($year, $month, 1);
-        $end = $start->copy()->endOfMonth();
-        $workingDays = 0;
-        while ($start->lte($end)) {
-            if (!$start->isWeekend()) $workingDays++;
-            $start->addDay();
-        }
-        $forecastedHours = $workingDays * 8;
-
         $used = ['AL' => 0, 'ML' => 0, 'UL' => 0, 'PDO' => 0, 'Comp Off' => 0];
+
+        // Only filter hours for selected month
+        $forecastedHours = 0;
+        if ($month && $year) {
+            $start = Carbon\Carbon::create($year, $month, 1);
+            $end = $start->copy()->endOfMonth();
+            $workingDays = 0;
+            while ($start->lte($end)) {
+                if (!$start->isWeekend()) $workingDays++;
+                $start->addDay();
+            }
+            $forecastedHours = $workingDays * 8;
+        }
 
         foreach ($userData as $entry) {
             $record = json_decode($entry->record ?? '{}', true);
@@ -24,47 +28,23 @@
             $applyOnCell = trim($record['applyOnCell'] ?? '');
             $dateRange = trim($record['date'] ?? '');
             $workingHours = isset($record['workingHours']) && is_numeric($record['workingHours']) ? floatval($record['workingHours']) : 0;
+
             $perDayValue = in_array($hourId, ['fHalfDay', 'sHalfDay']) ? 0.5 : 1;
 
-            $mapTypes = [
-                'CUSTOM AL' => 'AL',
-                'CUSTOM ML' => 'ML',
-                'CUSTOM UL' => 'UL',
-                'CUSTOM PDO' => 'PDO',
-                'CUSTOM COMP-OFF' => 'Comp Off',
-            ];
-            $type = $mapTypes[$leaveRaw] ?? $leaveRaw;
+            if (Str::contains($leaveRaw, 'AL')) $used['AL'] += $perDayValue;
+            if (Str::contains($leaveRaw, 'ML')) $used['ML'] += $perDayValue;
+            if (Str::contains($leaveRaw, 'PDO')) $used['PDO'] += $perDayValue;
+            if (Str::contains($leaveRaw, 'UL')) $used['UL'] += $perDayValue;
 
-            $dates = [];
-            if ($dateRange && Str::contains($dateRange, 'to')) {
-                try {
-                    [$startDate, $endDate] = array_map('trim', explode('to', $dateRange));
-                    $startDate = Carbon\Carbon::createFromFormat('d / m / Y', $startDate);
-                    $endDate = Carbon\Carbon::createFromFormat('d / m / Y', $endDate);
-                    while ($startDate->lte($endDate)) {
-                        $dates[] = $startDate->copy();
-                        $startDate->addDay();
-                    }
-                } catch (\Exception $e) {}
-            } elseif ($applyOnCell) {
-                try {
-                    $dates[] = Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
-                } catch (\Exception $e) {}
-            }
-
-            foreach ($dates as $d) {
-                if (in_array($d->dayOfWeek, [0, 6])) continue;
-
-                if (Str::contains($type, 'AL')) $used['AL'] += $perDayValue;
-                if (Str::contains($type, 'ML')) $used['ML'] += $perDayValue;
-                if (Str::contains($type, 'PDO')) $used['PDO'] += $perDayValue;
-                if (Str::contains($type, 'UL')) $used['UL'] += $perDayValue;
-
-                if ($type === 'COMP OFF' || $type === 'COMP-OFF') {
-                    $used['Comp Off'] += $workingHours > 8 ? ($workingHours - 8) / 8 : $perDayValue;
+            if (Str::contains($leaveRaw, 'COMP')) {
+                if ($workingHours > 8) {
+                    $used['Comp Off'] += ($workingHours - 8) / 8;
+                } else {
+                    $used['Comp Off'] += $perDayValue;
                 }
             }
 
+            // ✅ Only sum hours if in selected month
             if (!empty($record['workingHours']) && !empty($record['applyOnCell'])) {
                 try {
                     $logDate = Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
@@ -80,7 +60,18 @@
         }
     @endphp
 
-    <tr>
+    <tr class="table-row-click"
+        data-name="{{ $consultant->emp_name }}"
+        data-empid="{{ $consultant->emp_code }}"
+        data-userid="{{ $consultant->user_id }}"
+        data-email="{{ $consultant->email }}"
+        data-phone="{{ $consultant->mobile_number }}"
+        data-address="{{ $consultant->full_address }}"
+        data-altaddress="{{ $consultant->show_address_input }}"
+        data-joining="{{ $consultant->joining_date }}"
+        data-designation="{{ $consultant->designation }}"
+        data-status="{{ $consultant->status }}"
+         @if($totalLogged == 0) data-na="1" @endif>
         <td>{{ $consultant->emp_name }}</td>
         <td><span class="queue-dot blue"></span></td>
         <td>
@@ -93,3 +84,4 @@
         <td>{{ $used['UL'] > 0 ? "$used[UL]/" . ($consultant->assign_ul ?? 0) : 'N/A' }}</td>
     </tr>
 @endforeach
+</tbody>

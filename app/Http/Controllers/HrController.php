@@ -63,9 +63,12 @@ class HrController extends Controller {
         $clientId = $request->input('client_id');
 
         $consultants = Consultant::where('client_id', $clientId)->get();
-        $dashboardData = DB::table('consultant_dashboard')->whereMonth('created_at', $month)->whereYear('created_at', $year)->get()->groupBy('user_id');
 
-        // whatever processing you were already doing
+        $dashboardData = DB::table('consultant_dashboard')
+            ->whereIn('user_id', $consultants->pluck('user_id'))
+            ->get()
+            ->groupBy('user_id');
+
         return view('hr.consultant_table_rows', compact('consultants', 'dashboardData', 'month', 'year'));
     }
 
