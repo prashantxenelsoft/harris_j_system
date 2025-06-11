@@ -72,6 +72,43 @@ class HrController extends Controller {
         return view('hr.consultant_table_rows', compact('consultants', 'dashboardData', 'month', 'year'));
     }
 
+    public function getThirdBox(Request $request)
+    {
+        $userId = $request->input('user_id');
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        if (!$userId || !$month || !$year) {
+            return response()->json(['error' => 'Missing parameters.'], 400);
+        }
+
+        // ✅ Get consultant_dashboard data (type = timesheet)
+        $dataTimesheet = DB::table('consultant_dashboard')->where('user_id', $userId)->where('type', 'timesheet')->orderBy('id', 'desc')->get();
+        $consultant = DB::table('consultants')->where('user_id', $userId)->first();
+
+       
+        $remarks_data = DB::table('remarks')->where('consultant_id', $consultant->id)->orderBy('id', 'desc')->get();
+
+        // ✅ Return the Blade partial with data
+        return view('hr.thirdbox', compact('dataTimesheet','remarks_data'));
+    }
+
+    public function getSecondBox(Request $request)
+    {
+        $userId = $request->input('user_id');
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        // ✅ Get consultant_dashboard data (type = timesheet)
+        $dataTimesheet = DB::table('consultant_dashboard')->where('user_id', $userId)->where('type', 'timesheet')->orderBy('id', 'desc')->get();
+        $consultant = DB::table('consultants')->where('user_id', $userId)->first();
+
+       
+        $remarks_data = DB::table('remarks')->where('consultant_id', $consultant->id)->orderBy('id', 'desc')->get();
+
+        // ✅ Return the Blade partial with data
+        return view('hr.secondbox', compact('dataTimesheet','remarks_data','consultant'));
+    }
 
     public function getFullUserHierarchyIncludingAbove($userId, $roleId) {
         $consultancies = collect();

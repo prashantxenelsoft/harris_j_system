@@ -224,6 +224,8 @@
                                                          data-altaddress="{{ $consultant->show_address_input }}"
                                                          data-joining="{{ $consultant->joining_date }}"
                                                          data-designation="{{ $consultant->designation }}"
+                                                         data-client="{{ $consultant->client_name }}"
+                                                         data-profile="{{ asset('storage/app/public/' . $consultant->profile_image) }}"
                                                          data-status="{{ $consultant->status }}"
                                                           @if($totalLogged == 0) data-na="1" @endif>
                                                          <td>{{ $consultant->emp_name }}</td>
@@ -460,39 +462,65 @@
                                           <div class="modal fade" id="hr-profile-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
                                              <div class="modal-dialog">
                                                 <div class="modal-content">
-                                                   <div class="modal-header">
-                                                      <h5 class="modal-title" id="modalLabel">Consultant Details</h5>
-                                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                   </div>
                                                    <div class="modal-body">
                                                       <div class="modal-profile">
-                                                         <div class="profile-modal-row-top mb-3">
+                                                         <!-- Top Row -->
+                                                         <div class="profile-modal-row-top">
                                                             <div class="profile-img-wrap d-flex align-items-center">
                                                                <div class="profile-img-inner me-3">
-                                                                  <img src="{{ asset('public/assets/images/profile-icon-img.png') }}" alt="Profile Picture" class="profile-pic" />
+                                                                  <img id="modalProfilePic" src="{{ asset('public/assets/images/profile-icon-img.png') }}" alt="Profile Picture" class="profile-pic">
                                                                </div>
                                                                <div>
                                                                   <h3 id="modalName">Name</h3>
-                                                                  <p id="modalCode">Employee Id</p>
+                                                                  <p id="modalCode">Employee Id: Emp123</p>
                                                                </div>
                                                             </div>
+                                                            <div class="badge-wrap-modal">
+                                                               <div class="active-badge" id="modalStatus">Active</div>
+                                                            </div>
+                                                            <img src="{{ asset('public/assets/latest/images/close-icon-popup.png') }}" class="img-fluid" data-bs-dismiss="modal" aria-label="Close">
                                                          </div>
 
-                                                         <div class="consultancy-info-row-modal mb-3">
+                                                         <!-- Client / Designation -->
+                                                         <div class="consultancy-info-row-modal">
                                                             <div class="consultancy-info-inner">
-                                                               <h5>Designation: <span id="modalDesignation"></span></h5>
-                                                               <h6>Joining Date: <span id="modalJoining"></span></h6>
+                                                               <h3><img  src="https://i.pravatar.cc/24" alt="Client Icon"> <span id="modalClient">Client Name</span></h3>
+                                                               <h6 id="modalDesignation">Designation</h6>
+                                                            </div>
+                                                            <div class="consultancy-info-joining-modal">
+                                                               <h5><span>Joining Date:</span> <span id="modalJoining">12 / 02 / 2022</span></h5>
                                                             </div>
                                                          </div>
-
+                                                         <!-- Contact & Addresses -->
                                                          <div class="consultancy-info-modal-listing">
-                                                            <ul class="list-unstyled">
-                                                               <li><strong>Email:</strong> <span id="modalEmail"></span></li>
-                                                               <li><strong>Phone:</strong> <span id="modalPhone"></span></li>
-                                                               <li><strong>Address:</strong> <span id="modalAddress"></span></li>
-                                                               <li><strong>Other Address:</strong> <span id="modalAltAddress"></span></li>
+                                                            <ul>
+                                                               <li>
+                                                                  <div class="img-icon"> 
+                                                                     <img src="{{ asset('public/assets/latest/images/phn-circle-icon-1.png') }}" class="img-fluid">
+                                                                  </div>
+                                                                  <p id="modalPhone">+65 9876 4763</p>
+                                                               </li>
+                                                               <li>
+                                                                  <div class="img-icon">
+                                                                     <img src="{{ asset('public/assets/latest/images/msg-circle-icon-1.png') }}" class="img-fluid">
+                                                                  </div>
+                                                                  <p id="modalEmail">john@example.com</p>
+                                                               </li>
+                                                               <li>
+                                                                  <div class="img-icon">
+                                                                     <img src="{{ asset('public/assets/latest/images/location-circle-icon-1.png') }}" class="img-fluid">
+                                                                  </div>
+                                                                  <p id="modalAddress">Main Address</p>
+                                                               </li>
+                                                               <li>
+                                                                  <div class="img-icon">
+                                                                     <img src="{{ asset('public/assets/latest/images/dots-circle-icon-1.png') }}" class="img-fluid">
+                                                                  </div>
+                                                                  <p id="modalAltAddress">Other Address</p>
+                                                               </li>
                                                             </ul>
                                                          </div>
+
                                                       </div>
                                                    </div>
                                                 </div>
@@ -520,6 +548,199 @@
                                           </div>
                                     </div>
                                  </div> <!-- /.calendar-ui -->
+
+                                 <div class="row mt-4 bottom-remark-timesheet-group">
+                                    <div class="col-lg-6 col-xl-4 mb-4 mb-xl-none position-relative" id="first_box">
+                                          <div class="work-summary write-summary">
+                                             <!-- Expand Button -->
+                                             <button class="expand-btn" data-bs-toggle="modal" data-bs-target="#workSummaryModal">
+                                                <img src="{{ asset('public/assets/latest/images/expand-icon.png') }}">
+                                             </button>
+
+                                             <div class="remark-bottom-col">
+                                                <div class="remark-heading">
+                                                      <span></span>
+                                                      <h4>Remarks</h4>
+                                                </div>
+
+                                                <div class="remark-item">
+                                                      <p>
+                                                         I have been working with the production
+                                                         team and supporting
+                                                         in the release activities. This was an
+                                                         unexpected support call
+                                                      </p>
+
+                                                      <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtn">
+                                                         <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid">
+                                                      </a>
+
+
+
+                                                </div>
+
+                                                <div class="write-remark">
+                                                      <input type="text" placeholder="Write your remarks here...">
+                                                </div>
+                                             </div>
+
+                                          </div>
+                                          <div class="edit-delete-popup d-none">
+                                             <ul>
+                                                <li><img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}">Edit
+                                                </li>
+                                                <li><img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}">Delete
+                                                </li>
+                                             </ul>
+                                          </div>
+
+                                          <!-- Modal -->
+                                          <div class="modal fade" id="workSummaryModal" tabindex="-1" aria-labelledby="workSummaryModalLabel" aria-hidden="true">
+                                             <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content">
+                                                      <div class="modal-header ">
+                                                         <button type="button" class="btn-close popup-expand-btn " data-bs-dismiss="modal" aria-label="Close">
+                                                            <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                                                         </button>
+                                                      </div>
+                                                      <div class="modal-body ">
+                                                         <div class="write-summary-popup-body">
+                                                            <h4>Remarks</h4>
+                                                            <div class="write-summary-expand-row mt-2">
+                                                                  <div class="write-summary-expand-item">
+                                                                     <p>
+                                                                        I have been working with
+                                                                        the production team and
+                                                                        supporting
+                                                                        in the release
+                                                                        activities. This was an
+                                                                        unexpected support call
+                                                                     </p>
+
+                                                                     <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtnexpand">
+                                                                        <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid">
+                                                                     </a>
+                                                                  </div>
+
+                                                                  <div class="write-remark mt-4">
+                                                                     <input type="text" placeholder="Write your remarks here...">
+                                                                  </div>
+                                                            </div>
+
+                                                            <div class="edit-delete-popup-expand d-none">
+                                                                  <ul>
+                                                                     <li><img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}">Edit
+                                                                     </li>
+                                                                     <li><img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}">Delete
+                                                                     </li>
+                                                                  </ul>
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                </div>
+                                             </div>
+                                          </div>
+
+                                    </div>
+
+                                    <div class="col-lg-6 col-xl-4 mb-4 mb-xl-none" id="second_box">
+                                          <div class="remark-section card p-3">
+                                             <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6>Remarks</h6>
+                                             
+                                             </div>
+
+                                             <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2">
+                                                <strong>No entries found</strong>
+                                             </div>         
+                                          </div>
+                                    </div>
+
+                                    <div class="col-lg-6 col-xl-4" id="third_box">
+                                          <div class="timesheet-section card p-2">
+
+                                             <!-- Tabs -->
+                                             <div class="timesheet-header d-flex justify-content-between align-items-start">
+                                                <ul class="nav nav-tabs" id="timesheetTabs">
+                                                      <li class="nav-item">
+                                                         <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#overviewTab">Timesheet
+                                                            Overview</button>
+                                                      </li>
+                                                      <li class="nav-item">
+                                                         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#extraTimeTab">Extra
+                                                            Time Log</button>
+                                                      </li>
+                                                      <li class="nav-item">
+                                                         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#payOffTab">Pay-Off
+                                                            Log</button>
+                                                      </li>
+                                                      <li class="nav-item">
+                                                         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#compOffTab">Comp-off
+                                                            log</button>
+                                                      </li>
+                                                      <li class="nav-item">
+                                                         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#copiesTab">Get
+                                                            Copies</button>
+                                                      </li>
+                                                </ul>
+
+                                              
+                                             </div>
+
+                                             <!-- Tab Contents -->
+                                             <div class="tab-content tab_content_body p-2">
+                                                <div class="tab-pane fade show active" id="overviewTab">
+                                                      <div class="timeline">
+
+                                                         <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2">
+                                                            <strong>No entries found</strong>
+                                                         </div>
+                                                        
+                                                      </div>
+                                                </div>
+                                                <!-- Other tabs can be filled similarly -->
+                                                <div class="tab-pane fade" id="extraTimeTab">
+                                                      <div class="timeline">
+
+                                                         <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2">
+                                                            <strong>No entries found</strong>
+                                                         </div>
+                                                        
+                                                      </div>
+                                                </div>
+                                                <div class="tab-pane fade" id="payOffTab">
+                                                      <div class="timeline">
+
+                                                         <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2">
+                                                            <strong>No entries found</strong>
+                                                         </div>
+                                                        
+                                                      </div>
+                                                </div>
+                                                <div class="tab-pane fade" id="compOffTab">
+                                                      <div class="timeline">
+
+                                                         <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2">
+                                                            <strong>No entries found</strong>
+                                                         </div>
+                                                        
+                                                      </div>
+                                                </div>
+                                                <div class="tab-pane fade" id="copiesTab">
+                                                   <div class="timeline">
+
+                                                         <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2">
+                                                            <strong>No entries found</strong>
+                                                         </div>
+                                                        
+                                                      </div>
+                                                </div>
+                                             </div>
+                                          </div>
+
+                                    </div>
+                                 </div>
+
                               </div>
                         </div>
                      @endforeach
@@ -691,8 +912,9 @@ function buildCalendarWithRecords(records, month, year) {
       if (info?.leave) {
          cell += `<br><span class="leave">${info.leave}</span>`;
       }
-      if (info?.hours) {
-         cell += `<br>${info.hours}`;
+     if (info?.hours !== undefined) {
+         const hourClass = info.hours < 8 || info.hours > 8 ? 'red-hour' : '';
+         cell += `<br><span class="${hourClass}">${info.hours}</span>`;
       }
       cell += `</div>`;
       html += cell;
@@ -744,33 +966,133 @@ function bindRowClickEvents() {
          const name = this.dataset.name;
          const empId = this.dataset.empid;
          const userId = this.dataset.userid;
-         const tabId = this.closest(".tab-pane").id.replace("v-pills-", ""); // e.g., client-6
+         const tabId = this.closest(".tab-pane").id.replace("v-pills-", "");
 
-         // ✅ Now target correct calendar
+         // Calendar rendering
          const calendarContainer = document.querySelector(`#days_${tabId}`);
          if (!calendarContainer) return;
-
          const records = window.dashboardData[userId] || [];
-
-         const selectedMonth = selMonth + 1; // JavaScript month (0-based)
+         const selectedMonth = selMonth + 1;
          const selectedYear = selYear;
-
          const html = buildCalendarWithRecords(records, selectedMonth, selectedYear);
          calendarContainer.innerHTML = html;
 
-         // ✅ Update profile header
+         // Profile modal update
          document.querySelector("#calendar_id h3").innerText = name;
          document.querySelector("#calendar_id p").innerText = `Employee Id : ${empId}`;
-         document.getElementById("modalName").innerText = this.dataset.name || '';
-         document.getElementById("modalCode").innerText = "Employee Id: " + (this.dataset.empid || '');
+         document.getElementById("modalName").innerText = name || '';
+         document.getElementById("modalCode").innerText = "Employee Id: " + (empId || '');
          document.getElementById("modalEmail").innerText = this.dataset.email || '';
          document.getElementById("modalPhone").innerText = this.dataset.phone || '';
          document.getElementById("modalAddress").innerText = this.dataset.address || '';
          document.getElementById("modalAltAddress").innerText = this.dataset.altaddress || '';
          document.getElementById("modalJoining").innerText = this.dataset.joining || '';
          document.getElementById("modalDesignation").innerText = this.dataset.designation || '';
+         document.getElementById("modalClient").innerText = this.dataset.client || '';
+         document.getElementById("modalProfilePic").src = this.dataset.profile;
+         document.getElementById("modalStatus").innerText = this.dataset.status || 'Active';
+
+         // Only run AJAX if hours ≠ N/A
+         const loggedCell = this.querySelectorAll("td")[2];
+         if (!loggedCell || loggedCell.innerText.trim() === 'N/A') {
+            document.getElementById("third_box").innerHTML = `
+               <div class="timesheet-section card p-2">
+                  <div class="timesheet-header d-flex justify-content-between align-items-start">
+                     <ul class="nav nav-tabs" id="timesheetTabs">
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#overviewTab">Timesheet Overview</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#extraTimeTab">Extra Time Log</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#payOffTab">Pay-Off Log</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#compOffTab">Comp-off log</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#copiesTab">Get Copies</button></li>
+                     </ul>
+                  </div>
+                  <div class="tab-content tab_content_body p-2">
+                     ${['overview', 'extraTime', 'payOff', 'compOff', 'copies'].map((id, i) => `
+                        <div class="tab-pane fade ${i === 0 ? 'show active' : ''}" id="${id}Tab">
+                           <div class="timeline">
+                              <div class="fs-12 text-center text-muted p-2">
+                                 <strong>No entries found</strong>
+                              </div>
+                           </div>
+                        </div>
+                     `).join('')}
+                  </div>
+               </div>
+            `;
+
+            document.getElementById("second_box").innerHTML = `
+               <div class="remark-section card p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                     <h6>Remarks</h6>
+                  
+                  </div>
+
+                  <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2">
+                     <strong>No entries found</strong>
+                  </div>         
+               </div>
+            `;
+            return;
+         }
+
+
+         // ✅ AJAX call to route
+         const thirdboxURL = `{{ route('hr.getThirdbox') }}?user_id=${userId}&month=${selectedMonth}&year=${selectedYear}`;
+         const secondboxURL = `{{ route('hr.getSecondbox') }}?user_id=${userId}&month=${selectedMonth}&year=${selectedYear}`;
+
+         fetch(thirdboxURL)
+            .then(res => res.text())
+            .then(html => {
+               document.getElementById("third_box").innerHTML = html;
+               document.querySelectorAll("#timesheetTabsMain .nav-link").forEach(btn => {
+                  btn.addEventListener("click", function () {
+                     const tabId = this.getAttribute("data-bs-target"); // e.g., #extraTimeTab
+                     localStorage.setItem("activeTabMain", tabId);
+                  });
+               });
+
+               // Sync when modal opens
+               document.getElementById("timesheetModal").addEventListener("shown.bs.modal", function () {
+                  const mainTab = localStorage.getItem("activeTabMain"); // e.g., #extraTimeTab
+                  if (!mainTab) return;
+
+                  // Match format: overviewTab => modeloverviewTab
+                  const modalTarget = "#model" + mainTab.replace("#", "");
+
+                  // Deactivate all modal tabs
+                  document.querySelectorAll("#timesheetTabsModal .nav-link").forEach(btn => btn.classList.remove("active"));
+                  document.querySelectorAll("#timesheetModal .tab-pane").forEach(pane => pane.classList.remove("active", "show"));
+
+                  // Activate matched tab
+                  const btn = document.querySelector(`#timesheetTabsModal [data-bs-target="${modalTarget}"]`);
+                  const pane = document.querySelector(modalTarget);
+                  if (btn && pane) {
+                     btn.classList.add("active");
+                     pane.classList.add("active", "show");
+                  }
+               });
+            })
+            .catch(err => {
+               console.error("Failed to load #third_box data:", err);
+            });
+
+
+             fetch(secondboxURL)
+               .then(res => res.text())
+               .then(html => {
+                  document.getElementById("second_box").innerHTML = html;
+               })
+            .catch(err => {
+               console.error("Failed to load #second_box data:", err);
+            });
+
+
+
+
       });
    });
+
+
 
 
 }

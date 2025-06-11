@@ -805,3 +805,8 @@ div#home_page_timesheet .timeline-container{
    background-color: #f0f4ff;
    opacity: 0.8;
 }
+
+.red-hour {
+   color: red;
+   font-weight: bold;
+}
