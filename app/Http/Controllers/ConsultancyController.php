@@ -135,6 +135,18 @@ class ConsultancyController extends Controller
             'status'   => $data['status'],
             'created_by_user_id' => Session::get('user_data')['id'],
         ]);
+        $userinsertedId = $user->id;
+
+         if($request->reset_password == 1)
+        {
+            $data = [
+                'name' => $request->emp_name,
+                'message' => 'Here is the important link you requested.',
+                'url' => route('insert.password', ['id' => $userinsertedId]) // You can replace this with any dynamic URL
+            ];
+    
+            Mail::to($request->login_email)->send(new TestMail($data));
+        }
 
         return response()->json([
             'success' => true,
