@@ -728,3 +728,80 @@ div#home_page_timesheet .timeline-container{
     font-weight: 700;
     font-size: var(--Font14px);
 }
+
+.tab-unique-structure-hr .structure-flex-hr{
+  display: flex;
+}
+
+.tab-unique-structure-hr  .hr-table{
+   width: 100%;
+}
+
+.tab-unique-structure-hr .status-buttons img{
+   width: 16px;
+}
+
+.tab-unique-structure-hr .hr-tab-inner{
+    height: 99%;
+    width: 100%;
+}
+
+.tab-unique-structure-hr .bottom-remark-timesheet-group{
+   width: 138%;
+   left: -36%;
+   position: relative;
+}
+
+.tab-unique-structure-hr .tab-pane{
+     width: 100%;
+     height: 100%;
+}
+
+
+.tab-unique-structure-hr .calendar-ui{
+    width: 43%;
+}
+
+.tab-unique-structure-hr .tab-content{
+   width: 67%;
+   margin-right: 12px;
+   height: 516px;
+}
+
+.tab-unique-structure-hr .calendar-ui .status {
+    padding: 6px 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tab-unique-structure-hr .timesheet-section .tab-content{
+    width: 100%;
+    height: 100%;
+    margin-right: 0;
+}
+
+.tab-unique-structure-hr .timesheet-section {
+    width: 100%;
+    margin-right: 0;
+}
+
+.tab-unique-structure-hr  #timesheetModal .tab-content{
+   width: 100%;
+   height: fit-content;
+   margin-right: 0;
+}
+.hr-table-inner{
+        overflow: inherit;
+}
+
+.table-clickable tbody tr {
+   cursor: pointer;
+   transition: background-color 0.3s ease;
+}
+
+.table-clickable tbody tr.active-row {
+   background-color: #f0f4ff;
+   opacity: 0.8;
+}

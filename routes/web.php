@@ -40,6 +40,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::get('countries', [ConsultancyApiController::class, 'countries']);
         Route::get('/states', [ConsultancyApiController::class, 'getStates']);
         Route::post('consultant/update-basic', [ConsultanctApiController::class, 'apiUpdateBasicDetailsConsultant']);
+        Route::post('consultant/get-basic', [ConsultanctApiController::class, 'apiGetBasicDetailsConsultant']);
         Route::post('/consultant/dashboard/timeline', [ConsultanctApiController::class, 'getDashboardTimelineData']);
         Route::post('/consultant/dashboard/claimtimeline', [ConsultanctApiController::class, 'getDashboardCliamTimelineData']);
         Route::post('/consultant/get-consultant-details', [ConsultanctApiController::class, 'getConsultantAllDetails']);
@@ -132,6 +133,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/consultancies/update-user/{id}', [ConsultancyController::class, 'update_user'])->name('consultancy.update_user');
     Route::put('/hr/update-consultant/{id}', [HrController::class, 'update_consultant'])->name('hr.update_consultant');
     Route::post('hr/delete-consultant/{id}', [HrController::class, 'delete_consultant'])->name('hr.delete_consultant');
+    Route::get('get-consultant-table', [HrController::class, 'getConsultantTable']);
+
 
 
      Route::post('/hr/add_consultant', [HrController::class, 'add_consultant'])->name('hr.add_consultant');

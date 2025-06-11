@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Session;
 use App\Models\Hr;
 use App\Models\User;
 use App\Models\Client;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Consultant;
 use Illuminate\Support\Facades\Auth;
@@ -17,27 +19,57 @@ class HrController extends Controller {
         if (!$user) {
             return view('errors.404');
         }
-         $consultants = DB::table('consultants')
-        ->join('clients', 'consultants.client_id', '=', 'clients.id') // if using foreign key
-        ->select(
-            'consultants.*',
-            'clients.serving_client as client_name'
-        )
-        ->orderBy('consultants.id', 'desc')
-        ->get();
-        
-        //$data = $this->getFullUserHierarchyIncludingAbove($user->id, $user->role_id);
-        $clients = Client::where('user_id', $user->created_by_user_id)->get();
-        //echo "<pre>";print_r($clients);die;
-        
-        return view('hr.index', [
-            'userData'      => $user,
-            // 'consultancies' => $data['consultancies'],
-            // 'hrs'           => $data['hrs'],
-            'clients'       => $clients,
-            'consultants'   => $consultants
-        ]);
+
+        $month = request()->input('month', now()->format('m'));
+        $year = request()->input('year', now()->format('Y'));
+        $selectedMonthLabel = Carbon::createFromDate($year, $month)->format('F - Y');
+
+        // Get all consultants with their leave details and client name
+        $consultants = DB::table('consultants')
+            ->leftJoin('clients', 'consultants.client_id', '=', 'clients.id')
+            ->leftJoin('leave_log', 'consultants.user_id', '=', 'leave_log.user_id')
+            ->select(
+                'consultants.*',
+                'clients.serving_client as client_name',
+                'leave_log.assign_al',
+                'leave_log.assign_ml',
+                'leave_log.assign_ul',
+                'leave_log.assign_pdo'
+            )
+            ->orderBy('consultants.id', 'desc')
+            ->get();
+
+        // Get consultant_dashboard entries grouped by user_id
+        $dashboardData = DB::table('consultant_dashboard')
+            ->whereIn('user_id', $consultants->pluck('user_id')->toArray())
+            ->get()
+            ->groupBy('user_id'); // 👈 Grouped for easier use per consultant
+
+        // Get clients list
+        $clients = DB::table('clients')
+            ->where('user_id', $user->created_by_user_id)
+            ->get();
+            $groupedConsultants = $consultants->groupBy('client_id');
+
+            //echo "<pre>";print_r($dashboardData);die;
+
+        return view('hr.index', compact('user', 'clients', 'consultants', 'dashboardData', 'groupedConsultants','selectedMonthLabel'));
     }
+
+    public function getConsultantTable(Request $request)
+{
+    $month = $request->input('month');
+    $year = $request->input('year');
+    $clientId = $request->input('client_id');
+
+    $consultants = Consultant::where('client_id', $clientId)->get();
+    $dashboardData = DB::table('consultant_dashboard')->whereMonth('created_at', $month)->whereYear('created_at', $year)->get()->groupBy('user_id');
+
+    // whatever processing you were already doing
+    return view('hr.consultant_table_rows', compact('consultants', 'dashboardData', 'month', 'year'));
+}
+
+
     public function getFullUserHierarchyIncludingAbove($userId, $roleId) {
         $consultancies = collect();
         $clients = collect();

@@ -61,6 +61,29 @@ class ConsultanctApiController extends Controller
             'data' => $consultant,
         ]);
     }
+
+    public function apiGetBasicDetailsConsultant(Request $request)
+    {
+        $user = auth()->user();
+        
+         $consultantData = DB::table('consultants')->where('user_id', $user->id)->first();
+        if (!$consultantData) {
+            return response()->json(
+                [
+                    'status' => false,
+                    'message' => 'Data not found.',
+                ],
+                400
+            );
+        }else{
+             return response()->json([
+                'success' => true,
+                'message' => 'Data found successfully.',
+                'data' => $consultantData,
+            ]);
+        }
+
+    }
     public function getDashboardTimelineData(Request $request)
     {
         $user = $request->user();
@@ -70,9 +93,9 @@ class ConsultanctApiController extends Controller
         $today = now()->startOfDay();
 
         $rawRecords = DB::table('consultant_dashboard')
-            ->where('user_id', $user->id)
-            ->where('type', 'timesheet')
-            ->get();
+        ->where('user_id', $user->id)
+        ->where('type', 'timesheet')
+        ->get();
 
         $grouped = [];
 
