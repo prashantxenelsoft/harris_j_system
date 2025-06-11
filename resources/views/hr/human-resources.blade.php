@@ -359,12 +359,39 @@ function renderGrid(tabId) {
    }).join("");
 }
 
+// function setMonth(m, tabId) {
+//    selMonth = m;
+//    const full = new Date(selYear, selMonth).toLocaleString('default', { month: 'long' });
+//    document.getElementById("calendarLabel_" + tabId).innerText = `${full} - ${selYear}`;
+//    document.getElementById("gridPopup_" + tabId).style.display = "none";
+//    renderCalendar(selMonth, selYear, tabId);
+// }
 function setMonth(m, tabId) {
    selMonth = m;
    const full = new Date(selYear, selMonth).toLocaleString('default', { month: 'long' });
    document.getElementById("calendarLabel_" + tabId).innerText = `${full} - ${selYear}`;
    document.getElementById("gridPopup_" + tabId).style.display = "none";
+
+   // AJAX update
+   updateTableData(tabId, selMonth + 1, selYear);
    renderCalendar(selMonth, selYear, tabId);
+}
+
+
+function updateTableData(tabId, month, year) {
+   const clientId = tabId.replace('client-', '');
+
+   const url = `{{ route('consultant.data.fetch') }}?month=${month}&year=${year}&client_id=${clientId}`;
+
+   fetch(url)
+      .then(response => response.text())
+      .then(html => {
+         const tbody = document.querySelector(`#v-pills-${tabId} .table-clickable tbody`);
+         if (tbody) tbody.innerHTML = html;
+      })
+      .catch(error => {
+         console.error("Fetch error:", error);
+      });
 }
 
 function renderCalendar(month, year, tabId) {

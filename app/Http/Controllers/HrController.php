@@ -57,17 +57,17 @@ class HrController extends Controller {
     }
 
     public function getConsultantTable(Request $request)
-{
-    $month = $request->input('month');
-    $year = $request->input('year');
-    $clientId = $request->input('client_id');
+    {
+        $month = $request->input('month');
+        $year = $request->input('year');
+        $clientId = $request->input('client_id');
 
-    $consultants = Consultant::where('client_id', $clientId)->get();
-    $dashboardData = DB::table('consultant_dashboard')->whereMonth('created_at', $month)->whereYear('created_at', $year)->get()->groupBy('user_id');
+        $consultants = Consultant::where('client_id', $clientId)->get();
+        $dashboardData = DB::table('consultant_dashboard')->whereMonth('created_at', $month)->whereYear('created_at', $year)->get()->groupBy('user_id');
 
-    // whatever processing you were already doing
-    return view('hr.consultant_table_rows', compact('consultants', 'dashboardData', 'month', 'year'));
-}
+        // whatever processing you were already doing
+        return view('hr.consultant_table_rows', compact('consultants', 'dashboardData', 'month', 'year'));
+    }
 
 
     public function getFullUserHierarchyIncludingAbove($userId, $roleId) {

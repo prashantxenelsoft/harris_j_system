@@ -133,7 +133,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/consultancies/update-user/{id}', [ConsultancyController::class, 'update_user'])->name('consultancy.update_user');
     Route::put('/hr/update-consultant/{id}', [HrController::class, 'update_consultant'])->name('hr.update_consultant');
     Route::post('hr/delete-consultant/{id}', [HrController::class, 'delete_consultant'])->name('hr.delete_consultant');
-    Route::get('get-consultant-table', [HrController::class, 'getConsultantTable']);
+    Route::get('get-consultant-table', [HrController::class, 'getConsultantTable'])->name('consultant.data.fetch');
 
 
 
