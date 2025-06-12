@@ -85,10 +85,10 @@
                 {{ $totalLogged > 0 ? "$totalLogged/$forecastedHours" : 'N/A' }}
             </td>
             <td>0/0/0</td>
-            <td>{{ $used['AL'] > 0 ? "$used[AL]/" . ($consultant->assign_al ?? 12) : 'N/A' }}</td>
-            <td>{{ $used['ML'] > 0 ? "$used[ML]/" . ($consultant->assign_ml ?? 12) : 'N/A' }}</td>
-            <td>{{ $used['PDO'] > 0 ? "$used[PDO]/" . ($consultant->assign_pdo ?? 2) : 'N/A' }}</td>
-            <td>{{ $used['UL'] > 0 ? "$used[UL]/" . ($consultant->assign_ul ?? 0) : 'N/A' }}</td>
+            <td>{{ $used['AL'] > 0 ? "$used[AL]/" . ($consultant->assign_al ?? 15) : 'N/A' }}</td>
+            <td>{{ $used['ML'] > 0 ? "$used[ML]/" . ($consultant->assign_ml ?? 15) : 'N/A' }}</td>
+            <td>{{ $used['PDO'] > 0 ? "$used[PDO]/" . ($consultant->assign_pdo ?? 15) : 'N/A' }}</td>
+            <td>{{ $used['UL'] > 0 ? "$used[UL]/" . ($consultant->assign_ul ?? 15) : 'N/A' }}</td>
         </tr>
     @endforeach
 @endif
