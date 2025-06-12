@@ -1081,7 +1081,7 @@ function buildCalendarWithRecords(records, month, year) {
             }
          });
 
-      } catch (err) {
+      } catch (err) { 
          console.warn("Invalid record:", entry, err);
       }
    });
