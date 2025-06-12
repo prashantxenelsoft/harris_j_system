@@ -3004,19 +3004,22 @@
                                              });
                                           }
 
+                                          
+
                                           function loadFeedbacks() {
-                                             fetch("{{ url('/feedback/all') }}")
+                                             const senderId = {{ $userData['id'] }};
+                                             fetch(`{{ url('/feedback/all') }}/${senderId}`)
                                                 .then(res => res.json())
                                                 .then(data => {
                                                    if (!data.length) {
                                                       feedbackContainer.innerHTML = "<p>No feedback found.</p>";
                                                       return;
                                                    }
-
                                                    feedbackContainer.innerHTML = "";
                                                    data.reverse().forEach(item => appendToModalHistory(item));
                                                 });
                                           }
+
 
                                           function appendToModalHistory(item) {
                                              const box = document.createElement("div");

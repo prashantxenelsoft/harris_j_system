@@ -163,7 +163,7 @@ Route::middleware('auth')->group(function () {
   
   Route::post('/feedback/save', [FeedbackController::class, 'store'])->name('feedback.save');
   Route::post('/feedback/delete', [FeedbackController::class, 'destroy'])->name('feedback.delete');
-  Route::get('/feedback/all', [FeedbackController::class, 'all'])->name('feedback.all');
+  Route::get('/feedback/all/{id}', [FeedbackController::class, 'all'])->name('feedback.all');
 
  
 

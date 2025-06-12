@@ -5,6 +5,7 @@
 <script>
    window.dashboardData = @json($dashboardData);
 </script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <div class="add-consultants-wrapper">
    <div class="pt-4">
       <div class="row">
@@ -558,45 +559,48 @@
                                              </button>
 
                                              <div class="remark-bottom-col">
-                                                <div class="remark-heading">
-                                                      <span></span>
+                                                
+
+                                                @php $clientId = $client->id; @endphp
+
+                                                <div class="remark-bottom-col" id="feedback_{{ $clientId }}" data-client-id="{{ $clientId }}" data-sender-id="{{ auth()->id() }}">
+                                                   <div class="remark-heading">
                                                       <h4>Remarks</h4>
+                                                   </div>
+
+                                                   <div class="feedback-list">
+                                                      @if($feedbacksgData->isNotEmpty())
+                                                            @php $lastFeedback = $feedbacksgData->last(); @endphp
+                                                            <div class="remark-item">
+                                                               <p>{{ $lastFeedback->message }}</p>
+                                                               <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtn">
+                                                                  <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid">
+                                                               </a>
+                                                            </div>
+                                                      @else
+                                                            <p id="no-feedback-msg" class="text-muted">No feedback submitted yet.</p>
+                                                      @endif
+                                                   </div>
+
+                                                   <div class="write-remark mt-2">
+                                                      <div class="input-row-feedback d-flex align-items-center">
+                                                         <input type="text" class="feedbackInput form-control me-2" placeholder="Write your remarks here...">
+                                                         <input type="hidden" class="editFeedbackId" value="">
+                                                         <div class="feedback-input-btn sendFeedbackBtn" style="cursor:pointer;">
+                                                            <img src="{{ asset('public/assets/latest/images/send-icon.png') }}" class="img-fluid">
+                                                         </div>
+                                                      </div>
+                                                   </div>
                                                 </div>
 
-                                                <div class="remark-item">
-                                                      <p>
-                                                         I have been working with the production
-                                                         team and supporting
-                                                         in the release activities. This was an
-                                                         unexpected support call
-                                                      </p>
-
-                                                      <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtn">
-                                                         <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid">
-                                                      </a>
-
-
-
-                                                </div>
-
-                                                <div class="write-remark">
-                                                      <input type="text" placeholder="Write your remarks here...">
-                                                </div>
+                                                
                                              </div>
-
                                           </div>
-                                          <div class="edit-delete-popup d-none">
-                                             <ul>
-                                                <li><img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}">Edit
-                                                </li>
-                                                <li><img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}">Delete
-                                                </li>
-                                             </ul>
-                                          </div>
+                                          
 
                                           <!-- Modal -->
                                           <div class="modal fade" id="workSummaryModal" tabindex="-1" aria-labelledby="workSummaryModalLabel" aria-hidden="true">
-                                             <div class="modal-dialog modal-dialog-centered modal-lg">
+                                             <div class="modal-dialog modal-dialog-centered modal-xl">
                                                 <div class="modal-content">
                                                       <div class="modal-header ">
                                                          <button type="button" class="btn-close popup-expand-btn " data-bs-dismiss="modal" aria-label="Close">
@@ -604,38 +608,42 @@
                                                          </button>
                                                       </div>
                                                       <div class="modal-body ">
-                                                         <div class="write-summary-popup-body">
-                                                            <h4>Remarks</h4>
-                                                            <div class="write-summary-expand-row mt-2">
-                                                                  <div class="write-summary-expand-item">
-                                                                     <p>
-                                                                        I have been working with
-                                                                        the production team and
-                                                                        supporting
-                                                                        in the release
-                                                                        activities. This was an
-                                                                        unexpected support call
-                                                                     </p>
 
-                                                                     <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtnexpand">
+                                                         <div class="write-summary-popup-body" id="feedbackModal_{{ $clientId }}" data-client-id="{{ $clientId }}" data-sender-id="{{ auth()->id() }}">
+                                                            <h4>Remarks</h4>
+
+                                                            <div class="feedbackModal-list mt-2" style="max-height: 220px; overflow-y: auto;">
+                                                               @if($feedbacksgData->where('receiver_id', $clientId)->isNotEmpty())
+                                                                  @php $lastFeedback = $feedbacksgData->where('receiver_id', $clientId)->last(); @endphp
+                                                                  <div class="feedbackModal-item">
+                                                                     <p>{{ $lastFeedback->message }}</p>
+                                                                     <a href="javascript:void(0)" class="feedbackModal-toggleBtn">
                                                                         <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid">
                                                                      </a>
+                                                                     <div class="feedbackModal-options mt-2" style="display:none;">
+                                                                        <button class="btn btn-sm btn-outline-primary me-1 feedbackModal-editBtn"
+                                                                           data-id="{{ $lastFeedback->id }}"
+                                                                           data-msg="{{ $lastFeedback->message }}">Edit</button>
+                                                                        <button class="btn btn-sm btn-outline-danger feedbackModal-deleteBtn"
+                                                                           data-id="{{ $lastFeedback->id }}">Delete</button>
+                                                                     </div>
                                                                   </div>
-
-                                                                  <div class="write-remark mt-4">
-                                                                     <input type="text" placeholder="Write your remarks here...">
-                                                                  </div>
+                                                               @else
+                                                                  <p class="text-muted feedbackModal-empty">No feedback submitted yet.</p>
+                                                               @endif
                                                             </div>
 
-                                                            <div class="edit-delete-popup-expand d-none">
-                                                                  <ul>
-                                                                     <li><img src="{{ asset('public/assets/latest/images/black-edit-icon.png') }}">Edit
-                                                                     </li>
-                                                                     <li><img src="{{ asset('public/assets/latest/images/black-delete-icon.png') }}">Delete
-                                                                     </li>
-                                                                  </ul>
+                                                            <div class="write-remark mt-4">
+                                                               <div class="input-row-feedback d-flex align-items-center">
+                                                                  <input type="text" class="feedbackModal-input form-control me-2" placeholder="Write your remarks here...">
+                                                                  <input type="hidden" class="feedbackModal-editId" value="">
+                                                                  <div class="feedback-input-btn feedbackModal-sendBtn" style="cursor:pointer;">
+                                                                     <img src="{{ asset('public/assets/latest/images/send-icon.png') }}" class="img-fluid">
+                                                                  </div>
+                                                               </div>
                                                             </div>
                                                          </div>
+
                                                       </div>
                                                 </div>
                                              </div>
@@ -751,6 +759,184 @@
       </div>
    </div>
 </div>
+
+<script>
+$(document).ready(function () {
+    const receiverId = 1;
+    const token = '{{ csrf_token() }}';
+
+    $('[id^=feedback_]').each(function () {
+        const parent = $(this);
+        const senderId = parent.data('sender-id');
+
+        function loadFeedback() {
+            $.get(`{{ url('feedback/all') }}/${senderId}`, function (res) {
+                const listDiv = parent.find('.feedback-list');
+
+                if (res.length === 0) {
+                    listDiv.html(`<p id="no-feedback-msg" class="text-muted">No feedback submitted yet.</p>`);
+                } else {
+                    const last = res[0];
+                    listDiv.html(`
+                        <div class="remark-item">
+                            <p>${last.message}</p>
+                            <a href="javascript:void(0)" class="remark-pop-btn toggleBtn">
+                                <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid">
+                            </a>
+                            <div class="feedbackOptions" style="display:none; margin-top: 5px;">
+                                <button class="btn btn-sm btn-outline-primary me-1 editBtn"
+                                    data-id="${last.id}" data-msg="${last.message}">Edit</button>
+                                <button class="btn btn-sm btn-outline-danger deleteBtn"
+                                    data-id="${last.id}">Delete</button>
+                            </div>
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        loadFeedback(); // 🔁 Load once at the beginning
+
+        // ✅ Toggle 3-dot
+        parent.on('click', '.toggleBtn', function () {
+            parent.find('.feedbackOptions').toggle();
+        });
+
+        // ✅ Edit
+        parent.on('click', '.editBtn', function () {
+            const msg = $(this).data('msg');
+            const id = $(this).data('id');
+            parent.find('.feedbackInput').val(msg);
+            parent.find('.editFeedbackId').val(id);
+        });
+
+        // ✅ Delete
+        parent.on('click', '.deleteBtn', function () {
+            const id = $(this).data('id');
+            $.post(`{{ route('feedback.delete') }}`, {
+                delete_id: id,
+                _token: token
+            }, function () {
+                parent.find('.feedbackInput').val('');
+                parent.find('.editFeedbackId').val('');
+                loadFeedback(); // reload feedback list
+            });
+        });
+
+        // ✅ Send / Update
+        parent.find('.sendFeedbackBtn').on('click', function () {
+            const message = parent.find('.feedbackInput').val().trim();
+            const editId = parent.find('.editFeedbackId').val();
+            if (!message) return;
+
+            $.post(`{{ route('feedback.save') }}`, {
+                sender_id: senderId,
+                receiver_id: receiverId,
+                message: message,
+                id: editId,
+                _token: token
+            }, function () {
+                parent.find('.feedbackInput').val('');
+                parent.find('.editFeedbackId').val('');
+                loadFeedback(); // reload feedback list
+            });
+        });
+    });
+});
+</script>
+
+<script>
+$(document).ready(function () {
+    const token = '{{ csrf_token() }}';
+
+    // Run on modal open only if modal is visible
+    $('[id^=feedbackModal_]').each(function () {
+        const parent = $(this);
+        const senderId = parent.data('sender-id');
+        const receiverId = 1;
+
+        function loadFeedback() {
+            const container = parent.find('.feedbackModal-list');
+            container.html(`<p class="text-muted">Loading...</p>`); // temporary
+
+            $.get(`{{ url('feedback/all') }}/${senderId}`, function (res) {
+                container.empty();
+
+                if (res.length === 0) {
+                    container.html('<p class="text-muted">No feedback submitted yet.</p>');
+                } else {
+                    res.forEach(msg => {
+                        container.append(`
+                            <div class="feedbackModal-item mb-2 p-2 rounded write-summary-expand-item" style="background:#f3f3f3;">
+                                <p class="mb-1">${msg.message}</p>
+                                <a href="javascript:void(0)" class="feedbackModal-toggleBtn float-end">
+                                    <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="">
+                                </a>
+                                <div class="feedbackModal-options mt-2" style="display:none;">
+                                    <button class="btn btn-sm btn-outline-primary me-1 feedbackModal-editBtn"
+                                        data-id="${msg.id}" data-msg="${msg.message}">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger feedbackModal-deleteBtn"
+                                        data-id="${msg.id}">Delete</button>
+                                </div>
+                            </div>
+                        `);
+                    });
+                }
+            });
+        }
+
+        // ✅ Load immediately
+        loadFeedback();
+
+        // 🔁 Toggle menu
+        parent.on('click', '.feedbackModal-toggleBtn', function () {
+            $(this).siblings('.feedbackModal-options').toggle();
+        });
+
+        // ✏️ Edit
+        parent.on('click', '.feedbackModal-editBtn', function () {
+            parent.find('.feedbackModal-input').val($(this).data('msg'));
+            parent.find('.feedbackModal-editId').val($(this).data('id'));
+        });
+
+        // 🗑️ Delete
+        parent.on('click', '.feedbackModal-deleteBtn', function () {
+            const id = $(this).data('id');
+            $.post(`{{ route('feedback.delete') }}`, {
+                delete_id: id,
+                _token: token
+            }, function () {
+                parent.find('.feedbackModal-input').val('');
+                parent.find('.feedbackModal-editId').val('');
+                loadFeedback();
+            });
+        });
+
+        // 🚀 Send
+        parent.find('.feedbackModal-sendBtn').on('click', function () {
+            const message = parent.find('.feedbackModal-input').val().trim();
+            const editId = parent.find('.feedbackModal-editId').val();
+            if (!message) return;
+
+            $.post(`{{ route('feedback.save') }}`, {
+                sender_id: senderId,
+                receiver_id: receiverId,
+                message: message,
+                id: editId,
+                _token: token
+            }, function () {
+                parent.find('.feedbackModal-input').val('');
+                parent.find('.feedbackModal-editId').val('');
+                loadFeedback();
+            });
+        });
+    });
+});
+</script>
+
+
+
+
 
 <script>
 const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
@@ -1093,6 +1279,7 @@ function bindRowClickEvents() {
    });
 
 }
+
 
 document.addEventListener("DOMContentLoaded", function () {
    bindRowClickEvents();

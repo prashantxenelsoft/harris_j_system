@@ -35,7 +35,7 @@ class ConsultantController extends Controller {
             ->orderBy('r.id', 'desc')
             ->get();
 
-            //echo "<pre>";print_r($userData);die;
+            //echo "<pre>";print_r($feedbacksgData);die;
             return view('consultant.dashboard', compact('consultant','remarks_data','remarksData','feedbacksgData', 'userData', 'dataTimesheet', 'dataClaims', 'publicHolidays','leaveLogData', 'token'));
         }
         else {

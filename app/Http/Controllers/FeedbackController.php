@@ -59,12 +59,13 @@ class FeedbackController extends Controller
         }
     }
 
-    public function all()
+    public function all($id)
     {
         $feedbacks = DB::table('feedbacks')
-            ->where('receiver_id', 1) // optional filter
-            ->orderBy('id')
-            ->get();
+        ->where('sender_id', $id)
+        ->where('receiver_id', 1) // if you still want to keep this filter
+        ->orderBy('id', 'desc')
+        ->get();
 
         return response()->json($feedbacks);
     }

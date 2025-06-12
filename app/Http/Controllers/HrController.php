@@ -55,9 +55,11 @@ class HrController extends Controller {
             ->get();
             $groupedConsultants = $consultants->groupBy('client_id');
 
+            $remarks = DB::table('remarks')->orderByDesc('created_at')->get();
+
             //echo "<pre>";print_r($feedbacksgData);die;
 
-        return view('hr.index', compact('user', 'clients', 'feedbacksgData', 'consultants', 'dashboardData', 'groupedConsultants','selectedMonthLabel'));
+        return view('hr.index', compact('user', 'clients', 'feedbacksgData', 'consultants', 'dashboardData', 'groupedConsultants','selectedMonthLabel','remarks'));
     }
 
     public function getConsultantTable(Request $request)
