@@ -559,30 +559,33 @@
 
                                              <div class="remark-bottom-col">
                                                 <div class="remark-heading">
-                                                      <span></span>
-                                                      <h4>Remarks</h4>
+                                                   <h4>Remarks</h4>
                                                 </div>
 
-                                                <div class="remark-item">
-                                                      <p>
-                                                         I have been working with the production
-                                                         team and supporting
-                                                         in the release activities. This was an
-                                                         unexpected support call
-                                                      </p>
-
-                                                      <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtn">
-                                                         <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid">
-                                                      </a>
-
-
-
+                                                <div id="feedback-list">
+                                                   @if($feedbacksgData->isNotEmpty())
+                                                         @php $lastFeedback = $feedbacksgData->last(); @endphp
+                                                         <div class="remark-item">
+                                                            <p>{{ $lastFeedback->message }}</p>
+                                                            <a href="javascript:void(0)" class="remark-pop-btn" id="toggleBtn">
+                                                               <img src="{{ asset('public/assets/latest/images/3-dot-image.png') }}" class="img-fluid">
+                                                            </a>
+                                                         </div>
+                                                   @else
+                                                         <p id="no-feedback-msg" class="text-muted">No feedback submitted yet.</p>
+                                                   @endif
                                                 </div>
 
                                                 <div class="write-remark">
-                                                      <input type="text" placeholder="Write your remarks here...">
+                                                   <div class="input-row-feedback">
+                                                         <input type="text" id="feedbackInput" placeholder="Write your remarks here...">
+                                                         <div class="feedback-input-btn" id="sendFeedbackBtn">
+                                                            <img src="{{ asset('public/assets/latest/images/send-icon.png') }}" class="img-fluid">
+                                                         </div>
+                                                   </div>
                                                 </div>
                                              </div>
+
 
                                           </div>
                                           <div class="edit-delete-popup d-none">
@@ -623,7 +626,12 @@
                                                                   </div>
 
                                                                   <div class="write-remark mt-4">
+                                                                   <div class="input-row-feedback">
                                                                      <input type="text" placeholder="Write your remarks here...">
+                                                                     <div class="feedback-input-btn">
+                                                                        <img src="{{ asset('public/assets/latest/images/send-icon.png') }}" class="img-fluid">
+                                                                     </div>
+                                                                   </div>
                                                                   </div>
                                                             </div>
 

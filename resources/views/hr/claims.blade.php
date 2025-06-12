@@ -1092,11 +1092,7 @@ function bindRowClickEvents() {
       });
    });
 
-
-
-
 }
-
 
 document.addEventListener("DOMContentLoaded", function () {
    bindRowClickEvents();

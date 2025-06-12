@@ -24,6 +24,10 @@ class HrController extends Controller {
         $year = request()->input('year', now()->format('Y'));
         $selectedMonthLabel = Carbon::createFromDate($year, $month)->format('F - Y');
 
+         $feedbacksgData = DB::table('feedbacks')
+        ->where('sender_id', $user->id)
+        ->get();
+
         // Get all consultants with their leave details and client name
         $consultants = DB::table('consultants')
             ->leftJoin('clients', 'consultants.client_id', '=', 'clients.id')
@@ -51,9 +55,9 @@ class HrController extends Controller {
             ->get();
             $groupedConsultants = $consultants->groupBy('client_id');
 
-            //echo "<pre>";print_r($dashboardData);die;
+            //echo "<pre>";print_r($feedbacksgData);die;
 
-        return view('hr.index', compact('user', 'clients', 'consultants', 'dashboardData', 'groupedConsultants','selectedMonthLabel'));
+        return view('hr.index', compact('user', 'clients', 'feedbacksgData', 'consultants', 'dashboardData', 'groupedConsultants','selectedMonthLabel'));
     }
 
     public function getConsultantTable(Request $request)

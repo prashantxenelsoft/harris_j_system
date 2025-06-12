@@ -810,3 +810,26 @@ div#home_page_timesheet .timeline-container{
    color: red;
    font-weight: bold;
 }
+
+.input-row-feedback {
+    display: flex;
+    align-items: center;
+    padding-right: 15px;
+}
+
+.feedback-input-btn {
+    cursor: pointer;
+}
+
+.feedback-input-btn img {
+    width: 30px;
+    margin-left: 10px;
+}
+
+p#no-feedback-msg {
+    font-family: var(--Themefont);
+    font-size: var(--Font18);
+    color: #565656;
+    font-weight: 500;
+    padding: 30px 0px;
+}
