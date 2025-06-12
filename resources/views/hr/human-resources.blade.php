@@ -1094,7 +1094,7 @@ function buildCalendarWithRecords(records, month, year) {
 
    for (let d = 1; d <= totalDays; d++) {
       const info = dayMap[d];
-      let cell = `<div>${d}`;
+      let cell = `<div><div class="normal_date">${d}</div>`;
       if (info?.leave) {
          cell += `<br><span class="leave">${info.leave}</span>`;
       }

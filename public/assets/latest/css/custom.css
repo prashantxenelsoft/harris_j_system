@@ -931,3 +931,25 @@ a.feedbackModal-toggleBtn.float-end img {
 .feedbackModal-options .feedbackModal-editBtn {
     border-radius: 10px 10px 0px 0px !important;
 }
+
+.calendar-ui .days div{
+    /* border: none; */
+    border-color: #A6A9B5;
+    height: 54px;
+}
+
+.calendar-ui .days div span{
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: var(--Font18);
+}
+
+.normal_date {
+    border: none !important;
+    color: #969696;
+    text-align: left;
+    font-size: 14px;
+}
