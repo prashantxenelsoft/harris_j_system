@@ -269,6 +269,35 @@ class HrApiController extends Controller
         ]);
     }
 
+    public function consultantListing(Request $request)
+    {
+        $clientId = $request->client_id;
+
+        if (!$clientId) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Client ID is required.'
+            ], 400);
+        }
+
+        $consultant_data = DB::table('consultants')->where('client_id', $clientId)->get();
+
+        if ($consultant_data->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No consultants found for this client.',
+                'data' => []
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Consultants fetched successfully.',
+            'data' => $consultant_data
+        ], 200);
+    }
+
+
 
 
 
