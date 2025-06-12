@@ -953,3 +953,23 @@ a.feedbackModal-toggleBtn.float-end img {
     text-align: left;
     font-size: 14px;
 }
+
+.reports-inner-col table tr td{
+    line-height: 1.4;
+}
+
+.report-table-col-btn-group .csv-btn {
+    font-weight: 600;
+    font-size: var(--Font14px);
+    text-decoration: none;
+    padding: 6px 3px;
+    font-size: 9px;
+}
+
+.search-box-wrapper .buttons-reports a{
+    text-decoration: none;
+}
+
+.reports-inner-col tr td:nth-child(2){
+    width: 35%;
+}
