@@ -4,6 +4,7 @@
 @endphp
 <script>
    window.dashboardData = @json($dashboardData);
+   window.publicHolidays = @json($publicHolidays);
 </script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <div class="add-consultants-wrapper">
@@ -972,10 +973,49 @@ function setMonth(m, tabId) {
    document.getElementById("calendarLabel_" + tabId).innerText = `${full} - ${selYear}`;
    document.getElementById("gridPopup_" + tabId).style.display = "none";
 
-   // AJAX update
+   // ✅ Reset second_box (remarks)
+   document.querySelector("#second_box").innerHTML = `
+      <div class="remark-section card p-3">
+         <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6>Remarks</h6>
+         </div>
+         <div class="fs-12 text-center text-muted p-2">
+            <strong>No entries found</strong>
+         </div>
+      </div>
+   `;
+
+   // ✅ Reset third_box (all tabs empty with fallback message)
+   document.querySelector("#third_box").innerHTML = `
+      <div class="timesheet-section card p-2">
+         <div class="timesheet-header d-flex justify-content-between align-items-start">
+            <ul class="nav nav-tabs" id="timesheetTabs">
+               <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#overviewTab">Timesheet Overview</button></li>
+               <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#extraTimeTab">Extra Time Log</button></li>
+               <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#payOffTab">Pay-Off Log</button></li>
+               <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#compOffTab">Comp-off log</button></li>
+               <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#copiesTab">Get Copies</button></li>
+            </ul>
+         </div>
+         <div class="tab-content tab_content_body p-2">
+            ${['overviewTab', 'extraTimeTab', 'payOffTab', 'compOffTab', 'copiesTab'].map(id => `
+               <div class="tab-pane fade ${id === 'overviewTab' ? 'show active' : ''}" id="${id}">
+                  <div class="timeline">
+                     <div class="fs-12 text-center text-muted p-2">
+                        <strong>No entries found</strong>
+                     </div>
+                  </div>
+               </div>
+            `).join('')}
+         </div>
+      </div>
+   `;
+
+   // 🔁 AJAX + calendar render
    updateTableData(tabId, selMonth + 1, selYear);
    renderCalendar(selMonth, selYear, tabId);
 }
+
 
 
 function updateTableData(tabId, month, year) {
@@ -1042,22 +1082,21 @@ document.querySelectorAll('[data-bs-toggle="pill"]').forEach(btn => {
    });
 });
 
-function buildCalendarWithRecords(records, month, year) {
+function buildCalendarWithRecords(records, month, year, holidays = []) {
    const start = new Date(year, month - 1, 1);
    const totalDays = new Date(year, month, 0).getDate();
    const startDay = start.getDay(); // 0 = Sunday
 
    const dayMap = {};
 
+   // ✅ Collect leave and working hour data
    records.forEach(entry => {
       try {
          const record = JSON.parse(entry.record);
          const leaveType = record.leaveType || '';
          const workingHours = parseInt(record.workingHours || 0);
-
          const applyRange = record.date || '';
          const applySingle = record.applyOnCell?.trim();
-
          let dates = [];
 
          if (applyRange.includes('to')) {
@@ -1081,12 +1120,31 @@ function buildCalendarWithRecords(records, month, year) {
             }
          });
 
-      } catch (err) { 
+      } catch (err) {
          console.warn("Invalid record:", entry, err);
       }
    });
 
-   // ✅ Build calendar
+   // ✅ Collect public holidays
+   const holidayMap = {};
+
+   (window.publicHolidays || []).forEach(ph => {
+      try {
+         const date = new Date(ph.date); // ✅ direct date parsing
+         if (
+            date.getMonth() + 1 === parseInt(month) &&
+            date.getFullYear() === parseInt(year)
+         ) {
+            const d = date.getDate();
+            holidayMap[d] = 'PH';
+         }
+      } catch (e) {
+         console.warn("Invalid PH format:", ph.date);
+      }
+   });
+
+
+   // ✅ Render calendar
    let html = '';
    for (let i = 0; i < startDay; i++) {
       html += `<div class="empty"></div>`;
@@ -1095,13 +1153,23 @@ function buildCalendarWithRecords(records, month, year) {
    for (let d = 1; d <= totalDays; d++) {
       const info = dayMap[d];
       let cell = `<div><div class="normal_date">${d}</div>`;
+
+      // Public Holiday (always show first)
+      if (holidayMap[d]) {
+         cell += `<br><span class="leave blue">${holidayMap[d]}</span>`;
+      }
+
+      // Leave type (e.g. AL, ML)
       if (info?.leave) {
          cell += `<br><span class="leave">${info.leave}</span>`;
       }
-     if (info?.hours !== undefined) {
+
+      // Working hours
+      if (info?.hours !== undefined) {
          const hourClass = info.hours < 8 || info.hours > 8 ? 'red-hour' : '';
          cell += `<br><span class="${hourClass}">${info.hours}</span>`;
       }
+
       cell += `</div>`;
       html += cell;
    }
@@ -1114,16 +1182,14 @@ function buildCalendarWithRecords(records, month, year) {
    return html;
 }
 
-function parseDate(str) {
-   const [d, m, y] = str.split('/').map(s => parseInt(s.trim()));
-   return new Date(y, m - 1, d);
-}
 
-
-// Utility to convert "02 / 06 / 2025" to Date object
 function parseDate(str) {
-   const [day, month, year] = str.split(" / ").map(s => parseInt(s.trim()));
-   return new Date(year, month - 1, day);
+   const parts = str.split(/\s*\/\s*/).map(Number);
+   if (parts.length === 3) {
+      const [day, month, year] = parts;
+      return new Date(year, month - 1, day);
+   }
+   return new Date(NaN); // invalid fallback
 }
 
 
@@ -1131,11 +1197,11 @@ function bindRowClickEvents() {
    document.querySelectorAll(".table-clickable tbody tr").forEach(row => {
       const isNA = row.dataset.na === "1";
 
-      if (isNA) {
-         row.style.cursor = "not-allowed";
-         row.classList.add("disabled-row");
-         return; // ❌ skip adding click event
-      }
+      // if (isNA) {
+      //    row.style.cursor = "not-allowed";
+      //    row.classList.add("disabled-row");
+      //    return; // ❌ skip adding click event
+      // }
 
       row.style.cursor = "pointer";
       row.addEventListener("click", function () {
@@ -1160,7 +1226,8 @@ function bindRowClickEvents() {
          const records = window.dashboardData[userId] || [];
          const selectedMonth = selMonth + 1;
          const selectedYear = selYear;
-         const html = buildCalendarWithRecords(records, selectedMonth, selectedYear);
+         const html = buildCalendarWithRecords(records, selectedMonth, selectedYear, window.publicHolidays || []);
+
          calendarContainer.innerHTML = html;
 
          // Profile modal update
@@ -1177,49 +1244,6 @@ function bindRowClickEvents() {
          document.getElementById("modalClient").innerText = this.dataset.client || '';
          document.getElementById("modalProfilePic").src = this.dataset.profile;
          document.getElementById("modalStatus").innerText = this.dataset.status || 'Active';
-
-         // Only run AJAX if hours ≠ N/A
-         const loggedCell = this.querySelectorAll("td")[2];
-         if (!loggedCell || loggedCell.innerText.trim() === 'N/A') {
-            document.getElementById("third_box").innerHTML = `
-               <div class="timesheet-section card p-2">
-                  <div class="timesheet-header d-flex justify-content-between align-items-start">
-                     <ul class="nav nav-tabs" id="timesheetTabs">
-                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#overviewTab">Timesheet Overview</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#extraTimeTab">Extra Time Log</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#payOffTab">Pay-Off Log</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#compOffTab">Comp-off log</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#copiesTab">Get Copies</button></li>
-                     </ul>
-                  </div>
-                  <div class="tab-content tab_content_body p-2">
-                     ${['overview', 'extraTime', 'payOff', 'compOff', 'copies'].map((id, i) => `
-                        <div class="tab-pane fade ${i === 0 ? 'show active' : ''}" id="${id}Tab">
-                           <div class="timeline">
-                              <div class="fs-12 text-center text-muted p-2">
-                                 <strong>No entries found</strong>
-                              </div>
-                           </div>
-                        </div>
-                     `).join('')}
-                  </div>
-               </div>
-            `;
-
-            document.getElementById("second_box").innerHTML = `
-               <div class="remark-section card p-3">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                     <h6>Remarks</h6>
-                  
-                  </div>
-
-                  <div id="noTimelineMessage" class="fs-12 text-center text-muted p-2">
-                     <strong>No entries found</strong>
-                  </div>         
-               </div>
-            `;
-            return;
-         }
 
 
          // ✅ AJAX call to route
@@ -1271,15 +1295,8 @@ function bindRowClickEvents() {
             .catch(err => {
                console.error("Failed to load #second_box data:", err);
             });
-
-
-
-
       });
    });
-
-
-
 
 }
 

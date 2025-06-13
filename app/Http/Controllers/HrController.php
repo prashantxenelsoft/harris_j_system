@@ -43,6 +43,8 @@ class HrController extends Controller {
             ->orderBy('consultants.id', 'desc')
             ->get();
 
+            $publicHolidays = DB::table('public_holidays')->get();
+
         // Get consultant_dashboard entries grouped by user_id
         $dashboardData = DB::table('consultant_dashboard')
             ->whereIn('user_id', $consultants->pluck('user_id')->toArray())
@@ -59,7 +61,7 @@ class HrController extends Controller {
 
             //echo "<pre>";print_r($feedbacksgData);die;
 
-        return view('hr.index', compact('user', 'clients', 'feedbacksgData', 'consultants', 'dashboardData', 'groupedConsultants','selectedMonthLabel','remarks'));
+        return view('hr.index', compact('user', 'publicHolidays', 'clients', 'feedbacksgData', 'consultants', 'dashboardData', 'groupedConsultants','selectedMonthLabel','remarks'));
     }
 
     public function getConsultantTable(Request $request)
@@ -68,7 +70,23 @@ class HrController extends Controller {
         $year = $request->input('year');
         $clientId = $request->input('client_id');
 
-        $consultants = Consultant::where('client_id', $clientId)->get();
+        $consultants = Consultant::where('client_id', $clientId)
+        ->get()
+        ->map(function ($consultant) use ($year) {
+            $leaveLog = DB::table('leave_log')
+                ->where('user_id', $consultant->user_id)
+                ->where('year', $year) // ✅ filter by selected year
+                ->first();
+
+            if ($leaveLog) {
+                $consultant->assign_al = $leaveLog->assign_al;
+                $consultant->assign_ml = $leaveLog->assign_ml;
+                $consultant->assign_ul = $leaveLog->assign_ul;
+                $consultant->assign_pdo = $leaveLog->assign_pdo;
+            }
+
+            return $consultant;
+        });
 
         $dashboardData = DB::table('consultant_dashboard')
             ->whereIn('user_id', $consultants->pluck('user_id'))
@@ -81,23 +99,44 @@ class HrController extends Controller {
     public function getThirdBox(Request $request)
     {
         $userId = $request->input('user_id');
-        $month = $request->input('month');
+        $month = str_pad($request->input('month'), 2, '0', STR_PAD_LEFT); // ensures '05' format
         $year = $request->input('year');
+        $monthYear = "{$month}_{$year}";
 
-        if (!$userId || !$month || !$year) {
-            return response()->json(['error' => 'Missing parameters.'], 400);
-        }
+        // Fetch all records
+        $rawRecords = DB::table('consultant_dashboard')
+            ->where('user_id', $userId)
+            ->where('type', 'timesheet')
+            ->orderBy('id', 'desc')
+            ->get();
 
-        // ✅ Get consultant_dashboard data (type = timesheet)
-        $dataTimesheet = DB::table('consultant_dashboard')->where('user_id', $userId)->where('type', 'timesheet')->orderBy('id', 'desc')->get();
+        // Filter by decoded applyOnCell date
+        $dataTimesheet = $rawRecords->filter(function ($row) use ($month, $year) {
+            $record = json_decode($row->record, true);
+            if (!isset($record['applyOnCell'])) return false;
+
+            try {
+                $date = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                return $date->month == $month && $date->year == $year;
+            } catch (\Exception $e) {
+                return false;
+            }
+        });
+
+        // Get consultant info
         $consultant = DB::table('consultants')->where('user_id', $userId)->first();
 
-       
-        $remarks_data = DB::table('remarks')->where('consultant_id', $consultant->id)->orderBy('id', 'desc')->get();
+        // Get remarks filtered by month_of
+        $remarks_data = DB::table('remarks')
+            ->where('consultant_id', $consultant->id)
+            ->where('month_of', $monthYear)
+            ->orderBy('id', 'desc')
+            ->get();
 
-        // ✅ Return the Blade partial with data
-        return view('hr.thirdbox', compact('dataTimesheet','remarks_data'));
+        // Return Blade partial
+        return view('hr.thirdbox', compact('dataTimesheet', 'remarks_data'));
     }
+
 
     public function getSecondBox(Request $request)
     {
@@ -105,8 +144,25 @@ class HrController extends Controller {
         $month = $request->input('month');
         $year = $request->input('year');
 
-        // ✅ Get consultant_dashboard data (type = timesheet)
-        $dataTimesheet = DB::table('consultant_dashboard')->where('user_id', $userId)->where('type', 'timesheet')->orderBy('id', 'desc')->get();
+        // Fetch all records
+        $rawRecords = DB::table('consultant_dashboard')
+        ->where('user_id', $userId)
+        ->where('type', 'timesheet')
+        ->orderBy('id', 'desc')
+        ->get();
+
+        // Filter by decoded applyOnCell
+        $dataTimesheet = $rawRecords->filter(function ($row) use ($month, $year) {
+            $record = json_decode($row->record, true);
+            if (!isset($record['applyOnCell'])) return false;
+
+            try {
+                $date = \Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                return $date->month == $month && $date->year == $year;
+            } catch (\Exception $e) {
+                return false;
+            }
+        });
         $consultant = DB::table('consultants')->where('user_id', $userId)->first();
 
        

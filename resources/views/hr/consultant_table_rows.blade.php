@@ -36,32 +36,40 @@
 
                 $perDayValue = in_array($hourId, ['fHalfDay', 'sHalfDay']) ? 0.5 : 1;
 
-                if (Str::contains($leaveRaw, 'AL')) $used['AL'] += $perDayValue;
-                if (Str::contains($leaveRaw, 'ML')) $used['ML'] += $perDayValue;
-                if (Str::contains($leaveRaw, 'PDO')) $used['PDO'] += $perDayValue;
-                if (Str::contains($leaveRaw, 'UL')) $used['UL'] += $perDayValue;
-
-                if (Str::contains($leaveRaw, 'COMP')) {
-                    if ($workingHours > 8) {
-                        $used['Comp Off'] += ($workingHours - 8) / 8;
-                    } else {
-                        $used['Comp Off'] += $perDayValue;
-                    }
-                }
-
-                // ✅ Only sum hours if in selected month
-                if (!empty($record['workingHours']) && !empty($record['applyOnCell'])) {
+                // ✅ check: applyOnCell date matches current selected month/year
+                $include = false;
+                if (!empty($applyOnCell)) {
                     try {
-                        $logDate = Carbon\Carbon::createFromFormat('d / m / Y', $record['applyOnCell']);
+                        $logDate = Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
                         if ((int)$logDate->format('m') === (int)$month && (int)$logDate->format('Y') === (int)$year) {
-                            $totalLogged += (int) $record['workingHours'];
+                            $include = true;
                         }
                     } catch (\Exception $e) {}
                 }
+
+                if ($include) {
+                    if (Str::contains($leaveRaw, 'AL')) $used['AL'] += $perDayValue;
+                    if (Str::contains($leaveRaw, 'ML')) $used['ML'] += $perDayValue;
+                    if (Str::contains($leaveRaw, 'PDO')) $used['PDO'] += $perDayValue;
+                    if (Str::contains($leaveRaw, 'UL')) $used['UL'] += $perDayValue;
+                }
+
+                // Comp Off (usually time-based) can be separate
+                if (Str::contains($leaveRaw, 'COMP')) {
+                    if (!empty($applyOnCell)) {
+                        try {
+                            $logDate = Carbon\Carbon::createFromFormat('d / m / Y', $applyOnCell);
+                            if ((int)$logDate->format('m') === (int)$month && (int)$logDate->format('Y') === (int)$year) {
+                                $used['Comp Off'] += ($workingHours > 8) ? (($workingHours - 8) / 8) : $perDayValue;
+                            }
+                        } catch (\Exception $e) {}
+                    }
+                }
             }
 
+
             foreach ($used as $key => $val) {
-                $used[$key] = number_format($val, 2);
+                $used[$key] = (int) $val;
             }
         @endphp
 
@@ -85,10 +93,13 @@
                 {{ $totalLogged > 0 ? "$totalLogged/$forecastedHours" : 'N/A' }}
             </td>
             <td>0/0/0</td>
-            <td>{{ $used['AL'] > 0 ? "$used[AL]/" . ($consultant->assign_al ?? 15) : 'N/A' }}</td>
-            <td>{{ $used['ML'] > 0 ? "$used[ML]/" . ($consultant->assign_ml ?? 15) : 'N/A' }}</td>
-            <td>{{ $used['PDO'] > 0 ? "$used[PDO]/" . ($consultant->assign_pdo ?? 15) : 'N/A' }}</td>
-            <td>{{ $used['UL'] > 0 ? "$used[UL]/" . ($consultant->assign_ul ?? 15) : 'N/A' }}</td>
+            <td>{{ $used['AL'] > 0 ? $used['AL'] : 0 }}</td>
+            <td>{{ $used['ML'] > 0 ? $used['ML'] : 0 }}</td>
+            <td>{{ $used['PDO'] > 0 ? $used['PDO'] : 0 }}</td>
+            <td>{{ $used['UL'] > 0 ? $used['UL'] : 0 }}</td>
+
+
+
         </tr>
     @endforeach
 @endif
