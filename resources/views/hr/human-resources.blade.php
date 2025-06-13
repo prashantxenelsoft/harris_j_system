@@ -1085,16 +1085,17 @@ document.querySelectorAll('[data-bs-toggle="pill"]').forEach(btn => {
 function buildCalendarWithRecords(records, month, year, holidays = []) {
    const start = new Date(year, month - 1, 1);
    const totalDays = new Date(year, month, 0).getDate();
-   const startDay = start.getDay(); // 0 = Sunday
+   const startDay = start.getDay();
 
    const dayMap = {};
 
-   // ✅ Collect leave and working hour data
+   // ✅ Process each record
    records.forEach(entry => {
       try {
          const record = JSON.parse(entry.record);
          const leaveType = record.leaveType || '';
          const workingHours = parseInt(record.workingHours || 0);
+         const hourId = record.leaveHourId || '';
          const applyRange = record.date || '';
          const applySingle = record.applyOnCell?.trim();
          let dates = [];
@@ -1114,9 +1115,23 @@ function buildCalendarWithRecords(records, month, year, holidays = []) {
          dates.forEach(date => {
             const d = date.getDate();
             if (date.getMonth() + 1 === parseInt(month) && date.getFullYear() === parseInt(year)) {
-               if (!dayMap[d]) dayMap[d] = {};
-               if (leaveType) dayMap[d].leave = leaveType;
-               if (workingHours) dayMap[d].hours = workingHours;
+               if (!dayMap[d]) dayMap[d] = { leaves: [], hours: [] };
+
+               if (leaveType) {
+                  // Sub label for half days or custom
+                  let sub = '';
+                  if (hourId === 'fHalfDay') sub = 'HD1';
+                  else if (hourId === 'sHalfDay') sub = 'HD2';
+                  else if (leaveType.includes('Custom')) sub = 'Custom';
+
+                  let label = leaveType;
+                  if (sub) label += `<sub style="font-size:10px;">${sub}</sub>`;
+                  dayMap[d].leaves.push(label);
+               }
+
+               if (workingHours) {
+                  dayMap[d].hours.push(workingHours);
+               }
             }
          });
 
@@ -1125,26 +1140,20 @@ function buildCalendarWithRecords(records, month, year, holidays = []) {
       }
    });
 
-   // ✅ Collect public holidays
+   // ✅ Process public holidays
    const holidayMap = {};
-
-   (window.publicHolidays || []).forEach(ph => {
+   (holidays || []).forEach(ph => {
       try {
-         const date = new Date(ph.date); // ✅ direct date parsing
-         if (
-            date.getMonth() + 1 === parseInt(month) &&
-            date.getFullYear() === parseInt(year)
-         ) {
-            const d = date.getDate();
-            holidayMap[d] = 'PH';
+         const date = new Date(ph.date);
+         if (date.getMonth() + 1 === parseInt(month) && date.getFullYear() === parseInt(year)) {
+            holidayMap[date.getDate()] = 'PH';
          }
       } catch (e) {
          console.warn("Invalid PH format:", ph.date);
       }
    });
 
-
-   // ✅ Render calendar
+   // ✅ Build calendar HTML
    let html = '';
    for (let i = 0; i < startDay; i++) {
       html += `<div class="empty"></div>`;
@@ -1154,20 +1163,24 @@ function buildCalendarWithRecords(records, month, year, holidays = []) {
       const info = dayMap[d];
       let cell = `<div><div class="normal_date">${d}</div>`;
 
-      // Public Holiday (always show first)
+      // PH first
       if (holidayMap[d]) {
          cell += `<br><span class="leave blue">${holidayMap[d]}</span>`;
       }
 
-      // Leave type (e.g. AL, ML)
-      if (info?.leave) {
-         cell += `<br><span class="leave">${info.leave}</span>`;
+      // Leaves (AL, ML, Custom etc.)
+      if (info?.leaves?.length) {
+         info.leaves.forEach(leave => {
+            cell += `<br><span class="leave">${leave}</span>`;
+         });
       }
 
       // Working hours
-      if (info?.hours !== undefined) {
-         const hourClass = info.hours < 8 || info.hours > 8 ? 'red-hour' : '';
-         cell += `<br><span class="${hourClass}">${info.hours}</span>`;
+      if (info?.hours?.length) {
+         info.hours.forEach(hr => {
+            const hourClass = hr < 8 || hr > 8 ? 'red-hour' : '';
+            cell += `<br><span class="${hourClass}">${hr}</span>`;
+         });
       }
 
       cell += `</div>`;
@@ -1181,6 +1194,12 @@ function buildCalendarWithRecords(records, month, year, holidays = []) {
 
    return html;
 }
+
+function parseDate(str) {
+   const [d, m, y] = str.split("/").map(s => parseInt(s.trim()));
+   return new Date(y, m - 1, d);
+}
+
 
 
 function parseDate(str) {
